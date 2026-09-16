@@ -58,3 +58,15 @@ export const TIPOS: Record<Tipo, InfoTipo> = {
 };
 
 export const TIPOS_ORDEM: readonly Tipo[] = ['fogo','agua','planta','terra','vento','raio','sombra','luz'];
+
+/* "Neutro" não é tipo de Encantado nenhum: é só a etiqueta dos golpes comuns
+   (empurrão, investida, arranhão) que qualquer criatura aprende. Como nenhuma
+   criatura é deste tipo, golpe neutro nunca recebe bônus de afinidade nem
+   vantagem contra ninguém. */
+export type TipoGolpe = Tipo | 'neutro';
+
+export const INFO_NEUTRO: InfoTipo = { nome: 'COMUM', cor: P.uiBg3!, corD: P.ink2! };
+
+export function infoTipo(t: TipoGolpe): InfoTipo {
+  return t === 'neutro' ? INFO_NEUTRO : TIPOS[t];
+}

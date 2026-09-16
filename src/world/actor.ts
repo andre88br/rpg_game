@@ -70,6 +70,16 @@ export class Ator {
     return { tx: this.tx + dx, ty: this.ty + dy };
   }
 
+  /* põe o ator num tile na marra, sem animação de passo — usado ao entrar
+     num mapa e ao acordar depois de perder uma batalha */
+  teleportar(tx: number, ty: number, dir: Direcao = this.dir): void {
+    this.tx = tx; this.ty = ty; this.dir = dir;
+    this.deX = tx; this.deY = ty;
+    this.movendo = false;
+    this.progresso = 0;
+    this.esperaVirada = 0;
+  }
+
   olharPara(alvoTx: number, alvoTy: number): void {
     const dx = alvoTx - this.tx, dy = alvoTy - this.ty;
     const d = Math.abs(dx) >= Math.abs(dy) ? direcaoDe(Math.sign(dx), 0) : direcaoDe(0, Math.sign(dy));

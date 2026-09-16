@@ -8,6 +8,8 @@ import { Buf, assar, type Assado } from '../core/buf.ts';
 import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import type { Direcao } from '../art/people.ts';
+import type { FaixaEncontro } from '../battle/encantado.ts';
+import type { Cenario } from '../art/battlebg.ts';
 
 export const TS = 16;
 
@@ -56,6 +58,12 @@ export interface DefMapa {
   objetos: readonly DefObjeto[];
   npcs: readonly DefNPC[];
   inicio: { tx: number; ty: number; dir: Direcao };
+  /* quem aparece no mato alto deste mapa, e com que peso */
+  encontros?: readonly FaixaEncontro[];
+  /* fundo usado nas batalhas travadas aqui */
+  cenario?: Cenario;
+  /* passos no mato, em média, entre um encontro e outro */
+  passosPorEncontro?: number;
 }
 
 export class Mapa {

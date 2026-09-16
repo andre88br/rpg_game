@@ -36,7 +36,9 @@ export const portoIara: DefMapa = {
   ],
 
   objetos: [
-    { tipo: 'casa',     tx: 4,  ty: 4,  larg: 4, alt: 3 },
+    // a casa foi para a direita: em cima do mato alto ela tapava metade da
+    // única moita do norte, e sobrava pouco chão para caçar Encantado
+    { tipo: 'casa',     tx: 6,  ty: 4,  larg: 4, alt: 3 },
     { tipo: 'casa',     tx: 21, ty: 4,  larg: 4, alt: 3 },
     { tipo: 'ginasio',  tx: 6,  ty: 11, larg: 6, alt: 4 },
     { tipo: 'loja',     tx: 20, ty: 11, larg: 4, alt: 3 },
@@ -84,4 +86,15 @@ export const portoIara: DefMapa = {
   ],
 
   inicio: { tx: 15, ty: 5, dir: 'baixo' },
+
+  cenario: 'praia',
+  passosPorEncontro: 8,
+  /* O mato de Porto Iara é beira de rio: Piraguá é o que mais aparece, o
+     Sacizinho passa correndo de vez em quando e a Caiporinha vem do mato
+     mais fechado do fundo. */
+  encontros: [
+    { especie: 'piragua', min: 3, max: 6, peso: 55 },
+    { especie: 'caiporinha', min: 3, max: 5, peso: 30 },
+    { especie: 'sacizinho', min: 4, max: 6, peso: 15 },
+  ],
 };

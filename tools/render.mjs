@@ -43,6 +43,28 @@ function folhaCriaturas() {
   return b;
 }
 
+/* folha dos selvagens: quem aparece no mato alto de Porto Iara */
+function folhaSelvagens() {
+  const bichos = [
+    { arte: CR.piragua(),    nome: 'PIRAGUÁ',    tipo: 'ÁGUA',   cor: P.water },
+    { arte: CR.sacizinho(),  nome: 'SACIZINHO',  tipo: 'VENTO',  cor: P.windD },
+    { arte: CR.caiporinha(), nome: 'CAIPORINHA', tipo: 'PLANTA', cor: P.tree },
+  ];
+  const CEL = 60;
+  const b = new Buf(6 + bichos.length * CEL + 6, 24 + CEL + 14);
+  b.rect(0, 0, b.w, b.h, P.uiBg);
+  text(b, 'SELVAGENS DE PORTO IARA', 8, 6, P.uiInk);
+  bichos.forEach((x, i) => {
+    const cx = 6 + i * CEL;
+    b.rect(cx, 22, CEL - 4, CEL, P.uiBg2);
+    b.rect(cx, 22, CEL - 4, 3, x.cor);
+    b.blit(x.arte, cx + (CEL - 4 - 32) / 2, 22 + 16);
+    text(b, x.nome, cx + 2, 22 + CEL + 2, P.uiInk);
+    text(b, x.tipo, cx + 2, 22 + 6, x.cor);
+  });
+  return b;
+}
+
 /* folha das 8 medalhas */
 function folhaMedalhas() {
   const b = new Buf(240, 30 + MEDALHAS.length * 22);
@@ -101,6 +123,7 @@ out('05-batalha-golpes',S.telaBatalha({ modo: 'golpes' }));
 out('06-mapa',          S.telaMapa(), 3, P.uiBg);
 out('11-celular',      S.telaCelular(), 2, '#0a0810');
 out('07-criaturas',     folhaCriaturas(), 3);
+out('07b-selvagens',   folhaSelvagens(), 3);
 out('08-medalhas',      folhaMedalhas(), 3);
 out('09-elenco',        folhaElenco(), 3);
 out('10-tiles',         folhaTiles(), 3);

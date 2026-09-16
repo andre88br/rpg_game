@@ -9,6 +9,7 @@ import { ELENCO } from '../art/people.ts';
 import * as CR from '../art/creatures.ts';
 import * as UI from '../art/ui.ts';
 import { medalha, fileiraMedalhas, MEDALHAS } from '../art/badges.ts';
+import { fundoBatalha } from '../art/battlebg.ts';
 
 export const W = 240, H = 160, TS = 16;
 
@@ -142,37 +143,10 @@ export function telaDialogo(): Buf {
 }
 
 /* ---------- 3. BATALHA ---------- */
-function fundoBatalha(): Buf {
-  const b = new Buf(W, H);
-  // ceu em faixas
-  const ceu = ['#8fd0f0', '#a3daf5', '#b8e4f8', '#cdeefb'];
-  for (let i = 0; i < 4; i++) b.rect(0, i * 8, W, 8, ceu[i]);
-  b.rect(0, 32, W, 30, '#d8f0fb');
-  // mar ao fundo
-  b.rect(0, 52, W, 14, P.waterL!);
-  for (let x = 0; x < W; x += 7) b.rect(x, 56, 4, 1, P.foam!);
-  b.rect(0, 62, W, 6, P.water!);
-  // areia
-  b.rect(0, 66, W, H - 66, P.sand!);
-  for (let i = 0; i < 260; i++) b.set((i * 97) % W, 68 + ((i * 53) % (H - 70)), P.sandD!);
-  return b;
-}
-
-function plataforma(b: Buf, cx: number, cy: number, rx: number, ry: number): void {
-  // disco de areia com aro escuro, para o bicho nao parecer flutuando
-  b.ellipse(cx, cy + 1, rx, ry, '#b59a63');
-  b.ellipse(cx, cy, rx - 1, ry - 1, '#e0caa0');
-  b.ellipse(cx, cy - 1, rx - 4, ry - 2, '#f2e3bd');
-  for (let i = 0; i < 14; i++) b.set(cx - rx + ((i * 37) % (rx * 2)), cy + ((i * 13) % 3) - 1, '#c9ad76');
-}
-
 export function telaBatalha(opt: { modo?: 'comando' | 'golpes' } = {}): Buf {
   const { modo = 'comando' } = opt; // 'comando' | 'golpes'
-  const b = fundoBatalha();
-
-  // plataformas
-  plataforma(b, 182, 76, 36, 7);
-  plataforma(b, 58, 104, 42, 8);
+  // o mesmo fundo que o jogo usa de verdade: o esboço não pode divergir
+  const b = fundoBatalha('praia');
 
   // combatentes, em dobro do tamanho nativo (32 -> 64), como num GBA
   b.blit(escalar(CR.boitatinha(), 2), 150, 12);

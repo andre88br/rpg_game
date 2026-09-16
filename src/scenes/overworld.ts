@@ -13,6 +13,11 @@ import * as UI from '../art/ui.ts';
 import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
+import { acaso } from '../core/rng.ts';
+import { sortearSelvagem, type Encantado } from '../battle/encantado.ts';
+import type { Treinador } from '../battle/engine.ts';
+import type { Cenario } from '../art/battlebg.ts';
+import { curarTime, temTimeEmPe, type EstadoJogo } from '../game/state.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
@@ -26,6 +31,19 @@ interface Conversa {
 
 /* coisas do cenario que respondem ao botao A */
 interface Aviso { nome: string; falas: string[] }
+
+/* o que a cena de mundo precisa saber do resto do jogo */
+export interface PedidoBatalha {
+  oponentes: Encantado[];
+  treinador?: Treinador | null;
+  cenario?: Cenario;
+}
+
+export interface OpcoesCenaMundo {
+  def: DefMapa;
+  estado: EstadoJogo;
+  aoBatalhar: (p: PedidoBatalha) => void;
+}
 
 export class CenaMundo implements Cena {
   private mapa!: Mapa;
@@ -43,9 +61,23 @@ export class CenaMundo implements Cena {
   private rocadas: Assado[] = [];
   private tempoAnim = 0;
 
-  constructor(private def: DefMapa) {}
+  private op: OpcoesCenaMundo;
+  private def: DefMapa;
+  private montado = false;
+  /* carência depois de uma batalha: sem isso o jogador volta ao mato e cai
+     direto em outra luta, no mesmo passo */
+  private carencia = 0;
+
+  constructor(op: OpcoesCenaMundo) {
+    this.op = op;
+    this.def = op.def;
+  }
 
   entrar(): void {
+    // voltando de uma batalha o mapa já está montado: remontar jogaria fora
+    // o canvas inteiro do cenário e devolveria o jogador ao ponto de partida
+    if (this.montado) { this.tempoFaixa = 0; this.conversa = null; this.carencia = 0.6; return; }
+    this.montado = true;
     this.mapa = new Mapa(this.def);
 
     this.jogador = new Ator(assarFolha(ESTILOS['taina']!),
@@ -150,15 +182,45 @@ export class CenaMundo implements Cena {
                           (tx, ty) => this.ocupados.has(`${tx},${ty}`));
     const chegou = this.jogador.atualizar(dt);
 
-    if (chegou && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
-      // Fase 2 ligará a batalha aqui. Por ora o mato apenas reage ao passo.
-      this.tempoAnim = 0;
+    if (this.carencia > 0) this.carencia -= dt;
+    if (chegou && this.carencia <= 0
+        && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
+      this.talvezEncontro();
     }
 
     if (entrada.apertou('a')) this.interagir();
 
     this.camera.seguir(this.jogador.px + TS / 2, this.jogador.py + TS / 2,
                        this.mapa.larguraPx, this.mapa.alturaPx);
+  }
+
+  /* um passo no mato alto: às vezes vira encontro */
+  private talvezEncontro(): void {
+    const tabela = this.def.encontros;
+    if (!tabela || tabela.length === 0) return;
+    if (!temTimeEmPe(this.op.estado)) return;
+
+    const media = this.def.passosPorEncontro ?? 10;
+    if (!acaso.chance(100 / media)) return;
+
+    this.op.aoBatalhar({
+      oponentes: [sortearSelvagem(tabela, acaso)],
+      cenario: this.def.cenario ?? 'praia',
+    });
+  }
+
+  /* chamado pelo main quando o jogador perde: o time é curado e o jogador
+     acorda de volta no começo do mapa */
+  socorrer(): void {
+    curarTime(this.op.estado);
+    this.jogador.teleportar(this.def.inicio.tx, this.def.inicio.ty, this.def.inicio.dir);
+    this.camera.seguir(this.jogador.px + TS / 2, this.jogador.py + TS / 2,
+                       this.mapa.larguraPx, this.mapa.alturaPx);
+    this.carencia = 1;
+    this.abrirConversa('DONA FIRMINA', [
+      'Eita, moça, você apagou no meio do mato!',
+      'Benzi seus Encantados e te trouxe de volta. Vá com mais juízo.',
+    ]);
   }
 
   desenhar(r: Renderizador): void {

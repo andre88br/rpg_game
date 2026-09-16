@@ -5,8 +5,10 @@ import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
 import { GerenciadorCenas } from './core/scene.ts';
 import { CenaTitulo } from './scenes/title.ts';
-import { CenaMundo } from './scenes/overworld.ts';
+import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
+import { CenaBatalha } from './scenes/battle.ts';
 import { portoIara } from './data/mapas/portoIara.ts';
+import { novoJogo } from './game/state.ts';
 
 const canvas = document.getElementById('jogo') as HTMLCanvasElement | null;
 const palco = document.getElementById('palco');
@@ -30,9 +32,34 @@ window.addEventListener('resize', ajustar);
 window.addEventListener('orientationchange', () => setTimeout(ajustar, 120));
 ajustar();
 
-/* ---- cenas ---- */
-function irParaMundo(): void { cenas.trocar(new CenaMundo(portoIara)); }
-cenas.definir(new CenaTitulo(irParaMundo));
+/* ---- partida ---- */
+const estado = novoJogo();
+
+/* A cena de mundo é criada UMA vez e reaproveitada: voltar de uma batalha
+   não pode remontar o mapa nem devolver o jogador ao ponto de partida. */
+const mundo = new CenaMundo({
+  def: portoIara,
+  estado,
+  aoBatalhar: (p: PedidoBatalha) => lutar(p),
+});
+
+function lutar(p: PedidoBatalha): void {
+  cenas.trocar(new CenaBatalha({
+    estado,
+    oponentes: p.oponentes,
+    treinador: p.treinador ?? null,
+    cenario: p.cenario ?? 'praia',
+    aoTerminar: (resultado) => {
+      cenas.trocar(mundo);
+      if (resultado === 'derrota') {
+        // o socorro só faz sentido depois que a troca de cena terminou
+        setTimeout(() => mundo.socorrer(), 260);
+      }
+    },
+  }));
+}
+
+cenas.definir(new CenaTitulo(() => cenas.trocar(mundo)));
 
 /* ---- laço ---- */
 const laco = new Laco((dt) => {
@@ -44,4 +71,4 @@ laco.iniciar();
 
 // atalho de depuração, útil no navegador
 Object.assign(window as unknown as Record<string, unknown>,
-              { jogo: { r, entrada, cenas, laco, LARGURA, ALTURA } });
+              { jogo: { r, entrada, cenas, laco, estado, mundo, lutar, LARGURA, ALTURA } });
