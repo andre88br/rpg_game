@@ -172,7 +172,7 @@ test('drenar cura quem usou', () => {
   assert.ok(textos(ev).some((t) => /sugou energia/.test(t)));
 });
 
-test('queimadura e veneno tiram HP no fim do turno', () => {
+test('brasa e peçonha tiram vida no fim do turno', () => {
   const meu = criar('curupinho', 30, { golpes: ['esporo'] });
   const b = montar({ meu: [meu], dele: [criar('caiporinha', 30, { selvagem: true })], semente: 11 });
   for (let i = 0; i < 15 && b.inimigo.enc.status !== 'envenenado' && !b.resultado; i++) {
@@ -180,7 +180,7 @@ test('queimadura e veneno tiram HP no fim do turno', () => {
   }
   assert.equal(b.inimigo.enc.status, 'envenenado');
   const ev = b.executar({ tipo: 'golpe', indice: 0 });
-  assert.ok(textos(ev).some((t) => /sofre com o veneno/.test(t)));
+  assert.ok(textos(ev).some((t) => /sofre com a peçonha/.test(t)));
 });
 
 /* --------------------------------------------------------------- itens */

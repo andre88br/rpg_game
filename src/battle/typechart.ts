@@ -9,7 +9,7 @@
 
    Todo o resto é neutro (1x). É pouca regra de propósito: dá para decorar
    depois de duas batalhas, mas ainda obriga a montar um time variado, já que
-   cada um dos 8 ginásios usa um tipo diferente.
+   cada um dos 8 terreiros usa um tipo diferente.
 
    Se um dia quisermos mais profundidade, basta acrescentar as resistências
    (0.5x no sentido contrário de cada seta) em VANTAGENS — o resto do motor

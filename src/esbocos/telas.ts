@@ -30,7 +30,7 @@ export function mapaPortoIara(): Buf {
   // recorte de areia/agua: a agua sobe em degrau no meio
   for (let tx = 9; tx < 15; tx++) put(T.tileAgua(tx * 9 + 1), tx, 8);
 
-  // caminho de terra: desce do topo e vira para o ginasio
+  // caminho de terra: desce do topo e vira para o terreiro
   for (let ty = 0; ty < 6; ty++) put(T.tileCaminho(ty * 7 + 1), 7, ty);
   for (let tx = 3; tx < 12; tx++) put(T.tileCaminho(tx * 3 + 9), tx, 4);
 
@@ -57,7 +57,7 @@ export function mapaPortoIara(): Buf {
   // GINASIO DE PORTO IARA: maior, telhado azul, fica de frente para o mar
   const gin = T.construcao(4, 3, {
     roof: P.gymRoof!, roofD: P.gymRoofD!, roofL: P.gymRoofL!,
-    sign: 'GINÁSIO', signColor: P.uiAcc!,
+    sign: 'TERREIRO', signColor: P.uiAcc!,
   });
   const gx = 5 * TS, gy = 5 * TS - 4;
   // mastro e bandeira acima da cumeeira, fora do telhado
@@ -80,7 +80,7 @@ export function telaMundo(opt: { banner?: boolean; guarda?: boolean } = {}): Buf
   const { banner = true, guarda = true } = opt;
   const b = mapaPortoIara();
 
-  // guarda bloqueando a porta do ginasio (some quando a tarefa termina)
+  // guarda bloqueando a porta do terreiro (some quando a tarefa termina)
   if (guarda) {
     // barreira de corda atravessando a entrada: le-se na hora que esta fechado
     const bx0 = 5 * TS + 8, bx1 = 5 * TS + 56, by = 5 * TS + 38;
@@ -99,7 +99,7 @@ export function telaMundo(opt: { banner?: boolean; guarda?: boolean } = {}): Buf
   // NPC de rua
   b.blit(ELENCO.firmina(), 11 * TS + 2, 3 * TS + 8);
 
-  // jogador no caminho, indo em direcao ao ginasio
+  // jogador no caminho, indo em direcao ao terreiro
   b.blit(ELENCO.taina(), 7 * TS + 4, 4 * TS + 2);
 
   // moitas soltas e placa
@@ -254,7 +254,7 @@ export function telaMapa(): Buf {
   texto(b, titulo, (W - larguraTexto(titulo)) / 2, 12, '#6b4a22');
 
   const cidades: { n: string; t: Tipo | null; dom: string }[] = [
-    { n: 'VILA AURORA',       t: null,     dom: '(INÍCIO - SEM GINÁSIO)' },
+    { n: 'VILA AURORA',       t: null,     dom: '(INÍCIO - SEM TERREIRO)' },
     { n: 'PORTO IARA',        t: 'agua',   dom: 'NADAR' },
     { n: 'MATA DO CURUPIRA',  t: 'planta', dom: 'CORTAR CIPÓ' },
     { n: 'SERRA BOITATÁ',     t: 'fogo',   dom: 'TOCHA' },

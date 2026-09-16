@@ -1,4 +1,4 @@
-/* Porto Iara — a primeira cidade com ginásio.
+/* Porto Iara — a primeira cidade com terreiro.
    A grade abaixo é editável à mão: cada caractere é um tile de 16x16.
      .  grama          ,  mato alto (encontros)   =  caminho de terra
      a  areia          ~  água (intransponível)   p  cais de madeira
@@ -40,12 +40,12 @@ export const portoIara: DefMapa = {
     // única moita do norte, e sobrava pouco chão para caçar Encantado
     { tipo: 'casa',     tx: 6,  ty: 4,  larg: 4, alt: 3 },
     { tipo: 'casa',     tx: 21, ty: 4,  larg: 4, alt: 3 },
-    { tipo: 'ginasio',  tx: 6,  ty: 11, larg: 6, alt: 4 },
+    { tipo: 'terreiro', tx: 6,  ty: 11, larg: 6, alt: 4 },
     { tipo: 'loja',     tx: 20, ty: 11, larg: 4, alt: 3 },
-    // a barreira fecha a entrada do ginásio até a tarefa da cidade terminar
+    // a barreira fecha a entrada do terreiro até a tarefa da cidade terminar
     { tipo: 'barreira', tx: 6,  ty: 15, larg: 6 },
     { tipo: 'placa',    tx: 12, ty: 10,
-      placa: 'PORTO IARA. Ginásio de Água, líder Mariana. Ao sul: o cais.' },
+      placa: 'PORTO IARA. Terreiro de Água, de Dona Mariana. Ao sul: o cais.' },
   ],
 
   npcs: [
@@ -61,8 +61,8 @@ export const portoIara: DefMapa = {
       id: 'guarda', nome: 'GUARDA DO CAIS', estilo: 'guarda',
       tx: 9, ty: 16, dir: 'cima',
       falas: [
-        'O ginásio está fechado, moça. Mestre Mariana só recebe depois que o porto voltar a pescar.',
-        'Sem as redes não tem peixe, e sem peixe não tem ginásio. Fala com o mestre do porto lá embaixo.',
+        'O terreiro está fechado, moça. Dona Mariana só recebe depois que o porto voltar a pescar.',
+        'Sem as redes não tem peixe, e sem peixe não tem terreiro. Fala com o mestre do porto lá embaixo.',
       ],
     },
     {
@@ -70,7 +70,7 @@ export const portoIara: DefMapa = {
       tx: 17, ty: 17, dir: 'cima',
       falas: [
         'Sem as redes ninguém pesca hoje, moça.',
-        'Dizem que um Encantado levou as três. Se você trouxer de volta, eu mesmo abro o cais do ginásio.',
+        'Dizem que um Encantado levou as três. Se você trouxer de volta, eu mesmo abro o cais do terreiro.',
       ],
     },
     {

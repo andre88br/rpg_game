@@ -39,7 +39,7 @@ const a = secao('1. Abertura', 'Tela de título com os três iniciais.');
 tela(a, S.telaTitulo(), '240×160 — tela de título');
 
 const b = secao('2. Andando pelo mundo',
-  'Porto Iara. O ginásio está fechado por uma barreira até a tarefa da cidade terminar. ' +
+  'Porto Iara. O terreiro está fechado por uma barreira até a tarefa da cidade terminar. ' +
   'A mancha verde-escura à esquerda é mato alto: é onde aparecem os Encantados selvagens.');
 tela(b, S.telaMundo(), '240×160 — mundo');
 tela(b, S.telaDialogo(), '240×160 — diálogo e tarefa');
@@ -55,7 +55,7 @@ const d = secao('4. No celular',
 tela(d, S.telaCelular(), '268×486 — layout de celular', 1.4);
 
 const e = secao('5. A jornada completa',
-  'As nove cidades, os oito ginásios, o Dom de Campo de cada medalha e o torneio final.');
+  'As nove cidades, os oito terreiros, o Dom de Campo de cada medalha e o torneio final.');
 tela(e, S.telaMapa(), '240×292 — mapa da jornada');
 
 function folhaCriaturas(): Buf {

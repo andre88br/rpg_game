@@ -95,7 +95,7 @@ export class CenaMundo implements Cena {
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'BARREIRA',
-            falas: ['Uma barreira fecha a entrada do ginásio.'],
+            falas: ['Uma barreira fecha a entrada do terreiro.'],
           });
         }
       } else if (o.tipo === 'placa' && o.placa) {

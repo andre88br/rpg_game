@@ -17,32 +17,39 @@ export interface InfoStatus {
   aoSair: string;
 }
 
+/* As siglas são a etiqueta de três letras que aparece no painel, no lugar do
+   rótulo VIDA. Vêm do vocabulário do folclore: brasa, peçonha (veneno de
+   bicho), travado, sono e quebranto (o mau-olhado). */
 export const STATUS: Record<Status, InfoStatus> = {
   queimado: {
-    sigla: 'QMD', nome: 'queimado',
+    sigla: 'BRA', nome: 'em brasa',
     aoReceber: 'se queimou!',
-    aoSofrer: 'sofre com a queimadura!',
-    aoSair: 'não está mais queimado.',
+    aoSofrer: 'sofre com a brasa!',
+    aoSair: 'apagou a brasa.',
   },
   paralisado: {
-    sigla: 'PAR', nome: 'paralisado',
-    aoReceber: 'ficou paralisado!',
+    sigla: 'TRA', nome: 'travado',
+    aoReceber: 'ficou travado!',
     aoSofrer: null,
-    aoSair: 'se soltou da paralisia.',
+    aoSair: 'se destravou.',
   },
   dormindo: {
-    sigla: 'DRM', nome: 'dormindo',
+    sigla: 'SON', nome: 'no sono',
     aoReceber: 'pegou no sono!',
     aoSofrer: null,
     aoSair: 'acordou!',
   },
   envenenado: {
-    sigla: 'ENV', nome: 'envenenado',
-    aoReceber: 'foi envenenado!',
-    aoSofrer: 'sofre com o veneno!',
-    aoSair: 'se livrou do veneno.',
+    sigla: 'PEÇ', nome: 'com peçonha',
+    aoReceber: 'tomou peçonha!',
+    aoSofrer: 'sofre com a peçonha!',
+    aoSair: 'botou a peçonha pra fora.',
   },
 };
+
+/* O quebranto (o "enfeitiçado") é passageiro e não ocupa a vaga dos outros,
+   então mora fora da tabela — mas usa a mesma etiqueta no painel. */
+export const SIGLA_QUEBRANTO = 'QUE';
 
 /* dano de fim de turno, em fração do HP máximo */
 export const DANO_POR_TURNO: Partial<Record<Status, number>> = {

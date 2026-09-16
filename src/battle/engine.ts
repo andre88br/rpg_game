@@ -40,6 +40,7 @@ export type Evento =
   | { k: 'dano'; lado: Lado; de: number; para: number; critico: boolean; eficacia: number }
   | { k: 'cura'; lado: Lado; de: number; para: number }
   | { k: 'status'; lado: Lado; status: Status | null }
+  | { k: 'quebranto'; lado: Lado; ativo: boolean }
   | { k: 'estagio'; lado: Lado; stat: ChaveStat; passos: number }
   | { k: 'desmaio'; lado: Lado }
   | { k: 'entrar'; lado: Lado; indice: number }
@@ -87,7 +88,7 @@ function envolver(e: Encantado): Combatente {
 
 export interface Treinador {
   nome: string;
-  classe: string;           // "PESCADOR", "LÍDER DE GINÁSIO"...
+  classe: string;           // "PESCADOR", "DONA DO TERREIRO"...
   falaInicio?: string;
   falaDerrota?: string;
   premio?: number;
@@ -241,6 +242,7 @@ export class Batalha {
     if (!alvo || desmaiado(alvo) || indice === this.iAliado) return;
     ev.push({ k: 'texto', t: `Volta, ${nome(this.aliado.enc)}!` });
     ev.push({ k: 'sair', lado: 'aliado' });
+    ev.push({ k: 'quebranto', lado: 'aliado', ativo: false });
     this.iAliado = indice;
     this.aliado = envolver(alvo);               // estágios zeram ao trocar
     ev.push({ k: 'entrar', lado: 'aliado', indice });
@@ -384,9 +386,10 @@ export class Batalha {
     if (c.feitico > 0) {
       c.feitico--;
       if (c.feitico === 0) {
-        ev.push({ k: 'texto', t: `${nome(c.enc)} voltou a si.` });
+        ev.push({ k: 'quebranto', lado, ativo: false });
+        ev.push({ k: 'texto', t: `${nome(c.enc)} se livrou do quebranto.` });
       } else {
-        ev.push({ k: 'texto', t: `${nome(c.enc)} está enfeitiçado...` });
+        ev.push({ k: 'texto', t: `${nome(c.enc)} está com quebranto...` });
         if (this.rnd.chance(CHANCE_AUTO_GOLPE)) {
           const st = atributos(c.enc);
           const r = calcularDano({
@@ -495,7 +498,8 @@ export class Batalha {
         if (estado) ev.push({ k: 'texto', t: 'Mas não adiantou nada.' });
       } else {
         alvo.feitico = this.rnd.inteiro(TURNOS_FEITICO[0], TURNOS_FEITICO[1]);
-        ev.push({ k: 'texto', t: `${nome(alvo.enc)} ficou enfeitiçado!` });
+        ev.push({ k: 'quebranto', lado: alvoLado, ativo: true });
+        ev.push({ k: 'texto', t: `${nome(alvo.enc)} pegou quebranto!` });
       }
     }
 

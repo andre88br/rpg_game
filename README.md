@@ -74,6 +74,12 @@ Três decisões que sustentam o desempenho e a nitidez:
   físicos por pixel do jogo a diferença não é perceptível, e o jogo deixa de
   ficar minúsculo no celular.
 
+**A cena de batalha desenha de uma fotografia, não do motor.** `executar()`
+resolve o turno inteiro de uma vez: quando ele devolve, a vida já caiu e o bicho
+já desmaiou. Se a cena lesse o motor direto, a barra esvaziaria no instante do
+comando, antes de a frase do golpe aparecer. Por isso cada lado tem uma ficha de
+exibição (`Visual`) que só avança quando o evento correspondente sai da fila.
+
 **O motor de batalha não desenha nada.** `Batalha.executar(acao)` resolve o turno
 inteiro e devolve uma *fila de eventos* (`texto`, `dano`, `status`, `desmaio`,
 `xp`, `evoluir`…). A cena consome essa fila no ritmo das animações. É essa
@@ -88,10 +94,15 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
 - **Dano.** Fórmula do gênero, com nível, ataque/defesa (física ou especial),
   crítico de 6% e variação de 85% a 100% — duas trocas iguais nunca dão o mesmo
   número, mas a diferença nunca vira sorte pura.
-- **Estados.** Queimado e envenenado tiram 1/16 por turno (queimadura ainda corta
-  o ataque pela metade), paralisado corta a velocidade e às vezes trava o turno,
-  dormindo perde de 1 a 3 turnos, enfeitiçado faz o bicho se acertar sozinho.
-  Não se queima um Encantado de Fogo nem se eletrocuta um de Raio.
+- **Estados.** A etiqueta de três letras ocupa o lugar do rótulo VIDA no painel:
+
+  | | Estado | O que faz |
+  |---|---|---|
+  | **BRA** | em brasa | perde 1/16 da vida por turno **e** bate com metade da força física; Encantado de Fogo é imune |
+  | **PEÇ** | com peçonha | perde 1/16 da vida por turno |
+  | **TRA** | travado | velocidade pela metade e 25% de chance de perder o turno; Encantado de Raio é imune |
+  | **SON** | no sono | não age por 1 a 3 turnos, e **dobra a chance de captura** |
+  | **QUE** | quebranto | passageiro (2 a 4 turnos): 50% de chance de se acertar sozinho; é o único que não ocupa a vaga dos outros |
 - **Captura.** Chance cresce com o dano levado, com o estado alterado e com a
   qualidade do patuá. Os quatro balanços da animação são a mesma chance dividida
   em quatro sorteios: se balançar as quatro vezes, pegou.
@@ -109,14 +120,14 @@ O mapa é uma grade ASCII editável à mão em `src/data/mapas/`:
 
 ## O jogo
 
-- **9 cidades.** Vila Aurora (início, sem ginásio) e mais 8, uma por tipo.
-- **8 ginásios.** Em cada cidade, uma cadeia de tarefas abre o portão do ginásio;
+- **9 cidades.** Vila Aurora (início, sem terreiro) e mais 8, uma por tipo.
+- **8 terreiros.** Em cada cidade, uma cadeia de tarefas abre o portão do terreiro;
   derrotar o líder dá a medalha e um **Dom de Campo**, que remove o obstáculo da
   estrada para a cidade seguinte.
 - **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas.
 - **8 tipos:** Fogo → Planta → Água → Fogo · Terra → Raio → Vento → Terra · Luz ↔ Sombra.
 
-| # | Cidade | Tipo | Líder | Medalha | Dom de Campo |
+| # | Cidade | Tipo | Quem manda no terreiro | Medalha | Dom de Campo |
 |---|---|---|---|---|---|
 | 1 | Porto Iara | Água | Mariana | Maré | Nadar |
 | 2 | Mata do Curupira | Planta | Tiê | Raiz | Cortar Cipó |
@@ -139,7 +150,7 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
       teclado e toque, mapa de Porto Iara, NPCs e diálogo.
 - [x] **2 — Batalha.** Turnos, tabela de tipos, dano, PP, estados, itens, captura,
       troca, XP, subida de nível, evolução e IA — com 88 testes automatizados.
-- [ ] **3 — Fatia vertical.** A tarefa das redes abre o ginásio; Mariana, a Medalha
+- [ ] **3 — Fatia vertical.** A tarefa das redes abre o terreiro; Mariana, a Medalha
       Maré e o Dom "Nadar" liberam a estrada seguinte. Save, menus, loja, cura.
 - [ ] **4 — Conteúdo.** As 7 cidades restantes, ~40 Encantados, ~60 golpes.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.

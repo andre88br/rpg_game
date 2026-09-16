@@ -24,7 +24,7 @@ import {
   desmaiado, ficha, hpMaximo, nome, progressoXP, substituirGolpe,
   type Encantado,
 } from '../battle/encantado.ts';
-import { STATUS } from '../battle/status.ts';
+import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import { ITENS_ORDEM, item as fichaItem } from '../data/items.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
@@ -42,8 +42,35 @@ const XPB = { x: 6, y: 28, w: PAINEL_W - 12, h: 3 };
 const PAINEL_INI = { x: 8, y: 8, h: 28 };
 const PAINEL_ALI = { x: LARGURA - PAINEL_W - 6, y: 74, h: 36 };
 const BARRA_Y = ALTURA - 50;
+const LADOS: readonly Lado[] = ['aliado', 'inimigo'];
 
 type Tela = 'comando' | 'golpes' | 'mochila' | 'time' | 'esquecer' | 'rodando';
+
+/* =========================================================================
+   Estado de EXIBIÇÃO de um lado do campo.
+
+   O motor resolve o turno inteiro de uma vez: quando executar() devolve, o
+   HP já caiu, o bicho já desmaiou, já evoluiu e já subiu de nível. Se a cena
+   lesse o motor direto, a barra de vida esvaziaria no instante do comando —
+   antes de a fila sequer chegar no evento do golpe.
+
+   Por isso a cena desenha SÓ daqui. Nada nesta ficha muda por conta própria:
+   cada campo é atualizado quando o evento correspondente sai da fila. É o
+   que sincroniza o que se vê com o que se lê.
+   ========================================================================= */
+interface Visual {
+  arte: string;              // chave em ARTE_CRIATURAS (muda ao evoluir)
+  nome: string;
+  nivel: number;
+  max: number;
+  hp: number;                // valor desenhado, correndo atrás de alvoHp
+  alvoHp: number;
+  xp: number;                // 0..1, idem
+  alvoXp: number;
+  status: Status | null;
+  quebranto: boolean;
+  caido: boolean;
+}
 
 export interface OpcoesCenaBatalha {
   estado: EstadoJogo;
@@ -81,8 +108,7 @@ export class CenaBatalha implements Cena {
   private despediu = false;
 
   /* animação */
-  private mostraHP: Record<Lado, number> = { aliado: 0, inimigo: 0 };
-  private mostraXP = 0;
+  private vis!: Record<Lado, Visual>;
   private tremor: Record<Lado, number> = { aliado: 0, inimigo: 0 };
   private avanco: Record<Lado, number> = { aliado: 0, inimigo: 0 };
   private queda: Record<Lado, number> = { aliado: 0, inimigo: 0 };
@@ -122,12 +148,30 @@ export class CenaBatalha implements Cena {
     this.caixaFicha = assar(UI.caixa(78, 50));
     this.caixaCheia = assar(UI.caixa(LARGURA - 8, ALTURA - 8));
 
-    this.mostraHP.aliado = this.b.aliado.enc.hp;
-    this.mostraHP.inimigo = this.b.inimigo.enc.hp;
-    this.mostraXP = progressoXP(this.b.aliado.enc);
+    this.vis = {
+      aliado: this.instantaneo(this.b.aliado.enc),
+      inimigo: this.instantaneo(this.b.inimigo.enc),
+    };
     this.entradaSprite = { aliado: 0, inimigo: 0 };
 
     this.enfileirar(this.b.abrir());
+  }
+
+  /* fotografia do Encantado no momento em que ele ENTRA em campo */
+  private instantaneo(e: Encantado): Visual {
+    return {
+      arte: ficha(e).arte,
+      nome: nome(e),
+      nivel: e.nivel,
+      max: hpMaximo(e),
+      hp: e.hp,
+      alvoHp: e.hp,
+      xp: progressoXP(e),
+      alvoXp: progressoXP(e),
+      status: e.status,
+      quebranto: false,
+      caido: desmaiado(e),
+    };
   }
 
   /* ------------------------------------------------------- recursos ---- */
@@ -136,13 +180,13 @@ export class CenaBatalha implements Cena {
      a altura ÚTIL — a última linha com pixel de verdade. Sem isso um bicho
      com espaço vazio embaixo do desenho fica boiando acima da plataforma.
      O lado inimigo usa a versão espelhada, para os dois se encararem. */
-  private sprite(e: Encantado, espelhar: boolean): { img: Assado; alt: number } {
-    const chave = ficha(e).arte + (espelhar ? '<' : '>');
+  private sprite(arte: string, espelhar: boolean): { img: Assado; alt: number } {
+    const chave = arte + (espelhar ? '<' : '>');
     let a = this.sprites.get(chave);
     if (a) return a;
 
-    const desenho = ARTE_CRIATURAS[ficha(e).arte];
-    if (!desenho) throw new Error(`sem arte para ${ficha(e).arte}`);
+    const desenho = ARTE_CRIATURAS[arte];
+    if (!desenho) throw new Error(`sem arte para ${arte}`);
     let cru = desenho();
     if (espelhar) {
       const virado = new Buf(cru.w, cru.h);
@@ -160,14 +204,14 @@ export class CenaBatalha implements Cena {
 
   /* a moldura do painel (nome, nível, rótulos e os trilhos das barras) muda
      pouco: só ao trocar de Encantado ou ao subir de nível. */
-  private molduraPainel(e: Encantado, inimigo: boolean): Assado {
-    const chave = `${inimigo ? 'i' : 'a'}|${nome(e)}|${e.nivel}`;
+  private molduraPainel(v: Visual, inimigo: boolean): Assado {
+    const chave = `${inimigo ? 'i' : 'a'}|${v.nome}|${v.nivel}`;
     let a = this.painel.get(chave);
     if (a) return a;
     const alt = inimigo ? PAINEL_INI.h : PAINEL_ALI.h;
     const b = UI.caixa(PAINEL_W, alt);
-    UI.textoNaCaixa(b, nome(e), 6, 5);
-    const nv = 'NV' + e.nivel;
+    UI.textoNaCaixa(b, v.nome, 6, 5);
+    const nv = 'NV' + v.nivel;
     UI.textoNaCaixa(b, nv, PAINEL_W - 8 - larguraTexto(nv), 5);
     b.rect(HPB.x, HPB.y, HPB.w, HPB.h, P.uiInk!);
     b.rect(HPB.x + 1, HPB.y + 1, HPB.w - 2, HPB.h - 2, P.barBack!);
@@ -198,41 +242,101 @@ export class CenaBatalha implements Cena {
     this.pausa = PAUSA_TEXTO;
   }
 
+  /* a fila espera enquanto alguma barra ainda está andando */
   private barrasOcupadas(): boolean {
-    return Math.abs(this.mostraHP.aliado - this.b.aliado.enc.hp) > 0.5
-        || Math.abs(this.mostraHP.inimigo - this.b.inimigo.enc.hp) > 0.5
-        || Math.abs(this.mostraXP - progressoXP(this.b.aliado.enc)) > 0.01;
+    for (const lado of LADOS) {
+      const v = this.vis[lado];
+      if (Math.abs(v.hp - v.alvoHp) > 0.5) return true;
+      if (Math.abs(v.xp - v.alvoXp) > 0.01) return true;
+    }
+    return false;
   }
 
+  /* a barra de XP enche até o fim antes de virar o nível, e só então zera */
+  private haNivelAdiante(): boolean {
+    for (const e of this.fila) {
+      if (e.k === 'nivel') return true;
+      if (e.k === 'xp' || e.k === 'fim') return false;
+    }
+    return false;
+  }
+
+  /* É AQUI que o estado de exibição avança — em nenhum outro lugar. Cada
+     ramo move a ficha visual do lado correspondente e diz quanto tempo a
+     animação daquele evento precisa antes do próximo. */
   private aplicar(e: Evento): void {
     switch (e.k) {
       case 'texto': this.falar(e.t); break;
       case 'golpe': this.avanco[e.lado] = 0.26; this.espera = 0.22; break;
       case 'errou': this.espera = 0.12; break;
+
       case 'dano':
-        this.tremor[e.lado] = e.para < e.de ? 0.3 : 0;
+        this.vis[e.lado].alvoHp = e.para;
+        if (e.para < e.de) this.tremor[e.lado] = 0.3;
         this.espera = 0.1;
         break;
-      case 'cura': this.espera = 0.1; break;
-      case 'status': this.espera = 0.08; break;
+      case 'cura':
+        this.vis[e.lado].alvoHp = e.para;
+        this.espera = 0.1;
+        break;
+
+      case 'status': this.vis[e.lado].status = e.status; this.espera = 0.12; break;
+      case 'quebranto': this.vis[e.lado].quebranto = e.ativo; this.espera = 0.12; break;
       case 'estagio': this.espera = 0.08; break;
-      case 'desmaio': this.queda[e.lado] = 0.7; this.espera = 0.75; break;
+
+      case 'desmaio':
+        this.vis[e.lado].caido = true;
+        this.queda[e.lado] = 0.7;
+        this.espera = 0.75;
+        break;
       case 'sair': this.entradaSprite.aliado = 0; this.espera = 0.2; break;
       case 'entrar':
+        this.vis[e.lado] = this.instantaneo(this.b.lado(e.lado).enc);
         this.queda[e.lado] = 0;
         this.entradaSprite[e.lado] = 0;
-        this.mostraHP[e.lado] = this.b.lado(e.lado).enc.hp;
-        if (e.lado === 'aliado') this.mostraXP = progressoXP(this.b.aliado.enc);
         this.espera = 0.35;
         break;
+
       case 'patua':
         this.patuaAnim = 0;
         this.patuaBalancos = e.balancos;
         this.espera = 0.45 + 0.35 * e.balancos;
         break;
-      case 'evoluir': this.brilho = 1.1; this.espera = 1.15; break;
-      case 'xp': case 'nivel': case 'aprender': case 'esquecer':
-      case 'trocarForcado': case 'fim':
+
+      case 'xp':
+        // enche até o fim quando ainda vem nível; senão para onde parou
+        this.vis.aliado.alvoXp = this.haNivelAdiante()
+          ? 1 : progressoXP(this.b.aliado.enc);
+        this.espera = 0.05;
+        break;
+      case 'nivel': {
+        const v = this.vis.aliado;
+        const novoMax = hpMaximo(this.b.aliado.enc);
+        // subir de nível soma HP máximo; a barra cresce junto, sem "curar"
+        v.hp += novoMax - v.max;
+        v.alvoHp += novoMax - v.max;
+        v.max = novoMax;
+        v.nivel = e.nivel;
+        v.xp = 0;
+        v.alvoXp = this.haNivelAdiante() ? 1 : progressoXP(this.b.aliado.enc);
+        this.espera = 0.3;
+        break;
+      }
+      case 'evoluir': {
+        // a troca do sprite acontece sob o clarão, que cobre a tela inteira
+        const v = this.vis.aliado;
+        const enc = this.b.aliado.enc;
+        const novoMax = hpMaximo(enc);
+        v.hp += novoMax - v.max;
+        v.alvoHp += novoMax - v.max;
+        v.max = novoMax;
+        v.arte = ficha(enc).arte;
+        v.nome = nome(enc);
+        this.brilho = 1.1;
+        this.espera = 1.15;
+        break;
+      }
+      case 'aprender': case 'esquecer': case 'trocarForcado': case 'fim':
         this.espera = 0.05; break;
     }
   }
@@ -297,22 +401,21 @@ export class CenaBatalha implements Cena {
   }
 
   private animar(dt: number): void {
-    for (const lado of ['aliado', 'inimigo'] as Lado[]) {
-      // a barra de HP anda numa velocidade proporcional ao tamanho dela,
-      // então tanto um bichinho quanto um chefe esvaziam em tempo parecido
-      const alvo = this.b.lado(lado).enc.hp;
-      const vel = Math.max(12, hpMaximo(this.b.lado(lado).enc) / 1.1);
-      const d = alvo - this.mostraHP[lado];
-      this.mostraHP[lado] += Math.sign(d) * Math.min(Math.abs(d), vel * dt);
+    for (const lado of LADOS) {
+      const v = this.vis[lado];
+      // a barra anda numa velocidade proporcional ao tamanho dela: tanto um
+      // bichinho quanto um chefe esvaziam em tempo parecido
+      const vel = Math.max(12, v.max / 1.1);
+      const d = v.alvoHp - v.hp;
+      v.hp += Math.sign(d) * Math.min(Math.abs(d), vel * dt);
+      const dxp = v.alvoXp - v.xp;
+      v.xp += Math.sign(dxp) * Math.min(Math.abs(dxp), 0.9 * dt);
 
       this.tremor[lado] = Math.max(0, this.tremor[lado] - dt);
       this.avanco[lado] = Math.max(0, this.avanco[lado] - dt);
       this.queda[lado] = Math.max(0, this.queda[lado] - dt);
       this.entradaSprite[lado] = Math.min(1, this.entradaSprite[lado] + dt / 0.3);
     }
-    const alvoXP = progressoXP(this.b.aliado.enc);
-    const dxp = alvoXP - this.mostraXP;
-    this.mostraXP += Math.sign(dxp) * Math.min(Math.abs(dxp), 0.9 * dt);
 
     this.brilho = Math.max(0, this.brilho - dt);
     if (this.patuaAnim >= 0) {
@@ -469,9 +572,9 @@ export class CenaBatalha implements Cena {
   }
 
   private desenharCombatente(r: Renderizador, lado: Lado): void {
-    const c = this.b.lado(lado);
+    const v = this.vis[lado];
     const inimigo = lado === 'inimigo';
-    const { img, alt } = this.sprite(c.enc, inimigo);
+    const { img, alt } = this.sprite(v.arte, inimigo);
     const posto = inimigo ? POSTO_INIMIGO : POSTO_ALIADO;
     let x = posto.cx - img.width / 2;
     let y = posto.base - alt;
@@ -488,7 +591,7 @@ export class CenaBatalha implements Cena {
       y -= a * 0.3;
     }
 
-    if (this.queda[lado] > 0 || desmaiado(c.enc)) {
+    if (v.caido) {
       const q = this.queda[lado] > 0 ? 1 - this.queda[lado] / 0.7 : 1;
       r.ctx.globalAlpha = Math.max(0, 1 - q);
       y += q * 18;
@@ -515,13 +618,13 @@ export class CenaBatalha implements Cena {
   }
 
   private desenharPainel(r: Renderizador, lado: Lado): void {
-    const c = this.b.lado(lado);
+    const v = this.vis[lado];
     const inimigo = lado === 'inimigo';
     const p = inimigo ? PAINEL_INI : PAINEL_ALI;
-    r.sprite(this.molduraPainel(c.enc, inimigo), p.x, p.y);
+    r.sprite(this.molduraPainel(v, inimigo), p.x, p.y);
 
-    const max = hpMaximo(c.enc);
-    const hp = Math.max(0, Math.round(this.mostraHP[lado]));
+    const max = v.max;
+    const hp = Math.max(0, Math.round(v.hp));
     const pct = Math.max(0, Math.min(1, hp / max));
     const larg = Math.round((HPB.w - 2) * pct);
     if (larg > 0) {
@@ -531,16 +634,16 @@ export class CenaBatalha implements Cena {
     }
 
     if (!inimigo) {
-      const lx = Math.round((XPB.w - 2) * Math.max(0, Math.min(1, this.mostraXP)));
+      const lx = Math.round((XPB.w - 2) * Math.max(0, Math.min(1, v.xp)));
       if (lx > 0) r.retangulo(p.x + XPB.x + 1, p.y + XPB.y + 1, lx, XPB.h - 2, P.xp!);
       const s = `${hp}/${max}`;
       r.texto(s, p.x + PAINEL_W - 8 - larguraTexto(s), p.y + 21, P.uiInk!);
     }
 
-    // à esquerda da barra: ou o rótulo HP, ou a etiqueta do estado alterado
-    const st = c.enc.status;
-    const sigla = st ? STATUS[st].sigla : c.feitico > 0 ? 'ENC' : null;
-    if (!sigla) { r.texto('HP', p.x + 8, p.y + 14, P.uiAccD!); return; }
+    // à esquerda da barra: ou o rótulo VIDA, ou a etiqueta do estado alterado
+    const sigla = v.status ? STATUS[v.status].sigla
+                : v.quebranto ? SIGLA_QUEBRANTO : null;
+    if (!sigla) { r.texto('VIDA', p.x + 6, p.y + 14, P.uiAccD!); return; }
     const w = larguraTexto(sigla) + 6;
     r.retangulo(p.x + 4, p.y + 12, w + 2, 11, P.uiInk!);
     r.retangulo(p.x + 5, p.y + 13, w, 9, UI.statusCor(sigla));
@@ -562,7 +665,7 @@ export class CenaBatalha implements Cena {
 
   private desenharComando(r: Renderizador): void {
     r.sprite(this.caixaPergunta, 0, BARRA_Y);
-    const pergunta = `O que ${nome(this.b.aliado.enc)} vai fazer?`;
+    const pergunta = `O que ${this.vis.aliado.nome} vai fazer?`;
     quebrar(pergunta, 126).forEach((l, i) => r.texto(l, 12, BARRA_Y + 14 + i * 12, P.uiInk!));
 
     r.sprite(this.caixaComandos, LARGURA - 96, BARRA_Y);

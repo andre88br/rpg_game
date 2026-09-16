@@ -117,7 +117,7 @@ export function tileRocha(seed = 9): Buf { // parede de pedra / desnivel
   return b;
 }
 
-export function tilePisoMadeira(_seed = 10): Buf { // piso interno de ginasio
+export function tilePisoMadeira(_seed = 10): Buf { // piso interno do terreiro
   const b = base('#c99a5e');
   for (let y = 0; y < TS; y += 4) for (let x = 0; x < TS; x++) b.set(x, y, '#a87c45');
   for (let y = 0; y < TS; y += 4) b.set((y * 5) % TS, y + 2, '#a87c45');
@@ -209,7 +209,7 @@ export function tileCais(seed = 11): Buf {
   return b;
 }
 
-/* barreira vermelha e branca que fecha a entrada do ginasio */
+/* barreira vermelha e branca que fecha a entrada do terreiro */
 export function barreira(larguraTiles: number): Buf {
   const w = larguraTiles * TS;
   const b = new Buf(w, 16);

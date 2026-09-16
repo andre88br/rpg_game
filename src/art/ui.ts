@@ -61,9 +61,10 @@ export function painelCombatente(nome: string, nivel: number, hpAtual: number,
   const lvl = 'NV' + nivel;
   texto(b, lvl, largura - 8 - larguraTexto(lvl), 5, P.uiInk);
 
-  // linha 2: HP
-  texto(b, 'HP', 6, 14, P.uiAccD);
-  b.blit(barra(largura - 28, 5, pct, corHP(pct)), 20, 14);
+  // linha 2: VIDA. A barra começa em 32 para deixar o rótulo inteiro caber —
+  // é o mesmo vão que a etiqueta de estado ocupa quando há estado alterado.
+  texto(b, 'VIDA', 6, 14, P.uiAccD);
+  b.blit(barra(largura - 40, 5, pct, corHP(pct)), 32, 14);
 
   if (!inimigo) {
     // linha 3: XP a esquerda, numeros de HP a direita
@@ -82,7 +83,7 @@ export function painelCombatente(nome: string, nivel: number, hpAtual: number,
 }
 
 export function statusCor(s: string): string {
-  return ({ 'QMD': P.fire, 'PAR': P.bolt, 'DRM': P.dark, 'ENC': '#d060c0', 'ENV': '#7fbf3f' } as Record<string, string>)[s] || P.uiAccD!;
+  return ({ 'BRA': P.fire, 'TRA': P.bolt, 'SON': P.dark, 'QUE': '#d060c0', 'PEÇ': '#7fbf3f' } as Record<string, string>)[s] || P.uiAccD!;
 }
 
 /* menu de comandos em grade 2x2 com cursor */

@@ -33,7 +33,7 @@ export const TILES: Record<string, DefTile> = {
   'R': { desenho: T.tileRocha, solido: true },
 };
 
-export type TipoObjeto = 'casa' | 'loja' | 'ginasio' | 'placa' | 'barreira';
+export type TipoObjeto = 'casa' | 'loja' | 'terreiro' | 'placa' | 'barreira';
 
 export interface DefObjeto {
   tipo: TipoObjeto;
@@ -133,9 +133,9 @@ export class Mapa {
         sprite = T.construcao(larg, alt, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894',
                                            sign: 'LOJA', signColor: '#7fd9b4' });
         break;
-      case 'ginasio':
+      case 'terreiro':
         sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
-                                           sign: 'GINÁSIO', signColor: P.uiAcc });
+                                           sign: 'TERREIRO', signColor: P.uiAcc });
         break;
       case 'placa':
         sprite = T.placa();
@@ -148,8 +148,8 @@ export class Mapa {
     if (!sprite) return;
     buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
 
-    // mastro e bandeira do ginasio, acima do telhado
-    if (o.tipo === 'ginasio') {
+    // mastro e bandeira do terreiro, acima do telhado
+    if (o.tipo === 'terreiro') {
       const gx = o.tx * TS + 14, gy = o.ty * TS;
       buf.rect(gx, gy - 20, 1, 22, P.ink!);
       buf.tri(gx + 1, gy - 20, gx + 15, gy - 15, gx + 1, gy - 10, P.water!);
