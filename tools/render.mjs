@@ -1,19 +1,19 @@
 /* Gera os PNGs dos esboços em mockups/img/ */
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { bufToPNG } from './png.mjs';
-import * as S from '../mockups/scenes.js';
-import * as CR from '../mockups/creatures.js';
-import { CAST } from '../mockups/people.js';
-import { medalha, MEDALHAS } from '../mockups/badges.js';
-import { Buf, escalar } from '../mockups/engine.js';
-import { text, textWidth } from '../mockups/font.js';
-import { P } from '../mockups/palette.js';
-import * as T from '../mockups/tiles.js';
-import * as UI from '../mockups/ui.js';
+import * as S from '../src/esbocos/telas.ts';
+import * as CR from '../src/art/creatures.ts';
+import { ELENCO as CAST, ESTILOS, folhaPersonagem } from '../src/art/people.ts';
+import { medalha, MEDALHAS } from '../src/art/badges.ts';
+import { Buf, escalar } from '../src/core/buf.ts';
+import { texto as text, larguraTexto as textWidth } from '../src/art/font.ts';
+import { P } from '../src/art/palette.ts';
+import * as T from '../src/art/tiles.ts';
+import * as UI from '../src/art/ui.ts';
 
-mkdirSync(new URL('../mockups/img/', import.meta.url), { recursive: true });
+mkdirSync(new URL('../esbocos/img/', import.meta.url), { recursive: true });
 const out = (nome, buf, escala = 3, fundo = null) => {
-  const url = new URL(`../mockups/img/${nome}.png`, import.meta.url);
+  const url = new URL(`../esbocos/img/${nome}.png`, import.meta.url);
   writeFileSync(url, bufToPNG(buf, escala, fundo));
   console.log(`  ${nome}.png  ${buf.w * escala}x${buf.h * escala}`);
 };
@@ -77,9 +77,9 @@ function folhaElenco() {
 
 /* folha de tiles do cenario */
 function folhaTiles() {
-  const itens = [['GRAMA', T.tileGrass(1)], ['MATO ALTO', T.tileTallGrass(2)], ['ÁGUA', T.tileWater(3)],
-                 ['AREIA', T.tileShore(4)], ['CAMINHO', T.tilePath(5)], ['ÁRVORE', T.tileTree(6)],
-                 ['FLORES', T.tileFlower(7)], ['PEDRA', T.tileRock(8)], ['ROCHA', T.tileCliff(9)]];
+  const itens = [['GRAMA', T.tileGrama(1)], ['MATO ALTO', T.tileMatoAlto(2)], ['ÁGUA', T.tileAgua(3)],
+                 ['AREIA', T.tileAreia(4)], ['CAMINHO', T.tileCaminho(5)], ['ÁRVORE', T.tileArvore(6)],
+                 ['FLORES', T.tileFlores(7)], ['PEDRA', T.tilePedra(8)], ['ROCHA', T.tileRocha(9)]];
   const CW = 60;
   const b = new Buf(itens.length * CW, 44);
   b.rect(0, 0, b.w, b.h, P.uiBg);
@@ -104,4 +104,22 @@ out('07-criaturas',     folhaCriaturas(), 3);
 out('08-medalhas',      folhaMedalhas(), 3);
 out('09-elenco',        folhaElenco(), 3);
 out('10-tiles',         folhaTiles(), 3);
+
+/* folha das poses do jogador: quatro direções x três quadros */
+function folhaPoses() {
+  const dirs = ['baixo', 'cima', 'esq', 'dir'];
+  const CEL = 22;
+  const b = new Buf(64 + dirs.length * 3 * CEL, 18 + 30);
+  b.rect(0, 0, b.w, b.h, P.uiBg);
+  text(b, 'TAINÁ', 6, 20, P.uiInk);
+  dirs.forEach((d, i) => text(b, d, 64 + i * 3 * CEL + 8, 5, P.uiAccD));
+  const f = folhaPersonagem(ESTILOS.taina);
+  dirs.forEach((d, i) => f[d].forEach((buf, q) => {
+    const x = 64 + (i * 3 + q) * CEL + 3;
+    b.rect(x - 3, 16, 20, 24, (i + q) % 2 ? P.uiBg2 : P.uiBg3);
+    b.blit(buf, x, 18);
+  }));
+  return b;
+}
+out('12-poses', folhaPoses(), 3);
 console.log('pronto.');

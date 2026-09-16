@@ -1,0 +1,84 @@
+/* Tela de título. O fundo é montado uma vez e assado; só o "aperte A" pisca. */
+import { Buf, assar, escalar, type Assado } from '../core/buf.ts';
+import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
+import type { Cena } from '../core/scene.ts';
+import type { Entrada } from '../core/input.ts';
+import { P } from '../art/palette.ts';
+import { texto, larguraTexto } from '../art/font.ts';
+import * as CR from '../art/creatures.ts';
+
+function misturar(a: string, b: string, t: number): string {
+  t = Math.max(0, Math.min(1, t));
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const canal = (desl: number) =>
+    Math.round(((pa >> desl) & 255) * (1 - t) + ((pb >> desl) & 255) * t);
+  return '#' + [canal(16), canal(8), canal(0)].map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+
+function fundoTitulo(): Buf {
+  const b = new Buf(LARGURA, ALTURA);
+  for (let y = 0; y < ALTURA; y++) {
+    const t = y / ALTURA;
+    b.rect(0, y, LARGURA, 1,
+      t < 0.55 ? misturar('#1b1338', '#4a2f6b', t / 0.55)
+               : misturar('#4a2f6b', '#a05a4a', (t - 0.55) / 0.45));
+  }
+  for (let i = 0; i < 70; i++) {
+    b.set((i * 71) % LARGURA, (i * 37) % 80, i % 5 === 0 ? P.white! : '#cdbff0');
+  }
+  b.circle(206, 26, 11, '#f5eec0');
+  b.apagarElipse(201, 22, 9, 9);
+
+  // silhueta da mata no horizonte
+  for (let x = 0; x < LARGURA; x += 9) {
+    const h = 20 + ((x * 13) % 16);
+    b.tri(x - 6, ALTURA - 34, x + 2, ALTURA - 34 - h, x + 10, ALTURA - 34, '#16221c');
+    b.ellipse(x + 2, ALTURA - 34 - h / 2, 7, h / 2, '#1b2b22');
+  }
+  b.rect(0, ALTURA - 36, LARGURA, 36, '#101a14');
+
+  // logotipo
+  const alvo = new Buf(11 * 6, 9);
+  texto(alvo, 'ENCANTADOS', 0, 1, P.gold!);
+  const logo = escalar(alvo, 3).outline(P.ink!);
+  b.blit(logo, (LARGURA - logo.w) / 2, 26);
+
+  const sub = 'A TRILHA DAS OITO MEDALHAS';
+  texto(b, sub, (LARGURA - larguraTexto(sub)) / 2, 62, '#f0e6c8');
+
+  // os três iniciais na frente da mata
+  b.blit(CR.curupinho(), 24, ALTURA - 66);
+  b.blit(CR.boitatinha(), 104, ALTURA - 70);
+  b.blit(CR.iarinha(), 184, ALTURA - 66);
+
+  const rod = 'ENCANTADOS 2026';
+  texto(b, rod, (LARGURA - larguraTexto(rod)) / 2, ALTURA - 11, '#7f749c');
+  return b;
+}
+
+export class CenaTitulo implements Cena {
+  private fundo!: Assado;
+  private t = 0;
+
+  constructor(private aoComecar: () => void) {}
+
+  entrar(): void { this.fundo = assar(fundoTitulo()); this.t = 0; }
+
+  atualizar(dt: number, entrada: Entrada): void {
+    this.t += dt;
+    if (this.t > 0.3 && (entrada.apertou('a') || entrada.apertou('menu'))) this.aoComecar();
+  }
+
+  desenhar(r: Renderizador): void {
+    r.sprite(this.fundo, 0, 0);
+    if (Math.floor(this.t * 1.6) % 2 === 0) {
+      const msg = 'APERTE   PARA COMEÇAR';
+      const mx = (LARGURA - r.larguraTexto(msg)) / 2;
+      r.texto(msg, mx, ALTURA - 26, P.white!, { sombra: P.ink! });
+      const bx = mx + 36;
+      r.ctx.fillStyle = P.uiAcc!;
+      r.ctx.beginPath(); r.ctx.arc(bx + 4, ALTURA - 23, 6, 0, Math.PI * 2); r.ctx.fill();
+      r.texto('A', bx + 2, ALTURA - 26, P.uiInk!);
+    }
+  }
+}

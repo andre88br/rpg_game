@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0910">
+<meta name="description" content="Encantados — A Trilha das Oito Medalhas. RPG de captura de criaturas do folclore brasileiro, jogável no navegador.">
+<link rel="icon" href="./favicon.png" type="image/png">
+<title>Encantados — A Trilha das Oito Medalhas</title>
+<style>
+  :root {
+    --fundo: #0b0910;
+    --painel: #1a1626;
+    --tecla: #3a3547;
+    --teclaTopo: #4d4661;
+    --teclaTexto: #cdc6de;
+    --acento: #c9a227;
+    --acentoClaro: #f0d878;
+    --roxo: #6a4a9a;
+    --roxoClaro: #9a6fd0;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%; margin: 0; background: var(--fundo);
+    overscroll-behavior: none; touch-action: manipulation;
+    user-select: none; -webkit-user-select: none;
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--teclaTexto);
+  }
+  #app {
+    height: 100dvh; display: flex; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #palco {
+    flex: 1 1 auto; min-height: 0;
+    display: grid; place-items: center; padding: 8px;
+  }
+  /* em retrato o canvas fica centrado na área livre acima dos controles:
+     o vão sobra dividido em cima e embaixo, em vez de todo de um lado */
+  @media (pointer: coarse) and (orientation: portrait) {
+    #palco { padding: 12px 0; }
+    #meio .dica { margin: 0; }
+  }
+  /* o canvas tem 240x160 de verdade; o CSS só amplia por fator inteiro */
+  #jogo {
+    display: block; image-rendering: pixelated; image-rendering: crisp-edges;
+    background: #000; border-radius: 2px;
+    box-shadow: 0 0 0 2px #2b2733, 0 8px 32px #0006;
+  }
+
+  /* ---------- controles de toque ---------- */
+  #controles { display: none; }
+  @media (pointer: coarse) {
+    #controles {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: end;
+      gap: 12px; padding: 4px 18px 18px;
+    }
+  }
+  .mostrar-controles #controles {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: end;
+    gap: 12px; padding: 4px 18px 18px;
+  }
+
+  #direcional {
+    display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px);
+  }
+  #direcional .tecla { border-radius: 8px; }
+  #direcional [data-acao="cima"]  { grid-area: 1 / 2; }
+  #direcional [data-acao="esq"]   { grid-area: 2 / 1; }
+  #direcional [data-acao="dir"]   { grid-area: 2 / 3; }
+  #direcional [data-acao="baixo"] { grid-area: 3 / 2; }
+  #direcional .centro {
+    grid-area: 2 / 2; background: var(--tecla); border-radius: 4px;
+    margin: 12px; align-self: stretch; justify-self: stretch;
+  }
+
+  .tecla {
+    display: grid; place-items: center;
+    background: var(--tecla); border: none; color: var(--teclaTexto);
+    font: inherit; font-size: 16px; cursor: pointer;
+    border-top: 3px solid var(--teclaTopo);
+    transition: transform .04s, filter .04s;
+  }
+  .tecla.apertado { transform: translateY(2px); filter: brightness(1.35); }
+
+  #acoes { display: grid; gap: 10px; justify-items: center; }
+  .redonda {
+    width: 58px; height: 58px; border-radius: 50%;
+    font-size: 18px; font-weight: bold; color: #1a1626;
+  }
+  #botaoA { background: var(--acento); border-top-color: var(--acentoClaro); }
+  #botaoB { background: var(--roxo); border-top-color: var(--roxoClaro); color: #eee; }
+  #diagonal { display: flex; gap: 12px; align-items: flex-end; }
+
+  #meio { display: grid; place-items: center; gap: 8px; }
+  #botaoMenu { padding: 10px 18px; border-radius: 8px; font-size: 13px; }
+  .dica { opacity: .5; font-size: 11px; text-align: center; }
+
+  /* Em paisagem os controles viram sobreposicao nas laterais: o canvas passa
+     a ocupar a tela inteira, que e o que mais aumenta a imagem no celular. */
+  @media (pointer: coarse) and (orientation: landscape) {
+    #app { position: relative; }
+    #palco { padding: 4px; }
+    #controles {
+      position: absolute; inset: 0; pointer-events: none;
+      padding: 0 12px 12px; align-items: end;
+    }
+    #controles > * { pointer-events: auto; }
+    /* o menu sai do fluxo, entao as colunas precisam ser fixadas na mao:
+       sem isso o bloco A/B escorrega para o meio e cobre o jogo */
+    #direcional { grid-column: 1; }
+    #diagonal   { grid-column: 3; }
+    #meio { position: absolute; top: 10px; right: 12px; }
+    #meio .dica { display: none; }
+    .tecla { opacity: .82; }
+    #direcional { grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); }
+  }
+
+  @media (max-height: 520px) and (orientation: portrait) {
+    #direcional { grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 38px); }
+    .redonda { width: 48px; height: 48px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="palco"><canvas id="jogo" width="240" height="160"></canvas></div>
+
+  <div id="controles">
+    <div id="direcional">
+      <button class="tecla" data-acao="cima"  aria-label="cima">▲</button>
+      <button class="tecla" data-acao="esq"   aria-label="esquerda">◀</button>
+      <div class="centro"></div>
+      <button class="tecla" data-acao="dir"   aria-label="direita">▶</button>
+      <button class="tecla" data-acao="baixo" aria-label="baixo">▼</button>
+    </div>
+
+    <div id="meio">
+      <button class="tecla" id="botaoMenu" data-acao="menu">MENU</button>
+      <p class="dica">A: falar · B: correr</p>
+    </div>
+
+    <div id="diagonal">
+      <button class="tecla redonda" id="botaoB" data-acao="b" aria-label="B">B</button>
+      <button class="tecla redonda" id="botaoA" data-acao="a" aria-label="A">A</button>
+    </div>
+  </div>
+</div>
+
+<noscript><p style="padding:24px">Este jogo precisa de JavaScript para rodar.</p></noscript>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

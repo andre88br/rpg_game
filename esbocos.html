@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encantados — Esboços</title>
+<style>
+  :root { --bg:#14111c; --fg:#ece7f5; --dim:#9c93b3; --acc:#f2c43d; --card:#1e1a29; --line:#322c44; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:0 16px 64px; background:var(--bg); color:var(--fg);
+         font:15px/1.6 ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  header { max-width:900px; margin:0 auto; padding:48px 0 24px; }
+  h1 { font-size:30px; margin:0 0 6px; color:var(--acc); letter-spacing:1px; }
+  .sub { color:var(--dim); margin:0 0 4px; }
+  .sub a { color:var(--acc); }
+  main { max-width:900px; margin:0 auto; }
+  section { margin:40px 0; border-top:1px solid var(--line); padding-top:24px; }
+  h2 { font-size:17px; margin:0 0 4px; color:var(--acc); }
+  .nota { color:var(--dim); margin:0 0 16px; font-size:13px; }
+  .telas { display:flex; flex-wrap:wrap; gap:20px; }
+  figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; }
+  figcaption { color:var(--dim); font-size:12px; margin-top:8px; text-align:center; }
+  canvas { display:block; image-rendering:pixelated; max-width:100%; height:auto; border-radius:3px; }
+  @media (max-width:640px){ body{padding:0 10px 40px} h1{font-size:22px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>ENCANTADOS</h1>
+  <p class="sub">A Trilha das Oito Medalhas — esboços de tela</p>
+  <p class="sub">Tudo aqui é desenhado por código, pixel a pixel, pelos mesmos módulos que o
+     jogo usa. Não há nenhuma imagem externa. &nbsp;<a href="./index.html">▶ jogar</a></p>
+</header>
+<main id="main"></main>
+<script type="module" src="/src/esbocos/main.ts"></script>
+</body>
+</html>
