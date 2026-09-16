@@ -1,9 +1,11 @@
 name: Publicar no GitHub Pages
 
 # Builda e publica em https://<usuario>.github.io/<repo>/ a cada push nesta
-# branch. O passo "configure-pages" com enablement:true habilita o Pages
-# sozinho via API na primeira execução — não depende do clique manual em
-# Settings → Pages, que às vezes não é aplicado a tempo num repositório novo.
+# branch. Pré-requisito único, feito uma vez pelo dono do repositório:
+# Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# (enablement:true via API foi tentado e descartado: exige permissão
+# "administration", que não existe no GITHUB_TOKEN padrão — a tentativa
+# quebra a validação do workflow inteiro, antes de qualquer job rodar.)
 on:
   push:
     branches:
@@ -14,10 +16,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  # enablement:true (abaixo) chama a API que habilita o Pages, e essa chamada
-  # exige permissão de administração do repositório — sem ela o passo falha
-  # com 403 em vez do 404 anterior
-  administration: write
 
 # evita duas publicações rodando ao mesmo tempo; a mais nova cancela a antiga
 concurrency:
@@ -36,8 +34,6 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
