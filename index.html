@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0b0910">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 <meta name="description" content="Encantados — A Trilha das Oito Medalhas. RPG de captura de criaturas do folclore brasileiro, jogável no navegador.">
 <link rel="icon" href="./favicon.png" type="image/png">
 <title>Encantados — A Trilha das Oito Medalhas</title>
@@ -148,6 +149,31 @@
 </div>
 
 <noscript><p style="padding:24px">Este jogo precisa de JavaScript para rodar.</p></noscript>
+<script>
+/* Rede de segurança contra o cache do GitHub Pages.
+
+   O Pages serve o index.html com max-age=600, mas cada publicação troca o
+   nome dos arquivos em assets/ (o hash muda) e APAGA os antigos. Quem abriu
+   o jogo nos dez minutos anteriores fica com um index.html velho apontando
+   para um .js que já não existe: o script dá 404, o jogo não inicia, e sobra
+   a tela preta com os controles — que são HTML e aparecem de qualquer jeito.
+
+   Aqui detectamos o script que não carregou e recarregamos UMA vez com um
+   parâmetro novo na URL, o que força o navegador a buscar o index.html de
+   verdade. A trava em sessionStorage impede laço de recarga; quem a limpa é
+   o main.ts, e só depois de o jogo ter subido mesmo. */
+(function () {
+  window.addEventListener('error', function (e) {
+    var alvo = e && e.target;
+    if (!alvo || (alvo.tagName !== 'SCRIPT' && alvo.tagName !== 'LINK')) return;
+    try {
+      if (sessionStorage.getItem('encantados:recarga')) return;
+      sessionStorage.setItem('encantados:recarga', '1');
+    } catch (_) { return; }        // sem sessionStorage não dá para travar o laço
+    location.replace(location.pathname + '?v=' + Date.now());
+  }, true);                        // captura: erro de carregamento não borbulha
+})();
+</script>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

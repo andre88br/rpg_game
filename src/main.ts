@@ -69,6 +69,10 @@ const laco = new Laco((dt) => {
 });
 laco.iniciar();
 
+/* O jogo subiu: libera a rede de segurança do index.html para uma próxima
+   publicação. Só aqui, porque só aqui sabemos que deu certo de verdade. */
+try { sessionStorage.removeItem('encantados:recarga'); } catch { /* aba privada */ }
+
 // atalho de depuração, útil no navegador
 Object.assign(window as unknown as Record<string, unknown>,
               { jogo: { r, entrada, cenas, laco, estado, mundo, lutar, LARGURA, ALTURA } });
