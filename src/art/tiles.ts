@@ -368,6 +368,29 @@ export function mesa(wTiles: number): Buf {
   return b.outline(P.ink!);
 }
 
+/* Os três patuás em cima da mesa da Dona Firmina, esperando a escolha do
+   inicial — nas mesmas cores dos tipos deles, na mesma ordem de INICIAIS em
+   escolha.ts: Curupinho (planta), Boitatinha (fogo), Iarinha (água). Some do
+   mapa assim que a escolha é feita (o objeto tem `seNao: 'escolheu_inicial'`
+   no mapa, não aqui: este desenho não sabe nada do estado da partida). */
+export function patuasNaMesa(wTiles: number): Buf {
+  const w = wTiles * TS;
+  const b = new Buf(w, TS);
+  const meio = w / 2;
+  const cores: readonly [string, string][] = [
+    [P.tall!, P.tallD!], [P.fire!, P.fireD!], [P.water!, P.waterD!],
+  ];
+  cores.forEach(([cor, corD], i) => {
+    const x = Math.round(meio + (i - 1) * 15);
+    // saquinho amarrado: corpo arredondado pousado na mesa, cordao no colo
+    b.ellipse(x, 5, 4, 4, corD);
+    b.ellipse(x, 4, 4, 4, cor);
+    b.rect(x - 3, 2, 6, 2, '#e8dcc0');
+    b.set(x, 1, '#e8dcc0');
+  });
+  return b.outline(P.ink!);
+}
+
 /* Pote de barro esquecido: o que sobra numa ilhota, num canto de praia.
    Um tile so, e sempre com alguma coisa dentro na primeira vez. */
 export function pote(vazio = false): Buf {

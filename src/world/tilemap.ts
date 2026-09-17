@@ -47,7 +47,7 @@ export type TipoObjeto =
   | 'casa' | 'loja' | 'benzimento' | 'terreiro'      // construcoes com porta
   | 'farol'                                          // construcao sem porta
   | 'placa' | 'barreira' | 'portao' | 'achado'       // cenario
-  | 'balcao' | 'gamela' | 'estante' | 'mesa';        // moveis de interior
+  | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
@@ -277,6 +277,9 @@ export class Mapa {
         break;
       case 'mesa':
         sprite = T.mesa(larg);
+        break;
+      case 'patuas':
+        sprite = T.patuasNaMesa(larg);
         break;
       case 'casa':
         sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL,

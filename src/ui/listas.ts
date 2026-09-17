@@ -26,14 +26,18 @@ export function telaCheia(r: Renderizador, caixa: Assado, titulo: string, rodape
 export interface OpcoesListaTime {
   /* índice de quem está no campo de batalha; -1 fora de batalha */
   emCampo?: number;
+  /* índice de quem foi "pego" na mão, esperando trocar de lugar com outro */
+  peguei?: number;
 }
 
 export function listaTime(r: Renderizador, time: readonly Encantado[], sel: number,
                           opt: OpcoesListaTime = {}): void {
-  const { emCampo = -1 } = opt;
+  const { emCampo = -1, peguei } = opt;
   time.forEach((e, i) => {
     const y = 28 + i * 21;
     const caido = desmaiado(e);
+    // quem foi pego fica com uma tarja clara atrás, esperando o novo lugar
+    if (i === peguei) r.retangulo(10, y - 1, LARGURA - 20, 19, P.uiBg2!);
     if (i === sel) r.texto('=', 12, y + 3, P.uiAccD!);
     r.texto(nome(e), 22, y, caido ? P.hpRed! : P.uiInk!);
     r.texto('NV' + e.nivel, 110, y, P.uiInk!);

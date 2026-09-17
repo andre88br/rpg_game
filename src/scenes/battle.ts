@@ -77,7 +77,9 @@ export interface OpcoesCenaBatalha {
   oponentes: Encantado[];
   treinador?: Treinador | null;
   cenario?: Cenario;
-  aoTerminar: (r: Resultado) => void;
+  /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
+     na caixa) — é o sinal para o mundo oferecer a troca de ordem */
+  aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
 }
 
 export class CenaBatalha implements Cena {
@@ -106,6 +108,7 @@ export class CenaBatalha implements Cena {
   private trocaForcada = false;
   private encerrando = false;
   private despediu = false;
+  private entrouNoTime = false;
 
   /* animação */
   private vis!: Record<Lado, Visual>;
@@ -366,7 +369,7 @@ export class CenaBatalha implements Cena {
       // de fim seria disparado uma vez por quadro até a cena sumir
       if (this.despediu) return;
       this.despediu = true;
-      this.op.aoTerminar(this.b.resultado);
+      this.op.aoTerminar(this.b.resultado, this.entrouNoTime);
       return;
     }
     this.sel = 0;
@@ -377,6 +380,7 @@ export class CenaBatalha implements Cena {
     if (this.b.resultado !== 'captura') return;
     const preso = this.b.inimigo.enc;
     const noTime = guardar(this.op.estado, preso);
+    this.entrouNoTime = noTime;
     this.fila.push({ k: 'texto', t: noTime
       ? `${nome(preso)} entrou no seu time!`
       : `${nome(preso)} foi para a caixa da benzedeira.` });

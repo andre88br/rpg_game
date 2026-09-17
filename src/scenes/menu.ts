@@ -14,12 +14,15 @@ import { MEDALHAS, medalha } from '../art/badges.ts';
 import { ficha, nome, type Encantado } from '../battle/encantado.ts';
 import * as L from '../ui/listas.ts';
 import { CONTAS, contasAcesas } from '../game/quests.ts';
-import type { EstadoJogo } from '../game/state.ts';
+import { item } from '../data/items.ts';
+import {
+  trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
+} from '../game/state.ts';
 
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
-type Pagina = 'raiz' | 'time' | 'mochila' | 'medalhas' | 'guia' | 'sair';
+type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia' | 'sair';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'SALVAR', 'SAIR'] as const;
 
@@ -36,6 +39,11 @@ export class MenuPausa {
   private selLista = 0;
   private recado: string | null = null;
   private tempoRecado = 0;
+  /* índice do Encantado "pego" na mão, esperando trocar de lugar com outro */
+  private peguei: number | null = null;
+  /* item escolhido na mochila, esperando saber em quem vai ser usado */
+  private itemUsando: string | null = null;
+  private selAlvo = 0;
 
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
@@ -52,6 +60,17 @@ export class MenuPausa {
     this.sel = 0;
     this.selLista = 0;
     this.recado = null;
+    this.peguei = null;
+    this.itemUsando = null;
+  }
+
+  /* aberto direto na página do time, com um recado — é como a cena do mundo
+     convida a reordenar assim que um Encantado novo entra no grupo. */
+  abrirEmTime(recado: string, selecionado = 0): void {
+    this.abrir();
+    this.pagina = 'time';
+    this.selLista = selecionado;
+    this.avisar(recado, 3.2);
   }
 
   /* ------------------------------------------------------------ entrada */
@@ -104,16 +123,66 @@ export class MenuPausa {
       return 'aberto';
     }
 
+    if (this.pagina === 'mochilaAlvo') return this.naMochilaAlvo(entrada);
+
     if (this.pagina === 'time') {
       this.selLista = this.andar(entrada, this.selLista, this.op.estado.time.length);
-    } else if (this.pagina === 'mochila') {
-      this.selLista = this.andar(entrada, this.selLista, this.itens().length);
+      if (entrada.apertou('a')) this.tocarTime();
+      if (entrada.apertou('b') || entrada.apertou('menu')) {
+        if (this.peguei !== null) this.peguei = null;
+        else this.pagina = 'raiz';
+      }
+      return 'aberto';
     }
+
+    if (this.pagina === 'mochila') {
+      this.selLista = this.andar(entrada, this.selLista, this.itens().length);
+      if (entrada.apertou('a')) this.tentarUsarItem();
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
+      return 'aberto';
+    }
+
     if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
     return 'aberto';
   }
 
-  private avisar(s: string): void { this.recado = s; this.tempoRecado = 1.6; }
+  /* A pega um Encantado da lista; A de novo, em outra linha, troca os dois de
+     lugar. É a ordem do time que decide quem entra em campo primeiro. */
+  private tocarTime(): void {
+    const time = this.op.estado.time;
+    if (time.length < 2) return;
+    if (this.peguei === null) { this.peguei = this.selLista; return; }
+    if (this.peguei !== this.selLista) trocarPosicoes(this.op.estado, this.peguei, this.selLista);
+    this.peguei = null;
+  }
+
+  private tentarUsarItem(): void {
+    const id = this.itens()[this.selLista];
+    if (!id) return;
+    if (!usavelForaDeBatalha(id)) { this.avisar('Isso não se usa fora de batalha.'); return; }
+    if (this.op.estado.time.length === 0) {
+      this.avisar('Você ainda não tem nenhum Encantado.');
+      return;
+    }
+    this.itemUsando = id;
+    this.selAlvo = 0;
+    this.pagina = 'mochilaAlvo';
+  }
+
+  private naMochilaAlvo(entrada: Entrada): SaidaMenu {
+    this.selAlvo = this.andar(entrada, this.selAlvo, this.op.estado.time.length);
+    if (entrada.apertou('b')) { this.pagina = 'mochila'; return 'aberto'; }
+    if (entrada.apertou('a')) {
+      const r = usarItemForaDeBatalha(this.op.estado, this.itemUsando!, this.selAlvo);
+      this.avisar(r.msg);
+      if (r.usou) this.op.aoSalvar();
+      this.pagina = 'mochila';
+      this.selLista = Math.min(this.selLista, Math.max(0, this.itens().length - 1));
+    }
+    return 'aberto';
+  }
+
+  private avisar(s: string, duracao = 1.6): void { this.recado = s; this.tempoRecado = duracao; }
 
   private itens(): string[] { return L.itensDaMochila(this.op.estado.mochila); }
 
@@ -158,15 +227,22 @@ export class MenuPausa {
     const est = this.op.estado;
     switch (this.pagina) {
       case 'time':
-        L.telaCheia(r, this.caixaCheia, 'SEU TIME', 'B VOLTAR');
-        L.listaTime(r, est.time, this.selLista);
+        L.telaCheia(r, this.caixaCheia, 'SEU TIME',
+                   this.peguei !== null ? 'A TROCAR AQUI   B CANCELAR' : 'A PEGAR   B VOLTAR');
+        L.listaTime(r, est.time, this.selLista, { peguei: this.peguei ?? undefined });
         this.rodapeTime(r, est.time[this.selLista]);
         break;
       case 'mochila': {
         const ids = this.itens();
-        L.telaCheia(r, this.caixaCheia, 'MOCHILA', `B VOLTAR    ${est.dinheiro} RÉIS`);
+        L.telaCheia(r, this.caixaCheia, 'MOCHILA', `A USAR   B VOLTAR   ${est.dinheiro} RÉIS`);
         L.listaMochila(r, est.mochila, ids, this.selLista);
         L.descricaoItem(r, ids[this.selLista], ALTURA - 42);
+        break;
+      }
+      case 'mochilaAlvo': {
+        const nomeItem = item(this.itemUsando!).nome.toUpperCase();
+        L.telaCheia(r, this.caixaCheia, `USAR ${nomeItem} EM QUEM?`, 'A USAR   B VOLTAR');
+        L.listaTime(r, est.time, this.selAlvo);
         break;
       }
       case 'medalhas':

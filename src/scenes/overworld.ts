@@ -35,7 +35,7 @@ import type { Cenario } from '../art/battlebg.ts';
 import { adicionar, consumir } from '../data/items.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
-  aplicarFala, contasAcesas, contasFaltando, escolherFala, ligada, preencher,
+  aplicarFala, CONTAS, contasAcesas, contasFaltando, escolherFala, ligada, preencher,
   type Fala,
 } from '../game/quests.ts';
 import { salvar } from '../game/save.ts';
@@ -49,6 +49,18 @@ const CHARS_POR_SEG = 48;
 const FADE = 0.18;
 /* quanto tempo o "!" fica sobre a cabeça do treinador antes de ele vir */
 const SUSTO = 0.7;
+/* corte de câmera para a guia do terreiro: tempo de entrada/saída do preto,
+   e quanto tempo o recado fica na tela se ninguém apertar nada */
+const CUT_FADE = 0.35;
+const CUT_ESPERA = 3.2;
+
+interface Cutscene {
+  mapa: Mapa;
+  cam: Camera;
+  t: number;
+  fase: 'entra' | 'mostra' | 'sai';
+  texto: string;
+}
 
 interface NpcVivo {
   def: DefNPC;
@@ -131,6 +143,11 @@ export class CenaMundo implements Cena {
   private folhas = new Map<string, FolhaAssada>();
   /* resultado da última batalha, aplicado quando a cena volta a ser a da vez */
   private pendente: Resultado | null = null;
+  private pendenteEntrouNoTime = false;
+  /* uma conta da guia acendeu: o corte de câmera espera a vez, sem interromper
+     conversa, batalha ou qualquer outra coisa que já esteja tomando a tela */
+  private cutscenePendente: { faltam: number } | null = null;
+  private cutscene: Cutscene | null = null;
 
   constructor(op: OpcoesCenaMundo) {
     this.op = op;
@@ -352,6 +369,7 @@ export class CenaMundo implements Cena {
       consumir: (id, n) => consumir(e.mochila, id, n),
     });
     this.atualizarCenario();
+    if (contasAcesas(e) > antes) this.prepararCutscene(contasAcesas(e));
 
     if (efeito.batalha && c.npc?.def.treinador) {
       if (temTimeEmPe(e)) { this.lutarCom(c.npc); return; }
@@ -388,6 +406,14 @@ export class CenaMundo implements Cena {
       `${nomeDe(bicho)} é seu, ${e.nome}. Trate bem e ele trata melhor.`,
       'Agora chegue aqui outra vez, que eu tenho um serviço para vocês dois.',
     ]);
+  }
+
+  /* abre o menu de pausa direto na página do time, com o recém-chegado
+     selecionado — é o convite para trocar a ordem assim que alguém entra */
+  private abrirReordenar(): void {
+    this.emMenu = true;
+    this.menu!.abrirEmTime('Quer mudar a ordem do time? A troca de lugar, B sai.',
+                           this.op.estado.time.length - 1);
   }
 
   /* ----------------------------------------------------------- treinador */
@@ -462,22 +488,36 @@ export class CenaMundo implements Cena {
   }
 
   /* o main avisa como terminou; a cena aplica quando volta a ser a da vez */
-  voltouDaBatalha(r: Resultado): void { this.pendente = r; }
+  voltouDaBatalha(r: Resultado, entrouNoTime = false): void {
+    this.pendente = r;
+    this.pendenteEntrouNoTime = entrouNoTime;
+  }
 
   private resolverBatalha(): void {
     const r = this.pendente;
+    const entrouNoTime = this.pendenteEntrouNoTime;
     this.pendente = null;
+    this.pendenteEntrouNoTime = false;
     if (r === null) return;
 
     const d = this.duelo;
     this.duelo = null;
     if (r === 'derrota') { this.socorrer(); return; }
-    if (!d) return;
+
+    /* um Encantado capturado agora mesmo entrou no time: com mais de um, a
+       ordem passa a valer, e é a hora certa de oferecer a troca */
+    if (entrouNoTime && this.op.estado.time.length > 1) this.abrirReordenar();
+
+    if (!d) {
+      if (entrouNoTime) salvar(this.op.estado);
+      return;
+    }
     // contra bicho, prender no patuá conta tanto quanto vencer
     const ganhou = r === 'vitoria' || (r === 'captura' && d.npc.def.treinador?.selvagem === true);
     if (!ganhou) return;
 
     const e = this.op.estado;
+    const antes = contasAcesas(e);
     const t = d.npc.def.treinador!;
     e.flags[`venceu_${d.npc.def.id}`] = true;
     const extras = t.liga === undefined ? []
@@ -488,8 +528,78 @@ export class CenaMundo implements Cena {
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
     if (r === 'captura') this.sumirNpc(d.npc);
+    if (contasAcesas(e) > antes) this.prepararCutscene(contasAcesas(e));
     salvar(e);
     if (t.falaDerrota && r !== 'captura') this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
+  }
+
+  /* ------------------------------------------------------- corte de câmera
+
+     Uma conta da guia acabou de acender. O corte não pode atropelar nada
+     que já esteja na tela — conversa, batalha, loja — então ele só GUARDA o
+     que precisa mostrar; é `atualizar()` que decide a hora certa de soltar. */
+  private prepararCutscene(contasAgora: number): void {
+    this.cutscenePendente = { faltam: CONTAS.length - contasAgora };
+  }
+
+  /* acha a guia do terreiro em qualquer mapa do registro. A Região da Foz só
+     tem uma; quando a Fase 4 trouxer a segunda, isto precisa escolher a do
+     terreiro mais perto do que o jogador está fazendo, não a primeira. */
+  private encontrarGuia(): { mapaId: string; tx: number; ty: number; larg: number } | null {
+    for (const id of this.op.mundo.ids) {
+      const o = this.op.mundo.def(id).objetos.find((x) => x.tipo === 'portao');
+      if (o) return { mapaId: id, tx: o.tx, ty: o.ty, larg: o.larg ?? 4 };
+    }
+    return null;
+  }
+
+  private iniciarCutscene(): void {
+    const pend = this.cutscenePendente;
+    this.cutscenePendente = null;
+    const g = pend && this.encontrarGuia();
+    if (!pend || !g) return;
+
+    const mapa = this.op.mundo.obter(g.mapaId, this.contexto());
+    const cam = new Camera();
+    cam.seguir(g.tx * TS + (g.larg * TS) / 2, g.ty * TS + TS / 2, mapa.larguraPx, mapa.alturaPx);
+
+    const texto = pend.faltam > 0
+      ? `Mais uma conta da guia do terreiro acendeu! Faltam ${pend.faltam} para ela se abrir.`
+      : 'A guia se abriu! O Terreiro está livre — vá em frente.';
+    this.cutscene = { mapa, cam, t: 0, fase: 'entra', texto };
+  }
+
+  private atualizarCutscene(dt: number, entrada: Entrada): void {
+    const c = this.cutscene!;
+    c.t += dt;
+    if (c.fase === 'entra' && c.t >= CUT_FADE) { c.t = 0; c.fase = 'mostra'; }
+    else if (c.fase === 'mostra'
+             && (c.t >= CUT_ESPERA || entrada.apertou('a') || entrada.apertou('b'))) {
+      c.t = 0; c.fase = 'sai';
+    } else if (c.fase === 'sai' && c.t >= CUT_FADE) { this.cutscene = null; }
+  }
+
+  private desenharCutscene(r: Renderizador): void {
+    const c = this.cutscene!;
+    r.limpar('#101018');
+    c.mapa.desenhar(r.ctx, c.cam.x, c.cam.y, LARGURA, ALTURA);
+
+    if (c.fase === 'mostra') {
+      const larg = LARGURA - 16;
+      const linhas = quebrar(c.texto, larg - 12);
+      const alt = 8 + linhas.length * 10;
+      const y = ALTURA - alt - 10;
+      r.retangulo(6, y - 2, larg + 4, alt + 4, P.ink!);
+      r.retangulo(8, y, larg, alt, P.uiBg!);
+      linhas.forEach((l, i) => r.texto(l, 14, y + 6 + i * 10, P.uiInk!));
+    }
+
+    const alfa = c.fase === 'entra' ? 1 - c.t / CUT_FADE : c.fase === 'sai' ? c.t / CUT_FADE : 0;
+    if (alfa > 0) {
+      r.ctx.globalAlpha = Math.max(0, Math.min(1, alfa));
+      r.limpar('#000000');
+      r.ctx.globalAlpha = 1;
+    }
   }
 
   private sumirNpc(npc: NpcVivo): void {
@@ -592,6 +702,16 @@ export class CenaMundo implements Cena {
   atualizar(dt: number, entrada: Entrada): void {
     this.tempoAnim += dt;
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
+
+    if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
+
+    // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
+    // que já esteja na tela (conversa, batalha, loja, menu, escolha, porta)
+    if (this.cutscenePendente && !this.conversa && !this.emLoja && !this.emMenu
+        && !this.emEscolha && !this.indo && !this.duelo) {
+      this.iniciarCutscene();
+      return;
+    }
 
     // ---- sobreposições: o mundo continua desenhado, mas congelado ----
     if (this.emLoja) {
@@ -746,6 +866,8 @@ export class CenaMundo implements Cena {
   /* ------------------------------------------------------------- desenho */
 
   desenhar(r: Renderizador): void {
+    if (this.cutscene) { this.desenharCutscene(r); return; }
+
     r.limpar('#101018');
     this.mapa.desenhar(r.ctx, this.camera.x, this.camera.y, LARGURA, ALTURA);
 

@@ -257,6 +257,35 @@ espécie que sumiu, golpe renomeado, mapa que não existe mais e vida acima do
 máximo são corrigidos em silêncio, porque perder a partida inteira por causa de
 um campo torto seria pior do que voltar com um item a menos.
 
+Três coisas pequenas que valem a pena entender juntas, porque moram todas em
+`game/state.ts` e `scenes/menu.ts`:
+
+- **Os patuás na mesa.** A escolha do inicial não é só a sobreposição de
+  `EscolhaInicial`: os três patuás também estão desenhados NO MUNDO, pousados na
+  mesa da Dona Firmina (`tiles.ts:patuasNaMesa`, um objeto comum de mapa com
+  `seNao: 'escolheu_inicial'`). Somem da mesa no instante em que a flag liga,
+  porque o mapa já reage a flag — é o mesmo mecanismo da guia, não um novo.
+- **Item de cura fora de batalha.** `usavelForaDeBatalha()` separa o que só faz
+  sentido numa luta (patuá) do que não precisa de adversário nenhum (garrafada,
+  erva-doce, água benta); `usarItemForaDeBatalha()` espelha exatamente a conta
+  que `battle/engine.ts` já fazia dentro da luta, só que target por índice do
+  time, sem Batalha nenhuma por perto. A MOCHILA do menu de pausa abre a lista
+  do time quando o item pedir alvo.
+- **Reordenar o time.** Na página TIME do menu, A pega um Encantado e A de novo
+  (numa linha diferente) troca os dois de lugar — `trocarPosicoes()`. Sempre que
+  alguém entra no time por captura (e já havia mais de um), `CenaMundo` abre o
+  menu direto nessa página, com o recém-chegado selecionado: é o convite para
+  decidir se ele lidera o time ou não.
+
+E uma quarta, que é cena de verdade, não regra de dado: **o corte para a guia.**
+Toda vez que uma das cinco contas acende — numa conversa ou numa vitória — a
+câmera corta para onde a guia do terreiro está (`CenaMundo` procura o objeto
+`portao` em qualquer mapa do registro), mostra o colar já com a conta nova
+acesa, e avisa quantas faltam. É uma `Cutscene` local à cena do mundo — mapa e
+câmera próprios, para não perturbar o mapa e a câmera do jogador — que só começa
+quando não há conversa, batalha, loja ou menu tomando a tela; se acender no meio
+de uma dessas coisas, ela fica **guardada** em `cutscenePendente` até a vez certa.
+
 ## O jogo
 
 - **9 cidades.** Vila Aurora (início, sem terreiro) e mais 8, uma por tipo.

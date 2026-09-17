@@ -53,9 +53,9 @@ function lutar(p: PedidoBatalha): void {
     oponentes: p.oponentes,
     treinador: p.treinador ?? null,
     cenario: p.cenario ?? 'praia',
-    aoTerminar: (resultado) => {
+    aoTerminar: (resultado, entrouNoTime) => {
       // a cena do mundo aplica o resultado quando volta a ser a cena da vez
-      cena.voltouDaBatalha(resultado);
+      cena.voltouDaBatalha(resultado, entrouNoTime);
       cenas.trocar(cena);
     },
   }));

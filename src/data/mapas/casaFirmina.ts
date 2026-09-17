@@ -26,6 +26,8 @@ export const casaFirmina: DefMapa = {
     { tipo: 'estante', tx: 1, ty: 1, larg: 3 },
     { tipo: 'estante', tx: 9, ty: 1, larg: 3 },
     { tipo: 'mesa',    tx: 4, ty: 2, larg: 5 },
+    /* os três patuás da escolha, pousados na mesa até o jogador escolher */
+    { tipo: 'patuas',  tx: 4, ty: 2, larg: 5, solido: false, seNao: 'escolheu_inicial' },
   ],
 
   npcs: [
