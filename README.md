@@ -165,6 +165,13 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
 - **A água funda deixa de ser parede** quando a Medalha Maré entrega o Dom de
   Nadar. Isso muda a colisão do mapa inteiro, não de um objeto, então entra na
   impressão que o `Mundo` guarda e o cenário é remontado na hora.
+- **A conversa passa por cima do balcão.** Balcão de loja e mesa de cozinha são
+  parede para o corpo e não para a voz: quem está do outro lado escuta. Sem
+  isso, um NPC posto atrás do próprio balcão vira enfeite — a Dona Firmina
+  ficou uma versão inteira cercada por duas estantes e a própria mesa, com a
+  fileira dela sem nenhuma entrada. "Tile andável" não quer dizer alcançável, e
+  agora `mapas.test.ts` procura, para cada NPC, um lugar de onde o botão A
+  chegue nele **com caminho a pé** desde a porta.
 - **Quem foge, foge.** Um NPC com `fujao` pula para longe de quem chega perto,
   enquanto tiver fôlego e para onde ir. Os três Sacizinhos que levaram as redes
   do Mestre do Porto só sentam para conversar depois de encurralados — e sair do

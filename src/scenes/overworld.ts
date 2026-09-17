@@ -500,7 +500,16 @@ export class CenaMundo implements Cena {
   /* ------------------------------------------------------------- entrada */
 
   private interagir(): void {
-    const { tx, ty } = this.jogador.frente();
+    let { tx, ty } = this.jogador.frente();
+
+    /* Balcão de loja, mesa de cozinha: o corpo é parede, mas a conversa
+       passa por cima. Sem isto, quem fica atrás do próprio balcão vira
+       enfeite — foi o que aconteceu com a Dona Firmina e com o lojista. */
+    if (this.mapa.balcao(tx, ty)) {
+      const [dx, dy] = DELTAS[this.jogador.dir];
+      const atras = this.npcs.find((n) => n.ator.tx === tx + dx && n.ator.ty === ty + dy);
+      if (atras) { tx += dx; ty += dy; }
+    }
 
     const npc = this.npcs.find((n) => n.ator.tx === tx && n.ator.ty === ty);
     if (npc) {

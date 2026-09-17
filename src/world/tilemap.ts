@@ -56,6 +56,12 @@ const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreir
 /* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
 const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
 
+/* Movel que da para conversar POR CIMA. Balcao de loja, mesa de cozinha: o
+   corpo e parede, mas quem esta do outro lado escuta — e e assim que se fala
+   com lojista em qualquer jogo do genero. Sem isso, um NPC posto atras do
+   proprio balcao fica inalcancavel. */
+const ATRAVESSA_FALA: readonly TipoObjeto[] = ['balcao', 'mesa', 'estante', 'gamela'];
+
 export interface DefObjeto {
   tipo: TipoObjeto;
   tx: number; ty: number;
@@ -184,6 +190,7 @@ export class Mapa {
   private solidos: Uint8Array;
   private encontros: Uint8Array;
   private escorregas: Uint8Array;
+  private balcoes: Uint8Array;
   private saidas = new Map<string, DefSaida>();
   /* o cenário fica em pixels crus até alguém pedir para desenhar. Assar exige
      um <canvas>, e os testes de coerência dos mapas rodam no Node, sem DOM. */
@@ -206,6 +213,7 @@ export class Mapa {
     this.solidos = new Uint8Array(n);
     this.encontros = new Uint8Array(n);
     this.escorregas = new Uint8Array(n);
+    this.balcoes = new Uint8Array(n);
 
     const buf = new Buf(this.largTiles * TS, this.altTiles * TS);
 
@@ -319,14 +327,24 @@ export class Mapa {
     const marcarA = o.tipo === 'placa' ? 1
                   : o.tipo === 'gamela' ? 2
                   : BLOCO.includes(o.tipo) ? alt : 1;
-    for (let j = 0; j < marcarA; j++)
-      for (let i = 0; i < marcarL; i++) this.marcarSolido(o.tx + i, o.ty + j);
+    const balcao = ATRAVESSA_FALA.includes(o.tipo);
+    for (let j = 0; j < marcarA; j++) {
+      for (let i = 0; i < marcarL; i++) {
+        this.marcarSolido(o.tx + i, o.ty + j);
+        if (balcao) this.marcarBalcao(o.tx + i, o.ty + j);
+      }
+    }
 
     // a porta e vao, nao parede: e por ela que se entra
     if (COM_PORTA.includes(o.tipo) && !o.trancada) {
       const col = T.colunaPorta(larg, o.portaCol);
       this.solidos[(o.ty + alt - 1) * this.largTiles + (o.tx + col)] = 0;
     }
+  }
+
+  private marcarBalcao(tx: number, ty: number): void {
+    if (!this.dentro(tx, ty)) return;
+    this.balcoes[ty * this.largTiles + tx] = 1;
   }
 
   private marcarSolido(tx: number, ty: number): void {
@@ -353,6 +371,12 @@ export class Mapa {
   temEncontro(tx: number, ty: number): boolean {
     if (!this.dentro(tx, ty)) return false;
     return this.encontros[ty * this.largTiles + tx] === 1;
+  }
+
+  /* movel que se atravessa com a voz: da para falar com quem esta atras */
+  balcao(tx: number, ty: number): boolean {
+    if (!this.dentro(tx, ty)) return false;
+    return this.balcoes[ty * this.largTiles + tx] === 1;
   }
 
   /* quem para aqui nao para: segue deslizando na direcao em que entrou */

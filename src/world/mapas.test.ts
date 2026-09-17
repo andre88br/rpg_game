@@ -467,3 +467,33 @@ test('quem foge tem o que entregar quando for encurralado', () => {
     }
   }
 });
+
+/* ------------------------------------------------- dá para falar com eles?
+
+   Tile andável não quer dizer nada: a Dona Firmina ficou uma versão inteira
+   cercada por duas estantes e a própria mesa, com a fileira dela sem nenhuma
+   entrada. Andável ela estava; alcançável, não. Este teste procura, para cada
+   NPC, um lugar de onde o botão A chegue nele — de frente, ou por cima de um
+   balcão — e exige que esse lugar tenha caminho a pé desde o início do mapa. */
+test('dá para conversar com todo NPC sem atravessar parede', () => {
+  const LADOS = [[0, -1], [0, 1], [-1, 0], [1, 0]] as const;
+  for (const [id, def] of entradas) {
+    const m = mapa(id);
+    const pes = alcance(m, def.inicio.tx, def.inicio.ty);
+    for (const n of def.npcs) {
+      const lugares: string[] = [];
+      for (const [dx, dy] of LADOS) {
+        // de frente para ele
+        const x = n.tx - dx, y = n.ty - dy;
+        if (!m.solido(x, y)) lugares.push(`${x},${y}`);
+        // ou do outro lado de um balcão
+        if (m.balcao(x, y) && !m.solido(n.tx - dx * 2, n.ty - dy * 2)) {
+          lugares.push(`${n.tx - dx * 2},${n.ty - dy * 2}`);
+        }
+      }
+      assert.ok(lugares.length > 0, `${id}: ${n.id} não tem de onde ser abordado`);
+      assert.ok(lugares.some((l) => pes.has(l)),
+                `${id}: ${n.id} está cercado — nenhum lugar de onde falar com ele tem caminho`);
+    }
+  }
+});
