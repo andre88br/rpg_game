@@ -1,5 +1,5 @@
 /* Tela de título. O fundo é montado uma vez e assado; só o "aperte A" pisca. */
-import { Buf, assar, escalar, type Assado } from '../core/buf.ts';
+import { Buf, assarSuave, escalar, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -74,7 +74,7 @@ export class CenaTitulo implements Cena {
   constructor(aoComecar: (c: Comeco) => void) { this.aoComecar = aoComecar; }
 
   entrar(): void {
-    this.fundo = assar(fundoTitulo());
+    this.fundo = assarSuave(fundoTitulo());
     this.t = 0;
     this.sel = 0;
     // o save pode ter nascido nesta sessão: o título é remontado a cada volta

@@ -3,7 +3,7 @@
    personagem de um tile ao seguinte e so aceita novo comando ao chegar.
    E isso que da a cadencia caracteristica do genero.
    ========================================================================= */
-import { assar, type Assado, type Buf } from '../core/buf.ts';
+import { assarSuave, type Assado, type Buf } from '../core/buf.ts';
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
 
@@ -13,7 +13,7 @@ export function assarFolha(op: OpcoesPessoa): FolhaAssada {
   const crua = folhaPersonagem(op);
   const saida = {} as FolhaAssada;
   for (const d of ['baixo', 'cima', 'esq', 'dir'] as Direcao[]) {
-    saida[d] = [assar(crua[d][0]), assar(crua[d][1]), assar(crua[d][2])];
+    saida[d] = [assarSuave(crua[d][0]), assarSuave(crua[d][1]), assarSuave(crua[d][2])];
   }
   return saida;
 }
@@ -22,7 +22,7 @@ export function assarFolha(op: OpcoesPessoa): FolhaAssada {
    doze poses como gente tem: e o mesmo desenho nos quatro lados, e o sprite
    e maior que o tile — quem desenha acerta os pes pela altura da imagem. */
 export function assarBicho(arte: Buf): FolhaAssada {
-  const img = assar(arte);
+  const img = assarSuave(arte);
   const trio: [Assado, Assado, Assado] = [img, img, img];
   const saida = {} as FolhaAssada;
   for (const d of ['baixo', 'cima', 'esq', 'dir'] as Direcao[]) saida[d] = trio;

@@ -5,7 +5,7 @@
    e o menu ficaria boiando no preto; assim o mundo continua desenhado por
    baixo e a pausa parece uma janela aberta em cima dele, como no gênero.
    ========================================================================= */
-import { assar, type Assado } from '../core/buf.ts';
+import { assar, assarSuave, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Entrada } from '../core/input.ts';
 import { P } from '../art/palette.ts';
@@ -203,7 +203,7 @@ export class MenuPausa {
       const tem = this.op.estado.medalhas.includes(m.id);
       if (tem) {
         let img = this.medalhinhas.get(m.id);
-        if (!img) { img = assar(medalha(m.id, 20)); this.medalhinhas.set(m.id, img); }
+        if (!img) { img = assarSuave(medalha(m.id, 20)); this.medalhinhas.set(m.id, img); }
         r.sprite(img, x + 6, y);
         r.texto(m.nome.slice(0, 6), x, y + 24, P.uiInk!);
       } else {

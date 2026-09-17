@@ -2,8 +2,15 @@
    Renderizador: um unico canvas com resolucao logica fixa de 240x160.
    A ampliacao ate o tamanho da tela e feita pelo CSS, sempre por um fator
    INTEIRO, entao o pixel nunca borra nem fica retangular.
+
+   O canvas tem SUAVE vezes mais pixels do que a resolucao logica, e uma
+   transformacao de escala converte um pelo outro: TODO o desenho continua
+   sendo feito em coordenadas de 240x160, como sempre foi. Os pixels a mais
+   existem para caber o degrau que assarSuave() poe nas diagonais do mundo.
+   Texto e menus, assados em 1x, caem em pixels inteiros do canvas e
+   continuam nitidos.
    ========================================================================= */
-import { Buf, assar, type Assado } from './buf.ts';
+import { Buf, assar, escalaDe, SUAVE, type Assado } from './buf.ts';
 import { texto as textoNoBuf, larguraTexto, CHAR_W } from '../art/font.ts';
 
 export const LARGURA = 240;
@@ -70,12 +77,14 @@ export class Renderizador {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    canvas.width = LARGURA;
-    canvas.height = ALTURA;
+    canvas.width = LARGURA * SUAVE;
+    canvas.height = ALTURA * SUAVE;
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) throw new Error('canvas 2d indisponivel');
     this.ctx = ctx;
     this.ctx.imageSmoothingEnabled = false;
+    /* daqui em diante quem desenha fala em 240x160 e nao precisa saber de nada */
+    this.ctx.setTransform(SUAVE, 0, 0, SUAVE, 0, 0);
   }
 
   /* Recalcula a ampliacao para caber no espaco disponivel.
@@ -111,14 +120,19 @@ export class Renderizador {
     this.ctx.fillRect(0, 0, LARGURA, ALTURA);
   }
 
+  /* A imagem pode ter sido assada suave, com mais pixels do que ocupa na
+     tela: o tamanho de destino sai da escala dela, nunca do width cru. */
   sprite(img: Assado, x: number, y: number): void {
-    this.ctx.drawImage(img, Math.round(x), Math.round(y));
+    const s = escalaDe(img);
+    this.ctx.drawImage(img, Math.round(x), Math.round(y), img.width / s, img.height / s);
   }
 
   /* recorte de uma imagem maior (usado para a janela da camera no mapa) */
   recorte(img: Assado, sx: number, sy: number, sw: number, sh: number,
           dx: number, dy: number): void {
-    this.ctx.drawImage(img, sx, sy, sw, sh, Math.round(dx), Math.round(dy), sw, sh);
+    const s = escalaDe(img);
+    this.ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s,
+                       Math.round(dx), Math.round(dy), sw, sh);
   }
 
   retangulo(x: number, y: number, w: number, h: number, cor: string): void {

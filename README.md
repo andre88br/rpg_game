@@ -76,12 +76,39 @@ Três decisões que sustentam o desempenho e a nitidez:
 - **Mapa pré-renderizado.** O cenário inteiro é desenhado num único canvas na
   carga; a cada quadro recortamos só a janela da câmera. Um `drawImage` no lugar
   de centenas. Roda a 60 quadros por segundo.
-- **Ampliação em pixels do dispositivo.** O canvas tem 240×160 de verdade e o CSS
+- **Ampliação em pixels do dispositivo.** O jogo desenha em 240×160 e o CSS
   amplia por fator inteiro em pixels *físicos*, então cada pixel do jogo ocupa
   sempre a mesma área. Em telas de densidade alta, quando o fator inteiro
   desperdiçaria mais de 10% da largura, preenchemos a tela — com 3 pixels
   físicos por pixel do jogo a diferença não é perceptível, e o jogo deixa de
   ficar minúsculo no celular.
+
+## Assar suave: o mundo sem escadinha
+
+O canvas guarda o **dobro** dos pixels de 240×160, e uma transformação de escala
+converte um pelo outro — todo o desenho continua sendo escrito em coordenadas de
+240×160, e nenhuma das 148 chamadas de desenho das telas precisou mudar. Os
+pixels a mais existem para caber `assarSuave()`, que roda duas vezes sobre a arte
+que já existe, sem redesenhar nada:
+
+1. **EPX/Scale2x.** Cada pixel vira quatro, e os quatro cantos são decididos pela
+   vizinhança: onde duas cores se encontram em diagonal, o canto recebe a cor que
+   continua a diagonal em vez de repetir o centro. É o que arredonda a copa da
+   árvore, o telhado e o contorno dos bichos.
+2. **Anti-serrilhado só nas bordas.** Pixel cercado de iguais fica intacto; só
+   quem está num limite de cor se mistura com os quatro vizinhos, em alfa
+   pré-multiplicado — sem isso a borda de um sprite se mistura com o preto
+   invisível de fora e ganha uma auréola escura. Área chapada continua chapada, e
+   o resultado não vira o borrão típico de filtro de emulador.
+
+**Texto e menus ficam de fora**, assados em 1× por `assar()`: caem em pixels
+inteiros do canvas e continuam nítidos. Fonte de 5×7 suavizada seria ilegível
+neste tamanho. Numa tela de Porto Iara isso dá 852 tons distintos onde a paleta
+do jogo tem umas 60 — os outros 800 são degraus de borda.
+
+O custo é de carga, não de quadro: o mapa é assado uma vez por mapa (e reassado
+quando uma flag muda o cenário, como já era), com quatro vezes mais pixels para
+preencher. O laço de jogo continua fazendo um `drawImage` por quadro.
 
 **A cena de batalha desenha de uma fotografia, não do motor.** `executar()`
 resolve o turno inteiro de uma vez: quando ele devolve, a vida já caiu e o bicho

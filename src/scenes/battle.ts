@@ -10,7 +10,7 @@
    dois dos painéis, e texto (que usa o atlas de glifos do renderizador).
    Nada aqui redesenha pixel a pixel durante o jogo.
    ========================================================================= */
-import { Buf, assar, escalar, type Assado } from '../core/buf.ts';
+import { Buf, assar, assarSuave, escalar, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -140,7 +140,7 @@ export class CenaBatalha implements Cena {
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
 
-    this.fundo = assar(fundoBatalha(this.op.cenario ?? 'praia'));
+    this.fundo = assarSuave(fundoBatalha(this.op.cenario ?? 'praia'));
     this.caixaMsg = assar(UI.caixa(LARGURA, 50));
     this.caixaPergunta = assar(UI.caixa(146, 50));
     this.caixaComandos = assar(UI.caixa(96, 50));
@@ -197,7 +197,7 @@ export class CenaBatalha implements Cena {
     for (let y = cru.h - 1; y >= 0 && base === 0; y--) {
       for (let x = 0; x < cru.w; x++) if (cru.get(x, y) != null) { base = y + 1; break; }
     }
-    a = { img: assar(escalar(cru, 2)), alt: base * 2 };
+    a = { img: assarSuave(escalar(cru, 2)), alt: base * 2 };
     this.sprites.set(chave, a);
     return a;
   }

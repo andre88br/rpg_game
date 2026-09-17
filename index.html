@@ -42,7 +42,8 @@
     #palco { padding: 12px 0; }
     #meio .dica { margin: 0; }
   }
-  /* o canvas tem 240x160 de verdade; o CSS só amplia por fator inteiro */
+  /* o jogo desenha em 240x160; o canvas guarda o dobro disso, para caber o
+     anti-serrilhado do mundo, e o CSS amplia por fator inteiro */
   #jogo {
     display: block; image-rendering: pixelated; image-rendering: crisp-edges;
     background: #000; border-radius: 2px;

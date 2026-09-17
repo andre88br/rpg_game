@@ -4,7 +4,7 @@
    quadro so recortamos a janela da camera. Isso troca centenas de drawImage
    por um so, e e o que segura 60 quadros por segundo em celular modesto.
    ========================================================================= */
-import { Buf, assar, type Assado } from '../core/buf.ts';
+import { Buf, assarSuave, escalaDe, type Assado } from '../core/buf.ts';
 import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import type { Direcao } from '../art/people.ts';
@@ -388,7 +388,10 @@ export class Mapa {
   /* recorta a janela da camera direto do mapa ja desenhado */
   desenhar(ctx: CanvasRenderingContext2D, camX: number, camY: number,
            larg: number, alt: number): void {
-    if (!this.imagem) { this.imagem = assar(this.cru!); this.cru = null; }
-    ctx.drawImage(this.imagem, camX, camY, larg, alt, 0, 0, larg, alt);
+    if (!this.imagem) { this.imagem = assarSuave(this.cru!); this.cru = null; }
+    /* o cenário é assado com mais pixels do que ocupa na tela: a janela da
+       câmera continua em coordenadas do jogo, o recorte é que cresce */
+    const s = escalaDe(this.imagem);
+    ctx.drawImage(this.imagem, camX * s, camY * s, larg * s, alt * s, 0, 0, larg, alt);
   }
 }

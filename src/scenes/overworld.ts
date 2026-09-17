@@ -10,7 +10,7 @@
    O menu de pausa e a loja NÃO são cenas: são sobreposições desenhadas por
    cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
    ========================================================================= */
-import { assar, type Assado } from '../core/buf.ts';
+import { assar, assarSuave, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -150,7 +150,7 @@ export class CenaMundo implements Cena {
 
     // recursos visuais assados uma vez, valem para todos os mapas
     this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
-    this.rocadas = [assar(T.rocada(0)), assar(T.rocada(1)), assar(T.rocada(2))];
+    this.rocadas = [assarSuave(T.rocada(0)), assarSuave(T.rocada(1)), assarSuave(T.rocada(2))];
     this.menu = new MenuPausa({
       estado: this.op.estado,
       aoSalvar: () => salvar(this.op.estado),

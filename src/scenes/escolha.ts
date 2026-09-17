@@ -5,7 +5,7 @@
    três patuás ficam lado a lado e o cursor anda entre eles; o do meio é o
    que aparece grande, para a escolha ter cara de escolha e não de lista.
    ========================================================================= */
-import { assar, type Assado } from '../core/buf.ts';
+import { assar, assarSuave, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Entrada } from '../core/input.ts';
 import { P, infoTipo } from '../art/palette.ts';
@@ -43,7 +43,7 @@ export class EscolhaInicial {
     let a = this.retratos.get(id);
     if (a) return a;
     const desenho = ARTE_CRIATURAS[especie(id).arte];
-    a = assar(desenho ? desenho() : UI.caixa(32, 32));
+    a = assarSuave(desenho ? desenho() : UI.caixa(32, 32));
     this.retratos.set(id, a);
     return a;
   }

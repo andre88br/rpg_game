@@ -210,3 +210,101 @@ export function rng(semente: number): () => number {
     return s / 4294967296;
   };
 }
+
+/* =========================================================================
+   Assar suave: o mesmo desenho, com o dobro de pixels e sem escadinha.
+
+   Nada de arte e redesenhado. Sao dois passos sobre o que ja existe:
+
+   1. EPX/Scale2x — cada pixel vira quatro, e os quatro cantos sao decididos
+      pela vizinhanca: onde duas cores se encontram em diagonal, o canto
+      recebe a cor que continua a diagonal em vez de repetir o centro. E o
+      que arredonda a copa da arvore e o telhado.
+   2. Anti-serrilhado SO NAS BORDAS — pixel cercado de iguais fica intacto;
+      so quem esta num limite de cor se mistura com a vizinhanca. Area
+      chapada continua chapada, e o resultado nao vira aquele borrao de
+      filtro de emulador.
+
+   Vale para o mundo: cenario, personagens, bichos. Texto e menus continuam
+   em assar(), nitidos — fonte suavizada fica ilegivel neste tamanho.
+   ========================================================================= */
+
+/* EPX dobra: nao e um numero que se possa trocar por 3 ou 4. */
+export const SUAVE = 2;
+
+const escalas = new WeakMap<Assado, number>();
+
+/* Quantos pixels de imagem cabem em um pixel logico do jogo. */
+export function escalaDe(a: Assado): number { return escalas.get(a) ?? 1; }
+
+/* Mistura cada pixel de borda com os quatro vizinhos, em alfa pre-multiplicado
+   — sem isso a borda de um sprite se mistura com o preto invisivel de fora e
+   ganha uma auréola escura. */
+function suavizarBordas(d: Uint8ClampedArray, w: number, h: number, peso: number): void {
+  const o = new Uint8ClampedArray(d);
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = (y * w + x) * 4;
+      const viz = [i - 4, i + 4, i - w * 4, i + w * 4];
+      let borda = false;
+      for (const k of viz) {
+        if (o[k] !== o[i] || o[k + 1] !== o[i + 1] ||
+            o[k + 2] !== o[i + 2] || o[k + 3] !== o[i + 3]) { borda = true; break; }
+      }
+      if (!borda) continue;
+
+      let sa = 0, sr = 0, sg = 0, sb = 0;
+      for (const k of viz) {
+        const a = o[k + 3]! / 255;
+        sa += a; sr += o[k]! * a; sg += o[k + 1]! * a; sb += o[k + 2]! * a;
+      }
+      const aC = o[i + 3]! / 255;
+      const novoA = aC * (1 - peso) + (sa / 4) * peso;
+      if (novoA <= 0) { d[i + 3] = 0; continue; }
+      d[i]     = (o[i]!     * aC * (1 - peso) + (sr / 4) * peso) / novoA;
+      d[i + 1] = (o[i + 1]! * aC * (1 - peso) + (sg / 4) * peso) / novoA;
+      d[i + 2] = (o[i + 2]! * aC * (1 - peso) + (sb / 4) * peso) / novoA;
+      d[i + 3] = novoA * 255;
+    }
+  }
+}
+
+export function assarSuave(buf: Buf, peso = 0.4): Assado {
+  const w = buf.w, h = buf.h, W = w * SUAVE, H = h * SUAVE;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d')!;
+  const img = ctx.createImageData(W, H);
+  const d = img.data;
+
+  const por = (x: number, y: number, c: Cor | null): void => {
+    if (c == null) return;
+    const [r, g, b, a] = corParaRGBA(c);
+    const j = (y * W + x) * 4;
+    d[j] = r; d[j + 1] = g; d[j + 2] = b; d[j + 3] = a;
+  };
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const E = buf.get(x, y);
+      if (E == null) continue;
+      const cima = buf.get(x, y - 1), esq = buf.get(x - 1, y);
+      const dir = buf.get(x + 1, y), baixo = buf.get(x, y + 1);
+      let a = E, b = E, c = E, e = E;
+      /* so mexe onde ha de fato uma diagonal: dois vizinhos opostos iguais
+         significam faixa reta, e faixa reta fica como esta */
+      if (cima !== baixo && esq !== dir) {
+        if (esq != null && esq === cima)  a = esq;
+        if (dir != null && cima === dir)  b = dir;
+        if (esq != null && esq === baixo) c = esq;
+        if (dir != null && baixo === dir) e = dir;
+      }
+      por(x * 2, y * 2, a);         por(x * 2 + 1, y * 2, b);
+      por(x * 2, y * 2 + 1, c);     por(x * 2 + 1, y * 2 + 1, e);
+    }
+  }
+  if (peso > 0) suavizarBordas(d, W, H, peso);
+  ctx.putImageData(img, 0, 0);
+  escalas.set(cv, SUAVE);
+  return cv;
+}
