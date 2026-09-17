@@ -3,10 +3,11 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: Fase 2 — batalha.** Dá para andar por Porto Iara, conversar com os
-moradores, cair em encontros no mato alto e lutar de verdade: turnos, tabela de
-tipos, estados alterados, itens, captura com patuá, troca de Encantado, XP,
-subida de nível e evolução.
+**Estado: Fase 3, Etapa 1 — a região se abre.** A Fase 1 do jogo é a **Região da
+Foz**: acorda-se em casa na Vila Aurora, desce-se a Rota da Foz e chega-se a
+Porto Iara, entrando e saindo das casas, da loja, do benzimento e do terreiro.
+A batalha da Fase 2 continua inteira: turnos, tabela de tipos, estados
+alterados, itens, captura com patuá, troca, XP, nível e evolução.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -22,7 +23,7 @@ npm run dev          # http://localhost:5173  (e pela rede local, para testar no
 | `npm run dev` | servidor de desenvolvimento |
 | `npm run build` | checa os tipos e gera `dist/` |
 | `npm run checar` | só a checagem de tipos |
-| `npm test` | testes de dano, tipos, captura, progressão e motor de turnos |
+| `npm test` | testes de dano, tipos, captura, progressão, motor de turnos e coerência dos mapas |
 | `npm run arte` | regenera as imagens dos esboços em `esbocos/img/` |
 
 Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
@@ -51,10 +52,12 @@ src/
 │             creatures · badges · ui · battlebg
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
-├─ world/     tilemap.ts · camera.ts · actor.ts
+├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
+│             mapas.test.ts (coerência: saídas, alcance, encontros)
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
 ├─ scenes/    title.ts · overworld.ts · battle.ts
-├─ data/      creatures.ts · moves.ts · items.ts · mapas/portoIara.ts
+├─ data/      creatures.ts · moves.ts · items.ts
+│             mapas/ (a Região da Foz: 3 externos + 5 interiores)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -110,20 +113,42 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
   melhores com um pingo de acaso — treinador é mais certeiro que bicho selvagem,
   e derrubar o oponente naquele turno vale mais que qualquer outra coisa.
 
-O mapa é uma grade ASCII editável à mão em `src/data/mapas/`:
+## O mundo
+
+Cada mapa é uma grade ASCII editável à mão em `src/data/mapas/`:
 
 ```
  .  grama        ,  mato alto (encontros)   =  caminho de terra
  a  areia        ~  água (intransponível)   p  cais de madeira
  #  árvore       o  pedra                   f  flores
+ _  piso         W  parede interna          T  tapete
+ m  tatame       u  poça d'água
 ```
+
+As portas ficam sempre no meio de um **tile inteiro**, e é nele que mora a
+`DefSaida` que leva ao interior. O `Mundo` (`src/world/mundo.ts`) guarda cada
+mapa já desenhado: atravessar uma porta troca o cenário e os NPCs, mas não
+remonta nada nem mexe no jogador.
+
+Erro de grade não aparece no `tsc` — uma linha com um caractere a mais, uma casa
+plantada em cima da única moita, uma porta que abre para dentro de uma parede:
+tudo isso compila. Por isso `src/world/mapas.test.ts` lê os mapas de verdade e
+anda por eles em busca larga: confere o comprimento de cada linha, que toda
+saída caia em chão livre (e não em cima de outra saída, o que faria laço de
+porta), que todo NPC e todo início estejam em tile andável, que toda espécie de
+encontro exista, e que todo mato alto e toda saída tenham caminho a pé a partir
+do início.
 
 ## O jogo
 
 - **9 cidades.** Vila Aurora (início, sem terreiro) e mais 8, uma por tipo.
-- **8 terreiros.** Em cada cidade, uma cadeia de tarefas abre o portão do terreiro;
-  derrotar o líder dá a medalha e um **Dom de Campo**, que remove o obstáculo da
-  estrada para a cidade seguinte.
+- **8 terreiros.** Cada terreiro é fechado por uma **guia de cinco contas**: cinco
+  desafios espalhados pela região, um de cada sabor — um recado para entregar, um
+  rival que barra a estrada, uma caçada no mato alto, um sumiço para resolver e um
+  chefe. Cinco contas acesas abrem a guia; derrotar o líder dá a medalha e um
+  **Dom de Campo**, que remove o obstáculo da estrada para a região seguinte.
+- **Uma região por vez.** Cada região sai completa e jogável antes de a seguinte
+  começar. A primeira é a **Região da Foz**: Vila Aurora → Rota da Foz → Porto Iara.
 - **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas.
 - **8 tipos:** Fogo → Planta → Água → Fogo · Terra → Raio → Vento → Terra · Luz ↔ Sombra.
 
@@ -150,16 +175,26 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
       teclado e toque, mapa de Porto Iara, NPCs e diálogo.
 - [x] **2 — Batalha.** Turnos, tabela de tipos, dano, PP, estados, itens, captura,
       troca, XP, subida de nível, evolução e IA — com 88 testes automatizados.
-- [ ] **3 — Fatia vertical.** A tarefa das redes abre o terreiro; Mariana, a Medalha
-      Maré e o Dom "Nadar" liberam a estrada seguinte. Save, menus, loja, cura.
-- [ ] **4 — Conteúdo.** As 7 cidades restantes, ~40 Encantados, ~60 golpes.
+- [ ] **3 — Região da Foz.** A Fase 1 do jogo, inteira.
+  - [x] **Etapa 1 — o mundo se abre.** Oito mapas encadeados (Vila Aurora, Rota da
+        Foz, Porto Iara e cinco interiores), passagens, portas alinhadas ao tile,
+        abrigo onde se acorda depois de apagar, e os testes de coerência de mapa.
+  - [ ] **Etapa 2 — o jogo lembra de você.** Falas condicionais, as cinco contas
+        ligadas às flags, treinadores com visão, menu de pausa, loja, benzimento e save.
+  - [ ] **Etapa 3 — a fase fecha.** Escolha do inicial, os cinco desafios completos,
+        o puzzle de poças, Mariana, a Medalha Maré e o Dom "Nadar".
+- [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
 ### Pontas soltas conhecidas
 
 - O time inicial da Fase 2 é provisório (Iarinha e Boitatinha no nível 5): a
-  escolha do inicial com a Dona Firmina entra na Fase 3.
+  escolha do inicial com a Dona Firmina entra na Etapa 3.
+- As cinco contas da guia já aparecem apagadas no portão do terreiro, mas ainda
+  não acendem: os cinco desafios ganham lógica nas Etapas 2 e 3.
+- As poças do salão do terreiro ainda são só piso molhado. Escorregar até a
+  parede exige um modo "deslizando" no `Ator`, que entra na Etapa 3.
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
 - As formas intermediárias (Boitatá, Iaraí, Curupira) ainda não existem: por

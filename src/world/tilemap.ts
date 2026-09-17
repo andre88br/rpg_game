@@ -31,9 +31,22 @@ export const TILES: Record<string, DefTile> = {
   '#': { desenho: T.tileArvore, solido: true },
   'o': { desenho: T.tilePedra, solido: true },
   'R': { desenho: T.tileRocha, solido: true },
+  /* interiores */
+  '_': { desenho: T.tilePisoMadeira },
+  'W': { desenho: T.tileParedeInterna, solido: true },
+  'T': { desenho: T.tileTapete },
+  'm': { desenho: T.tileTatame },
+  'u': { desenho: T.tilePocaDagua },
 };
 
-export type TipoObjeto = 'casa' | 'loja' | 'terreiro' | 'placa' | 'barreira';
+export type TipoObjeto =
+  | 'casa' | 'loja' | 'benzimento' | 'terreiro'      // construcoes com porta
+  | 'placa' | 'barreira' | 'portao'                  // cenario
+  | 'balcao' | 'gamela' | 'estante' | 'mesa';        // moveis de interior
+
+/* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
+   do mapa costuma ficar */
+const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro'];
 
 export interface DefObjeto {
   tipo: TipoObjeto;
@@ -41,6 +54,21 @@ export interface DefObjeto {
   larg?: number; alt?: number;
   placa?: string;
   solido?: boolean;
+  /* coluna da porta, em tiles, a partir da esquerda da construcao */
+  portaCol?: number;
+  /* quantas das cinco contas da guia estao acesas (tipo 'portao') */
+  contas?: number;
+  /* construcao sem interior: a porta continua desenhada, mas e parede */
+  trancada?: boolean;
+}
+
+export interface DefSaida {
+  tx: number; ty: number;                 // tile do mapa atual que leva embora
+  para: string;                           // id do mapa de destino
+  destino: { tx: number; ty: number; dir: Direcao };
+  /* porta: basta pisar (padrao). false = precisa apertar A, para beiras
+     de mapa em que atravessar sem querer seria irritante */
+  aoPisar?: boolean;
 }
 
 export interface DefNPC {
@@ -53,6 +81,8 @@ export interface DefNPC {
 }
 
 export interface DefMapa {
+  /* chave no registro MAPAS; e o que as saidas apontam */
+  id: string;
   nome: string;
   chao: readonly string[];
   objetos: readonly DefObjeto[];
@@ -64,9 +94,16 @@ export interface DefMapa {
   cenario?: Cenario;
   /* passos no mato, em média, entre um encontro e outro */
   passosPorEncontro?: number;
+  /* para onde cada porta / beira de mapa leva */
+  saidas?: readonly DefSaida[];
+  /* dentro de uma construcao: sem faixa de cidade e sem céu */
+  interior?: boolean;
+  /* abrigo: e aqui que o jogador acorda depois de apagar no mato */
+  refugio?: boolean;
 }
 
 export class Mapa {
+  readonly id: string;
   readonly nome: string;
   readonly largTiles: number;
   readonly altTiles: number;
@@ -74,11 +111,17 @@ export class Mapa {
   private grade: string[];
   private solidos: Uint8Array;
   private encontros: Uint8Array;
-  private imagem: Assado;
+  private saidas = new Map<string, DefSaida>();
+  /* o cenário fica em pixels crus até alguém pedir para desenhar. Assar exige
+     um <canvas>, e os testes de coerência dos mapas rodam no Node, sem DOM. */
+  private cru: Buf | null;
+  private imagem: Assado | null = null;
 
   constructor(def: DefMapa) {
     this.def = def;
+    this.id = def.id;
     this.nome = def.nome;
+    for (const s of def.saidas ?? []) this.saidas.set(`${s.tx},${s.ty}`, s);
     this.grade = def.chao.map((l) => l);
     this.altTiles = def.chao.length;
     this.largTiles = def.chao[0]?.length ?? 0;
@@ -117,7 +160,7 @@ export class Mapa {
     // 3) construcoes e objetos, por cima do terreno
     for (const o of def.objetos) this.desenharObjeto(buf, o);
 
-    this.imagem = assar(buf);
+    this.cru = buf;
   }
 
   private desenharObjeto(buf: Buf, o: DefObjeto): void {
@@ -126,16 +169,39 @@ export class Mapa {
     let deslocY = 0;
 
     switch (o.tipo) {
+      case 'benzimento':
+        sprite = T.construcao(larg, alt, { roof: '#c25d8f', roofD: '#95406a', roofL: '#e089b4',
+                                           sign: 'BENZIMENTO', signColor: '#f0b6d2',
+                                           portaCol: o.portaCol });
+        break;
+      case 'portao':
+        sprite = T.guia(larg, o.contas ?? 0);
+        break;
+      case 'balcao':
+        sprite = T.balcao(larg);
+        break;
+      case 'gamela':
+        sprite = T.gamela();     // sempre 2x2 tiles
+        break;
+      case 'estante':
+        sprite = T.estante(larg);
+        break;
+      case 'mesa':
+        sprite = T.mesa(larg);
+        break;
       case 'casa':
-        sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL });
+        sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL,
+                                           portaCol: o.portaCol });
         break;
       case 'loja':
         sprite = T.construcao(larg, alt, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894',
-                                           sign: 'LOJA', signColor: '#7fd9b4' });
+                                           sign: 'LOJA', signColor: '#7fd9b4',
+                                           portaCol: o.portaCol });
         break;
       case 'terreiro':
         sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
-                                           sign: 'TERREIRO', signColor: P.uiAcc });
+                                           sign: 'TERREIRO', signColor: P.uiAcc,
+                                           portaCol: o.portaCol });
         break;
       case 'placa':
         sprite = T.placa();
@@ -156,11 +222,20 @@ export class Mapa {
       buf.tri(gx + 1, gy - 18, gx + 11, gy - 15, gx + 1, gy - 12, P.waterL!);
     }
     // marca a area ocupada como solida
+    const umaLinha = o.tipo !== 'placa' && o.tipo !== 'casa' && o.tipo !== 'loja'
+                  && o.tipo !== 'benzimento' && o.tipo !== 'terreiro';
     const marcarL = o.tipo === 'placa' ? 1 : larg;
-    const marcarA = o.tipo === 'placa' ? 1 : o.tipo === 'barreira' ? 1 : alt;
+    const marcarA = o.tipo === 'placa' ? 1 : umaLinha ? (o.tipo === 'gamela' ? 2 : 1) : alt;
+    const larguraMarcada = o.tipo === 'gamela' ? 2 : marcarL;
     if (o.solido === false) return;
     for (let j = 0; j < marcarA; j++)
-      for (let i = 0; i < marcarL; i++) this.marcarSolido(o.tx + i, o.ty + j);
+      for (let i = 0; i < larguraMarcada; i++) this.marcarSolido(o.tx + i, o.ty + j);
+
+    // a porta e vao, nao parede: e por ela que se entra
+    if (COM_PORTA.includes(o.tipo) && !o.trancada) {
+      const col = T.colunaPorta(larg, o.portaCol);
+      this.solidos[(o.ty + alt - 1) * this.largTiles + (o.tx + col)] = 0;
+    }
   }
 
   private marcarSolido(tx: number, ty: number): void {
@@ -180,6 +255,10 @@ export class Mapa {
     return this.solidos[ty * this.largTiles + tx] === 1;
   }
 
+  saidaEm(tx: number, ty: number): DefSaida | undefined {
+    return this.saidas.get(`${tx},${ty}`);
+  }
+
   temEncontro(tx: number, ty: number): boolean {
     if (!this.dentro(tx, ty)) return false;
     return this.encontros[ty * this.largTiles + tx] === 1;
@@ -188,6 +267,7 @@ export class Mapa {
   /* recorta a janela da camera direto do mapa ja desenhado */
   desenhar(ctx: CanvasRenderingContext2D, camX: number, camY: number,
            larg: number, alt: number): void {
+    if (!this.imagem) { this.imagem = assar(this.cru!); this.cru = null; }
     ctx.drawImage(this.imagem, camX, camY, larg, alt, 0, 0, larg, alt);
   }
 }

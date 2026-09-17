@@ -7,7 +7,8 @@ import { GerenciadorCenas } from './core/scene.ts';
 import { CenaTitulo } from './scenes/title.ts';
 import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
 import { CenaBatalha } from './scenes/battle.ts';
-import { portoIara } from './data/mapas/portoIara.ts';
+import { MAPAS } from './data/mapas/index.ts';
+import { Mundo } from './world/mundo.ts';
 import { novoJogo } from './game/state.ts';
 
 const canvas = document.getElementById('jogo') as HTMLCanvasElement | null;
@@ -34,11 +35,12 @@ ajustar();
 
 /* ---- partida ---- */
 const estado = novoJogo();
+const regiao = new Mundo(MAPAS);
 
 /* A cena de mundo é criada UMA vez e reaproveitada: voltar de uma batalha
    não pode remontar o mapa nem devolver o jogador ao ponto de partida. */
 const mundo = new CenaMundo({
-  def: portoIara,
+  mundo: regiao,
   estado,
   aoBatalhar: (p: PedidoBatalha) => lutar(p),
 });
@@ -75,4 +77,4 @@ try { sessionStorage.removeItem('encantados:recarga'); } catch { /* aba privada 
 
 // atalho de depuração, útil no navegador
 Object.assign(window as unknown as Record<string, unknown>,
-              { jogo: { r, entrada, cenas, laco, estado, mundo, lutar, LARGURA, ALTURA } });
+              { jogo: { r, entrada, cenas, laco, estado, mundo, regiao, lutar, LARGURA, ALTURA } });

@@ -7,11 +7,18 @@
    ========================================================================= */
 import { criar, curarTudo, desmaiado, type Encantado } from '../battle/encantado.ts';
 import { adicionar, type Mochila } from '../data/items.ts';
+import type { Direcao } from '../art/people.ts';
+import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 
 export const TAMANHO_TIME = 6;
 
+/* onde o jogador está, ou onde ele acorda depois de apagar */
+export interface Lugar { mapa: string; tx: number; ty: number; dir: Direcao }
+
 export interface EstadoJogo {
   nome: string;
+  posicao: Lugar;
+  refugio: Lugar;
   time: Encantado[];
   caixa: Encantado[];               // o que não coube no time
   mochila: Mochila;
@@ -27,8 +34,12 @@ export interface EstadoJogo {
    bloco sai daqui. Por ora começamos com dois para dar o que trocar em
    batalha e um punhado de itens para testar captura e cura. */
 export function novoJogo(nome = 'TAINÁ'): EstadoJogo {
+  const inicio = MAPAS[MAPA_INICIAL]!.inicio;
+  const lugar = (): Lugar => ({ mapa: MAPA_INICIAL, ...inicio });
   const est: EstadoJogo = {
     nome,
+    posicao: lugar(),
+    refugio: lugar(),
     time: [criar('iarinha', 5), criar('boitatinha', 5)],
     caixa: [],
     mochila: {},

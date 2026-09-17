@@ -130,6 +130,18 @@ export function tilePisoMadeira(_seed = 10): Buf { // piso interno do terreiro
 export interface OpcoesConstrucao {
   roof?: string; roofD?: string; roofL?: string;
   sign?: string | null; signColor?: string;
+  /* coluna (em TILES, a partir da esquerda da construcao) onde fica a porta.
+     Precisa ser um tile inteiro: e nele que o jogador pisa para entrar. */
+  portaCol?: number;
+}
+
+/* Onde cai a porta de uma construcao de `wTiles` de largura.
+   O mapa usa isto para nao marcar o tile da porta como solido e para casar a
+   saida com o desenho — antes a porta era centralizada em PIXELS e ficava a
+   cavalo entre dois tiles, sem tile nenhum batendo com o vao. */
+export function colunaPorta(wTiles: number, portaCol?: number): number {
+  const c = portaCol ?? Math.floor(wTiles / 2);
+  return Math.max(0, Math.min(wTiles - 1, c));
 }
 
 export function construcao(wTiles: number, hTiles: number, opt: OpcoesConstrucao = {}): Buf {
@@ -152,8 +164,10 @@ export function construcao(wTiles: number, hTiles: number, opt: OpcoesConstrucao
   b.rect(0, roofH - 3, w, 3, roofD);
   b.rect(0, roofH - 3, w, 1, roofL);
 
-  // porta
-  const dw = 12, dx = ((w - dw) / 2) | 0, dy = h - 18;
+  // porta, encostada no meio do tile da coluna escolhida
+  const dw = 12;
+  const dx = colunaPorta(wTiles, opt.portaCol) * TS + (((TS - dw) / 2) | 0);
+  const dy = h - 18;
   b.rect(dx, dy, dw, 18, P.doorD);
   b.rect(dx + 1, dy + 1, dw - 2, 17, P.door);
   b.rect(dx + 1, dy + 1, dw - 2, 3, '#9a6236');
@@ -229,6 +243,154 @@ export function rocada(quadro = 0): Buf {
     b.line(x, 8, x + inclina, 8 - alt, P.tall!);
     b.line(x - 1, 8, x - 1 + inclina, 8 - alt + 2, P.tallD!);
     b.set(x + inclina, 8 - alt - 1, P.tallL!);
+  }
+  return b;
+}
+
+/* ======================= interiores =======================
+   Os tiles de dentro precisam ler como "dentro" na primeira olhada: madeira
+   quente no chao, ripa vertical na parede. Sem isso o jogador atravessa a
+   porta e nao percebe que mudou de lugar. */
+
+export function tileParedeInterna(seed = 13): Buf {
+  const b = base('#b98a56'); const r = rng(seed);
+  for (let x = 0; x < TS; x += 4) b.rect(x, 0, 1, TS, '#96693a');   // ripas
+  b.rect(0, 0, TS, 3, '#d3a86f');                                   // luz do teto
+  b.rect(0, TS - 2, TS, 2, '#7d5730');                              // rodape
+  for (let i = 0; i < 10; i++) b.set(r() * TS, 3 + r() * (TS - 5), '#a97a48');
+  return b;
+}
+
+export function tileTapete(seed = 14): Buf {
+  const b = base('#a8423c'); const r = rng(seed);
+  for (let y = 1; y < TS; y += 5) b.rect(0, y, TS, 1, '#d1665c');
+  for (let x = 3; x < TS; x += 6) b.rect(x, 0, 1, TS, '#8d322d');
+  for (let i = 0; i < 8; i++) b.set(r() * TS, r() * TS, '#c2554d');
+  return b;
+}
+
+export function tileTatame(seed = 15): Buf {
+  // palha trancada: quadrados de 8 alternando o sentido do fio
+  const b = base('#cbb271');
+  for (let qy = 0; qy < 2; qy++) {
+    for (let qx = 0; qx < 2; qx++) {
+      const vertical = (qx + qy) % 2 === 0;
+      for (let k = 1; k < 8; k += 2) {
+        if (vertical) b.rect(qx * 8 + k, qy * 8, 1, 8, '#ab9256');
+        else b.rect(qx * 8, qy * 8 + k, 8, 1, '#ab9256');
+      }
+    }
+  }
+  b.frame(0, 0, TS, TS, '#8d7742');
+  const r = rng(seed);
+  for (let i = 0; i < 6; i++) b.set(r() * TS, r() * TS, '#e0ca8d');
+  return b;
+}
+
+/* poca rasa no piso: o chao do puzzle do terreiro (Etapa 3) */
+export function tilePocaDagua(seed = 16): Buf {
+  const b = tilePisoMadeira(seed); const r = rng(seed * 3 + 1);
+  b.ellipse(8, 9, 7, 5, P.waterD);
+  b.ellipse(8, 9, 6, 4, P.water);
+  b.ellipse(6, 7, 3, 2, P.waterL);
+  for (let i = 0; i < 5; i++) b.set(2 + r() * 12, 5 + r() * 8, P.foam);
+  return b;
+}
+
+/* ---- moveis: desenhados em blocos de tile, como as construcoes ---- */
+
+/* balcao da loja: tampo de madeira com frente de tabua */
+export function balcao(wTiles: number): Buf {
+  const w = wTiles * TS;
+  const b = new Buf(w, TS);
+  b.rect(0, 2, w, 5, '#a87c45');
+  b.rect(0, 2, w, 2, '#d9ad72');
+  b.rect(0, 7, w, TS - 7, '#8a5c32');
+  for (let x = 3; x < w; x += 6) b.rect(x, 8, 1, TS - 9, '#6d4726');
+  return b.outline(P.ink!);
+}
+
+/* gamela de benzimento: a bacia de agua benta que cura o time.
+   Duas velas nas pontas e agua parada no meio. */
+export function gamela(): Buf {
+  const b = new Buf(2 * TS, 2 * TS);
+  b.rect(2, 10, 28, 18, P.rockD!);
+  b.rect(3, 11, 26, 16, P.rock!);
+  b.ellipse(16, 17, 12, 6, P.waterD!);
+  b.ellipse(16, 17, 11, 5, P.water!);
+  b.ellipse(13, 15, 5, 2, P.waterL!);
+  for (const vx of [4, 27]) {                 // velas
+    b.rect(vx - 1, 2, 3, 9, P.uiBg!);
+    b.rect(vx - 1, 2, 1, 9, P.uiBg2!);
+    b.ellipse(vx, 1, 2, 3, P.fireL!);
+    b.set(vx, 0, P.white!);
+  }
+  return b.outline(P.ink!);
+}
+
+/* estante de potes e garrafadas */
+export function estante(wTiles: number): Buf {
+  const w = wTiles * TS;
+  const b = new Buf(w, TS);
+  b.rect(0, 0, w, TS, '#7d5730');
+  b.rect(1, 1, w - 2, TS - 2, '#96693a');
+  for (const y of [6, 13]) b.rect(1, y, w - 2, 2, '#6d4726');
+  const r = rng(w * 7 + 3);
+  for (let x = 3; x < w - 3; x += 5) {
+    const cor = [P.fireL, P.tall, P.water, P.gold][(r() * 4) | 0] ?? P.gold!;
+    b.rect(x, 2, 3, 4, cor); b.set(x + 1, 1, P.trunkD!);
+    b.rect(x, 9, 3, 4, cor); b.set(x + 1, 8, P.trunkD!);
+  }
+  return b.outline(P.ink!);
+}
+
+/* mesa comprida */
+export function mesa(wTiles: number): Buf {
+  const w = wTiles * TS;
+  const b = new Buf(w, TS);
+  b.rect(0, 3, w, 5, '#b98a56');
+  b.rect(0, 3, w, 2, '#e0bb85');
+  b.rect(2, 8, 3, TS - 8, '#8a5c32');
+  b.rect(w - 5, 8, 3, TS - 8, '#8a5c32');
+  return b.outline(P.ink!);
+}
+
+/* ---- o portao do terreiro: a guia de cinco contas ----
+   Uma guia esticada de poste a poste. Cada desafio da regiao acende uma conta;
+   com as cinco acesas a guia se abre. Desenhar as cinco desde o comeco e o que
+   diz ao jogador, sem uma linha de texto, quanto falta. */
+export function guia(larguraTiles: number, acesas = 0): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, TS);
+
+  for (const px of [0, w - 4]) {                 // postes
+    b.rect(px, 2, 4, TS - 2, P.trunkD!);
+    b.rect(px + 1, 2, 2, TS - 2, P.trunk!);
+  }
+  // o cordao cai um pouco no meio, como corda de verdade
+  const meio = w / 2;
+  const alturaEm = (x: number): number => {
+    const t = (x - meio) / meio;
+    return 6 + Math.round(2 * (1 - t * t));
+  };
+  for (let x = 4; x < w - 4; x++) {
+    const y = alturaEm(x);
+    b.set(x, y, '#e8dcc0');
+    b.set(x, y + 1, '#b6a887');
+  }
+  // cinco contas igualmente espacadas ao longo do cordao
+  for (let i = 0; i < 5; i++) {
+    const x = Math.round(4 + ((w - 8) * (i + 0.5)) / 5);
+    const y = alturaEm(x) + 1;
+    if (i < acesas) {
+      b.ellipse(x, y, 4, 4, P.waterL!);      // brilho da conta acesa
+      b.ellipse(x, y, 3, 3, P.waterD!);
+      b.ellipse(x, y, 2, 2, P.water!);
+      b.set(x - 1, y - 1, P.foam!);
+    } else {
+      b.ellipse(x, y, 3, 3, P.ink2!);
+      b.ellipse(x, y, 2, 2, '#4a4258');
+    }
   }
   return b;
 }
