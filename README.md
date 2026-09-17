@@ -276,13 +276,15 @@ Três coisas pequenas que valem a pena entender juntas, porque moram todas em
   alguém entra no time por captura (e já havia mais de um), `CenaMundo` abre o
   menu direto nessa página, com o recém-chegado selecionado: é o convite para
   decidir se ele lidera o time ou não.
-- **A caixa da benzedeira, dentro da loja.** Quem é capturado com o time cheio
-  vai para `estado.caixa` — e até aqui isso não tinha tela nenhuma, só existia
-  no save. Agora `scenes/loja.ts` tem uma quarta opção, CAIXA, que lista time e
-  caixa como uma coisa só, um cursor que anda pelas duas partes: A num Encantado
-  do time manda ele pra caixa (não deixa esvaziar o time todo), A num da caixa
-  chama ele pro time (não deixa passar de seis). Fica na loja, não no menu de
-  pausa, porque é a benzedeira quem guarda os bichos — o menu de pausa é seu.
+- **A caixa da benzedeira, um baú de verdade.** Quem é capturado com o time
+  cheio vai para `estado.caixa` — e até aqui isso não tinha tela nenhuma, só
+  existia no save. Agora tem um baú desenhado no mundo, dentro da Casa de
+  Benzimento (`tiles.ts:bau`, um objeto comum de mapa com `falas: [{ caixa:
+  true, ... }]`), que abre `scenes/caixa.ts`: time e caixa como uma lista só,
+  um cursor que anda pelas duas partes — A num Encantado do time manda ele pra
+  caixa (não deixa esvaziar o time todo), A num da caixa chama ele pro time
+  (não deixa passar de seis). Fica na benzedeira, não na loja nem no menu de
+  pausa, porque é ela quem guarda os bichos que não couberam.
 
 E uma quarta, que é cena de verdade, não regra de dado: **o corte para a guia.**
 Toda vez que uma das cinco contas acende — numa conversa ou numa vitória — a
@@ -292,6 +294,20 @@ acesa, e avisa quantas faltam. É uma `Cutscene` local à cena do mundo — mapa
 câmera próprios, para não perturbar o mapa e a câmera do jogador — que só começa
 quando não há conversa, batalha, loja ou menu tomando a tela; se acender no meio
 de uma dessas coisas, ela fica **guardada** em `cutscenePendente` até a vez certa.
+
+## Golpes que voam
+
+Cada golpe usado em batalha lança um efeito pequeno do atacante até o alvo —
+`art/effects.ts:golpeEfeito(tipo, quadro)` desenha uma FORMA por tipo de golpe
+(chama para fogo, gota para água, folha para planta, pedra para terra, rajada
+para vento, zigue para raio, orbe para sombra, estrela para luz, e um impacto
+neutro para golpe comum), sempre na MESMA cor que `TIPOS[]` já usa em qualquer
+outro lugar — etiqueta, medalha — então a cor chega familiar. `scenes/battle.ts`
+guarda só um `projetil` por vez (`{ tipo, origem, t, dur }`), nascido no mesmo
+evento `'golpe'` que já fazia o atacante avançar, e o desenha interpolando entre
+o ponto de quem ataca e o de quem apanha (`pontoCombatente()`, o meio do corpo
+de cada lado); os quadros da forma são baked uma vez e ficam em cache por
+`tipo:quadro`, então o custo por quadro continua sendo só um `drawImage`.
 
 ## O jogo
 

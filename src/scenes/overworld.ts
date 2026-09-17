@@ -42,6 +42,7 @@ import { salvar } from '../game/save.ts';
 import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
 import { EscolhaInicial, NIVEL_INICIAL } from './escolha.ts';
+import { TelaCaixa } from './caixa.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
@@ -134,9 +135,11 @@ export class CenaMundo implements Cena {
   private menu: MenuPausa | null = null;
   private loja: Loja | null = null;
   private escolha: EscolhaInicial | null = null;
+  private telaCaixa: TelaCaixa | null = null;
   private emMenu = false;
   private emLoja = false;
   private emEscolha = false;
+  private emCaixa = false;
   /* deslizando numa poça: o passo continua sozinho até bater em alguma coisa */
   private deslizando = false;
   /* folhas de sprite assadas uma vez por estilo, valem para todos os mapas */
@@ -174,6 +177,7 @@ export class CenaMundo implements Cena {
     });
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
+    this.telaCaixa = new TelaCaixa(this.op.estado);
 
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(this.folhaDe('taina'), pos.tx, pos.ty, pos.dir);
@@ -385,6 +389,7 @@ export class CenaMundo implements Cena {
       this.emEscolha = true;
       this.escolha!.abrir((id) => this.receberInicial(id));
     }
+    if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
     /* gravar depois de curar, de acender uma conta, de ganhar item de serviço
        ou de conquistar medalha: são os pontos em que perder progresso doeria
        de verdade */
@@ -706,9 +711,9 @@ export class CenaMundo implements Cena {
     if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
-    // que já esteja na tela (conversa, batalha, loja, menu, escolha, porta)
+    // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, porta)
     if (this.cutscenePendente && !this.conversa && !this.emLoja && !this.emMenu
-        && !this.emEscolha && !this.indo && !this.duelo) {
+        && !this.emEscolha && !this.emCaixa && !this.indo && !this.duelo) {
       this.iniciarCutscene();
       return;
     }
@@ -726,6 +731,10 @@ export class CenaMundo implements Cena {
     }
     if (this.emEscolha) {
       if (this.escolha!.atualizar(dt, entrada) === 'fechar') this.emEscolha = false;
+      return;
+    }
+    if (this.emCaixa) {
+      if (this.telaCaixa!.atualizar(dt, entrada) === 'fechar') this.emCaixa = false;
       return;
     }
 
@@ -903,6 +912,7 @@ export class CenaMundo implements Cena {
 
     if (this.emEscolha) { r.cortina(0.45); this.escolha!.desenhar(r); }
     else if (this.emLoja) { r.cortina(0.45); this.loja!.desenhar(r); }
+    else if (this.emCaixa) { r.cortina(0.45); this.telaCaixa!.desenhar(r); }
     else if (this.emMenu) { r.cortina(0.45); this.menu!.desenhar(r); }
   }
 

@@ -68,6 +68,7 @@ export interface Fala {
   batalha?: boolean;        // desafia com o treinador do próprio NPC
   loja?: boolean;           // abre o balcão
   escolher?: boolean;       // abre a escolha do Encantado inicial
+  caixa?: boolean;          // abre a caixa da benzedeira
   medalha?: string;         // entrega a medalha do terreiro
   dom?: string;             // e o Dom de Campo que vem junto com ela
 }
@@ -92,6 +93,7 @@ export interface EfeitoFala {
   batalha: boolean;
   loja: boolean;
   escolher: boolean;
+  caixa: boolean;
   deu: string | null;        // item recebido, para anunciar
   levou: string | null;      // item entregue
   medalha: string | null;    // medalha conquistada agora
@@ -102,7 +104,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   consumir: (id: string, n: number) => boolean;
 }): EfeitoFala {
   const efeito: EfeitoFala = {
-    curou: false, batalha: false, loja: false, escolher: false,
+    curou: false, batalha: false, loja: false, escolher: false, caixa: false,
     deu: null, levou: null, medalha: null,
   };
 
@@ -131,6 +133,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   efeito.batalha = f.batalha === true;
   efeito.loja = f.loja === true;
   efeito.escolher = f.escolher === true;
+  efeito.caixa = f.caixa === true;
   return efeito;
 }
 

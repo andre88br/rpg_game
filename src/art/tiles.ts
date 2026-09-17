@@ -341,6 +341,23 @@ export function gamela(): Buf {
   return b.outline(P.ink!);
 }
 
+/* baú da benzedeira: onde ficam os Encantados que não couberam no time.
+   Tampa arqueada com reforços de metal e um fecho dourado — pra não se
+   confundir de longe com a estante ou com a gamela, que moram no mesmo
+   cômodo. */
+export function bau(): Buf {
+  const w = 2 * TS;
+  const b = new Buf(w, TS);
+  b.rect(1, 8, w - 2, TS - 9, P.trunkD!);
+  b.rect(2, 9, w - 4, TS - 11, P.trunk!);
+  b.rect(2, 3, w - 4, 6, P.trunkD!);
+  b.rect(3, 4, w - 6, 4, '#8a5c32');
+  for (const x of [4, w / 2 - 1, w - 6]) b.rect(x, 3, 2, TS - 6, '#c9a227');
+  b.rect(w / 2 - 3, 7, 6, 4, P.gold!);
+  b.set(w / 2 - 1, 8, P.goldD!);
+  return b.outline(P.ink!);
+}
+
 /* estante de potes e garrafadas */
 export function estante(wTiles: number): Buf {
   const w = wTiles * TS;

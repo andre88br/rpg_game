@@ -14,10 +14,11 @@ import { Buf, assar, assarSuave, escalar, larguraDe, type Assado } from '../core
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
-import { P, infoTipo } from '../art/palette.ts';
+import { P, infoTipo, type TipoGolpe } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { golpeEfeito, QUADROS_EFEITO, TAM_EFEITO } from '../art/effects.ts';
 import { fundoBatalha, POSTO_ALIADO, POSTO_INIMIGO, type Cenario } from '../art/battlebg.ts';
 import { Batalha, type AcaoJogador, type Evento, type Lado, type Resultado, type Treinador } from '../battle/engine.ts';
 import {
@@ -120,6 +121,10 @@ export class CenaBatalha implements Cena {
   private patuaAnim = -1;
   private patuaBalancos = 0;
   private relogio = 0;
+
+  /* o golpe voando de quem ataca até quem apanha, na forma e cor do tipo */
+  private projetil: { tipo: TipoGolpe; origem: Lado; t: number; dur: number } | null = null;
+  private efeitos = new Map<string, Assado>();
 
   /* cursores dos menus */
   private sel = 0;
@@ -270,7 +275,11 @@ export class CenaBatalha implements Cena {
   private aplicar(e: Evento): void {
     switch (e.k) {
       case 'texto': this.falar(e.t); break;
-      case 'golpe': this.avanco[e.lado] = 0.26; this.espera = 0.22; break;
+      case 'golpe':
+        this.avanco[e.lado] = 0.26;
+        this.espera = 0.22;
+        this.projetil = { tipo: fichaGolpe(e.golpe).tipo, origem: e.lado, t: 0, dur: 0.22 };
+        break;
       case 'errou': this.espera = 0.12; break;
 
       case 'dano':
@@ -426,6 +435,10 @@ export class CenaBatalha implements Cena {
       this.patuaAnim += dt;
       if (this.patuaAnim > 0.45 + 0.35 * this.patuaBalancos + 0.3) this.patuaAnim = -1;
     }
+    if (this.projetil) {
+      this.projetil.t += dt;
+      if (this.projetil.t >= this.projetil.dur) this.projetil = null;
+    }
   }
 
   private rodarFila(dt: number, entrada: Entrada): void {
@@ -555,6 +568,7 @@ export class CenaBatalha implements Cena {
     r.sprite(this.fundo, 0, 0);
     this.desenharCombatente(r, 'inimigo');
     this.desenharCombatente(r, 'aliado');
+    this.desenharProjetil(r);
     this.desenharPainel(r, 'inimigo');
     this.desenharPainel(r, 'aliado');
 
@@ -618,6 +632,38 @@ export class CenaBatalha implements Cena {
     r.retangulo(x - 3 + balanco, y - 3, 6, 6, P.uiAcc!);
     r.retangulo(x - 2 + balanco, y - 3, 4, 1, '#f7e79a');
     r.retangulo(x - 1 + balanco, y - 5, 2, 2, '#c9553f');
+  }
+
+  /* o ponto de onde o efeito sai (ou onde chega): meio do corpo do bicho
+     daquele lado, na mesma posição que desenharCombatente usa pra ele */
+  private pontoCombatente(lado: Lado): { x: number; y: number } {
+    const inimigo = lado === 'inimigo';
+    const posto = inimigo ? POSTO_INIMIGO : POSTO_ALIADO;
+    const { alt } = this.sprite(this.vis[lado].arte, inimigo);
+    return { x: posto.cx, y: posto.base - alt * 0.55 };
+  }
+
+  private efeitoImg(tipo: TipoGolpe, quadro: number): Assado {
+    const chave = `${tipo}:${quadro}`;
+    let a = this.efeitos.get(chave);
+    if (!a) { a = assar(golpeEfeito(tipo, quadro)); this.efeitos.set(chave, a); }
+    return a;
+  }
+
+  /* o golpe voando de quem ataca até quem apanha — a forma e a cor vêm do
+     tipo do golpe, e a mesma fila de eventos que já move o resto da cena
+     também é quem decide quando ele nasce (ver `case 'golpe'` em aplicar) */
+  private desenharProjetil(r: Renderizador): void {
+    const p = this.projetil;
+    if (!p) return;
+    const alvo: Lado = p.origem === 'aliado' ? 'inimigo' : 'aliado';
+    const de = this.pontoCombatente(p.origem);
+    const para = this.pontoCombatente(alvo);
+    const t = Math.min(1, p.t / p.dur);
+    const x = de.x + (para.x - de.x) * t;
+    const y = de.y + (para.y - de.y) * t;
+    const quadro = Math.floor(p.t * 16) % QUADROS_EFEITO;
+    r.sprite(this.efeitoImg(p.tipo, quadro), x - TAM_EFEITO / 2, y - TAM_EFEITO / 2);
   }
 
   private desenharPainel(r: Renderizador, lado: Lado): void {

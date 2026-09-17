@@ -14,25 +14,13 @@ import * as L from '../ui/listas.ts';
 import {
   ITENS_A_VENDA, adicionar, consumir, item as fichaItem, quantidade,
 } from '../data/items.ts';
-import { nome, type Encantado } from '../battle/encantado.ts';
-import { TAMANHO_TIME, type EstadoJogo } from '../game/state.ts';
+import type { EstadoJogo } from '../game/state.ts';
 
 export type SaidaLoja = 'aberto' | 'fechar';
 
-type Pagina = 'raiz' | 'comprar' | 'vender' | 'caixa';
+type Pagina = 'raiz' | 'comprar' | 'vender';
 
-const RAIZ = ['COMPRAR', 'VENDER', 'CAIXA', 'SAIR'] as const;
-
-/* Uma linha da tela da caixa: ou um título de seção (não se escolhe), ou um
-   Encantado — do time ou da caixa, e de qual índice na lista de origem, para
-   saber exatamente o que mover quando A for apertado. */
-type LinhaCaixa =
-  | { tipo: 'titulo'; texto: string }
-  | { tipo: 'time' | 'caixa'; indice: number };
-
-/* linhas visíveis de uma vez na tela da caixa (o resto rola) */
-const LINHA_ALT = 10;
-const LINHAS_VISIVEIS = 11;
+const RAIZ = ['COMPRAR', 'VENDER', 'SAIR'] as const;
 /* o lojista não paga o que cobra: é assim em qualquer feira */
 export const FRACAO_DE_VENDA = 0.5;
 
@@ -48,11 +36,6 @@ export class Loja {
   private quantos = 1;
   private recado: string | null = null;
   private tempoRecado = 0;
-
-  /* a tela CAIXA: um cursor só, andando por time e caixa como se fossem uma
-     lista única, e uma janela que rola para acompanhá-lo */
-  private selCaixa = 0;
-  private topoJanela = 0;
 
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
@@ -75,69 +58,6 @@ export class Loja {
 
   private avisar(s: string): void { this.recado = s; this.tempoRecado = 1.6; }
 
-  /* time e caixa como uma lista só, com um título de seção antes de cada
-     parte — é isso que faz um cursor e uma tecla A servirem para as duas
-     direções (chamar para o time, guardar na caixa) */
-  private linhasCaixa(): LinhaCaixa[] {
-    const est = this.estado;
-    const linhas: LinhaCaixa[] = [{ tipo: 'titulo', texto: `SEU TIME (${est.time.length}/${TAMANHO_TIME})` }];
-    est.time.forEach((_, i) => linhas.push({ tipo: 'time', indice: i }));
-    linhas.push({ tipo: 'titulo', texto: `CAIXA DA BENZEDEIRA (${est.caixa.length})` });
-    est.caixa.forEach((_, i) => linhas.push({ tipo: 'caixa', indice: i }));
-    return linhas;
-  }
-
-  /* mantém a janela rolando de modo que a linha escolhida nunca saia da tela */
-  private ajustarJanela(totalLinhas: number): void {
-    if (this.selCaixa < this.topoJanela) this.topoJanela = this.selCaixa;
-    if (this.selCaixa >= this.topoJanela + LINHAS_VISIVEIS) {
-      this.topoJanela = this.selCaixa - LINHAS_VISIVEIS + 1;
-    }
-    this.topoJanela = Math.max(0, Math.min(this.topoJanela, Math.max(0, totalLinhas - LINHAS_VISIVEIS)));
-  }
-
-  /* A sobre um Encantado do time manda ele pra caixa; A sobre um da caixa
-     chama ele pro time. Título de seção não responde a nada. */
-  private mexerCaixa(linhas: readonly LinhaCaixa[]): void {
-    const l = linhas[this.selCaixa];
-    if (!l || l.tipo === 'titulo') return;
-    const est = this.estado;
-
-    if (l.tipo === 'time') {
-      if (est.time.length <= 1) { this.avisar('PRECISA FICAR COM UM, AO MENOS.'); return; }
-      const [bicho] = est.time.splice(l.indice, 1) as [Encantado];
-      est.caixa.push(bicho);
-      this.avisar(`${nome(bicho).toUpperCase()} FOI PRA CAIXA.`);
-    } else {
-      if (est.time.length >= TAMANHO_TIME) { this.avisar('O TIME JÁ ESTÁ CHEIO.'); return; }
-      const [bicho] = est.caixa.splice(l.indice, 1) as [Encantado];
-      est.time.push(bicho);
-      this.avisar(`${nome(bicho).toUpperCase()} ENTROU NO TIME.`);
-    }
-    // a lista muda de tamanho: o cursor não pode sobrar fora dela
-    this.selCaixa = Math.min(this.selCaixa, Math.max(0, this.linhasCaixa().length - 1));
-  }
-
-  private naCaixa(entrada: Entrada): SaidaLoja {
-    const linhas = this.linhasCaixa();
-    const escolhiveis = linhas
-      .map((l, i) => (l.tipo === 'titulo' ? -1 : i))
-      .filter((i) => i >= 0);
-
-    if (escolhiveis.length > 0) {
-      let pos = escolhiveis.indexOf(this.selCaixa);
-      if (pos < 0) pos = 0;
-      if (entrada.apertou('cima')) pos = (pos - 1 + escolhiveis.length) % escolhiveis.length;
-      if (entrada.apertou('baixo')) pos = (pos + 1) % escolhiveis.length;
-      this.selCaixa = escolhiveis[pos]!;
-    }
-    this.ajustarJanela(linhas.length);
-
-    if (entrada.apertou('b') || entrada.apertou('menu')) { this.pagina = 'raiz'; return 'aberto'; }
-    if (entrada.apertou('a')) this.mexerCaixa(linhas);
-    return 'aberto';
-  }
-
   /* ------------------------------------------------------------ entrada */
 
   atualizar(dt: number, entrada: Entrada): SaidaLoja {
@@ -152,18 +72,11 @@ export class Loja {
       if (entrada.apertou('a')) {
         const escolha = RAIZ[this.sel];
         if (escolha === 'SAIR') return 'fechar';
-        if (escolha === 'CAIXA') {
-          this.pagina = 'caixa';
-          this.selCaixa = 0;               // naCaixa() já pula pro primeiro escolhível
-          this.topoJanela = 0;
-        } else {
-          this.pagina = escolha === 'COMPRAR' ? 'comprar' : 'vender';
-          this.selItem = 0; this.quantos = 1;
-        }
+        this.pagina = escolha === 'COMPRAR' ? 'comprar' : 'vender';
+        this.selItem = 0; this.quantos = 1;
       }
       return 'aberto';
     }
-    if (this.pagina === 'caixa') return this.naCaixa(entrada);
 
     const lista = this.pagina === 'comprar' ? this.aVenda() : this.aVender();
     if (lista.length > 0) {
@@ -214,7 +127,6 @@ export class Loja {
 
   desenhar(r: Renderizador): void {
     if (this.pagina === 'raiz') this.desenharRaiz(r);
-    else if (this.pagina === 'caixa') this.desenharCaixa(r);
     else this.desenharPrateleira(r);
     if (this.recado) {
       const larg = r.larguraTexto(this.recado) + 20;
@@ -234,32 +146,6 @@ export class Loja {
     const bolso = `${this.estado.dinheiro} RÉIS`;
     r.retangulo(x, y + this.caixaRaiz.height + 2, 96, 14, P.ink!);
     r.texto(bolso, x + 96 - 6 - r.larguraTexto(bolso), y + this.caixaRaiz.height + 5, P.gold!);
-  }
-
-  private desenharCaixa(r: Renderizador): void {
-    L.telaCheia(r, this.caixaCheia, 'CAIXA DA BENZEDEIRA', 'A CHAMAR/GUARDAR   B VOLTAR');
-    const linhas = this.linhasCaixa();
-    const est = this.estado;
-
-    for (let i = 0; i < LINHAS_VISIVEIS; i++) {
-      const idx = this.topoJanela + i;
-      const l = linhas[idx];
-      if (!l) break;
-      const y = 28 + i * LINHA_ALT;
-
-      if (l.tipo === 'titulo') { r.texto(l.texto, 14, y, P.uiAccD!); continue; }
-      const bicho = l.tipo === 'time' ? est.time[l.indice]! : est.caixa[l.indice]!;
-      if (idx === this.selCaixa) r.texto('=', 12, y, P.uiAccD!);
-      r.texto(nome(bicho), 22, y, P.uiInk!);
-      const nv = 'NV' + bicho.nivel;
-      r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
-    }
-
-    // indicador de que há mais linhas para cada lado, fora da janela visível
-    if (this.topoJanela > 0) r.texto('...', LARGURA - 34, 28, P.uiBg3!);
-    if (this.topoJanela + LINHAS_VISIVEIS < linhas.length) {
-      r.texto('...', LARGURA - 34, 28 + (LINHAS_VISIVEIS - 1) * LINHA_ALT, P.uiBg3!);
-    }
   }
 
   private desenharPrateleira(r: Renderizador): void {

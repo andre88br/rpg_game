@@ -1,5 +1,6 @@
 /* Casa de Benzimento — o lugar de curar o time. A gamela de água benta fica
-   no fundo; na Etapa 2 ela cura de verdade e grava a partida. */
+   no fundo; na Etapa 2 ela cura de verdade e grava a partida. O baú, no
+   canto, é a caixa de verdade: quem não coube no time fica guardado nele. */
 import type { DefMapa } from '../../world/tilemap.ts';
 
 export const benzimentoPortoIara: DefMapa = {
@@ -29,6 +30,9 @@ export const benzimentoPortoIara: DefMapa = {
     { tipo: 'gamela',  tx: 6,  ty: 1, larg: 2, alt: 2 },
     { tipo: 'estante', tx: 1,  ty: 1, larg: 3 },
     { tipo: 'estante', tx: 11, ty: 1, larg: 3 },
+    { tipo: 'bau', tx: 10, ty: 7, larg: 2, placa: 'BAÚ DA BENZEDEIRA',
+      falas: [{ caixa: true, linhas: [
+        'Dentro do baú estão os Encantados que não couberam no seu time.'] }] },
   ],
 
   npcs: [
