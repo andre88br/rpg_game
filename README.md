@@ -276,6 +276,13 @@ Três coisas pequenas que valem a pena entender juntas, porque moram todas em
   alguém entra no time por captura (e já havia mais de um), `CenaMundo` abre o
   menu direto nessa página, com o recém-chegado selecionado: é o convite para
   decidir se ele lidera o time ou não.
+- **A caixa da benzedeira, dentro da loja.** Quem é capturado com o time cheio
+  vai para `estado.caixa` — e até aqui isso não tinha tela nenhuma, só existia
+  no save. Agora `scenes/loja.ts` tem uma quarta opção, CAIXA, que lista time e
+  caixa como uma coisa só, um cursor que anda pelas duas partes: A num Encantado
+  do time manda ele pra caixa (não deixa esvaziar o time todo), A num da caixa
+  chama ele pro time (não deixa passar de seis). Fica na loja, não no menu de
+  pausa, porque é a benzedeira quem guarda os bichos — o menu de pausa é seu.
 
 E uma quarta, que é cena de verdade, não regra de dado: **o corte para a guia.**
 Toda vez que uma das cinco contas acende — numa conversa ou numa vitória — a
