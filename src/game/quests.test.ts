@@ -1,12 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { novoJogo, ligar } from './state.ts';
+import { criar } from '../battle/encantado.ts';
 import { adicionar, consumir, quantidade, type Mochila } from '../data/items.ts';
 import {
   CONTAS, aplicarFala, contasAcesas, contasFaltando, escolherFala, ligada,
   preencher, serve,
   type Fala,
 } from './quests.ts';
+
+/* a partida nasce sem Encantado nenhum — quem testa cura precisa de time */
+const comTime = (e: ReturnType<typeof novoJogo>) => {
+  e.time = [criar('iarinha', 5), criar('boitatinha', 5)];
+  return e;
+};
 
 const bolsa = (m: Mochila) => ({
   adicionar: (id: string, n: number) => adicionar(m, id, n),
@@ -100,7 +107,7 @@ test('quem não tem o item pedido não recebe a troca pela metade', () => {
 });
 
 test('a cura levanta o time todo', () => {
-  const e = novoJogo();
+  const e = comTime(novoJogo());
   e.time[0]!.hp = 1;
   e.time[1]!.hp = 0;
   const efeito = aplicarFala(e, { linhas: ['pronto'], cura: true }, bolsa(e.mochila));
@@ -146,4 +153,24 @@ test('o recheio das falas lê o estado da partida', () => {
 test('chave que ninguém conhece fica como está', () => {
   const e = novoJogo();
   assert.equal(preencher(e, 'um {troco} qualquer'), 'um {troco} qualquer');
+});
+
+test('a medalha entra na caixinha junto com o Dom', () => {
+  const e = novoJogo();
+  const efeito = aplicarFala(e, {
+    linhas: ['tome a Maré'], medalha: 'mare', dom: 'nadar',
+  }, bolsa(e.mochila));
+  assert.deepEqual(e.medalhas, ['mare']);
+  assert.equal(e.flags['dom_nadar'], true);
+  assert.equal(efeito.medalha, 'mare');
+  assert.equal(ligada(e, 'medalha:mare'), true);
+});
+
+test('a mesma medalha não entra duas vezes', () => {
+  const e = novoJogo();
+  const fala = { linhas: ['de novo'], medalha: 'mare' };
+  aplicarFala(e, fala, bolsa(e.mochila));
+  const segunda = aplicarFala(e, fala, bolsa(e.mochila));
+  assert.deepEqual(e.medalhas, ['mare']);
+  assert.equal(segunda.medalha, null, 'a segunda vez não é conquista nenhuma');
 });

@@ -55,6 +55,9 @@ const LISTA: readonly Item[] = [
   { id: 'caderno', nome: 'Caderno de Bichos', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Onde o Contador anota cada Encantado que aparece na Foz.' },
+  { id: 'rede', nome: 'Rede de Pesca', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Rede do Mestre do Porto, surrupiada por mão pequena e rápida.' },
 ];
 
 export const ITENS: Record<string, Item> =

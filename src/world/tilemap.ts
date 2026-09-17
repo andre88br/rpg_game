@@ -20,7 +20,8 @@ export interface DefTile {
   desenho: (semente: number) => Buf;
   solido?: boolean;
   encontro?: boolean;     // mato alto: gera encontros com Encantados selvagens
-  agua?: boolean;         // exige o Dom "Nadar"
+  agua?: boolean;         // so se atravessa com o Dom "Nadar"
+  escorrega?: boolean;    // quem pisa segue deslizando na mesma direcao
 }
 
 export const TILES: Record<string, DefTile> = {
@@ -39,17 +40,21 @@ export const TILES: Record<string, DefTile> = {
   'W': { desenho: T.tileParedeInterna, solido: true },
   'T': { desenho: T.tileTapete },
   'm': { desenho: T.tileTatame },
-  'u': { desenho: T.tilePocaDagua },
+  'u': { desenho: T.tilePocaDagua, escorrega: true },
 };
 
 export type TipoObjeto =
   | 'casa' | 'loja' | 'benzimento' | 'terreiro'      // construcoes com porta
-  | 'placa' | 'barreira' | 'portao'                  // cenario
+  | 'farol'                                          // construcao sem porta
+  | 'placa' | 'barreira' | 'portao' | 'achado'       // cenario
   | 'balcao' | 'gamela' | 'estante' | 'mesa';        // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
 const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro'];
+
+/* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
+const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
 
 export interface DefObjeto {
   tipo: TipoObjeto;
@@ -64,10 +69,15 @@ export interface DefObjeto {
   contas?: number;
   /* construcao sem interior: a porta continua desenhada, mas e parede */
   trancada?: boolean;
+  /* achado ja revirado: o desenho muda, e nao ha mais nada dentro */
+  vazio?: boolean;
   /* o objeto so existe quando as condicoes valem (vocabulario de quests.ts).
      E o que faz a barreira sumir depois do servico feito. */
   se?: string | readonly string[];
   seNao?: string | readonly string[];
+  /* coisa do cenario que responde ao A com fala condicional, e pode entregar
+     item ou ligar flag — um pote esquecido, um caixote de rede */
+  falas?: readonly Fala[];
 }
 
 export interface DefSaida {
@@ -84,6 +94,9 @@ export interface DefSaida {
 export interface DefTreinador {
   classe: string;                       // "MOLEQUE DA VILA", "PESCADOR"...
   time: readonly { especie: string; nivel: number }[];
+  /* bicho, nao gente: a luta e selvagem, entao da para prender num patua —
+     e prender vale tanto quanto vencer */
+  selvagem?: boolean;
   /* quantos tiles a frente ele enxerga. 0 ou ausente: so conversa */
   visao?: number;
   falaInicio?: string;
@@ -103,6 +116,13 @@ export interface DefNPC {
   /* a primeira fala cujas condicoes batem e a que ele diz */
   falas: readonly Fala[];
   treinador?: DefTreinador;
+  /* foge de quem chega perto, ate ficar sem folego ou sem saida. So ai
+     escuta o que voce tem a dizer. */
+  fujao?: { folego?: number };
+  /* so esta no mapa quando as condicoes valem — o Sacizinho some depois de
+     largar a rede, o chefe some depois de perder */
+  se?: string | readonly string[];
+  seNao?: string | readonly string[];
 }
 
 export interface DefMapa {
@@ -134,10 +154,11 @@ export interface DefMapa {
    deixa `Mapa` testavel sem inventar uma partida. */
 export interface ContextoMapa {
   contas: number;                         // contas acesas da guia
+  nadar: boolean;                         // o Dom da Medalha Mare
   ligada: (cond: string) => boolean;      // condicoes dos objetos
 }
 
-export const CTX_VAZIO: ContextoMapa = { contas: 0, ligada: () => false };
+export const CTX_VAZIO: ContextoMapa = { contas: 0, nadar: false, ligada: () => false };
 
 /* um objeto condicional so entra no mapa quando as condicoes valem */
 export function objetoAtivo(o: DefObjeto, ctx: ContextoMapa): boolean {
@@ -162,6 +183,7 @@ export class Mapa {
   private grade: string[];
   private solidos: Uint8Array;
   private encontros: Uint8Array;
+  private escorregas: Uint8Array;
   private saidas = new Map<string, DefSaida>();
   /* o cenário fica em pixels crus até alguém pedir para desenhar. Assar exige
      um <canvas>, e os testes de coerência dos mapas rodam no Node, sem DOM. */
@@ -183,6 +205,7 @@ export class Mapa {
     const n = this.largTiles * this.altTiles;
     this.solidos = new Uint8Array(n);
     this.encontros = new Uint8Array(n);
+    this.escorregas = new Uint8Array(n);
 
     const buf = new Buf(this.largTiles * TS, this.altTiles * TS);
 
@@ -194,8 +217,10 @@ export class Mapa {
         // semente derivada da posicao: variacao estavel entre execucoes
         buf.blit(d.desenho(tx * 31 + ty * 17 + 3), tx * TS, ty * TS);
         const i = ty * this.largTiles + tx;
-        if (d.solido) this.solidos[i] = 1;
+        // agua e parede ate a Medalha Mare; depois dela, e so agua
+        if (d.solido && !(d.agua && ctx.nadar)) this.solidos[i] = 1;
         if (d.encontro) this.encontros[i] = 1;
+        if (d.escorrega) this.escorregas[i] = 1;
       }
     }
 
@@ -266,6 +291,12 @@ export class Mapa {
       case 'barreira':
         sprite = T.barreira(larg);
         break;
+      case 'farol':
+        sprite = T.farol(larg, alt);
+        break;
+      case 'achado':
+        sprite = T.pote(o.vazio === true);
+        break;
     }
     if (!sprite) return;
     buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
@@ -280,15 +311,16 @@ export class Mapa {
     /* guia com as cinco contas acesas: o colar se abre e o patio libera */
     if (o.tipo === 'portao' && contasDo(o, this.ctx) >= T.CONTAS_NA_GUIA) return;
 
-    // marca a area ocupada como solida
-    const umaLinha = o.tipo !== 'placa' && o.tipo !== 'casa' && o.tipo !== 'loja'
-                  && o.tipo !== 'benzimento' && o.tipo !== 'terreiro';
-    const marcarL = o.tipo === 'placa' ? 1 : larg;
-    const marcarA = o.tipo === 'placa' ? 1 : umaLinha ? (o.tipo === 'gamela' ? 2 : 1) : alt;
-    const larguraMarcada = o.tipo === 'gamela' ? 2 : marcarL;
     if (o.solido === false) return;
+
+    /* quanto do desenho vira parede: a construcao inteira; a gamela, os seus
+       2x2; a placa, so o tile do poste; o resto, uma linha na base */
+    const marcarL = o.tipo === 'placa' ? 1 : o.tipo === 'gamela' ? 2 : larg;
+    const marcarA = o.tipo === 'placa' ? 1
+                  : o.tipo === 'gamela' ? 2
+                  : BLOCO.includes(o.tipo) ? alt : 1;
     for (let j = 0; j < marcarA; j++)
-      for (let i = 0; i < larguraMarcada; i++) this.marcarSolido(o.tx + i, o.ty + j);
+      for (let i = 0; i < marcarL; i++) this.marcarSolido(o.tx + i, o.ty + j);
 
     // a porta e vao, nao parede: e por ela que se entra
     if (COM_PORTA.includes(o.tipo) && !o.trancada) {
@@ -321,6 +353,12 @@ export class Mapa {
   temEncontro(tx: number, ty: number): boolean {
     if (!this.dentro(tx, ty)) return false;
     return this.encontros[ty * this.largTiles + tx] === 1;
+  }
+
+  /* quem para aqui nao para: segue deslizando na direcao em que entrou */
+  escorrega(tx: number, ty: number): boolean {
+    if (!this.dentro(tx, ty)) return false;
+    return this.escorregas[ty * this.largTiles + tx] === 1;
   }
 
   /* recorta a janela da camera direto do mapa ja desenhado */

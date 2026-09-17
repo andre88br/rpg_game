@@ -47,6 +47,9 @@ export const portoIara: DefMapa = {
     '~~~~~~~~~~~~~~~~pp~~~~~~~~~~~~~~~~',
     '~~~~~~~~~~~~~~~~pp~~~~~~~~~~~~~~~~',
     '~~~~~~~~~~~~~~~~pp~~~~~~~~~~~~~~~~',
+    '~~~~~~~~~~~~~ppppppp~~~~~~~~~~~~~~',
+    '~~~~~~~~~~~~~ppppppp~~~~~~~~~~~~~~',
+    '~~~~~~~~~~~~~ppppppp~~~~~~~~~~~~~~',
     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
   ],
 
@@ -62,6 +65,10 @@ export const portoIara: DefMapa = {
       placa: 'TERREIRO DE ÁGUA, de Dona Mariana. A guia abre com cinco contas acesas.' },
     { tipo: 'placa',      tx: 11, ty: 22,
       placa: 'Ao sul: a praia e o cais. Ao norte: a Rota da Foz.' },
+    /* a torre nasce do mar e encosta a base na plataforma do cais */
+    { tipo: 'farol',      tx: 13, ty: 29, larg: 3, alt: 7 },
+    { tipo: 'placa',      tx: 18, ty: 33,
+      placa: 'FAROL DA BARRA. Porta emperrada há anos. De noite ele acende sozinho.' },
   ],
 
   npcs: [
@@ -69,6 +76,9 @@ export const portoIara: DefMapa = {
       id: 'guarda', nome: 'GUARDA DO LARGO', estilo: 'guarda',
       tx: 12, ty: 20, dir: 'dir',
       falas: [
+        { se: 'medalha:mare', linhas: [
+          'A Dona Mariana entregou a Maré. Pois então o largo é seu, {nome}.',
+          'E dizem que agora você atravessa a barra a nado. Isso eu preciso ver.'] },
         { se: 'contas>=5', linhas: [
           'Cinco contas. Nunca vi ninguém acender as cinco tão depressa.',
           'Pode entrar, {nome}. A Dona Mariana já sabe que você vem.'] },
@@ -88,8 +98,17 @@ export const portoIara: DefMapa = {
           'Carta da Dona Firmina? Passa pra cá, moça.',
           'Chegou seca, apesar da maré. Toma aqui pelo incômodo — e mandei acender sua primeira conta.',
           'Agora o meu problema: sumiram três redes minhas. Dizem que foi bicho, não gente.'] },
+        { se: 'item:rede>=3', pede: { item: 'rede', n: 3 }, liga: 'conta_redes',
+          paga: 700, linhas: [
+          'As TRÊS! Eu sabia que era bicho, e ninguém acreditava em mim.',
+          'Sacizinho gosta de nó, e rede é nó que não acaba. Agora entendo o sumiço.',
+          'Outra conta acesa por sua conta, moça. E toma pelo trabalho.'] },
+        { se: 'conta_redes', seNao: 'conta_farol', linhas: [
+          'Com as redes de volta eu pesco. Sair da barra é que não dá.',
+          'Tem bicho morando no farol, e de noite o mar ali ferve. Isso ninguém resolve.'] },
         { se: 'conta_recado', seNao: 'conta_redes', linhas: [
           'Sumiram três redes. Dizem que foi bicho, e não gente.',
+          'Vi um Sacizinho no cais, outro na praia e um terceiro subindo a estrada.',
           'Quem me trouxer as três de volta acende outra conta da guia.'] },
         { se: 'tem_recado', linhas: [
           'A Dona Firmina mandou carta e você não trouxe? Volta lá, menina.'] },
@@ -118,10 +137,44 @@ export const portoIara: DefMapa = {
       tx: 6, ty: 21, dir: 'baixo',
       falas: [
         { se: 'conta_farol', linhas: [
-          'Você entrou no farol e voltou inteira? Quando eu crescer eu faço igual.'] },
+          'Você encarou o bicho do farol e voltou inteira? Quando eu crescer eu faço igual.'] },
+        { se: 'item:rede>=1', linhas: [
+          'Rede na mão! Foi Sacizinho, né? Eles gostam de nó. Tem mais um lá na praia.'] },
         { se: 'contas>=3', linhas: [
           'Três contas acesas! Só falta o bicho do farol. Esse ninguém encara.'] },
         { linhas: ['Tem um bicho de fogo morando no farol. De noite dá pra ver os olhos dele.'] },
+      ],
+    },
+    {
+      id: 'saci_cais', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
+      tx: 17, ty: 30, dir: 'baixo', seNao: 'rede_cais', fujao: {},
+      falas: [
+        { liga: 'rede_cais', da: { item: 'rede' }, linhas: [
+          'O Sacizinho senta no tabuado, sem fôlego, e larga a rede enrolada no pé.',
+          'Some num redemoinho de poeira antes de você agradecer.'] },
+      ],
+    },
+    {
+      id: 'saci_praia', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
+      tx: 25, ty: 28, dir: 'esq', seNao: 'rede_praia', fujao: {},
+      falas: [
+        { liga: 'rede_praia', da: { item: 'rede' }, linhas: [
+          'Encurralado na areia, o Sacizinho joga a rede na sua cara e ri.',
+          'Depois vira vento e sobe a praia.'] },
+      ],
+    },
+    {
+      id: 'boitata', nome: 'BOITATÁ', estilo: 'bicho:boitatao',
+      tx: 17, ty: 35, dir: 'cima', seNao: 'conta_farol',
+      treinador: {
+        classe: 'BICHO DO FAROL', selvagem: true, visao: 4, liga: 'conta_farol',
+        time: [{ especie: 'boitatao', nivel: 18 }],
+        falaInicio: 'O mar clareia de uma vez. A cobra de fogo desenrola do farol e vem.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Enrolado na base do farol, o bicho abre os olhos de brasa.',
+          'A água do cais chia só de ele respirar.'] },
       ],
     },
     {

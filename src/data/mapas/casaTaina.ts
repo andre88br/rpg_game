@@ -34,13 +34,20 @@ export const casaTaina: DefMapa = {
       id: 'mae', nome: 'MÃE', estilo: 'aldeao',
       tx: 2, ty: 5, dir: 'dir',
       falas: [
+        { se: 'medalha:mare', linhas: [
+          'Medalha em casa! Deixa eu ver isso de perto, {nome}.',
+          'Sua avó dizia que quem tem a Maré no peito não se perde na água.',
+          'Descansa hoje. Amanhã você atravessa, e eu finjo que não estou com medo.'] },
+        { se: 'contas>=5', linhas: [
+          'Cinco contas? Então é hoje que você entra no terreiro da Dona Mariana.',
+          'Vai com o time inteiro de pé, criança.'] },
         { se: 'conta_recado', linhas: [
           'A Dona Firmina passou aqui contando da carta. Disse que você não fez feio.',
           'Come alguma coisa antes de descer pro porto de novo, {nome}.'] },
         { se: 'venceu_zeca', linhas: [
           'Soube que o Zeca levou uma lição na estrada. A mãe dele que não fique sabendo por mim.'] },
-        { se: 'falou_firmina', linhas: [
-          'Já falou com a Dona Firmina? Então não me faça de boba e desce a estrada.',
+        { se: 'escolheu_inicial', linhas: [
+          'Deixa eu ver o bicho! ...é bonito. Trate bem dele, que ele trata de você.',
           'Se apagar no mato, alguém te traz de volta. Mas dói o orgulho.'] },
         { linhas: [
           'Acordou, enfim! A Dona Firmina mandou chamar você.',

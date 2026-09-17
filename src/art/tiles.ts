@@ -288,12 +288,25 @@ export function tileTatame(seed = 15): Buf {
 }
 
 /* poca rasa no piso: o chao do puzzle do terreiro (Etapa 3) */
+/* Agua parada por cima da tabua. Cobre o tile INTEIRO de proposito: um campo
+   de pocas desenhadas como elipses soltas viraria bolinha; assim um bloco de
+   tiles molhados le como um salao alagado, que e o que o quebra-cabeca da
+   Dona Mariana precisa mostrar. */
 export function tilePocaDagua(seed = 16): Buf {
   const b = tilePisoMadeira(seed); const r = rng(seed * 3 + 1);
-  b.ellipse(8, 9, 7, 5, P.waterD);
-  b.ellipse(8, 9, 6, 4, P.water);
-  b.ellipse(6, 7, 3, 2, P.waterL);
-  for (let i = 0; i < 5; i++) b.set(2 + r() * 12, 5 + r() * 8, P.foam);
+  // lamina de agua: a tabua continua aparecendo por baixo
+  for (let y = 0; y < TS; y++) {
+    for (let x = 0; x < TS; x++) {
+      if ((x + y * 3 + seed) % 7 === 0) continue;      // buracos: o fundo
+      b.set(x, y, (x + y) % 9 === 0 ? P.waterD! : P.water!);
+    }
+  }
+  // cristas claras, para a lamina nao ficar chapada
+  for (const y of [3, 9, 14]) {
+    const off = (seed * 5 + y * 3) % TS;
+    for (let k = 0; k < 5; k++) b.set((off + k) % TS, y, P.waterL!);
+  }
+  for (let i = 0; i < 4; i++) b.set(r() * TS, r() * TS, P.foam!);
   return b;
 }
 
@@ -352,6 +365,62 @@ export function mesa(wTiles: number): Buf {
   b.rect(0, 3, w, 2, '#e0bb85');
   b.rect(2, 8, 3, TS - 8, '#8a5c32');
   b.rect(w - 5, 8, 3, TS - 8, '#8a5c32');
+  return b.outline(P.ink!);
+}
+
+/* Pote de barro esquecido: o que sobra numa ilhota, num canto de praia.
+   Um tile so, e sempre com alguma coisa dentro na primeira vez. */
+export function pote(vazio = false): Buf {
+  const b = new Buf(TS, TS);
+  const barro = vazio ? '#7a6250' : '#a8724a';
+  const barroD = vazio ? '#54443a' : '#7a4c2e';
+  b.ellipse(8, 12, 6, 4, barroD);
+  b.ellipse(8, 10, 6, 5, barro);
+  b.ellipse(6, 8, 2, 2, '#c99a6e');
+  b.rect(4, 4, 8, 2, barroD);
+  b.rect(5, 3, 6, 2, barro);
+  if (!vazio) { b.rect(6, 5, 4, 2, P.ink2!); b.set(7, 5, P.gold!); }
+  return b.outline(P.ink!);
+}
+
+/* ---- o farol da barra ----
+   Torre listrada de vermelho e branco com a lanterna acesa no alto. E o fim
+   do cais e o fim da Fase 1: o bicho que mora nela e o ultimo servico da
+   regiao. Desenhada de baixo para cima em tiles, como as construcoes. */
+export function farol(largTiles = 3, altTiles = 5): Buf {
+  const w = largTiles * TS, h = altTiles * TS;
+  const b = new Buf(w, h);
+  const meio = w / 2;
+
+  // corpo: mais estreito no alto, para a torre nao virar caixa
+  const larguraEm = (y: number): number => {
+    const t = y / h;                       // 0 no topo, 1 na base
+    return Math.round(w * (0.42 + 0.28 * t));
+  };
+  const faixa = Math.max(5, Math.round(h / 9));
+  for (let y = TS; y < h; y++) {
+    const lw = larguraEm(y);
+    const x0 = Math.round(meio - lw / 2);
+    const vermelha = Math.floor((y - TS) / faixa) % 2 === 1;
+    b.rect(x0, y, lw, 1, vermelha ? '#c4443a' : '#efe7d6');
+    b.set(x0, y, vermelha ? '#8f2f28' : '#c8bfa8');            // sombra da beirada
+    b.set(x0 + lw - 1, y, vermelha ? '#8f2f28' : '#c8bfa8');
+  }
+
+  // sacada e lanterna
+  const sacadaW = larguraEm(TS) + 6;
+  b.rect(Math.round(meio - sacadaW / 2), TS - 3, sacadaW, 3, P.ink2!);
+  const lw = larguraEm(TS) - 2;
+  b.rect(Math.round(meio - lw / 2), 4, lw, TS - 7, '#3a3346');
+  b.rect(Math.round(meio - lw / 2) + 1, 6, lw - 2, TS - 11, P.gold!);
+  b.ellipse(meio, 9, 4, 3, '#fff3b0');
+  b.tri(Math.round(meio - lw / 2) - 1, 4, meio, 0, Math.round(meio + lw / 2) + 1, 4, '#8f2f28');
+
+  // porta emperrada na base
+  const dw = 10;
+  b.rect(Math.round(meio - dw / 2), h - 14, dw, 14, P.trunkD!);
+  b.rect(Math.round(meio - dw / 2) + 1, h - 13, dw - 2, 13, P.trunk!);
+  b.set(Math.round(meio + dw / 2) - 3, h - 7, P.gold!);
   return b.outline(P.ink!);
 }
 

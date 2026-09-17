@@ -55,8 +55,12 @@ export const vilaAurora: DefMapa = {
       id: 'vizinho', nome: 'SEU ANASTÁCIO', estilo: 'aldeao',
       tx: 19, ty: 7, dir: 'baixo',
       falas: [
+        { se: 'medalha:mare', linhas: [
+          'A menina da Vila Aurora com a Medalha Maré. Vou contar isso até morrer.'] },
         { se: 'item:carta', linhas: [
           'Carta na mão e cara de pressa. Desce a estrada, menina, que o porto não anda até aqui.'] },
+        { se: 'escolheu_inicial', linhas: [
+          'Já pegou o patuá, então. Agora é só não voltar antes de valer a pena.'] },
         { linhas: [
           'A Dona Firmina mora ali no meio, a casa de telhado grande.',
           'Ela é quem entrega o primeiro Encantado da gente. Vai lá falar com ela.'] },

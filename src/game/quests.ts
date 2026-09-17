@@ -67,6 +67,9 @@ export interface Fala {
   cura?: boolean;           // benzimento
   batalha?: boolean;        // desafia com o treinador do próprio NPC
   loja?: boolean;           // abre o balcão
+  escolher?: boolean;       // abre a escolha do Encantado inicial
+  medalha?: string;         // entrega a medalha do terreiro
+  dom?: string;             // e o Dom de Campo que vem junto com ela
 }
 
 export function serve(e: EstadoJogo, f: Fala): boolean {
@@ -88,15 +91,20 @@ export interface EfeitoFala {
   curou: boolean;
   batalha: boolean;
   loja: boolean;
+  escolher: boolean;
   deu: string | null;        // item recebido, para anunciar
   levou: string | null;      // item entregue
+  medalha: string | null;    // medalha conquistada agora
 }
 
 export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   adicionar: (id: string, n: number) => void;
   consumir: (id: string, n: number) => boolean;
 }): EfeitoFala {
-  const efeito: EfeitoFala = { curou: false, batalha: false, loja: false, deu: null, levou: null };
+  const efeito: EfeitoFala = {
+    curou: false, batalha: false, loja: false, escolher: false,
+    deu: null, levou: null, medalha: null,
+  };
 
   /* o pedido vem antes da entrega: quem troca uma coisa por outra não pode
      sair ganhando as duas se estiver sem o item */
@@ -113,8 +121,16 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   for (const flag of lista(f.liga)) e.flags[flag] = true;
   for (const flag of lista(f.desliga)) delete e.flags[flag];
   if (f.cura) { curarTime(e); efeito.curou = true; }
+  /* a medalha traz o Dom junto: são a mesma conquista vista de dois lados —
+     um selo na caixinha e uma parte do mundo que abre */
+  if (f.medalha && !e.medalhas.includes(f.medalha)) {
+    e.medalhas.push(f.medalha);
+    efeito.medalha = f.medalha;
+  }
+  if (f.dom) e.flags[`dom_${f.dom}`] = true;
   efeito.batalha = f.batalha === true;
   efeito.loja = f.loja === true;
+  efeito.escolher = f.escolher === true;
   return efeito;
 }
 

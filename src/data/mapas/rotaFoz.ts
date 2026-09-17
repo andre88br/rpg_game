@@ -26,7 +26,7 @@ export const rotaFoz: DefMapa = {
     '#....==========..............#',
     '#...~~~~~~...==..........o...#',
     '#..~~~~~~~~..==..............#',
-    '#..~~~~~~~~..==.....#........#',
+    '#..~~~a~~~~..==.....#........#',
     '#..~~~~~~~~..==..............#',
     '#..~~~~~~~~..==.........f....#',
     '#...~~~~~~...==..............#',
@@ -53,6 +53,16 @@ export const rotaFoz: DefMapa = {
     /* a tranca do Zeca: some no instante em que ele perde, e é por isso que
        o cenário do mapa é remontado quando uma flag muda */
     { tipo: 'barreira', tx: 13, ty: 26, larg: 2, seNao: 'venceu_zeca' },
+    /* na ilhota do açude, cercada de água: só depois do Dom "Nadar" */
+    { tipo: 'achado', tx: 6, ty: 17, solido: false, placa: 'POTE DE BARRO',
+      se: 'achou_pote', vazio: true,
+      falas: [{ linhas: ['O pote está de boca para baixo, e vazio.'] }] },
+    { tipo: 'achado', tx: 6, ty: 17, solido: false, placa: 'POTE DE BARRO',
+      seNao: 'achou_pote',
+      falas: [{ liga: 'achou_pote', da: { item: 'patua_mestre' },
+                linhas: [
+        'Um pote de barro lacrado com cera, esquecido na ilhota do açude.',
+        'Dentro: um PATUÁ DE MESTRE, benzido três vezes. Quem deixou aqui não voltou.'] }] },
   ],
 
   npcs: [
@@ -87,6 +97,15 @@ export const rotaFoz: DefMapa = {
           'Esse atalho ali do lado não leva a lugar nenhum: é só volta.',
           'Mais pro sul tem um moleque com uma tranca atravessada na estrada.',
           'Se a sua criatura cair, volta pra vila. Apagado no mato não é lugar de ninguém.'] },
+      ],
+    },
+    {
+      id: 'saci_mato', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
+      tx: 21, ty: 22, dir: 'baixo', seNao: 'rede_mato', fujao: {},
+      falas: [
+        { liga: 'rede_mato', da: { item: 'rede' }, linhas: [
+          'Sem saída no meio do mato, o Sacizinho para de rir e entrega a rede.',
+          'Depois some numa ventania que deixa o capim deitado.'] },
       ],
     },
     {

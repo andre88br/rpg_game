@@ -127,9 +127,10 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
   const inicial = MAPAS[MAPA_INICIAL]!;
   const padrao: Lugar = { mapa: MAPA_INICIAL, ...inicial.inicio };
 
+  /* time vazio é estado legítimo: quem gravou antes de escolher o inicial na
+     mesa da Dona Firmina volta exatamente ali */
   const time = (Array.isArray(j['time']) ? j['time'] : [])
     .map(bicho).filter((c): c is Encantado => c !== null).slice(0, TAMANHO_TIME);
-  if (time.length === 0) return null;      // sem time não há partida a retomar
 
   const mochila: Record<string, number> = {};
   const m = (j['mochila'] ?? {}) as Record<string, unknown>;

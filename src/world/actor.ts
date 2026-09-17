@@ -3,7 +3,7 @@
    personagem de um tile ao seguinte e so aceita novo comando ao chegar.
    E isso que da a cadencia caracteristica do genero.
    ========================================================================= */
-import { assar, type Assado } from '../core/buf.ts';
+import { assar, type Assado, type Buf } from '../core/buf.ts';
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
 
@@ -15,6 +15,17 @@ export function assarFolha(op: OpcoesPessoa): FolhaAssada {
   for (const d of ['baixo', 'cima', 'esq', 'dir'] as Direcao[]) {
     saida[d] = [assar(crua[d][0]), assar(crua[d][1]), assar(crua[d][2])];
   }
+  return saida;
+}
+
+/* Um Encantado andando pelo mapa, com a arte de batalha mesmo. Ele nao tem
+   doze poses como gente tem: e o mesmo desenho nos quatro lados, e o sprite
+   e maior que o tile — quem desenha acerta os pes pela altura da imagem. */
+export function assarBicho(arte: Buf): FolhaAssada {
+  const img = assar(arte);
+  const trio: [Assado, Assado, Assado] = [img, img, img];
+  const saida = {} as FolhaAssada;
+  for (const d of ['baixo', 'cima', 'esq', 'dir'] as Direcao[]) saida[d] = trio;
   return saida;
 }
 
@@ -61,8 +72,10 @@ export class Ator {
     return (this.deY + (this.ty - this.deY) * this.progresso) * TS;
   }
 
-  /* o sprite tem 20px de altura num tile de 16: os pes encostam na base */
-  get desenhoY(): number { return this.py - 4; }
+  /* onde desenhar o quadro atual para os pes encostarem na base do tile.
+     Gente tem 16x20 e sobra 4px por cima; bicho tem 32x32 e sobra bem mais. */
+  get desenhoX(): number { return this.px + (TS - this.quadro().width) / 2; }
+  get desenhoY(): number { return this.py + TS - this.quadro().height; }
 
   /* tile logo a frente, para conversar ou interagir */
   frente(): { tx: number; ty: number } {

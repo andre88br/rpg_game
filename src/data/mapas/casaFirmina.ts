@@ -1,5 +1,6 @@
-/* Casa da Dona Firmina — na Etapa 3 é aqui que se escolhe o inicial, entre os
-   três patuás em cima da mesa comprida. */
+/* Casa da Dona Firmina — é aqui que se escolhe o inicial, entre os três
+   patuás em cima da mesa comprida, e é daqui que sai a carta que acende a
+   primeira conta da guia. */
 import type { DefMapa } from '../../world/tilemap.ts';
 
 export const casaFirmina: DefMapa = {
@@ -32,6 +33,16 @@ export const casaFirmina: DefMapa = {
       id: 'firmina', nome: 'DONA FIRMINA', estilo: 'firmina',
       tx: 6, ty: 1, dir: 'baixo',
       falas: [
+        /* nada antes do patuá: é ele que abre o jogo */
+        { seNao: 'escolheu_inicial', escolher: true, linhas: [
+          'Chegou na hora, criança. Três patuás em cima da mesa, e um deles é seu.',
+          'Curupinho é teimoso de raiz, Boitatinha não esfria nunca, e Iarinha tem a água do rio inteiro.',
+          'Chegue perto e escolha com calma. Escolha de patuá não se desfaz.'] },
+        { se: 'medalha:mare', linhas: [
+          'A Medalha Maré no peito e a Dona Mariana falando bem de você por aí.',
+          'A Região da Foz está fechada, criança. O que vem depois é outra história — e é do outro lado da água.'] },
+        { se: 'contas>=5', linhas: [
+          'As cinco contas acesas! Então vá: a Dona Mariana está esperando no terreiro.'] },
         { se: 'conta_recado', linhas: [
           'O Mestre do Porto mandou agradecer. Disse que a carta chegou seca, apesar da maré.',
           'Uma conta acesa. Faltam quatro, e nenhuma delas se acende de graça.'] },
@@ -40,7 +51,7 @@ export const casaFirmina: DefMapa = {
           'E não abra no caminho. Carta molhada e carta lida dão no mesmo: não servem.'] },
         { seNao: 'falou_firmina', liga: ['falou_firmina', 'tem_recado'],
           da: { item: 'carta' }, linhas: [
-          'Chegou na hora, criança. Antes de qualquer patuá, um serviço.',
+          'Agora um serviço, para o bicho aprender o caminho junto com você.',
           'Leve esta carta ao Mestre do Porto, em Porto Iara. É coisa de gente grande.',
           'Desce a Rota da Foz e não sai da estrada. O resto a gente resolve depois.'] },
         { linhas: [

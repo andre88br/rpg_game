@@ -10,6 +10,12 @@ import {
 } from './save.ts';
 
 /* armazém de mentira: o mesmo contrato do localStorage, sem navegador */
+/* a partida nasce sem time: quem testa ida e volta de bicho monta o seu */
+function comTime(e: ReturnType<typeof novoJogo>): ReturnType<typeof novoJogo> {
+  e.time = [criar('iarinha', 5), criar('boitatinha', 5)];
+  return e;
+}
+
 function memoria(): Armazem & { dados: Map<string, string> } {
   const dados = new Map<string, string>();
   return {
@@ -21,7 +27,7 @@ function memoria(): Armazem & { dados: Map<string, string> } {
 }
 
 test('ida e volta preserva o que importa', () => {
-  const e = novoJogo('ROSA');
+  const e = comTime(novoJogo('ROSA'));
   ligar(e, 'conta_recado');
   e.dinheiro = 1234;
   e.medalhas = ['mare'];
@@ -45,7 +51,7 @@ test('ida e volta preserva o que importa', () => {
 });
 
 test('o save é uma cópia: mexer nele não mexe na partida', () => {
-  const e = novoJogo();
+  const e = comTime(novoJogo());
   const s = serializar(e);
   s.jogo.time[0]!.hp = 1;
   s.jogo.dinheiro = 0;
@@ -61,7 +67,7 @@ test('versão diferente não é save desta publicação', () => {
 });
 
 test('espécie que sumiu do jogo é descartada, não quebra a partida', () => {
-  const e = novoJogo();
+  const e = comTime(novoJogo());
   const s = serializar(e);
   s.jogo.time.unshift({ ...s.jogo.time[0]!, especie: 'bicho_que_nao_existe' });
   const v = restaurar(s)!;
@@ -70,14 +76,17 @@ test('espécie que sumiu do jogo é descartada, não quebra a partida', () => {
   assert.ok(v.time.every((c) => c.especie !== 'bicho_que_nao_existe'));
 });
 
-test('sem nenhum bicho válido não há o que retomar', () => {
-  const s = serializar(novoJogo());
-  s.jogo.time = [];
-  assert.equal(restaurar(s), null);
+test('partida sem time volta inteira: é quem ainda não escolheu o inicial', () => {
+  const s = serializar(novoJogo('NOVATA'));
+  assert.deepEqual(s.jogo.time, []);
+  const v = restaurar(s)!;
+  assert.ok(v, 'quem gravou antes de escolher o patuá tem partida para retomar');
+  assert.deepEqual(v.time, []);
+  assert.equal(v.nome, 'NOVATA');
 });
 
 test('vida acima do máximo é aparada', () => {
-  const e = novoJogo();
+  const e = comTime(novoJogo());
   const s = serializar(e);
   s.jogo.time[0]!.hp = 99999;
   const v = restaurar(s)!;

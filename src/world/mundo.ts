@@ -27,6 +27,8 @@ export function impressao(def: DefMapa, ctx: ContextoMapa): string {
       partes.push(`guia${o.tx},${o.ty}:${contasDo(o, ctx)}`);
     }
   }
+  /* o Dom "Nadar" muda a colisão de TODA a água do mapa, não de um objeto */
+  if (ctx.nadar && def.chao.some((l) => l.includes('~'))) partes.push('nadar');
   return partes.join('|');
 }
 

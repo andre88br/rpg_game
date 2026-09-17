@@ -3,12 +3,11 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: Fase 3, Etapa 2 — o jogo lembra de você.** A Fase 1 do jogo é a
-**Região da Foz**: acorda-se em casa na Vila Aurora, desce-se a Rota da Foz e
-chega-se a Porto Iara, entrando e saindo das casas, da loja, do benzimento e do
-terreiro. Os NPCs respondem ao que já aconteceu, o Zeca barra a estrada e
-desafia quem passa, a loja vende, o benzimento cura, o menu de pausa mostra o
-time e as contas da guia, e a partida se grava sozinha. A batalha da Fase 2
+**Estado: a Fase 1 do jogo está fechada.** A **Região da Foz** dá para jogar do
+começo ao fim: escolhe-se o Encantado inicial na mesa da Dona Firmina, acendem-se
+as cinco contas da guia — o recado, o Zeca na estrada, o caderno do Contador, as
+três redes e o bicho do farol —, atravessa-se o salão alagado do terreiro e
+ganha-se a **Medalha Maré** com o Dom de **Nadar**, que abre a água. A batalha
 continua inteira: turnos, tabela de tipos, estados alterados, itens, captura com
 patuá, troca, XP, nível e evolução.
 
@@ -43,7 +42,7 @@ Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
 ## Como está construído
 
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
-o que mantém o pacote pequeno (≈32 KB comprimidos) e elimina qualquer questão
+o que mantém o pacote pequeno (≈35 KB comprimidos) e elimina qualquer questão
 de licenciamento. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
@@ -61,7 +60,8 @@ src/
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             + *.test.ts (os dois são puros: rodam sem navegador)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
-├─ scenes/    title.ts · overworld.ts · battle.ts · menu.ts · loja.ts
+├─ scenes/    title.ts · overworld.ts · battle.ts
+│             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
 ├─ data/      creatures.ts · moves.ts · items.ts
 │             mapas/ (a Região da Foz: 3 externos + 5 interiores)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
@@ -125,10 +125,10 @@ Cada mapa é uma grade ASCII editável à mão em `src/data/mapas/`:
 
 ```
  .  grama        ,  mato alto (encontros)   =  caminho de terra
- a  areia        ~  água (intransponível)   p  cais de madeira
+ a  areia        ~  água (só com "Nadar")   p  cais de madeira
  #  árvore       o  pedra                   f  flores
  _  piso         W  parede interna          T  tapete
- m  tatame       u  poça d'água
+ m  tatame       u  água parada (escorrega)
 ```
 
 As portas ficam sempre no meio de um **tile inteiro**, e é nele que mora a
@@ -153,6 +153,29 @@ encontro exista, e que todo mato alto e toda saída tenham caminho a pé a parti
 do início. Desde a Etapa 2 ele também anda pela região **fechada** e pela região
 **aberta**, para provar que a tranca do Zeca barra de verdade antes e libera
 depois, e que a guia só deixa entrar no terreiro com as cinco contas acesas.
+
+## Escorregar, nadar, fugir
+
+Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
+
+- **A água parada leva.** Pisar num tile `u` repete o passo na mesma direção até
+  a parede — e o salão do terreiro é feito disso. O detalhe que não é óbvio: uma
+  poça encostada numa parede tem que voltar a ser chão comum, senão quem
+  escorrega até o canto fica preso lá para sempre, sem nem batalha para perder.
+- **A água funda deixa de ser parede** quando a Medalha Maré entrega o Dom de
+  Nadar. Isso muda a colisão do mapa inteiro, não de um objeto, então entra na
+  impressão que o `Mundo` guarda e o cenário é remontado na hora.
+- **Quem foge, foge.** Um NPC com `fujao` pula para longe de quem chega perto,
+  enquanto tiver fôlego e para onde ir. Os três Sacizinhos que levaram as redes
+  do Mestre do Porto só sentam para conversar depois de encurralados — e sair do
+  mapa devolve o fôlego deles, para a caçada nunca ficar impossível nem eterna.
+
+**O salão da Dona Mariana não foi desenhado no olho.** Um salão de gelo erra
+fácil de dois jeitos: ou vira corredor, ou vira armadilha — você chega num canto
+de onde não dá mais para voltar e a partida trava. A planta saiu de uma busca
+larga entre as combinações de duas colunas, exigindo caminho até a saída **e**
+volta até a porta a partir de todo lugar alcançável. `mapas.test.ts` refaz as
+duas contas a cada execução.
 
 ## O que o mundo lembra
 
@@ -222,7 +245,7 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
       teclado e toque, mapa de Porto Iara, NPCs e diálogo.
 - [x] **2 — Batalha.** Turnos, tabela de tipos, dano, PP, estados, itens, captura,
       troca, XP, subida de nível, evolução e IA — com 88 testes automatizados.
-- [ ] **3 — Região da Foz.** A Fase 1 do jogo, inteira.
+- [x] **3 — Região da Foz.** A Fase 1 do jogo, inteira.
   - [x] **Etapa 1 — o mundo se abre.** Oito mapas encadeados (Vila Aurora, Rota da
         Foz, Porto Iara e cinco interiores), passagens, portas alinhadas ao tile,
         abrigo onde se acorda depois de apagar, e os testes de coerência de mapa.
@@ -230,25 +253,21 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
         cinco contas ligadas às flags, objetos que somem, treinadores com visão,
         menu de pausa (time, mochila, medalhas, guia, salvar, sair), loja,
         benzimento e `encantados:save:v1` com autosave e CONTINUAR no título.
-  - [ ] **Etapa 3 — a fase fecha.** Escolha do inicial, os cinco desafios completos,
-        o puzzle de poças, Mariana, a Medalha Maré e o Dom "Nadar".
+  - [x] **Etapa 3 — a fase fecha.** Escolha do inicial na mesa da Dona Firmina,
+        os cinco desafios completos, o salão alagado que escorrega, o farol e o
+        bicho que mora nele, Dona Mariana, a Medalha Maré e o Dom "Nadar".
 - [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
 ### Pontas soltas conhecidas
 
-- O time inicial da Fase 2 é provisório (Iarinha e Boitatinha no nível 5): a
-  escolha do inicial com a Dona Firmina entra na Etapa 3.
-- Três das cinco contas da guia já acendem jogando (o recado da Dona Firmina, o
-  desafio do Zeca e o caderno do Contador de Bichos). As redes do Mestre do Porto
-  e o bicho do farol precisam de mecânicas que entram na Etapa 3 — até lá, quem
-  quiser ver o terreiro por dentro passa pela porta, mas a Dona Mariana avisa que
-  não foi convidado.
+- Quem nada continua andando em pé na água: não existe sprite de nado. O Dom
+  funciona, mas a pose é a mesma da terra firme.
 - O `premio` do treinador é pago pela cena do mundo, não pelo motor de batalha:
   é lá que mora o bolso do jogador.
-- As poças do salão do terreiro ainda são só piso molhado. Escorregar até a
-  parede exige um modo "deslizando" no `Ator`, que entra na Etapa 3.
+- Um toque curto numa direção só VIRA o personagem, como no gênero. No salão
+  alagado, em que cada passo muda de direção, isso custa um toque a mais.
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
 - As formas intermediárias (Boitatá, Iaraí, Curupira) ainda não existem: por

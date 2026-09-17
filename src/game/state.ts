@@ -5,7 +5,7 @@
    então o HP perdido numa luta continua perdido ao voltar para o mapa — sem
    nenhum trabalho de sincronização.
    ========================================================================= */
-import { criar, curarTudo, desmaiado, type Encantado } from '../battle/encantado.ts';
+import { curarTudo, desmaiado, type Encantado } from '../battle/encantado.ts';
 import { adicionar, type Mochila } from '../data/items.ts';
 import type { Direcao } from '../art/people.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
@@ -29,10 +29,9 @@ export interface EstadoJogo {
   capturados: string[];             // espécies já presas num patuá
 }
 
-/* Time provisório da Fase 2.
-   Na Fase 3 quem entrega o inicial é a Dona Firmina, em Vila Aurora, e este
-   bloco sai daqui. Por ora começamos com dois para dar o que trocar em
-   batalha e um punhado de itens para testar captura e cura. */
+/* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
+   Dona Firmina, em Vila Aurora. Até lá o mato alto não gera encontro e nenhum
+   treinador desafia — as duas coisas checam se há alguém de pé. */
 export function novoJogo(nome = 'TAINÁ'): EstadoJogo {
   const inicio = MAPAS[MAPA_INICIAL]!.inicio;
   const lugar = (): Lugar => ({ mapa: MAPA_INICIAL, ...inicio });
@@ -40,7 +39,7 @@ export function novoJogo(nome = 'TAINÁ'): EstadoJogo {
     nome,
     posicao: lugar(),
     refugio: lugar(),
-    time: [criar('iarinha', 5), criar('boitatinha', 5)],
+    time: [],
     caixa: [],
     mochila: {},
     dinheiro: 3000,
