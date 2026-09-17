@@ -10,6 +10,9 @@ import { P } from '../art/palette.ts';
 import type { Direcao } from '../art/people.ts';
 import type { FaixaEncontro } from '../battle/encantado.ts';
 import type { Cenario } from '../art/battlebg.ts';
+/* so o TIPO: em tempo de execucao quests.ts depende do registro de mapas,
+   e importar de volta fecharia um ciclo. `import type` some na compilacao. */
+import type { Fala } from '../game/quests.ts';
 
 export const TS = 16;
 
@@ -56,10 +59,15 @@ export interface DefObjeto {
   solido?: boolean;
   /* coluna da porta, em tiles, a partir da esquerda da construcao */
   portaCol?: number;
-  /* quantas das cinco contas da guia estao acesas (tipo 'portao') */
+  /* quantas das cinco contas da guia estao acesas (tipo 'portao').
+     Sem este campo a guia le o que o jogador ja fez. */
   contas?: number;
   /* construcao sem interior: a porta continua desenhada, mas e parede */
   trancada?: boolean;
+  /* o objeto so existe quando as condicoes valem (vocabulario de quests.ts).
+     E o que faz a barreira sumir depois do servico feito. */
+  se?: string | readonly string[];
+  seNao?: string | readonly string[];
 }
 
 export interface DefSaida {
@@ -71,13 +79,30 @@ export interface DefSaida {
   aoPisar?: boolean;
 }
 
+/* Um NPC que desafia. A vitoria liga a flag `venceu_<id do NPC>`, e e ela
+   que faz o treinador parar de barrar o caminho na proxima vez. */
+export interface DefTreinador {
+  classe: string;                       // "MOLEQUE DA VILA", "PESCADOR"...
+  time: readonly { especie: string; nivel: number }[];
+  /* quantos tiles a frente ele enxerga. 0 ou ausente: so conversa */
+  visao?: number;
+  falaInicio?: string;
+  falaDerrota?: string;
+  premio?: number;
+  /* flags acesas pela vitoria, alem de `venceu_<id>` — e assim que vencer
+     o Zeca acende a conta da estrada sem precisar falar com ele de novo */
+  liga?: string | readonly string[];
+}
+
 export interface DefNPC {
   id: string;
   nome: string;
   estilo: string;              // chave em ESTILOS (src/art/people.ts)
   tx: number; ty: number;
   dir: Direcao;
-  falas: readonly string[];
+  /* a primeira fala cujas condicoes batem e a que ele diz */
+  falas: readonly Fala[];
+  treinador?: DefTreinador;
 }
 
 export interface DefMapa {
@@ -100,6 +125,32 @@ export interface DefMapa {
   interior?: boolean;
   /* abrigo: e aqui que o jogador acorda depois de apagar no mato */
   refugio?: boolean;
+  /* quem recebe o jogador que apagou, e o que essa pessoa diz */
+  socorro?: { quem: string; falas: readonly string[] };
+}
+
+/* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um
+   mapa nao le o estado inteiro da partida, le um contexto pequeno — o que
+   deixa `Mapa` testavel sem inventar uma partida. */
+export interface ContextoMapa {
+  contas: number;                         // contas acesas da guia
+  ligada: (cond: string) => boolean;      // condicoes dos objetos
+}
+
+export const CTX_VAZIO: ContextoMapa = { contas: 0, ligada: () => false };
+
+/* um objeto condicional so entra no mapa quando as condicoes valem */
+export function objetoAtivo(o: DefObjeto, ctx: ContextoMapa): boolean {
+  const como = (v: string | readonly string[] | undefined): readonly string[] =>
+    v === undefined ? [] : typeof v === 'string' ? [v] : v;
+  for (const c of como(o.se)) if (!ctx.ligada(c)) return false;
+  for (const c of como(o.seNao)) if (ctx.ligada(c)) return false;
+  return true;
+}
+
+/* Quantas contas a guia deste objeto mostra. */
+export function contasDo(o: DefObjeto, ctx: ContextoMapa): number {
+  return o.contas ?? ctx.contas;
 }
 
 export class Mapa {
@@ -117,8 +168,11 @@ export class Mapa {
   private cru: Buf | null;
   private imagem: Assado | null = null;
 
-  constructor(def: DefMapa) {
+  readonly ctx: ContextoMapa;
+
+  constructor(def: DefMapa, ctx: ContextoMapa = CTX_VAZIO) {
     this.def = def;
+    this.ctx = ctx;
     this.id = def.id;
     this.nome = def.nome;
     for (const s of def.saidas ?? []) this.saidas.set(`${s.tx},${s.ty}`, s);
@@ -158,7 +212,9 @@ export class Mapa {
     }
 
     // 3) construcoes e objetos, por cima do terreno
-    for (const o of def.objetos) this.desenharObjeto(buf, o);
+    for (const o of def.objetos) {
+      if (objetoAtivo(o, ctx)) this.desenharObjeto(buf, o);
+    }
 
     this.cru = buf;
   }
@@ -175,7 +231,7 @@ export class Mapa {
                                            portaCol: o.portaCol });
         break;
       case 'portao':
-        sprite = T.guia(larg, o.contas ?? 0);
+        sprite = T.guia(larg, contasDo(o, this.ctx));
         break;
       case 'balcao':
         sprite = T.balcao(larg);
@@ -221,6 +277,9 @@ export class Mapa {
       buf.tri(gx + 1, gy - 20, gx + 15, gy - 15, gx + 1, gy - 10, P.water!);
       buf.tri(gx + 1, gy - 18, gx + 11, gy - 15, gx + 1, gy - 12, P.waterL!);
     }
+    /* guia com as cinco contas acesas: o colar se abre e o patio libera */
+    if (o.tipo === 'portao' && contasDo(o, this.ctx) >= T.CONTAS_NA_GUIA) return;
+
     // marca a area ocupada como solida
     const umaLinha = o.tipo !== 'placa' && o.tipo !== 'casa' && o.tipo !== 'loja'
                   && o.tipo !== 'benzimento' && o.tipo !== 'terreiro';

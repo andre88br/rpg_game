@@ -7,6 +7,7 @@
 import type { Status } from '../battle/status.ts';
 
 export type EfeitoItem =
+  | { k: 'nenhum' }                    // item de recado: vale pelo que destrava
   | { k: 'patua'; bonus: number }
   | { k: 'cura'; hp: number }
   | { k: 'limpar'; status: readonly Status[] | 'todos' }
@@ -19,6 +20,8 @@ export interface Item {
   preco: number;
   emBatalha: boolean;
   descricao: string;
+  /* item de serviço: não se compra, não se vende, não se usa à toa */
+  chave?: boolean;
 }
 
 const LISTA: readonly Item[] = [
@@ -44,6 +47,14 @@ const LISTA: readonly Item[] = [
   { id: 'agua_benta', nome: 'Água Benta', preco: 1500, emBatalha: true,
     efeito: { k: 'reviver', fracao: 0.5 },
     descricao: 'Levanta um Encantado desmaiado com metade do fôlego.' },
+
+  /* ---- itens de serviço ---- */
+  { id: 'carta', nome: 'Carta da Firmina', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Dobrada em quatro e lacrada com cera. É para o Mestre do Porto.' },
+  { id: 'caderno', nome: 'Caderno de Bichos', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Onde o Contador anota cada Encantado que aparece na Foz.' },
 ];
 
 export const ITENS: Record<string, Item> =
@@ -56,6 +67,10 @@ export function item(id: string): Item {
 }
 
 export const ITENS_ORDEM: readonly string[] = LISTA.map((i) => i.id);
+
+/* o que a loja de Porto Iara põe na prateleira */
+export const ITENS_A_VENDA: readonly string[] =
+  LISTA.filter((i) => !i.chave && i.preco > 0).map((i) => i.id);
 
 /* ------------------------------------------------------------- mochila */
 

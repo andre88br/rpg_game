@@ -11,7 +11,7 @@ function base(color: string): Buf { const b = new Buf(TS, TS); b.rect(0, 0, TS, 
 export function tileGrama(seed = 1): Buf {
   const b = base(P.grass); const r = rng(seed);
   for (let i = 0; i < 26; i++) b.set(r() * TS, r() * TS, r() < 0.55 ? P.grassD : P.grassL);
-  for (let i = 0; i < 5; i++) { // tufinhos de 2px
+  for (let i = 0; i < CONTAS_NA_GUIA; i++) { // tufinhos de 2px
     const x = (r() * (TS - 2)) | 0, y = (r() * (TS - 2)) | 0;
     b.set(x, y, P.grassD); b.set(x + 1, y - 1, P.grassD);
   }
@@ -355,6 +355,11 @@ export function mesa(wTiles: number): Buf {
   return b.outline(P.ink!);
 }
 
+/* Quantas contas a guia tem. Mora aqui porque e o desenho que manda: o
+   colar tem cinco bolinhas, e a regra do jogo (cinco servicos) segue o
+   desenho, nao o contrario. */
+export const CONTAS_NA_GUIA = 5;
+
 /* ---- o portao do terreiro: a guia de cinco contas ----
    Uma guia esticada de poste a poste. Cada desafio da regiao acende uma conta;
    com as cinco acesas a guia se abre. Desenhar as cinco desde o comeco e o que
@@ -379,8 +384,8 @@ export function guia(larguraTiles: number, acesas = 0): Buf {
     b.set(x, y + 1, '#b6a887');
   }
   // cinco contas igualmente espacadas ao longo do cordao
-  for (let i = 0; i < 5; i++) {
-    const x = Math.round(4 + ((w - 8) * (i + 0.5)) / 5);
+  for (let i = 0; i < CONTAS_NA_GUIA; i++) {
+    const x = Math.round(4 + ((w - 8) * (i + 0.5)) / CONTAS_NA_GUIA);
     const y = alturaEm(x) + 1;
     if (i < acesas) {
       b.ellipse(x, y, 4, 4, P.waterL!);      // brilho da conta acesa

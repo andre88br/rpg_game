@@ -32,8 +32,8 @@ export const lojaPortoIara: DefMapa = {
       id: 'lojista', nome: 'LOJISTA', estilo: 'aldeao',
       tx: 7, ty: 4, dir: 'baixo',
       falas: [
-        'Patuá é o que prende Encantado. Quanto mais cansado o bicho, melhor pega.',
-        'Volte quando eu tiver o caixa aberto, moça. Estou ainda arrumando a prateleira.',
+        { loja: true, linhas: [
+          'Entra, entra. Patuá, garrafada, erva-doce: o que a mata dá, eu vendo.'] },
       ],
     },
   ],

@@ -55,21 +55,34 @@ export const vilaAurora: DefMapa = {
       id: 'vizinho', nome: 'SEU ANASTÁCIO', estilo: 'aldeao',
       tx: 19, ty: 7, dir: 'baixo',
       falas: [
-        'A Dona Firmina mora ali no meio, a casa de telhado grande.',
-        'Ela é quem entrega o primeiro Encantado da gente. Vai lá falar com ela.',
+        { se: 'item:carta', linhas: [
+          'Carta na mão e cara de pressa. Desce a estrada, menina, que o porto não anda até aqui.'] },
+        { linhas: [
+          'A Dona Firmina mora ali no meio, a casa de telhado grande.',
+          'Ela é quem entrega o primeiro Encantado da gente. Vai lá falar com ela.'] },
       ],
     },
     {
       id: 'menina', nome: 'MENINA', estilo: 'crianca',
       tx: 8, ty: 11, dir: 'dir',
-      falas: ['Meu irmão desceu pra Rota da Foz e não voltou. Aposto que perdeu a luta de novo.'],
+      falas: [
+        { se: 'venceu_zeca', linhas: [
+          'Então foi você que ganhou do Zeca? Ele vai ficar uma semana sem falar nisso.'] },
+        { linhas: ['Meu irmão desceu pra Rota da Foz e não voltou. Aposto que perdeu a luta de novo.'] },
+      ],
     },
     {
       id: 'velha', nome: 'DONA BENTA', estilo: 'aldeao',
       tx: 22, ty: 9, dir: 'baixo',
       falas: [
-        'Em Porto Iara tem terreiro, criança. Mas o portão está fechado com uma guia de cinco contas.',
-        'Cada conta acende com um serviço bem feito. Cinco serviços, cinco contas, e o terreiro se abre.',
+        { se: 'contas>=5', linhas: [
+          'Cinco contas acesas! Então a guia se abriu e a Dona Mariana já está te esperando.'] },
+        { se: 'contas>=1', linhas: [
+          'Já são {contas} contas acesas, criança. Faltam {faltam}.',
+          'A próxima, pelo que me contam: {servico}.'] },
+        { linhas: [
+          'Em Porto Iara tem terreiro, criança. Mas o portão está fechado com uma guia de cinco contas.',
+          'Cada conta acende com um serviço bem feito. Cinco serviços, cinco contas, e o terreiro se abre.'] },
       ],
     },
   ],

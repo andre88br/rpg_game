@@ -6,6 +6,7 @@ import type { Entrada } from '../core/input.ts';
 import { P } from '../art/palette.ts';
 import { texto, larguraTexto } from '../art/font.ts';
 import * as CR from '../art/creatures.ts';
+import { quandoSalvou, temSave } from '../game/save.ts';
 
 function misturar(a: string, b: string, t: number): string {
   t = Math.max(0, Math.min(1, t));
@@ -56,29 +57,107 @@ function fundoTitulo(): Buf {
   return b;
 }
 
+/* Com partida gravada o título vira menu; sem ela continua sendo a tela de
+   um botão só, que é o que um jogo novo deve parecer. */
+type Tela = 'aperte' | 'menu' | 'confirmar';
+
+export type Comeco = 'novo' | 'continuar';
+
 export class CenaTitulo implements Cena {
   private fundo!: Assado;
   private t = 0;
+  private tela: Tela = 'aperte';
+  private sel = 0;
+  private quando: string | null = null;
+  private aoComecar: (c: Comeco) => void;
 
-  constructor(private aoComecar: () => void) {}
+  constructor(aoComecar: (c: Comeco) => void) { this.aoComecar = aoComecar; }
 
-  entrar(): void { this.fundo = assar(fundoTitulo()); this.t = 0; }
+  entrar(): void {
+    this.fundo = assar(fundoTitulo());
+    this.t = 0;
+    this.sel = 0;
+    // o save pode ter nascido nesta sessão: o título é remontado a cada volta
+    this.tela = temSave() ? 'menu' : 'aperte';
+    this.quando = quandoSalvou();
+  }
 
   atualizar(dt: number, entrada: Entrada): void {
     this.t += dt;
-    if (this.t > 0.3 && (entrada.apertou('a') || entrada.apertou('menu'))) this.aoComecar();
+    if (this.t <= 0.3) return;        // engole o A que fechou a tela anterior
+
+    if (this.tela === 'aperte') {
+      if (entrada.apertou('a') || entrada.apertou('menu')) this.aoComecar('novo');
+      return;
+    }
+
+    const opcoes = this.tela === 'menu' ? 2 : 2;
+    if (entrada.apertou('cima')) this.sel = (this.sel - 1 + opcoes) % opcoes;
+    if (entrada.apertou('baixo')) this.sel = (this.sel + 1) % opcoes;
+
+    if (this.tela === 'confirmar') {
+      if (entrada.apertou('b')) { this.tela = 'menu'; this.sel = 0; return; }
+      if (!entrada.apertou('a')) return;
+      if (this.sel === 0) this.aoComecar('novo');
+      else { this.tela = 'menu'; this.sel = 0; }
+      return;
+    }
+
+    if (!entrada.apertou('a')) return;
+    if (this.sel === 0) this.aoComecar('continuar');
+    else { this.tela = 'confirmar'; this.sel = 1; }   // começa no NÃO
   }
 
   desenhar(r: Renderizador): void {
     r.sprite(this.fundo, 0, 0);
-    if (Math.floor(this.t * 1.6) % 2 === 0) {
-      const msg = 'APERTE   PARA COMEÇAR';
-      const mx = (LARGURA - r.larguraTexto(msg)) / 2;
-      r.texto(msg, mx, ALTURA - 26, P.white!, { sombra: P.ink! });
-      const bx = mx + 36;
-      r.ctx.fillStyle = P.uiAcc!;
-      r.ctx.beginPath(); r.ctx.arc(bx + 4, ALTURA - 23, 6, 0, Math.PI * 2); r.ctx.fill();
-      r.texto('A', bx + 2, ALTURA - 26, P.uiInk!);
+    if (this.tela === 'aperte') { this.desenharAperte(r); return; }
+    if (this.tela === 'menu') { this.desenharMenu(r); return; }
+    this.desenharConfirmacao(r);
+  }
+
+  private desenharAperte(r: Renderizador): void {
+    if (Math.floor(this.t * 1.6) % 2 !== 0) return;
+    const msg = 'APERTE   PARA COMEÇAR';
+    const mx = (LARGURA - r.larguraTexto(msg)) / 2;
+    r.texto(msg, mx, ALTURA - 26, P.white!, { sombra: P.ink! });
+    const bx = mx + 36;
+    r.ctx.fillStyle = P.uiAcc!;
+    r.ctx.beginPath(); r.ctx.arc(bx + 4, ALTURA - 23, 6, 0, Math.PI * 2); r.ctx.fill();
+    r.texto('A', bx + 2, ALTURA - 26, P.uiInk!);
+  }
+
+  private desenharMenu(r: Renderizador): void {
+    const itens = ['CONTINUAR', 'NOVO JOGO'];
+    /* o painel encosta no rodapé: assim ele cobre a assinatura assada no
+       fundo em vez de escrever por cima dela, e os iniciais continuam
+       aparecendo por trás */
+    const larg = 124, alt = this.quando ? 44 : 32;
+    const x = (LARGURA - larg) / 2, y = ALTURA - alt - 2;
+    r.retangulo(x - 2, y - 2, larg + 4, alt + 4, P.ink!);
+    r.retangulo(x, y, larg, alt, P.uiBg!);
+    itens.forEach((it, i) => {
+      const iy = y + 6 + i * 12;
+      if (i === this.sel) r.texto('=', x + 12, iy, P.uiAccD!);
+      r.texto(it, x + 24, iy, P.uiInk!);
+    });
+    if (this.quando) {
+      const s = `GRAVADO EM ${this.quando}`;
+      r.retangulo(x + 4, y + 30, larg - 8, 1, P.uiBg2!);
+      r.texto(s, x + (larg - r.larguraTexto(s)) / 2, y + 34, P.uiBg3!);
     }
+  }
+
+  private desenharConfirmacao(r: Renderizador): void {
+    const larg = 178, alt = 52;
+    const x = (LARGURA - larg) / 2, y = (ALTURA - alt) / 2;
+    r.retangulo(x - 2, y - 2, larg + 4, alt + 4, P.ink!);
+    r.retangulo(x, y, larg, alt, P.uiBg!);
+    r.texto('COMEÇAR DE NOVO?', x + 10, y + 8, P.uiInk!);
+    r.texto('A partida gravada se perde.', x + 10, y + 20, P.uiBg3!);
+    ['SIM', 'NÃO'].forEach((op, i) => {
+      const ox = x + 30 + i * 74;
+      if (i === this.sel) r.texto('=', ox - 10, y + 36, P.uiAccD!);
+      r.texto(op, ox, y + 36, P.uiInk!);
+    });
   }
 }

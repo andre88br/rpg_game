@@ -3,11 +3,14 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: Fase 3, Etapa 1 — a região se abre.** A Fase 1 do jogo é a **Região da
-Foz**: acorda-se em casa na Vila Aurora, desce-se a Rota da Foz e chega-se a
-Porto Iara, entrando e saindo das casas, da loja, do benzimento e do terreiro.
-A batalha da Fase 2 continua inteira: turnos, tabela de tipos, estados
-alterados, itens, captura com patuá, troca, XP, nível e evolução.
+**Estado: Fase 3, Etapa 2 — o jogo lembra de você.** A Fase 1 do jogo é a
+**Região da Foz**: acorda-se em casa na Vila Aurora, desce-se a Rota da Foz e
+chega-se a Porto Iara, entrando e saindo das casas, da loja, do benzimento e do
+terreiro. Os NPCs respondem ao que já aconteceu, o Zeca barra a estrada e
+desafia quem passa, a loja vende, o benzimento cura, o menu de pausa mostra o
+time e as contas da guia, e a partida se grava sozinha. A batalha da Fase 2
+continua inteira: turnos, tabela de tipos, estados alterados, itens, captura com
+patuá, troca, XP, nível e evolução.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -40,7 +43,7 @@ Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
 ## Como está construído
 
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
-o que mantém o pacote pequeno (≈31 KB comprimidos) e elimina qualquer questão
+o que mantém o pacote pequeno (≈32 KB comprimidos) e elimina qualquer questão
 de licenciamento. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
@@ -55,7 +58,10 @@ src/
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
 │             mapas.test.ts (coerência: saídas, alcance, encontros)
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
-├─ scenes/    title.ts · overworld.ts · battle.ts
+│             quests.ts (falas condicionais e as cinco contas) · save.ts
+│             + *.test.ts (os dois são puros: rodam sem navegador)
+├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
+├─ scenes/    title.ts · overworld.ts · battle.ts · menu.ts · loja.ts
 ├─ data/      creatures.ts · moves.ts · items.ts
 │             mapas/ (a Região da Foz: 3 externos + 5 interiores)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
@@ -130,6 +136,13 @@ As portas ficam sempre no meio de um **tile inteiro**, e é nele que mora a
 mapa já desenhado: atravessar uma porta troca o cenário e os NPCs, mas não
 remonta nada nem mexe no jogador.
 
+Um objeto pode ser **condicional** (`se` / `seNao`, no vocabulário de
+`src/game/quests.ts`): a tranca que o Zeca atravessa na estrada some no instante
+em que ele perde. Como isso muda o desenho E a colisão, o `Mundo` guarda junto de
+cada mapa a **impressão** das condições que o desenharam, e só o reaproveita
+enquanto essa impressão continuar a mesma — é assim que a guia acende conta por
+conta sem remontar a região inteira a cada passo.
+
 Erro de grade não aparece no `tsc` — uma linha com um caractere a mais, uma casa
 plantada em cima da única moita, uma porta que abre para dentro de uma parede:
 tudo isso compila. Por isso `src/world/mapas.test.ts` lê os mapas de verdade e
@@ -137,7 +150,41 @@ anda por eles em busca larga: confere o comprimento de cada linha, que toda
 saída caia em chão livre (e não em cima de outra saída, o que faria laço de
 porta), que todo NPC e todo início estejam em tile andável, que toda espécie de
 encontro exista, e que todo mato alto e toda saída tenham caminho a pé a partir
-do início.
+do início. Desde a Etapa 2 ele também anda pela região **fechada** e pela região
+**aberta**, para provar que a tranca do Zeca barra de verdade antes e libera
+depois, e que a guia só deixa entrar no terreiro com as cinco contas acesas.
+
+## O que o mundo lembra
+
+Um NPC não tem "a" fala: tem uma lista, e a primeira cujas condições batem é a
+que ele diz.
+
+```ts
+falas: [
+  { se: 'conta_recado', linhas: ['O Mestre do Porto mandou agradecer.'] },
+  { seNao: 'falou_firmina', liga: ['falou_firmina', 'tem_recado'],
+    da: { item: 'carta' }, linhas: ['Leve esta carta ao Mestre do Porto.'] },
+  { linhas: ['Volte aqui que eu escrevo outra.'] },
+]
+```
+
+O vocabulário de condições cabe numa tela: uma flag (`falou_firmina`), a flag
+negada (`!falou_firmina`), `item:carta`, `item:patua>=3`, `vistos>=4`,
+`capturados>=2`, `contas>=5`, `medalha:mare`, `dinheiro>=200`. Uma fala pode
+`liga`r flags, `da`r e `pede`r itens, `paga`r, `cura`r o time, abrir a `loja` ou
+virar `batalha`. O texto aceita recheio: `{nome}`, `{contas}`, `{faltam}`,
+`{servico}`, `{vistos}`.
+
+Isso mora todo em `src/game/quests.ts`, que é puro — nada de canvas, nada de
+DOM. Por isso ele tem teste de verdade, e por isso o conteúdo da região continua
+sendo **dado**, não código de cena.
+
+A partida se grava em `localStorage` sob `encantados:save:v1`, sozinha: ao curar
+no benzimento, ao trocar de mapa, ao acender uma conta e ao vencer um treinador.
+O save atravessa publicações do jogo, então `restaurar()` não confia nele —
+espécie que sumiu, golpe renomeado, mapa que não existe mais e vida acima do
+máximo são corrigidos em silêncio, porque perder a partida inteira por causa de
+um campo torto seria pior do que voltar com um item a menos.
 
 ## O jogo
 
@@ -179,8 +226,10 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
   - [x] **Etapa 1 — o mundo se abre.** Oito mapas encadeados (Vila Aurora, Rota da
         Foz, Porto Iara e cinco interiores), passagens, portas alinhadas ao tile,
         abrigo onde se acorda depois de apagar, e os testes de coerência de mapa.
-  - [ ] **Etapa 2 — o jogo lembra de você.** Falas condicionais, as cinco contas
-        ligadas às flags, treinadores com visão, menu de pausa, loja, benzimento e save.
+  - [x] **Etapa 2 — o jogo lembra de você.** Falas condicionais com efeitos, as
+        cinco contas ligadas às flags, objetos que somem, treinadores com visão,
+        menu de pausa (time, mochila, medalhas, guia, salvar, sair), loja,
+        benzimento e `encantados:save:v1` com autosave e CONTINUAR no título.
   - [ ] **Etapa 3 — a fase fecha.** Escolha do inicial, os cinco desafios completos,
         o puzzle de poças, Mariana, a Medalha Maré e o Dom "Nadar".
 - [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
@@ -191,8 +240,13 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
 
 - O time inicial da Fase 2 é provisório (Iarinha e Boitatinha no nível 5): a
   escolha do inicial com a Dona Firmina entra na Etapa 3.
-- As cinco contas da guia já aparecem apagadas no portão do terreiro, mas ainda
-  não acendem: os cinco desafios ganham lógica nas Etapas 2 e 3.
+- Três das cinco contas da guia já acendem jogando (o recado da Dona Firmina, o
+  desafio do Zeca e o caderno do Contador de Bichos). As redes do Mestre do Porto
+  e o bicho do farol precisam de mecânicas que entram na Etapa 3 — até lá, quem
+  quiser ver o terreiro por dentro passa pela porta, mas a Dona Mariana avisa que
+  não foi convidado.
+- O `premio` do treinador é pago pela cena do mundo, não pelo motor de batalha:
+  é lá que mora o bolso do jogador.
 - As poças do salão do terreiro ainda são só piso molhado. Escorregar até a
   parede exige um modo "deslizando" no `Ator`, que entra na Etapa 3.
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam

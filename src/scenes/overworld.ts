@@ -1,48 +1,70 @@
 /* =========================================================================
-   Cena do mundo: andar pela região, esbarrar no cenário, conversar com NPCs
-   e atravessar portas.
+   Cena do mundo: andar pela região, esbarrar no cenário, conversar com NPCs,
+   atravessar portas — e, desde a Etapa 2, lembrar do que já aconteceu.
 
    A cena é criada UMA vez e vive a partida inteira: trocar de mapa troca o
    `Mapa` e os NPCs, mas o jogador, a câmera e os recursos assados continuam
    os mesmos. Remontar tudo a cada porta jogaria fora o canvas do cenário e
    apareceria como um tranco na tela.
+
+   O menu de pausa e a loja NÃO são cenas: são sobreposições desenhadas por
+   cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
    ========================================================================= */
 import { assar, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
-import { Mapa, TS, type DefMapa, type DefNPC, type DefSaida } from '../world/tilemap.ts';
+import {
+  Mapa, TS, type ContextoMapa, type DefMapa, type DefNPC, type DefSaida,
+} from '../world/tilemap.ts';
 import type { Mundo } from '../world/mundo.ts';
-import { colunaPorta } from '../art/tiles.ts';
+import { colunaPorta, CONTAS_NA_GUIA } from '../art/tiles.ts';
 import { Camera } from '../world/camera.ts';
-import { Ator, assarFolha, direcaoDe } from '../world/actor.ts';
+import { Ator, assarFolha, direcaoDe, DELTAS } from '../world/actor.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import * as UI from '../art/ui.ts';
 import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
 import { acaso } from '../core/rng.ts';
-import { sortearSelvagem, type Encantado } from '../battle/encantado.ts';
-import type { Treinador } from '../battle/engine.ts';
+import { criar, sortearSelvagem, type Encantado } from '../battle/encantado.ts';
+import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
+import { adicionar, consumir } from '../data/items.ts';
 import { curarTime, temTimeEmPe, type EstadoJogo } from '../game/state.ts';
+import {
+  aplicarFala, contasAcesas, contasFaltando, escolherFala, ligada, preencher,
+  type Fala,
+} from '../game/quests.ts';
+import { salvar } from '../game/save.ts';
+import { MenuPausa } from './menu.ts';
+import { Loja } from './loja.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
-/* meio segundo de escuro entre um mapa e outro: sem isso a troca é um tranco */
+/* um respiro de escuro entre um mapa e outro: sem isso a troca é um tranco */
 const FADE = 0.18;
+/* quanto tempo o "!" fica sobre a cabeça do treinador antes de ele vir */
+const SUSTO = 0.7;
+
+interface NpcVivo { def: DefNPC; ator: Ator }
 
 interface Conversa {
   falante: string;
   linhas: string[];
   indice: number;
   revelados: number;
+  /* o que acontece quando a última página fecha */
+  fala: Fala | null;
+  npc: NpcVivo | null;
 }
 
-/* coisas do cenario que respondem ao botao A */
+/* coisas do cenário que respondem ao botão A */
 interface Aviso { nome: string; falas: string[] }
 
-/* o que a cena de mundo precisa saber do resto do jogo */
+/* um treinador que avistou o jogador e está vindo */
+interface Duelo { npc: NpcVivo; fase: 'susto' | 'andando' | 'falando' | 'lutando'; t: number }
+
 export interface PedidoBatalha {
   oponentes: Encantado[];
   treinador?: Treinador | null;
@@ -53,6 +75,8 @@ export interface OpcoesCenaMundo {
   mundo: Mundo;
   estado: EstadoJogo;
   aoBatalhar: (p: PedidoBatalha) => void;
+  /* o menu de pausa pode desistir da partida e voltar ao título */
+  aoSair?: () => void;
 }
 
 export class CenaMundo implements Cena {
@@ -60,7 +84,7 @@ export class CenaMundo implements Cena {
   private def!: DefMapa;
   private camera = new Camera();
   private jogador!: Ator;
-  private npcs: { ator: Ator; def: DefNPC }[] = [];
+  private npcs: NpcVivo[] = [];
   private ocupados = new Set<string>();
   private avisos = new Map<string, Aviso>();
 
@@ -81,69 +105,65 @@ export class CenaMundo implements Cena {
   private indo: DefSaida | null = null;
   private fade = 0;
 
+  private duelo: Duelo | null = null;
+  private menu: MenuPausa | null = null;
+  private loja: Loja | null = null;
+  private emMenu = false;
+  private emLoja = false;
+  /* resultado da última batalha, aplicado quando a cena volta a ser a da vez */
+  private pendente: Resultado | null = null;
+
   constructor(op: OpcoesCenaMundo) {
     this.op = op;
   }
 
+  /* ------------------------------------------------------------- montagem */
+
   entrar(): void {
-    // voltando de uma batalha o mundo já está montado: remontar jogaria fora
-    // o canvas do cenário e devolveria o jogador ao ponto de partida
-    if (this.montado) { this.tempoFaixa = 0; this.conversa = null; this.carencia = 0.6; return; }
+    if (this.montado) {
+      this.tempoFaixa = 0;
+      this.conversa = null;
+      this.carencia = 0.6;
+      this.resolverBatalha();
+      return;
+    }
     this.montado = true;
 
     // recursos visuais assados uma vez, valem para todos os mapas
     this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
     this.rocadas = [assar(T.rocada(0)), assar(T.rocada(1)), assar(T.rocada(2))];
+    this.menu = new MenuPausa({
+      estado: this.op.estado,
+      aoSalvar: () => salvar(this.op.estado),
+    });
+    this.loja = new Loja(this.op.estado);
 
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(assarFolha(ESTILOS['taina']!), pos.tx, pos.ty, pos.dir);
-    this.montarMapa(pos.mapa);
+    this.montarMapa(pos.mapa, { gravar: false });
     this.jogador.teleportar(pos.tx, pos.ty, pos.dir);
     this.centrarCamera();
   }
 
+  /* o pouco que um mapa precisa saber da partida para se desenhar */
+  private contexto(): ContextoMapa {
+    const e = this.op.estado;
+    return { contas: contasAcesas(e), ligada: (c) => ligada(e, c) };
+  }
+
   /* troca o cenário, os NPCs e os avisos; o jogador continua sendo o mesmo */
-  private montarMapa(id: string): void {
-    this.mapa = this.op.mundo.obter(id);
+  private montarMapa(id: string, opt: { gravar?: boolean } = {}): void {
+    this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     this.conversa = null;
+    this.duelo = null;
 
     this.npcs = this.def.npcs.map((d) => ({
       def: d,
       ator: new Ator(assarFolha(ESTILOS[d.estilo] ?? ESTILOS['aldeao']!), d.tx, d.ty, d.dir),
     }));
-    this.ocupados = new Set(this.npcs.map((n) => `${n.ator.tx},${n.ator.ty}`));
-
-    // objetos do cenário que podem ser lidos com o A
-    this.avisos = new Map();
-    for (const o of this.def.objetos) {
-      if (o.tipo === 'barreira') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'BARREIRA', falas: ['Uma barreira fecha a passagem.'],
-          });
-        }
-      } else if (o.tipo === 'portao') {
-        const acesas = o.contas ?? 0;
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'GUIA DO TERREIRO',
-            falas: acesas === 0
-              ? ['Uma guia de cinco contas atravessa o pátio. Todas apagadas.',
-                 'Cada serviço bem feito na região acende uma. Com as cinco acesas, a guia se abre.']
-              : [`A guia tem ${acesas} de cinco contas acesas.`,
-                 'Faltam serviços por fazer nesta região.'],
-          });
-        }
-      } else if (o.tipo === 'placa' && o.placa) {
-        this.avisos.set(`${o.tx},${o.ty}`, { nome: 'PLACA', falas: [o.placa] });
-      } else if (o.trancada) {
-        const col = colunaPorta(o.larg ?? 4, o.portaCol);
-        this.avisos.set(`${o.tx + col},${o.ty + (o.alt ?? 3) - 1}`, {
-          nome: 'PORTA', falas: ['Está trancada. Não tem ninguém em casa.'],
-        });
-      }
-    }
+    this.recontarOcupados();
+    this.montarAvisos();
 
     // faixa com o nome do lugar — dentro de casa ela só atrapalharia
     if (this.def.interior) {
@@ -162,12 +182,76 @@ export class CenaMundo implements Cena {
     }
     this.op.estado.posicao = { mapa: id, tx: this.jogador.tx, ty: this.jogador.ty,
                                dir: this.jogador.dir };
+    if (opt.gravar !== false) salvar(this.op.estado);
+  }
+
+  /* Uma flag mudou: a guia acendeu, a tranca do Zeca caiu. O cenário é
+     remontado (o Mundo devolve um `Mapa` novo só quando de fato mudou) sem
+     mexer no jogador nem nos NPCs, que continuam onde estavam. */
+  private atualizarCenario(): void {
+    const novo = this.op.mundo.obter(this.def.id, this.contexto());
+    if (novo === this.mapa) return;
+    this.mapa = novo;
+    this.montarAvisos();
+  }
+
+  private recontarOcupados(): void {
+    this.ocupados = new Set(this.npcs.map((n) => `${n.ator.tx},${n.ator.ty}`));
+  }
+
+  private montarAvisos(): void {
+    this.avisos = new Map();
+    const ctx = this.contexto();
+    for (const o of this.def.objetos) {
+      // objeto que saiu do mapa também não responde ao A
+      if (!this.objetoNoMapa(o.se, o.seNao)) continue;
+      if (o.tipo === 'barreira') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'TRANCA', falas: ['Uma tranca atravessada fecha a passagem.'],
+          });
+        }
+      } else if (o.tipo === 'portao') {
+        const acesas = o.contas ?? ctx.contas;
+        const faltando = contasFaltando(this.op.estado);
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'GUIA DO TERREIRO',
+            falas: acesas >= CONTAS_NA_GUIA
+              ? ['As cinco contas brilham, e a guia se abre sozinha ao seu passo.']
+              : acesas === 0
+                ? ['Uma guia de cinco contas atravessa o pátio. Todas apagadas.',
+                   'Cada serviço bem feito na região acende uma. Com as cinco acesas, a guia se abre.']
+                : [`A guia tem ${acesas} de ${CONTAS_NA_GUIA} contas acesas.`,
+                   `Ainda falta: ${faltando[0] ?? 'nada'}.`],
+          });
+        }
+      } else if (o.tipo === 'placa' && o.placa) {
+        this.avisos.set(`${o.tx},${o.ty}`, { nome: 'PLACA', falas: [o.placa] });
+      } else if (o.trancada) {
+        const col = colunaPorta(o.larg ?? 4, o.portaCol);
+        this.avisos.set(`${o.tx + col},${o.ty + (o.alt ?? 3) - 1}`, {
+          nome: 'PORTA', falas: ['Está trancada. Não tem ninguém em casa.'],
+        });
+      }
+    }
+  }
+
+  private objetoNoMapa(se?: string | readonly string[], seNao?: string | readonly string[]): boolean {
+    const e = this.op.estado;
+    const lista = (v?: string | readonly string[]) =>
+      v === undefined ? [] : typeof v === 'string' ? [v] : v;
+    for (const c of lista(se)) if (!ligada(e, c)) return false;
+    for (const c of lista(seNao)) if (ligada(e, c)) return false;
+    return true;
   }
 
   private centrarCamera(): void {
     this.camera.seguir(this.jogador.px + TS / 2, this.jogador.py + TS / 2,
                        this.mapa.larguraPx, this.mapa.alturaPx);
   }
+
+  /* ------------------------------------------------------------ conversa */
 
   private etiqueta(falante: string): Assado {
     let e = this.etiquetas.get(falante);
@@ -180,10 +264,14 @@ export class CenaMundo implements Cena {
     return e;
   }
 
-  private abrirConversa(falante: string, falas: readonly string[]): void {
+  private abrirConversa(falante: string, falas: readonly string[],
+                        fala: Fala | null = null, npc: NpcVivo | null = null): void {
     const linhas: string[] = [];
-    for (const f of falas) linhas.push(...quebrar(f, LARG_DIALOGO - 18).join('\n').split('\n'));
-    this.conversa = { falante, linhas, indice: 0, revelados: 0 };
+    for (const f of falas) {
+      const cheia = preencher(this.op.estado, f);
+      linhas.push(...quebrar(cheia, LARG_DIALOGO - 18).join('\n').split('\n'));
+    }
+    this.conversa = { falante, linhas, indice: 0, revelados: 0, fala, npc };
   }
 
   private paginaAtual(): string[] {
@@ -193,13 +281,137 @@ export class CenaMundo implements Cena {
 
   private textoDaPagina(): string { return this.paginaAtual().join(' '); }
 
+  /* a última página fechou: só agora a fala mexe no mundo */
+  private fecharConversa(): void {
+    const c = this.conversa;
+    this.conversa = null;
+    if (!c || !c.fala) { this.duelo = null; return; }
+
+    const e = this.op.estado;
+    const antes = contasAcesas(e);
+    const efeito = aplicarFala(e, c.fala, {
+      adicionar: (id, n) => adicionar(e.mochila, id, n),
+      consumir: (id, n) => consumir(e.mochila, id, n),
+    });
+    this.atualizarCenario();
+
+    if (efeito.batalha && c.npc?.def.treinador) { this.lutarCom(c.npc); return; }
+    this.duelo = null;
+    if (efeito.loja) { this.emLoja = true; this.loja!.abrir(); }
+    /* gravar depois de curar, de acender uma conta ou de ganhar item de
+       serviço: são os pontos em que perder progresso doeria de verdade */
+    if (efeito.curou || efeito.deu || efeito.levou || contasAcesas(e) !== antes) {
+      salvar(e);
+    }
+  }
+
+  /* ----------------------------------------------------------- treinador */
+
+  private venceu(npc: NpcVivo): boolean {
+    return this.op.estado.flags[`venceu_${npc.def.id}`] === true;
+  }
+
+  /* quem está de olho na estrada vê o jogador passar */
+  private olharTreinadores(): void {
+    if (this.duelo || this.conversa || this.indo) return;
+    for (const n of this.npcs) {
+      const t = n.def.treinador;
+      if (!t?.visao || this.venceu(n)) continue;
+      const [dx, dy] = DELTAS[n.ator.dir];
+      for (let i = 1; i <= t.visao; i++) {
+        const x = n.ator.tx + dx * i, y = n.ator.ty + dy * i;
+        if (this.mapa.solido(x, y)) break;          // parede corta a vista
+        if (x === this.jogador.tx && y === this.jogador.ty) {
+          this.duelo = { npc: n, fase: 'susto', t: 0 };
+          return;
+        }
+        if (this.ocupados.has(`${x},${y}`)) break;  // outro NPC na frente
+      }
+    }
+  }
+
+  /* o "!" e a caminhada até o jogador, antes da primeira fala */
+  private aproximar(dt: number): void {
+    const d = this.duelo!;
+    if (d.fase === 'susto') {
+      d.t += dt;
+      if (d.t >= SUSTO) d.fase = 'andando';
+      return;
+    }
+    if (d.fase !== 'andando') return;
+
+    const a = d.npc.ator;
+    const perto = Math.abs(a.tx - this.jogador.tx) + Math.abs(a.ty - this.jogador.ty) <= 1;
+    if (perto && !a.movendo) {
+      a.olharPara(this.jogador.tx, this.jogador.ty);
+      this.jogador.olharPara(a.tx, a.ty);
+      d.fase = 'falando';
+      const t = d.npc.def.treinador!;
+      this.abrirConversa(d.npc.def.nome,
+                         [t.falaInicio ?? 'Parou! Vamos ver o que o seu time sabe fazer.'],
+                         { linhas: [], batalha: true }, d.npc);
+      return;
+    }
+    a.comandar(this.mapa, a.dir, false, (tx, ty) =>
+      (tx === this.jogador.tx && ty === this.jogador.ty)
+      || this.npcs.some((o) => o !== d.npc && o.ator.tx === tx && o.ator.ty === ty));
+    if (a.atualizar(dt)) this.recontarOcupados();
+  }
+
+  private lutarCom(npc: NpcVivo): void {
+    const t = npc.def.treinador!;
+    this.duelo = { npc, fase: 'lutando', t: 0 };
+    this.op.aoBatalhar({
+      oponentes: t.time.map((c) => criar(c.especie, c.nivel)),
+      treinador: {
+        nome: npc.def.nome, classe: t.classe,
+        falaInicio: t.falaInicio, falaDerrota: t.falaDerrota, premio: t.premio,
+      },
+      cenario: this.def.cenario ?? 'praia',
+    });
+  }
+
+  /* o main avisa como terminou; a cena aplica quando volta a ser a da vez */
+  voltouDaBatalha(r: Resultado): void { this.pendente = r; }
+
+  private resolverBatalha(): void {
+    const r = this.pendente;
+    this.pendente = null;
+    if (r === null) return;
+
+    const d = this.duelo;
+    this.duelo = null;
+    if (r === 'derrota') { this.socorrer(); return; }
+    if (!d || r !== 'vitoria') return;
+
+    const e = this.op.estado;
+    const t = d.npc.def.treinador!;
+    e.flags[`venceu_${d.npc.def.id}`] = true;
+    const extras = t.liga === undefined ? []
+                 : typeof t.liga === 'string' ? [t.liga] : t.liga;
+    for (const f of extras) e.flags[f] = true;
+    if (t.premio) e.dinheiro += t.premio;
+    d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
+    this.atualizarCenario();
+    salvar(e);
+    if (t.falaDerrota) this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
+  }
+
+  /* ------------------------------------------------------------- entrada */
+
   private interagir(): void {
     const { tx, ty } = this.jogador.frente();
 
     const npc = this.npcs.find((n) => n.ator.tx === tx && n.ator.ty === ty);
     if (npc) {
       npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
-      this.abrirConversa(npc.def.nome, npc.def.falas);
+      const fala = escolherFala(this.op.estado, npc.def.falas);
+      if (!fala) return;                       // NPC sem nada a dizer agora
+      if (fala.batalha && this.venceu(npc)) {
+        this.abrirConversa(npc.def.nome, fala.linhas);
+        return;
+      }
+      this.abrirConversa(npc.def.nome, fala.linhas, fala, npc);
       return;
     }
     // saída que não dispara ao pisar: só com o A, de frente para ela
@@ -214,6 +426,18 @@ export class CenaMundo implements Cena {
     this.tempoAnim += dt;
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
 
+    // ---- sobreposições: o mundo continua desenhado, mas congelado ----
+    if (this.emLoja) {
+      if (this.loja!.atualizar(dt, entrada) === 'fechar') this.emLoja = false;
+      return;
+    }
+    if (this.emMenu) {
+      const saida = this.menu!.atualizar(dt, entrada);
+      if (saida === 'fechar') this.emMenu = false;
+      else if (saida === 'titulo') { this.emMenu = false; this.op.aoSair?.(); }
+      return;
+    }
+
     // ---- atravessando uma porta: nada responde enquanto a tela escurece ----
     if (this.indo) { this.atravessar(dt); return; }
 
@@ -225,14 +449,24 @@ export class CenaMundo implements Cena {
         if (this.conversa.revelados < total) {
           this.conversa.revelados = total;            // primeiro A: revela tudo
         } else {
-          this.conversa.indice += 3;                  // segundo A: proxima pagina
+          this.conversa.indice += 3;                  // segundo A: próxima página
           this.conversa.revelados = 0;
-          if (this.conversa.indice >= this.conversa.linhas.length) this.conversa = null;
+          if (this.conversa.indice >= this.conversa.linhas.length) this.fecharConversa();
         }
+      } else if (entrada.apertou('b')) {
+        this.conversa.indice = this.conversa.linhas.length;
+        this.fecharConversa();
       }
-      if (entrada.apertou('b')) this.conversa = null;
       return;
     }
+
+    // ---- treinador vindo: o jogador assiste ----
+    if (this.duelo) {
+      if (this.duelo.fase !== 'lutando') this.aproximar(dt);
+      return;
+    }
+
+    if (entrada.apertou('menu')) { this.emMenu = true; this.menu!.abrir(); return; }
 
     // ---- andar ----
     const { x, y } = entrada.direcao();
@@ -251,12 +485,16 @@ export class CenaMundo implements Cena {
       const saida = this.mapa.saidaEm(this.jogador.tx, this.jogador.ty);
       if (saida && saida.aoPisar !== false) {
         this.indo = saida; this.fade = 0;
-      } else if (this.carencia <= 0 && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
-        this.talvezEncontro();
+      } else {
+        this.olharTreinadores();
+        if (!this.duelo && this.carencia <= 0
+            && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
+          this.talvezEncontro();
+        }
       }
     }
 
-    if (entrada.apertou('a')) this.interagir();
+    if (!this.duelo && entrada.apertou('a')) this.interagir();
 
     this.centrarCamera();
   }
@@ -290,20 +528,23 @@ export class CenaMundo implements Cena {
     });
   }
 
-  /* chamado pelo main quando o jogador perde: o time é curado e o jogador
-     acorda no último abrigo por onde passou */
+  /* o jogador perdeu: o time é benzido e ele acorda no último abrigo */
   socorrer(): void {
     curarTime(this.op.estado);
     const r = this.op.estado.refugio;
     this.jogador.teleportar(r.tx, r.ty, r.dir);
-    if (r.mapa !== this.def.id) this.montarMapa(r.mapa);
+    if (r.mapa !== this.def.id) this.montarMapa(r.mapa, { gravar: false });
     this.centrarCamera();
     this.carencia = 1;
-    this.abrirConversa('DONA FIRMINA', [
-      'Eita, moça, você apagou no meio do mato!',
+    salvar(this.op.estado);
+    const s = this.def.socorro;
+    this.abrirConversa(s?.quem ?? 'ALGUÉM', [...(s?.falas ?? [
+      'Você apagou no meio do mato, criança.',
       'Benzi seus Encantados e te trouxe de volta. Vá com mais juízo.',
-    ]);
+    ])]);
   }
+
+  /* ------------------------------------------------------------- desenho */
 
   desenhar(r: Renderizador): void {
     r.limpar('#101018');
@@ -319,6 +560,8 @@ export class CenaMundo implements Cena {
         r.sprite(this.rocadas[q]!, a.px - this.camera.x, a.py + 8 - this.camera.y);
       }
     }
+
+    if (this.duelo?.fase === 'susto') this.desenharSusto(r);
 
     // faixa com o nome do lugar, ao chegar
     if (this.tempoFaixa > 0 && this.faixaNome) {
@@ -336,6 +579,20 @@ export class CenaMundo implements Cena {
       r.limpar('#000000');
       r.ctx.globalAlpha = 1;
     }
+
+    if (this.emLoja) { r.cortina(0.45); this.loja!.desenhar(r); }
+    else if (this.emMenu) { r.cortina(0.45); this.menu!.desenhar(r); }
+  }
+
+  /* o balão de espanto acima do treinador que acabou de te ver */
+  private desenharSusto(r: Renderizador): void {
+    const a = this.duelo!.npc.ator;
+    const x = a.px - this.camera.x + 4;
+    const y = a.py - this.camera.y - 14;
+    r.retangulo(x - 2, y - 2, 12, 16, P.ink!);
+    r.retangulo(x - 1, y - 1, 10, 14, P.uiBg!);
+    r.retangulo(x + 3, y + 1, 2, 7, P.hpRed!);
+    r.retangulo(x + 3, y + 10, 2, 2, P.hpRed!);
   }
 
   private desenharDialogo(r: Renderizador): void {
@@ -344,7 +601,7 @@ export class CenaMundo implements Cena {
     r.sprite(this.caixaDialogo, 6, y);
     r.sprite(this.etiqueta(c.falante), 12, y - 11);
 
-    // efeito de maquina de escrever: revela a pagina caractere a caractere
+    // efeito de máquina de escrever: revela a página caractere a caractere
     let restantes = Math.floor(c.revelados);
     this.paginaAtual().forEach((linha, i) => {
       if (restantes <= 0) return;

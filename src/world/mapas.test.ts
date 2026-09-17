@@ -8,12 +8,22 @@
    ========================================================================= */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Mapa, type DefMapa } from './tilemap.ts';
+import { Mapa, type ContextoMapa, type DefMapa } from './tilemap.ts';
+import { Mundo } from './mundo.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESPECIES } from '../data/creatures.ts';
+import { ITENS } from '../data/items.ts';
+import { CONTAS_NA_GUIA } from '../art/tiles.ts';
+
+/* A região com TODOS os serviços feitos: a tranca do Zeca caiu, a guia se
+   abriu. É neste mundo que tudo precisa ser alcançável — no mundo recém-
+   começado, ficar barrado é justamente o ponto. */
+const ABERTO: ContextoMapa = { contas: CONTAS_NA_GUIA, ligada: () => true };
+/* e a região como ela está no primeiro minuto de jogo */
+const FECHADO: ContextoMapa = { contas: 0, ligada: () => false };
 
 const entradas = Object.entries(MAPAS);
-const assados = new Map<string, Mapa>(entradas.map(([id, d]) => [id, new Mapa(d)]));
+const assados = new Map<string, Mapa>(entradas.map(([id, d]) => [id, new Mapa(d, ABERTO)]));
 const mapa = (id: string): Mapa => {
   const m = assados.get(id);
   assert.ok(m, `mapa desconhecido: ${id}`);
@@ -175,4 +185,127 @@ test('todo mapa é alcançável a partir do mapa inicial', () => {
   }
   const orfaos = Object.keys(MAPAS).filter((id) => !vistos.has(id));
   assert.deepEqual(orfaos, [], `mapas sem caminho a partir de ${MAPA_INICIAL}`);
+});
+
+/* ------------------------------------------------------- falas e serviços */
+
+test('todo NPC tem uma fala sem condição, para nunca ficar mudo', () => {
+  for (const [id, def] of entradas) {
+    for (const n of def.npcs) {
+      const solta = n.falas.some((f) => f.se === undefined && f.seNao === undefined);
+      assert.ok(solta, `${id}: ${n.id} pode ficar sem nada a dizer`);
+    }
+  }
+});
+
+test('toda fala cita item que existe', () => {
+  for (const [id, def] of entradas) {
+    for (const n of def.npcs) {
+      for (const f of n.falas) {
+        if (f.da) assert.ok(ITENS[f.da.item], `${id}/${n.id}: dá item desconhecido "${f.da.item}"`);
+        if (f.pede) assert.ok(ITENS[f.pede.item], `${id}/${n.id}: pede item desconhecido "${f.pede.item}"`);
+        assert.ok(f.linhas.length > 0, `${id}/${n.id}: fala sem nenhuma linha`);
+      }
+    }
+  }
+});
+
+test('todo treinador tem time de espécies que existem', () => {
+  for (const [id, def] of entradas) {
+    for (const n of def.npcs) {
+      const t = n.treinador;
+      if (!t) continue;
+      assert.ok(t.time.length > 0, `${id}: ${n.id} desafia com o time vazio`);
+      for (const c of t.time) {
+        assert.ok(ESPECIES[c.especie], `${id}/${n.id}: espécie desconhecida "${c.especie}"`);
+        assert.ok(c.nivel >= 1, `${id}/${n.id}: nível inválido`);
+      }
+      /* quem só conversa não precisa disso, mas quem barra o caminho tem
+         que poder ser desafiado de frente, não só à distância */
+      const desafia = n.falas.some((f) => f.batalha === true);
+      assert.ok(desafia || !t.visao,
+                `${id}: ${n.id} enxerga de longe mas não aceita desafio de perto`);
+    }
+  }
+});
+
+test('objeto condicional só usa condição que alguém liga', () => {
+  /* flags acesas por falas, por treinadores ou pela própria guia */
+  const acendiveis = new Set<string>(['contas']);
+  for (const [, def] of entradas) {
+    for (const n of def.npcs) {
+      for (const f of n.falas) {
+        const liga = f.liga === undefined ? [] : typeof f.liga === 'string' ? [f.liga] : f.liga;
+        for (const l of liga) acendiveis.add(l);
+      }
+      if (n.treinador) {
+        acendiveis.add(`venceu_${n.id}`);
+        const liga = n.treinador.liga === undefined ? []
+                   : typeof n.treinador.liga === 'string' ? [n.treinador.liga] : n.treinador.liga;
+        for (const l of liga) acendiveis.add(l);
+      }
+    }
+  }
+  for (const [id, def] of entradas) {
+    for (const o of def.objetos) {
+      const conds = [o.se, o.seNao].flat()
+        .filter((c): c is string => typeof c === 'string')
+        .map((c) => c.replace(/^!/, '').split('>=')[0]!)
+        .filter((c) => !c.startsWith('item:') && !c.startsWith('medalha:'));
+      for (const c of conds) {
+        assert.ok(acendiveis.has(c),
+                  `${id}: objeto em (${o.tx},${o.ty}) depende de "${c}", que ninguém acende`);
+      }
+    }
+  }
+});
+
+test('a tranca da estrada fecha e abre de verdade', () => {
+  /* é o que prova a cadeia inteira: objeto condicional, impressão do mapa e
+     reassar. Sem isso, a tranca ficaria eterna — ou nunca teria existido. */
+  const fechado = new Mapa(MAPAS['rotaFoz']!, FECHADO);
+  const aberto = new Mapa(MAPAS['rotaFoz']!, ABERTO);
+  const saida = MAPAS['rotaFoz']!.saidas!.find((s) => s.para === 'portoIara')!;
+  const inicio = MAPAS['rotaFoz']!.inicio;
+
+  assert.ok(!alcance(fechado, inicio.tx, inicio.ty).has(`${saida.tx},${saida.ty}`),
+            'sem vencer o Zeca, a estrada para Porto Iara devia estar trancada');
+  assert.ok(alcance(aberto, inicio.tx, inicio.ty).has(`${saida.tx},${saida.ty}`),
+            'vencido o Zeca, a estrada devia abrir');
+});
+
+test('a guia só deixa passar com as cinco contas acesas', () => {
+  const guia = MAPAS['portoIara']!.objetos.find((o) => o.tipo === 'portao')!;
+  const porta = MAPAS['portoIara']!.saidas!.find((s) => s.para === 'terreiroPortoIara')!;
+  const inicio = MAPAS['portoIara']!.inicio;
+
+  for (let n = 0; n <= CONTAS_NA_GUIA; n++) {
+    const ctx: ContextoMapa = { contas: n, ligada: () => false };
+    const m = new Mapa(MAPAS['portoIara']!, ctx);
+    const passa = alcance(m, inicio.tx, inicio.ty).has(`${porta.tx},${porta.ty}`);
+    assert.equal(passa, n >= CONTAS_NA_GUIA,
+                 `com ${n} contas, entrar no terreiro devia ser ${n >= CONTAS_NA_GUIA}`);
+    assert.equal(m.solido(guia.tx, guia.ty), n < CONTAS_NA_GUIA);
+  }
+});
+
+test('o Mundo reaproveita o mapa, mas não quando a condição muda', () => {
+  const regiao = new Mundo(MAPAS);
+  const a = regiao.obter('rotaFoz', FECHADO);
+  assert.equal(regiao.obter('rotaFoz', FECHADO), a, 'mapa igual devia ser reaproveitado');
+  const b = regiao.obter('rotaFoz', ABERTO);
+  assert.notEqual(b, a, 'com a tranca fora, o cenário precisa ser remontado');
+  assert.equal(regiao.obter('rotaFoz', ABERTO), b);
+
+  // um mapa sem nada condicional é montado uma vez e pronto
+  const c = regiao.obter('casaTaina', FECHADO);
+  assert.equal(regiao.obter('casaTaina', ABERTO), c);
+});
+
+test('todo abrigo diz quem socorreu o jogador', () => {
+  for (const [id, def] of entradas) {
+    if (!def.refugio) continue;
+    assert.ok(def.socorro, `${id}: é abrigo e não tem ninguém para receber quem apagou`);
+    assert.ok(def.socorro!.falas.length > 0, `${id}: socorro sem fala`);
+  }
 });

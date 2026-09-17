@@ -34,8 +34,12 @@ export const terreiroPortoIara: DefMapa = {
       id: 'mariana', nome: 'DONA MARIANA', estilo: 'mariana',
       tx: 8, ty: 1, dir: 'baixo',
       falas: [
-        'Então a guia se abriu. Quer dizer que a região inteira já confia em você.',
-        'Descanse um instante. Quando estiver pronta, a água responde.',
+        { se: 'contas>=5', linhas: [
+          'Então a guia se abriu. Quer dizer que a região inteira já confia em você.',
+          'Descanse um instante. Quando estiver pronta, a água responde.'] },
+        { linhas: [
+          'A guia ainda não se abriu, criança. Não foi você que entrou: foi o vento.',
+          'Volte quando as cinco contas estiverem acesas.'] },
       ],
     },
   ],

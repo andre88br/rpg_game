@@ -7,6 +7,9 @@ export const benzimentoPortoIara: DefMapa = {
   nome: 'CASA DE BENZIMENTO',
   interior: true,
   refugio: true,
+  socorro: { quem: 'DONA ROSA', falas: [
+    'Acordou. Te acharam caída perto do cais, menina.',
+    'Passei os seus Encantados na gamela. Estão todos de pé outra vez.'] },
 
   chao: [
     'WWWWWWWWWWWWWWW',
@@ -33,8 +36,10 @@ export const benzimentoPortoIara: DefMapa = {
       id: 'benzedeira', nome: 'DONA ROSA', estilo: 'firmina',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
-        'Encoste os patuás na gamela, criança, que a água benta faz o resto.',
-        'Bicho cansado não briga bem. Passe aqui sempre antes de descer pro cais.',
+        { cura: true, linhas: [
+          'Encoste os patuás na gamela, criança, que a água benta faz o resto.',
+          '...pronto. Time inteiro de pé outra vez.',
+          'E fique tranquila: se apagar no mato, é aqui que você acorda.'] },
       ],
     },
   ],

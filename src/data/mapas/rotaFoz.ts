@@ -35,7 +35,7 @@ export const rotaFoz: DefMapa = {
     '#..,,,,,,....==....,,,,,,,...#',
     '#..,,,,,,....==....,,,,,,,...#',
     '#............==..............#',
-    '#.....RRRRRRR==RRRR.......#..#',
+    '#RRRRRRRRRRRR==RRRRRRRRRRRRRR#',
     '#.....R......==...R..........#',
     '#.....R......==...R..........#',
     '#.#..........==..............#',
@@ -48,31 +48,55 @@ export const rotaFoz: DefMapa = {
   objetos: [
     { tipo: 'placa', tx: 15, ty: 1,
       placa: 'ROTA DA FOZ. Ao norte, Vila Aurora. Ao sul, Porto Iara.' },
-    { tipo: 'placa', tx: 15, ty: 25,
+    { tipo: 'placa', tx: 16, ty: 25,
       placa: 'Passagem do paredão. Daqui em diante é porto: cuidado com a maré.' },
+    /* a tranca do Zeca: some no instante em que ele perde, e é por isso que
+       o cenário do mapa é remontado quando uma flag muda */
+    { tipo: 'barreira', tx: 13, ty: 26, larg: 2, seNao: 'venceu_zeca' },
   ],
 
   npcs: [
     {
       id: 'zeca', nome: 'ZECA', estilo: 'zeca',
-      tx: 12, ty: 8, dir: 'dir',
+      tx: 13, ty: 25, dir: 'cima',
+      treinador: {
+        classe: 'MOLEQUE DA VILA', visao: 5, premio: 600,
+        liga: 'conta_estrada',
+        time: [{ especie: 'curupinho', nivel: 6 }, { especie: 'sacizinho', nivel: 7 }],
+        falaInicio: 'Parou! Ninguém passa o paredão sem me enfrentar primeiro.',
+        falaDerrota: 'Aaah! Tudo bem, tudo bem. Tira essa tranca daí e vai embora.',
+      },
       falas: [
-        'Ó ela! A vizinha resolveu virar caçadora de Encantado.',
-        'Vai na frente que eu te alcanço. E olha que eu chego em Porto Iara primeiro.',
+        { se: 'venceu_zeca', linhas: [
+          'Vai logo, antes que eu mude de ideia e arme a tranca de novo.',
+          'Mas que você joga bem, joga. Isso eu não tiro de você.'] },
+        /* falar com ele vale o mesmo que ser visto: quem desce pela outra
+           faixa da estrada não escapa do desafio por um tile de diferença */
+        { batalha: true, linhas: [
+          'Ó ela! A vizinha resolveu virar caçadora de Encantado.',
+          'Essa estrada é minha. Quer passar? Passa por cima de mim.'] },
       ],
     },
     {
       id: 'caminhante', nome: 'CAMINHANTE', estilo: 'aldeao',
       tx: 15, ty: 14, dir: 'esq',
       falas: [
-        'Esse atalho ali do lado não leva a lugar nenhum: é só volta.',
-        'Se a sua criatura cair, volta pra vila. Apagado no mato não é lugar de ninguém.',
+        { se: 'venceu_zeca', linhas: [
+          'O moleque tirou a tranca? Então o paredão está livre. Boa viagem, moça.'] },
+        { linhas: [
+          'Esse atalho ali do lado não leva a lugar nenhum: é só volta.',
+          'Mais pro sul tem um moleque com uma tranca atravessada na estrada.',
+          'Se a sua criatura cair, volta pra vila. Apagado no mato não é lugar de ninguém.'] },
       ],
     },
     {
       id: 'menino2', nome: 'MENINO DA VILA', estilo: 'crianca',
       tx: 19, ty: 22, dir: 'esq',
-      falas: ['Perdi de novo. Minha mãe vai me matar se souber que eu desci sozinho.'],
+      falas: [
+        { se: 'vistos>=3', linhas: [
+          'Você já viu bicho pra caramba. O Contador de Bichos, lá no porto, ia gostar de saber.'] },
+        { linhas: ['Perdi de novo. Minha mãe vai me matar se souber que eu desci sozinho.'] },
+      ],
     },
   ],
 

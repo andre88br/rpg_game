@@ -14,7 +14,7 @@ import { Buf, assar, escalar, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
-import { P, TIPOS, infoTipo } from '../art/palette.ts';
+import { P, infoTipo } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
@@ -26,7 +26,7 @@ import {
 } from '../battle/encantado.ts';
 import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
-import { ITENS_ORDEM, item as fichaItem } from '../data/items.ts';
+import * as L from '../ui/listas.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 
 /* ------------------------------------------------------------ constantes */
@@ -483,8 +483,7 @@ export class CenaBatalha implements Cena {
   }
 
   private abrirMochila(): void {
-    this.itensUsaveis = ITENS_ORDEM.filter(
-      (id) => fichaItem(id).emBatalha && (this.op.estado.mochila[id] ?? 0) > 0);
+    this.itensUsaveis = L.itensDaMochila(this.op.estado.mochila, { emBatalha: true });
     this.selItem = 0;
     this.tela = 'mochila';
   }
@@ -705,55 +704,18 @@ export class CenaBatalha implements Cena {
   /* ------------------------------------------------------- telas cheias */
 
   private telaCheia(r: Renderizador, titulo: string, rodape: string): void {
-    r.sprite(this.caixaCheia, 4, 4);
-    r.texto(titulo, 14, 12, P.uiAccD!);
-    r.retangulo(12, 23, LARGURA - 24, 1, P.uiBg3!);
-    r.texto(rodape, 14, ALTURA - 18, P.uiBg3!);
+    L.telaCheia(r, this.caixaCheia, titulo, rodape);
   }
 
   private desenharMochila(r: Renderizador): void {
     this.telaCheia(r, 'MOCHILA', 'A USAR   B VOLTAR');
-    if (this.itensUsaveis.length === 0) {
-      r.texto('NADA AQUI DENTRO...', 22, 40, P.uiInk!);
-      return;
-    }
-    this.itensUsaveis.forEach((id, i) => {
-      const it = fichaItem(id);
-      const y = 30 + i * 14;
-      if (y > ALTURA - 26) return;
-      if (i === this.selItem) r.texto('=', 14, y, P.uiAccD!);
-      r.texto(it.nome, 24, y, P.uiInk!);
-      const q = 'X' + (this.op.estado.mochila[id] ?? 0);
-      r.texto(q, LARGURA - 20 - larguraTexto(q), y, P.uiInk!);
-    });
+    L.listaMochila(r, this.op.estado.mochila, this.itensUsaveis, this.selItem);
   }
 
   private desenharTime(r: Renderizador): void {
     this.telaCheia(r, 'SEU TIME',
                    this.trocaForcada ? 'A ESCOLHER' : 'A TROCAR   B VOLTAR');
-    this.op.estado.time.forEach((e, i) => {
-      const y = 28 + i * 21;
-      const caido = desmaiado(e);
-      const emCampo = i === this.b.iAliado;
-      if (i === this.selTime) r.texto('=', 12, y + 3, P.uiAccD!);
-      r.texto(nome(e), 22, y, caido ? P.hpRed! : P.uiInk!);
-      r.texto('NV' + e.nivel, 110, y, P.uiInk!);
-
-      const max = hpMaximo(e);
-      const pct = Math.max(0, e.hp / max);
-      r.retangulo(134, y + 1, 50, 5, P.uiInk!);
-      r.retangulo(135, y + 2, 48, 3, P.barBack!);
-      if (pct > 0) r.retangulo(135, y + 2, Math.round(48 * pct), 3, UI.corHP(pct));
-      const hp = `${e.hp}/${max}`;
-      r.texto(hp, LARGURA - 20 - larguraTexto(hp), y, P.uiInk!);
-
-      const tipo = ficha(e).tipos[0]!;
-      r.retangulo(22, y + 9, 26, 8, TIPOS[tipo].corD);
-      r.texto(TIPOS[tipo].nome.slice(0, 4), 24, y + 10, P.uiInk!);
-      if (caido) r.texto('CAÍDO', 56, y + 10, P.hpRed!);
-      else if (emCampo) r.texto('EM CAMPO', 56, y + 10, P.uiAccD!);
-      else if (e.status) r.texto(STATUS[e.status].sigla, 56, y + 10, UI.statusCor(STATUS[e.status].sigla));
-    });
+    L.listaTime(r, this.op.estado.time, this.selTime, { emCampo: this.b.iAliado });
   }
 
   private desenharEsquecer(r: Renderizador): void {

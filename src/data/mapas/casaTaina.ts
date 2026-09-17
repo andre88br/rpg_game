@@ -7,6 +7,9 @@ export const casaTaina: DefMapa = {
   nome: 'SUA CASA',
   interior: true,
   refugio: true,
+  socorro: { quem: 'MÃE', falas: [
+    'Eita, criança, você apagou no meio do mato!',
+    'Seu Anastácio te trouxe nas costas. Os bichos já estão benzidos — vá com mais juízo.'] },
 
   chao: [
     'WWWWWWWWWWW',
@@ -31,8 +34,17 @@ export const casaTaina: DefMapa = {
       id: 'mae', nome: 'MÃE', estilo: 'aldeao',
       tx: 2, ty: 5, dir: 'dir',
       falas: [
-        'Acordou, enfim! A Dona Firmina mandou chamar você.',
-        'Vai lá, criança. E leva juízo junto com o patuá.',
+        { se: 'conta_recado', linhas: [
+          'A Dona Firmina passou aqui contando da carta. Disse que você não fez feio.',
+          'Come alguma coisa antes de descer pro porto de novo, {nome}.'] },
+        { se: 'venceu_zeca', linhas: [
+          'Soube que o Zeca levou uma lição na estrada. A mãe dele que não fique sabendo por mim.'] },
+        { se: 'falou_firmina', linhas: [
+          'Já falou com a Dona Firmina? Então não me faça de boba e desce a estrada.',
+          'Se apagar no mato, alguém te traz de volta. Mas dói o orgulho.'] },
+        { linhas: [
+          'Acordou, enfim! A Dona Firmina mandou chamar você.',
+          'Vai lá, criança. E leva juízo junto com o patuá.'] },
       ],
     },
   ],
