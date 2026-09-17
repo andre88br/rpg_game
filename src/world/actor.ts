@@ -3,7 +3,7 @@
    personagem de um tile ao seguinte e so aceita novo comando ao chegar.
    E isso que da a cadencia caracteristica do genero.
    ========================================================================= */
-import { assarSuave, type Assado, type Buf } from '../core/buf.ts';
+import { assarSuave, larguraDe, alturaDe, type Assado, type Buf } from '../core/buf.ts';
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
 
@@ -74,8 +74,11 @@ export class Ator {
 
   /* onde desenhar o quadro atual para os pes encostarem na base do tile.
      Gente tem 16x20 e sobra 4px por cima; bicho tem 32x32 e sobra bem mais. */
-  get desenhoX(): number { return this.px + (TS - this.quadro().width) / 2; }
-  get desenhoY(): number { return this.py + TS - this.quadro().height; }
+  /* pelo tamanho NA TELA, nunca pelo width cru: a imagem assada suave tem
+     mais pixels do que ocupa, e medir por ela jogava o personagem meio corpo
+     para cima e meio sprite para o lado — em cima da casa, fora do vão */
+  get desenhoX(): number { return this.px + (TS - larguraDe(this.quadro())) / 2; }
+  get desenhoY(): number { return this.py + TS - alturaDe(this.quadro()); }
 
   /* tile logo a frente, para conversar ou interagir */
   frente(): { tx: number; ty: number } {

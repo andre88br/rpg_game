@@ -237,6 +237,39 @@ const escalas = new WeakMap<Assado, number>();
 /* Quantos pixels de imagem cabem em um pixel logico do jogo. */
 export function escalaDe(a: Assado): number { return escalas.get(a) ?? 1; }
 
+/* O tamanho que a imagem OCUPA NA TELA, que nao e mais o width cru dela.
+   Quem posiciona um sprite pelo proprio tamanho — centralizar, encostar os
+   pes no chao — tem de perguntar aqui. */
+export function larguraDe(a: Assado): number { return a.width / escalaDe(a); }
+export function alturaDe(a: Assado): number { return a.height / escalaDe(a); }
+
+/* --------------------------------------------------------------------------
+   Textura nao e contorno.
+
+   Grama, areia e terra batida sao feitas de chuvisco: pontinhos de um tom
+   vizinho espalhados pelo tile. Suavizar isso engorda cada pontinho e o
+   gramado vira um mofo esverdeado — foi o primeiro efeito colateral que
+   apareceu no jogo. Entao so conta como borda o encontro de duas cores
+   DISTANTES: a copa da arvore contra a grama, o contorno de um bicho, a
+   parede contra o chao. Chuvisco fica exatamente como sempre foi.
+   -------------------------------------------------------------------------- */
+const LIMIAR2 = 70 * 70;           // distancia RGB ao quadrado
+const cacheContraste = new Map<string, boolean>();
+
+function contrasta(a: Cor | null, b: Cor | null): boolean {
+  if (a === b) return false;
+  if (a == null || b == null) return true;      // silhueta de sprite sempre conta
+  const chave = a + '|' + b;
+  let v = cacheContraste.get(chave);
+  if (v === undefined) {
+    const [r1, g1, b1] = corParaRGBA(a);
+    const [r2, g2, b2] = corParaRGBA(b);
+    v = (r1-r2)*(r1-r2) + (g1-g2)*(g1-g2) + (b1-b2)*(b1-b2) >= LIMIAR2;
+    cacheContraste.set(chave, v);
+  }
+  return v;
+}
+
 /* Mistura cada pixel de borda com os quatro vizinhos, em alfa pre-multiplicado
    — sem isso a borda de um sprite se mistura com o preto invisivel de fora e
    ganha uma auréola escura. */
@@ -248,8 +281,9 @@ function suavizarBordas(d: Uint8ClampedArray, w: number, h: number, peso: number
       const viz = [i - 4, i + 4, i - w * 4, i + w * 4];
       let borda = false;
       for (const k of viz) {
-        if (o[k] !== o[i] || o[k + 1] !== o[i + 1] ||
-            o[k + 2] !== o[i + 2] || o[k + 3] !== o[i + 3]) { borda = true; break; }
+        const dr = o[k]! - o[i]!, dg = o[k+1]! - o[i+1]!;
+        const db = o[k+2]! - o[i+2]!, da = o[k+3]! - o[i+3]!;
+        if (da !== 0 || dr*dr + dg*dg + db*db >= LIMIAR2) { borda = true; break; }
       }
       if (!borda) continue;
 
@@ -291,9 +325,12 @@ export function assarSuave(buf: Buf, peso = 0.4): Assado {
       const cima = buf.get(x, y - 1), esq = buf.get(x - 1, y);
       const dir = buf.get(x + 1, y), baixo = buf.get(x, y + 1);
       let a = E, b = E, c = E, e = E;
+      /* chuvisco de textura passa direto, sem engordar */
+      const textura = !contrasta(E, cima) && !contrasta(E, esq) &&
+                      !contrasta(E, dir) && !contrasta(E, baixo);
       /* so mexe onde ha de fato uma diagonal: dois vizinhos opostos iguais
          significam faixa reta, e faixa reta fica como esta */
-      if (cima !== baixo && esq !== dir) {
+      if (!textura && cima !== baixo && esq !== dir) {
         if (esq != null && esq === cima)  a = esq;
         if (dir != null && cima === dir)  b = dir;
         if (esq != null && esq === baixo) c = esq;

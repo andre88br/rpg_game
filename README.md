@@ -101,6 +101,20 @@ que já existe, sem redesenhar nada:
    invisível de fora e ganha uma auréola escura. Área chapada continua chapada, e
    o resultado não vira o borrão típico de filtro de emulador.
 
+**Textura não é contorno**, e essa distinção teve de ser ensinada ao filtro.
+Grama, areia e terra batida são feitas de chuvisco: pontinhos de um tom vizinho
+espalhados pelo tile. O filtro engordava cada pontinho e o gramado da Vila Aurora
+virou um mofo esverdeado. Agora só conta como borda o encontro de duas cores
+**distantes** — a copa da árvore contra a grama, o contorno de um bicho, a parede
+contra o chão. Tom vizinho de tom vizinho é textura, e textura passa intacta.
+
+E o tamanho de um sprite deixou de ser o `width` dele: a imagem assada suave tem
+o dobro de pixels do que ocupa na tela, então quem se posiciona pelo próprio
+tamanho — centralizar, encostar os pés no tile — pergunta a `larguraDe()` e
+`alturaDe()`. Medir pelo `width` cru jogava o personagem meio sprite para o lado
+e um corpo inteiro para cima: ele aparecia em cima do telhado, fora do vão da
+porta.
+
 **Texto e menus ficam de fora**, assados em 1× por `assar()`: caem em pixels
 inteiros do canvas e continuam nítidos. Fonte de 5×7 suavizada seria ilegível
 neste tamanho. Numa tela de Porto Iara isso dá 852 tons distintos onde a paleta

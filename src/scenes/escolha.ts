@@ -5,7 +5,7 @@
    três patuás ficam lado a lado e o cursor anda entre eles; o do meio é o
    que aparece grande, para a escolha ter cara de escolha e não de lista.
    ========================================================================= */
-import { assar, assarSuave, type Assado } from '../core/buf.ts';
+import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Entrada } from '../core/input.ts';
 import { P, infoTipo } from '../art/palette.ts';
@@ -79,7 +79,7 @@ export class EscolhaInicial {
       const img = this.arte(id);
       // o escolhido sobe um pouco e ganha um tapete claro por baixo
       if (escolhido) r.retangulo(x - 6, 30, 60, 54, P.uiBg2!);
-      r.sprite(img, x + (48 - img.width) / 2 - 4, escolhido ? 30 : 36);
+      r.sprite(img, x + (48 - larguraDe(img)) / 2 - 4, escolhido ? 30 : 36);
       const nome = f.nome.toUpperCase();
       r.texto(nome, x + (48 - r.larguraTexto(nome)) / 2 - 4, 72,
               escolhido ? P.uiInk! : P.uiBg3!);

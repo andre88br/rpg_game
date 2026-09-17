@@ -10,7 +10,7 @@
    dois dos painéis, e texto (que usa o atlas de glifos do renderizador).
    Nada aqui redesenha pixel a pixel durante o jogo.
    ========================================================================= */
-import { Buf, assar, assarSuave, escalar, type Assado } from '../core/buf.ts';
+import { Buf, assar, assarSuave, escalar, larguraDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -575,7 +575,7 @@ export class CenaBatalha implements Cena {
     const inimigo = lado === 'inimigo';
     const { img, alt } = this.sprite(v.arte, inimigo);
     const posto = inimigo ? POSTO_INIMIGO : POSTO_ALIADO;
-    let x = posto.cx - img.width / 2;
+    let x = posto.cx - larguraDe(img) / 2;
     let y = posto.base - alt;
 
     // entrada deslizando pela lateral
