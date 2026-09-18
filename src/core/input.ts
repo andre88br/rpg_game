@@ -61,6 +61,11 @@ export class Entrada {
 
   segurando(a: Acao): boolean { return this.ativas.has(a); }
 
+  /* como apertou(), mas sem consumir: pra quem só quer ESPIAR o que foi
+     apertado neste quadro sem atrapalhar quem decide o movimento com o
+     mesmo botão (o código secreto lê as setas sem roubá-las do andar) */
+  apertouAgora(a: Acao): boolean { return this.novas.has(a); }
+
   /* verdadeiro so no quadro em que a acao foi apertada */
   apertou(a: Acao): boolean {
     if (!this.novas.has(a) || this.consumidas.has(a)) return false;

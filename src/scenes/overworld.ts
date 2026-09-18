@@ -13,7 +13,7 @@
 import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
-import type { Entrada } from '../core/input.ts';
+import type { Entrada, Acao } from '../core/input.ts';
 import {
   Mapa, TS, type ContextoMapa, type DefMapa, type DefNPC, type DefSaida,
 } from '../world/tilemap.ts';
@@ -59,6 +59,14 @@ const SUSTO = 0.7;
    e quanto tempo o recado fica na tela se ninguém apertar nada */
 const CUT_FADE = 0.35;
 const CUT_ESPERA = 3.2;
+
+/* código secreto: o Konami Code, com os próprios botões do jogo. Digitado
+   andando livre pelo mundo (não conta em conversa, batalha ou menu), pula
+   direto para a Mata do Curupira — dá a Medalha Maré e o Dom "Nadar" de
+   brinde, porque sem eles a travessia nem é alcançável. É a forma mais
+   rápida de testar a segunda região sem jogar a primeira inteira. */
+const CODIGO_SECRETO: readonly Acao[] =
+  ['cima', 'cima', 'baixo', 'baixo', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
 
 interface Cutscene {
   mapa: Mapa;
@@ -157,6 +165,9 @@ export class CenaMundo implements Cena {
      conversa, batalha ou qualquer outra coisa que já esteja tomando a tela */
   private cutscenePendente: { terreiro: string; faltam: number } | null = null;
   private cutscene: Cutscene | null = null;
+  /* últimos botões apertados, andando livre — é contra isto que o código
+     secreto é comparado a cada quadro */
+  private bufferCodigo: Acao[] = [];
 
   constructor(op: OpcoesCenaMundo) {
     this.op = op;
@@ -629,6 +640,48 @@ export class CenaMundo implements Cena {
     this.recontarOcupados();
   }
 
+  /* ------------------------------------------------------ código secreto */
+
+  private verificarCodigoSecreto(entrada: Entrada): void {
+    const apertados: Acao[] =
+      (['cima', 'baixo', 'esq', 'dir', 'a', 'b'] as const)
+        .filter((a) => entrada.apertouAgora(a));
+    if (apertados.length === 0) return;
+
+    this.bufferCodigo.push(...apertados);
+    const excesso = this.bufferCodigo.length - CODIGO_SECRETO.length;
+    if (excesso > 0) this.bufferCodigo.splice(0, excesso);
+
+    if (this.bufferCodigo.length < CODIGO_SECRETO.length) return;
+    if (!CODIGO_SECRETO.every((a, i) => this.bufferCodigo[i] === a)) return;
+
+    this.bufferCodigo = [];
+    /* o último botão do código é 'a' — sem consumi-lo aqui, o mesmo toque
+       cairia de novo lá embaixo em `entrada.apertou('a')` e abriria uma
+       conversa com o que estiver na frente do jogador, por cima da que a
+       ativação já abriu */
+    entrada.apertou('a');
+    entrada.apertou('b');
+    this.ativarCodigoSecreto();
+  }
+
+  /* pula direto para a Mata do Curupira: dá a Medalha Maré e o Dom "Nadar"
+     de brinde (a travessia depende dos dois), e um Curupinho se o time
+     estiver vazio, para nenhum encontro ou treinador travar a partida. */
+  private ativarCodigoSecreto(): void {
+    const e = this.op.estado;
+    if (!e.medalhas.includes('mare')) e.medalhas.push('mare');
+    e.flags['dom_nadar'] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) guardar(e, criar('curupinho', NIVEL_INICIAL));
+
+    const alvo = this.op.mundo.def('mataDoCurupira').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('mataDoCurupira');   // já grava: medalha, Dom e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. A travessia para a Mata do Curupira se abre.']);
+  }
+
   /* ------------------------------------------------------------- entrada */
 
   private interagir(): void {
@@ -786,6 +839,8 @@ export class CenaMundo implements Cena {
 
     // ---- deslizando numa poça: o passo segue sozinho ----
     if (this.deslizando) { this.deslizar(dt); return; }
+
+    this.verificarCodigoSecreto(entrada);
 
     if (entrada.apertou('menu')) { this.emMenu = true; this.menu!.abrir(); return; }
 
