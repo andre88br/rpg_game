@@ -10,6 +10,10 @@ import { portoIara } from './portoIara.ts';
 import { lojaPortoIara } from './lojaPortoIara.ts';
 import { benzimentoPortoIara } from './benzimentoPortoIara.ts';
 import { terreiroPortoIara } from './terreiroPortoIara.ts';
+import { igarapeCurupira } from './igarapeCurupira.ts';
+import { mataDoCurupira } from './mataDoCurupira.ts';
+import { casaEncruzilhada } from './casaEncruzilhada.ts';
+import { terreiroCurupira } from './terreiroCurupira.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -20,6 +24,10 @@ export const MAPAS: Record<string, DefMapa> = {
   lojaPortoIara,
   benzimentoPortoIara,
   terreiroPortoIara,
+  igarapeCurupira,
+  mataDoCurupira,
+  casaEncruzilhada,
+  terreiroCurupira,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

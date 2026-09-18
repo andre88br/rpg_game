@@ -13,7 +13,7 @@ import * as UI from '../art/ui.ts';
 import { MEDALHAS, medalha } from '../art/badges.ts';
 import { ficha, nome, type Encantado } from '../battle/encantado.ts';
 import * as L from '../ui/listas.ts';
-import { CONTAS, contasAcesas } from '../game/quests.ts';
+import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
 import { item } from '../data/items.ts';
 import {
   trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
@@ -282,10 +282,13 @@ export class MenuPausa {
                     `B VOLTAR    ${est.medalhas.length} DE ${MEDALHAS.length}`);
         this.desenharMedalhas(r);
         break;
-      case 'guia':
-        L.telaCheia(r, this.caixaCheia, 'A GUIA DO TERREIRO',
-                    `B VOLTAR    ${contasAcesas(est)} DE ${CONTAS.length}`);
-        CONTAS.forEach((c, i) => {
+      case 'guia': {
+        const terreiro = terreiroEmAberto(est);
+        const contas = TERREIROS[terreiro] ?? [];
+        const cidade = MEDALHAS.find((m) => m.tipo === terreiro)?.cidade ?? '';
+        L.telaCheia(r, this.caixaCheia, `A GUIA DE ${cidade}`,
+                    `B VOLTAR    ${contasAcesasDe(est, terreiro)} DE ${contas.length}`);
+        contas.forEach((c, i) => {
           const acesa = est.flags[c.flag] === true;
           const y = 32 + i * 16;
           r.retangulo(16, y + 1, 6, 6, acesa ? P.water! : P.uiBg3!);
@@ -293,6 +296,7 @@ export class MenuPausa {
                   acesa ? P.uiInk! : P.uiBg3!);
         });
         break;
+      }
       case 'velocidade': {
         L.telaCheia(r, this.caixaCheia, 'VELOCIDADE DO JOGO', 'A ESCOLHER   B VOLTAR');
         const atual = obterVelocidade();

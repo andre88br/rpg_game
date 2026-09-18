@@ -40,9 +40,20 @@ export const casaFirmina: DefMapa = {
           'Chegou na hora, criança. Três patuás em cima da mesa, e um deles é seu.',
           'Curupinho é teimoso de raiz, Boitatinha não esfria nunca, e Iarinha tem a água do rio inteiro.',
           'Chegue perto e escolha com calma. Escolha de patuá não se desfaz.'] },
-        { se: 'medalha:mare', linhas: [
+        { se: 'conta_recado_mata', linhas: [
+          'Fiquei sabendo que a carta chegou às mãos da Tiê. A Mata do Curupira já deve confiar em você.',
+          'Vá com cuidado por lá, {crianca}. Mata funda tem dono, e o dono é de pé atrás.'] },
+        { se: ['medalha:mare', 'item:carta_tie'], linhas: [
+          'Essa carta ainda está na sua mochila, {crianca}? A Tiê deve estar esperando.',
+          'Atravesse a água a nado e não pare no meio do caminho.'] },
+        { se: 'medalha:mare', seNao: 'deu_carta_tie', liga: 'deu_carta_tie',
+          da: { item: 'carta_tie' }, linhas: [
           'A Medalha Maré no peito e a Dona Mariana falando bem de você por aí.',
-          'A Região da Foz está fechada, criança. O que vem depois é outra história — e é do outro lado da água.'] },
+          'Mas a Região da Foz é só o começo, {crianca}. Do outro lado da água tem mata, e na mata tem gente.',
+          'Uma amiga minha, a Tiê, cuida do Terreiro de Raiz por lá. Leve esta carta a ela.',
+          'Agora vá: com o Dom de Nadar, a água não é mais parede nenhuma para você.'] },
+        { se: 'medalha:mare', linhas: [
+          'A Foz inteira é sua conhecida agora, {nome}. Vá em frente, que a mata está esperando.'] },
         { se: 'contas>=5', linhas: [
           'As cinco contas acesas! Então vá: a Dona Mariana está esperando no terreiro.'] },
         { se: 'conta_recado', linhas: [

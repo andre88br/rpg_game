@@ -13,15 +13,16 @@ import { Mundo } from './mundo.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESPECIES } from '../data/creatures.ts';
 import { ITENS } from '../data/items.ts';
-import { CONTAS, type Fala } from '../game/quests.ts';
+import { TERREIROS, type Fala } from '../game/quests.ts';
 import { CONTAS_NA_GUIA } from '../art/tiles.ts';
 
 /* A região com TODOS os serviços feitos: a tranca do Zeca caiu, a guia se
-   abriu. É neste mundo que tudo precisa ser alcançável — no mundo recém-
-   começado, ficar barrado é justamente o ponto. */
-const ABERTO: ContextoMapa = { contas: CONTAS_NA_GUIA, nadar: false, ligada: () => true };
+   abriu, e o Dom "Nadar" já foi conquistado — é ele que abre a travessia
+   para a Mata do Curupira. É neste mundo que tudo precisa ser alcançável —
+   no mundo recém-começado, ficar barrado é justamente o ponto. */
+const ABERTO: ContextoMapa = { contas: () => CONTAS_NA_GUIA, nadar: true, ligada: () => true };
 /* e a região como ela está no primeiro minuto de jogo */
-const FECHADO: ContextoMapa = { contas: 0, nadar: false, ligada: () => false };
+const FECHADO: ContextoMapa = { contas: () => 0, nadar: false, ligada: () => false };
 
 const entradas = Object.entries(MAPAS);
 const assados = new Map<string, Mapa>(entradas.map(([id, d]) => [id, new Mapa(d, ABERTO)]));
@@ -65,7 +66,7 @@ test('toda linha do chão tem o mesmo comprimento', () => {
 test('todo caractere do chão é um tile conhecido', () => {
   // TILES cai no '.' quando não conhece o caractere, e um erro de digitação
   // viraria grama silenciosamente no meio do mar
-  const conhecidos = new Set('.,=af~p#oR_WTmu'.split(''));
+  const conhecidos = new Set('.,=af~p#oR_WTmuv'.split(''));
   for (const [id, def] of entradas) {
     def.chao.forEach((linha, y) => {
       [...linha].forEach((c, x) => {
@@ -295,13 +296,38 @@ test('a guia só deixa passar com as cinco contas acesas', () => {
   const inicio = MAPAS['portoIara']!.inicio;
 
   for (let n = 0; n <= CONTAS_NA_GUIA; n++) {
-    const ctx: ContextoMapa = { contas: n, nadar: false, ligada: () => false };
+    const ctx: ContextoMapa = { contas: () => n, nadar: false, ligada: () => false };
     const m = new Mapa(MAPAS['portoIara']!, ctx);
     const passa = alcance(m, inicio.tx, inicio.ty).has(`${porta.tx},${porta.ty}`);
     assert.equal(passa, n >= CONTAS_NA_GUIA,
                  `com ${n} contas, entrar no terreiro devia ser ${n >= CONTAS_NA_GUIA}`);
     assert.equal(m.solido(guia.tx, guia.ty), n < CONTAS_NA_GUIA);
   }
+});
+
+test('a guia da Mata do Curupira é um terreiro à parte: cada contagem é a sua', () => {
+  const porta = MAPAS['mataDoCurupira']!.saidas!.find((s) => s.para === 'terreiroCurupira')!;
+  const inicio = MAPAS['mataDoCurupira']!.inicio;
+
+  for (let n = 0; n <= CONTAS_NA_GUIA; n++) {
+    // contas() só responde por 'planta'; qualquer outro terreiro fica em zero,
+    // e é isso que prova que as duas guias não se misturam
+    const ctx: ContextoMapa = {
+      contas: (t) => (t === 'planta' ? n : 0), nadar: false, ligada: () => false,
+    };
+    const m = new Mapa(MAPAS['mataDoCurupira']!, ctx);
+    const passa = alcance(m, inicio.tx, inicio.ty).has(`${porta.tx},${porta.ty}`);
+    assert.equal(passa, n >= CONTAS_NA_GUIA,
+                 `com ${n} contas de planta, entrar no terreiro devia ser ${n >= CONTAS_NA_GUIA}`);
+  }
+
+  // e com a guia de água toda aberta mas a de planta ainda em zero, continua fechada
+  const cruzado: ContextoMapa = {
+    contas: (t) => (t === 'agua' ? CONTAS_NA_GUIA : 0), nadar: false, ligada: () => false,
+  };
+  const m = new Mapa(MAPAS['mataDoCurupira']!, cruzado);
+  assert.ok(!alcance(m, inicio.tx, inicio.ty).has(`${porta.tx},${porta.ty}`),
+            'a guia de água aberta não devia abrir a de planta');
 });
 
 test('o Mundo reaproveita o mapa, mas não quando a condição muda', () => {
@@ -399,15 +425,126 @@ test('o salão do terreiro é mesmo um quebra-cabeça, não um corredor', () => 
             'a água devia tirar lugares de alcance, não deixar tudo igual');
 });
 
+/* ---------------------------------------------- o salão que empurra raiz */
+
+test('o quebra-cabeça do Terreiro de Raiz tem solução', () => {
+  const def = MAPAS['terreiroCurupira']!;
+  const m = mapa('terreiroCurupira');
+  const tie = def.npcs.find((n) => n.id === 'tie')!;
+  const daPorta = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
+
+  const vizinhos = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+    .map(([dx, dy]) => `${tie.tx + dx!},${tie.ty + dy!}`);
+  assert.ok(vizinhos.some((v) => daPorta.has(v)),
+            'o campo de raízes não tem caminho até a Tiê');
+});
+
+test('e ninguém fica preso no meio das raízes', () => {
+  const def = MAPAS['terreiroCurupira']!;
+  const m = mapa('terreiroCurupira');
+  const entrada = `${def.inicio.tx},${def.inicio.ty}`;
+  for (const lugar of alcanceDeslizando(m, def.inicio.tx, def.inicio.ty)) {
+    const [x, y] = lugar.split(',').map(Number) as [number, number];
+    assert.ok(alcanceDeslizando(m, x, y).has(entrada),
+              `quem chega em (${lugar}) não consegue mais voltar para a porta`);
+  }
+});
+
+test('o Terreiro de Raiz é mesmo um quebra-cabeça, não um corredor', () => {
+  const def = MAPAS['terreiroCurupira']!;
+  const m = mapa('terreiroCurupira');
+  const raizes = def.chao.join('').split('').filter((c) => c === 'v').length;
+  assert.ok(raizes > 35, `o campo tem só ${raizes} tiles de raiz viva`);
+
+  const tie = def.npcs.find((n) => n.id === 'tie')!;
+  const escorregando = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
+  const aPe = alcance(m, def.inicio.tx, def.inicio.ty);
+  assert.ok(aPe.has(`${tie.tx - 1},${tie.ty}`),
+            'sem escorregar o salão devia ser um corredor reto');
+  assert.ok(escorregando.size < aPe.size,
+            'a raiz devia tirar lugares de alcance, não deixar tudo igual');
+});
+
+test('o campo de raízes não se resolve segurando uma direção só', () => {
+  /* se um pillar sozinho já não bastasse, esse é o teste que provaria: uma
+     tecla segurada até bater em alguma coisa não pode encostar do lado da
+     Tiê — senão o "quebra-cabeça" era só um corredor disfarçado */
+  const def = MAPAS['terreiroCurupira']!;
+  const m = mapa('terreiroCurupira');
+  const tie = def.npcs.find((n) => n.id === 'tie')!;
+
+  function segurar(dx: number, dy: number): [number, number] {
+    let x = def.inicio.tx, y = def.inicio.ty;
+    for (let i = 0; i < 30; i++) {
+      let nx = x + dx, ny = y + dy;
+      if (m.solido(nx, ny)) break;
+      while (m.escorrega(nx, ny)) {
+        const ax = nx + dx, ay = ny + dy;
+        if (m.solido(ax, ay)) break;
+        nx = ax; ny = ay;
+      }
+      if (nx === x && ny === y) break;
+      x = nx; y = ny;
+    }
+    return [x, y];
+  }
+
+  for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+    const [x, y] = segurar(dx, dy);
+    const chegou = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+      .some(([ax, ay]) => x === tie.tx + ax! && y === tie.ty + ay!);
+    assert.ok(!chegou, `segurando só uma direção (${dx},${dy}) não devia chegar do lado da Tiê`);
+  }
+});
+
 /* --------------------------------------------- o Dom e as cinco contas */
+
+test('a segunda tranca do Zeca, no igarapé, fecha e abre de verdade', () => {
+  const fechado = new Mapa(MAPAS['igarapeCurupira']!, FECHADO);
+  const aberto = new Mapa(MAPAS['igarapeCurupira']!, ABERTO);
+  const saida = MAPAS['igarapeCurupira']!.saidas!.find((s) => s.para === 'mataDoCurupira')!;
+  const inicio = MAPAS['igarapeCurupira']!.inicio;
+
+  assert.ok(!alcance(fechado, inicio.tx, inicio.ty).has(`${saida.tx},${saida.ty}`),
+            'sem vencer o Zeca de novo, o igarapé para a Mata devia estar trancado');
+  assert.ok(alcance(aberto, inicio.tx, inicio.ty).has(`${saida.tx},${saida.ty}`),
+            'vencido o Zeca de novo, o igarapé devia abrir');
+});
+
+test('a touceira de cipó só cede para quem tem o Dom "Cortar Cipó"', () => {
+  /* é o teste do Dom desta região: sem "Cortar Cipó", o bolso além da
+     touceira seria cenário inalcançável — um prêmio que ninguém pega */
+  const def = MAPAS['mataDoCurupira']!;
+  const cipo = def.objetos.find((o) => o.tipo === 'barreira')!;
+  const semDom: ContextoMapa = { ...ABERTO, ligada: (c) => c !== 'dom_cortarCipo' };
+  const comDom: ContextoMapa = ABERTO;
+  const m1 = new Mapa(def, semDom);
+  const m2 = new Mapa(def, comDom);
+  const inicio = def.inicio;
+  const bolso = `${cipo.tx + 1},${cipo.ty + 1}`;   // o outro tile do vão, além da placa
+
+  assert.ok(m1.solido(cipo.tx, cipo.ty), 'sem o Dom, a touceira devia barrar a passagem');
+  assert.ok(!m2.solido(cipo.tx, cipo.ty), 'com o Dom, a touceira devia ceder');
+  assert.ok(!alcance(m1, inicio.tx, inicio.ty).has(bolso),
+            'sem o Dom, o bolso além da touceira devia ser inalcançável');
+  assert.ok(alcance(m2, inicio.tx, inicio.ty).has(bolso),
+            'com o Dom, o bolso além da touceira devia abrir');
+});
+
+test('a Medalha Raiz tem quem a entregue, com o Dom junto', () => {
+  const falas = entradas.flatMap(([, def]) => def.npcs.flatMap((n) => n.falas));
+  const premio = falas.find((f) => f.medalha === 'raiz');
+  assert.ok(premio, 'ninguém entrega a Medalha Raiz');
+  assert.equal(premio!.dom, 'cortarCipo', 'a Raiz tem que vir com o Dom de cortar cipó');
+});
 
 test('a ilhota do açude só existe para quem sabe nadar', () => {
   /* é o teste do Dom: se a Medalha Maré não abrisse a água, o pote seria
      cenário inalcançável — e um prêmio que ninguém pega não é prêmio */
   const def = MAPAS['rotaFoz']!;
   const pote = def.objetos.find((o) => o.tipo === 'achado')!;
-  const aPe = new Mapa(def, ABERTO);
-  const nadando = new Mapa(def, { ...ABERTO, nadar: true });
+  const aPe = new Mapa(def, { ...ABERTO, nadar: false });
+  const nadando = new Mapa(def, ABERTO);
   const alvo = `${pote.tx},${pote.ty}`;
 
   assert.ok(!alcance(aPe, def.inicio.tx, def.inicio.ty).has(alvo),
@@ -416,8 +553,8 @@ test('a ilhota do açude só existe para quem sabe nadar', () => {
             'com o Dom "Nadar" a ilhota devia abrir');
 });
 
-test('as cinco contas da guia podem mesmo ser acesas jogando', () => {
-  /* A guia é o portão da fase inteira. Se uma conta não tiver ninguém que a
+test('as cinco contas de cada guia podem mesmo ser acesas jogando', () => {
+  /* Cada guia é o portão de uma fase. Se uma conta não tiver ninguém que a
      acenda, o jogo fica sem fim — e nada no `tsc` diria isso. */
   const acesas = new Set<string>();
   for (const [, def] of entradas) {
@@ -433,8 +570,10 @@ test('as cinco contas da guia podem mesmo ser acesas jogando', () => {
       for (const l of [n.treinador?.liga].flat()) if (typeof l === 'string') acesas.add(l);
     }
   }
-  for (const c of CONTAS) {
-    assert.ok(acesas.has(c.flag), `ninguém acende a conta "${c.servico}" (${c.flag})`);
+  for (const lista of Object.values(TERREIROS)) {
+    for (const c of lista) {
+      assert.ok(acesas.has(c.flag), `ninguém acende a conta "${c.servico}" (${c.flag})`);
+    }
   }
 });
 

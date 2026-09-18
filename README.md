@@ -3,13 +3,18 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: a Fase 1 do jogo está fechada.** A **Região da Foz** dá para jogar do
-começo ao fim: escolhe-se o Encantado inicial na mesa da Dona Firmina, acendem-se
-as cinco contas da guia — o recado, o Zeca na estrada, o caderno do Contador, as
-três redes e o bicho do farol —, atravessa-se o salão alagado do terreiro e
-ganha-se a **Medalha Maré** com o Dom de **Nadar**, que abre a água. A batalha
-continua inteira: turnos, tabela de tipos, estados alterados, itens, captura com
-patuá, troca, XP, nível e evolução.
+**Estado: duas regiões fechadas, a Fase 4 em andamento.** A **Região da Foz**
+dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
+Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
+caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
+alagado do terreiro e ganha-se a **Medalha Maré** com o Dom de **Nadar**, que
+abre a água. Do outro lado da travessia a nado, a **Mata do Curupira** também
+fecha do começo ao fim: outra carta da Dona Firmina, o Zeca que barra o igarapé
+de novo, o caderno de pegadas do Seu Elias, as mudas sumidas com as Caiporinhas
+e o Curupira da grota funda acendem a guia do Terreiro de Raiz, onde a Tiê
+entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
+inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
+troca, XP, nível e evolução.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -63,7 +68,8 @@ src/
 ├─ scenes/    title.ts · overworld.ts · battle.ts
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
 ├─ data/      creatures.ts · moves.ts · items.ts
-│             mapas/ (a Região da Foz: 3 externos + 5 interiores)
+│             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
+│             Curupira: 2 externos + 2 interiores)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -233,6 +239,14 @@ larga entre as combinações de duas colunas, exigindo caminho até a saída **e
 volta até a porta a partir de todo lugar alcançável. `mapas.test.ts` refaz as
 duas contas a cada execução.
 
+**O Terreiro de Raiz reusa a mesma regra, cara nova.** Em vez de poça (`u`),
+o chão do salão da Tiê é raiz viva (`v`, `art/tiles.ts:tileRaizViva`) — mesmo
+`escorrega`, mesma física, textura marrom-avermelhada em vez de azul, e um
+traçado de colunas diferente, buscado à parte para não repetir a solução do
+Terreiro de Água nem virar corredor de uma tecla só. `guia()` também aprendeu
+a colorir as contas acesas pela cor do tipo do terreiro (`TIPOS[tipo].cor`),
+então a guia da Mata do Curupira acende em verde, não em azul.
+
 ## O que o mundo lembra
 
 Um NPC não tem "a" fala: tem uma lista, e a primeira cujas condições batem é a
@@ -257,6 +271,18 @@ escolhido — `{crianca}` ("menino" ou "menina") e `{caida}` ("caído" ou
 "caída"), resolvidos por `pronomeDe(estado)` em `game/state.ts`. Quem
 escreve uma fala nova para "a menina"/"moça" escreve `{crianca}` no lugar,
 e ela lê certo para os dois.
+
+`contas`/`faltam`/`servico` sem sufixo sempre falam do Terreiro de Água — é
+compatibilidade com a Região da Foz inteira, que já cita assim. Uma segunda
+guia usa o sufixo do próprio tipo: `contas:planta>=3`, `{faltam:planta}`,
+`{servico:planta}`. Por trás, `TERREIROS` (em `quests.ts`) é um registro de
+listas de cinco contas por terreiro — `agua`, `planta`, e uma por região que
+vier depois —, e `ContextoMapa.contas` deixou de ser um número (contagem de
+UM terreiro) para ser uma função `(terreiro) => número`: cada `portao` no
+mapa carrega o seu próprio `terreiro`, e a cena do mundo descobre qual guia
+cortar a câmera para mostrar pela flag que a conta liga (`terreiroDaConta`),
+não mais comparando contagem de antes e depois — o que quebraria assim que
+uma segunda guia entrasse em jogo ao mesmo tempo.
 
 Isso mora todo em `src/game/quests.ts`, que é puro — nada de canvas, nada de
 DOM. Por isso ele tem teste de verdade, e por isso o conteúdo da região continua
@@ -405,6 +431,15 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
         os cinco desafios completos, o salão alagado que escorrega, o farol e o
         bicho que mora nele, Dona Mariana, a Medalha Maré e o Dom "Nadar".
 - [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
+  - [x] **Mata do Curupira.** A guia e as contas viraram um sistema por
+        terreiro (`TERREIROS` em `quests.ts`, uma chave por tipo), para caber
+        mais de uma região aberta ao mesmo tempo. A segunda carta da Dona
+        Firmina, o Zeca barrando o igarapé de novo, o viveiro do Seu Elias e
+        as Caiporinhas com as mudas, o Curupira selvagem da grota, o Terreiro
+        de Raiz com quebra-cabeça de raízes vivas (a mesma regra do salão
+        alagado, cara nova), a Tiê, a Medalha Raiz e o Dom "Cortar Cipó".
+  - [ ] Serra Boitatá, Campo do Saci, Aldeia Tupã, Minas da Caipora, Bairro da
+        Cuca, Cidade do Sol — uma de cada vez, na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 

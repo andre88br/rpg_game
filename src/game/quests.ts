@@ -23,7 +23,8 @@ import { curarTime, pronomeDe, type EstadoJogo } from './state.ts';
      'item:patua>=3'     tem pelo menos três
      'vistos>=4'         já encontrou quatro espécies
      'capturados>=2'     já prendeu duas
-     'contas>=5'         a guia do terreiro tem cinco contas acesas
+     'contas>=5'         a guia do Terreiro de Água tem cinco contas acesas
+     'contas:planta>=3'  o mesmo, mas na guia de outro terreiro
      'medalha:mare'      já tem essa medalha
      'dinheiro>=200'     tem esse tanto no bolso
 */
@@ -36,6 +37,7 @@ export function ligada(e: EstadoJogo, cond: string): boolean {
 
   if (chave.startsWith('item:')) return quantidade(e.mochila, chave.slice(5)) >= minimo;
   if (chave.startsWith('medalha:')) return e.medalhas.includes(chave.slice(8));
+  if (chave.startsWith('contas:')) return contasAcesasDe(e, chave.slice(7)) >= minimo;
   if (chave === 'vistos') return e.vistos.length >= minimo;
   if (chave === 'capturados') return e.capturados.length >= minimo;
   if (chave === 'contas') return contasAcesas(e) >= minimo;
@@ -141,9 +143,17 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
 
    Uma fala pode citar o que o jogador fez sem virar codigo de cena:
    'A guia esta com {contas} de cinco contas.' O que nao for reconhecido
-   fica como esta, para um `{` solto no texto nao sumir com a frase. */
+   fica como esta, para um `{` solto no texto nao sumir com a frase.
+   `{contas:planta}`, `{faltam:planta}` e `{servico:planta}` fazem o mesmo
+   para a guia de outro terreiro que nao a de agua. */
 export function preencher(e: EstadoJogo, linha: string): string {
-  return linha.replace(/\{(\w+)\}/g, (inteiro, chave: string) => {
+  return linha.replace(/\{([\w:]+)\}/g, (inteiro, chave: string) => {
+    if (chave.startsWith('contas:')) return String(contasAcesasDe(e, chave.slice(7)));
+    if (chave.startsWith('faltam:')) {
+      const t = chave.slice(7);
+      return String((TERREIROS[t]?.length ?? 0) - contasAcesasDe(e, t));
+    }
+    if (chave.startsWith('servico:')) return contasFaltandoDe(e, chave.slice(8))[0] ?? 'nada';
     switch (chave) {
       case 'nome': return e.nome;
       case 'contas': return String(contasAcesas(e));
@@ -163,24 +173,62 @@ export function preencher(e: EstadoJogo, linha: string): string {
 
 /* ------------------------------------------------------ as cinco contas
 
-   O portão do Terreiro de Água é uma guia de cinco contas. Cada serviço
-   bem feito na Região da Foz acende uma; com as cinco acesas a guia se
-   abre. A ordem aqui é a ordem em que as contas aparecem no colar. */
+   Cada terreiro tem seu próprio colar de cinco contas — uma por região, na
+   chave do próprio tipo ('agua', 'planta', ...). Cada serviço bem feito na
+   região acende uma conta do SEU terreiro; com as cinco acesas a guia se
+   abre. A ordem de cada lista é a ordem em que as contas aparecem no colar. */
 export interface Conta { flag: string; servico: string }
 
-export const CONTAS: readonly Conta[] = [
-  { flag: 'conta_recado', servico: 'o recado da Dona Firmina' },
-  { flag: 'conta_estrada', servico: 'o desafio do Zeca, na estrada' },
-  { flag: 'conta_caderno', servico: 'o caderno do Contador de Bichos' },
-  { flag: 'conta_redes', servico: 'as redes do Mestre do Porto' },
-  { flag: 'conta_farol', servico: 'o bicho que mora no farol' },
-];
+export const TERREIROS: Record<string, readonly Conta[]> = {
+  agua: [
+    { flag: 'conta_recado', servico: 'o recado da Dona Firmina' },
+    { flag: 'conta_estrada', servico: 'o desafio do Zeca, na estrada' },
+    { flag: 'conta_caderno', servico: 'o caderno do Contador de Bichos' },
+    { flag: 'conta_redes', servico: 'as redes do Mestre do Porto' },
+    { flag: 'conta_farol', servico: 'o bicho que mora no farol' },
+  ],
+  planta: [
+    { flag: 'conta_recado_mata', servico: 'a carta da Dona Firmina para a Tiê' },
+    { flag: 'conta_zeca_mata', servico: 'o Zeca, de novo, no igarapé' },
+    { flag: 'conta_pegadas', servico: 'o caderno de pegadas do Seu Elias' },
+    { flag: 'conta_mudas', servico: 'as mudas do viveiro, sumidas com as Caiporinhas' },
+    { flag: 'conta_grota', servico: 'o Curupira que mora na grota funda' },
+  ],
+};
 
-export function contasAcesas(e: EstadoJogo): number {
-  return CONTAS.filter((c) => e.flags[c.flag] === true).length;
+/* compatibilidade: o terreiro de água foi o primeiro, e boa parte do
+   conteúdo da Região da Foz cita CONTAS/contasAcesas/contasFaltando direto,
+   sem passar terreiro — sempre falando da guia de água. */
+export const CONTAS: readonly Conta[] = TERREIROS['agua']!;
+
+export function contasAcesasDe(e: EstadoJogo, terreiro: string): number {
+  return (TERREIROS[terreiro] ?? []).filter((c) => e.flags[c.flag] === true).length;
 }
 
+export function contasFaltandoDe(e: EstadoJogo, terreiro: string): string[] {
+  return (TERREIROS[terreiro] ?? []).filter((c) => e.flags[c.flag] !== true).map((c) => c.servico);
+}
+
+export function contasAcesas(e: EstadoJogo): number { return contasAcesasDe(e, 'agua'); }
+
 /* o que ainda falta, em palavras, para a guia e para o guarda do largo */
-export function contasFaltando(e: EstadoJogo): string[] {
-  return CONTAS.filter((c) => e.flags[c.flag] !== true).map((c) => c.servico);
+export function contasFaltando(e: EstadoJogo): string[] { return contasFaltandoDe(e, 'agua'); }
+
+/* qual terreiro mostrar no menu de pausa: o primeiro cuja guia ainda não
+   abriu. Com todos abertos, o último — a tela sempre tem algo pra mostrar. */
+export function terreiroEmAberto(e: EstadoJogo): string {
+  const ids = Object.keys(TERREIROS);
+  return ids.find((id) => contasAcesasDe(e, id) < (TERREIROS[id]?.length ?? 0))
+      ?? ids[ids.length - 1]!;
+}
+
+/* de qual terreiro é uma conta, pela flag que ela acende — é assim que a
+   cena do mundo descobre qual guia cortar a câmera para mostrar, sem
+   precisar comparar contagem de antes/depois (que quebraria com dois
+   terreiros abertos ao mesmo tempo). */
+export function terreiroDaConta(flag: string): string | null {
+  for (const [id, lista] of Object.entries(TERREIROS)) {
+    if (lista.some((c) => c.flag === flag)) return id;
+  }
+  return null;
 }

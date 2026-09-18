@@ -6,7 +6,7 @@
    ========================================================================= */
 import { Buf, assarSuave, escalaDe, type Assado } from '../core/buf.ts';
 import * as T from '../art/tiles.ts';
-import { P } from '../art/palette.ts';
+import { P, type Tipo } from '../art/palette.ts';
 import type { Direcao } from '../art/people.ts';
 import type { FaixaEncontro } from '../battle/encantado.ts';
 import type { Cenario } from '../art/battlebg.ts';
@@ -41,17 +41,18 @@ export const TILES: Record<string, DefTile> = {
   'T': { desenho: T.tileTapete },
   'm': { desenho: T.tileTatame },
   'u': { desenho: T.tilePocaDagua, escorrega: true },
+  'v': { desenho: T.tileRaizViva, escorrega: true },
 };
 
 export type TipoObjeto =
-  | 'casa' | 'loja' | 'benzimento' | 'terreiro'      // construcoes com porta
+  | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto'  // construcoes com porta
   | 'farol'                                          // construcao sem porta
   | 'placa' | 'barreira' | 'portao' | 'achado'       // cenario
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
-const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro'];
+const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto'];
 
 /* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
 const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
@@ -71,8 +72,11 @@ export interface DefObjeto {
   /* coluna da porta, em tiles, a partir da esquerda da construcao */
   portaCol?: number;
   /* quantas das cinco contas da guia estao acesas (tipo 'portao').
-     Sem este campo a guia le o que o jogador ja fez. */
+     Sem este campo a guia le o que o jogador ja fez, no SEU terreiro. */
   contas?: number;
+  /* de qual terreiro esta guia e (tipo 'portao') — 'agua', 'planta', ... a
+     mesma chave do tipo da regiao. Sem isto, 'agua' (a Regiao da Foz). */
+  terreiro?: string;
   /* construcao sem interior: a porta continua desenhada, mas e parede */
   trancada?: boolean;
   /* achado ja revirado: o desenho muda, e nao ha mais nada dentro */
@@ -159,12 +163,12 @@ export interface DefMapa {
    mapa nao le o estado inteiro da partida, le um contexto pequeno — o que
    deixa `Mapa` testavel sem inventar uma partida. */
 export interface ContextoMapa {
-  contas: number;                         // contas acesas da guia
+  contas: (terreiro: string) => number;   // contas acesas da guia DESSE terreiro
   nadar: boolean;                         // o Dom da Medalha Mare
   ligada: (cond: string) => boolean;      // condicoes dos objetos
 }
 
-export const CTX_VAZIO: ContextoMapa = { contas: 0, nadar: false, ligada: () => false };
+export const CTX_VAZIO: ContextoMapa = { contas: () => 0, nadar: false, ligada: () => false };
 
 /* um objeto condicional so entra no mapa quando as condicoes valem */
 export function objetoAtivo(o: DefObjeto, ctx: ContextoMapa): boolean {
@@ -177,7 +181,7 @@ export function objetoAtivo(o: DefObjeto, ctx: ContextoMapa): boolean {
 
 /* Quantas contas a guia deste objeto mostra. */
 export function contasDo(o: DefObjeto, ctx: ContextoMapa): number {
-  return o.contas ?? ctx.contas;
+  return o.contas ?? ctx.contas(o.terreiro ?? 'agua');
 }
 
 export class Mapa {
@@ -270,7 +274,7 @@ export class Mapa {
                                            portaCol: o.portaCol });
         break;
       case 'portao':
-        sprite = T.guia(larg, contasDo(o, this.ctx));
+        sprite = T.guia(larg, contasDo(o, this.ctx), (o.terreiro ?? 'agua') as Tipo);
         break;
       case 'balcao':
         sprite = T.balcao(larg);
@@ -297,6 +301,11 @@ export class Mapa {
       case 'loja':
         sprite = T.construcao(larg, alt, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894',
                                            sign: 'LOJA', signColor: '#7fd9b4',
+                                           portaCol: o.portaCol });
+        break;
+      case 'posto':
+        sprite = T.construcao(larg, alt, { roof: '#8a6a3f', roofD: '#654d2e', roofL: '#a8895c',
+                                           sign: 'ENCRUZILHADA', signColor: '#e0c090',
                                            portaCol: o.portaCol });
         break;
       case 'terreiro':

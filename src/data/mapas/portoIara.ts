@@ -69,6 +69,8 @@ export const portoIara: DefMapa = {
     { tipo: 'farol',      tx: 13, ty: 29, larg: 3, alt: 7 },
     { tipo: 'placa',      tx: 18, ty: 33,
       placa: 'FAROL DA BARRA. Porta emperrada há anos. De noite ele acende sozinho.' },
+    { tipo: 'placa',      tx: 20, ty: 29,
+      placa: 'Águas fundas ao sul. Sem saber nadar, ninguém volta de lá.' },
   ],
 
   npcs: [
@@ -196,6 +198,10 @@ export const portoIara: DefMapa = {
     { tx: 9,  ty: 8,  para: 'benzimentoPortoIara',  destino: { tx: 7, ty: 8, dir: 'cima' } },
     { tx: 23, ty: 8,  para: 'lojaPortoIara',        destino: { tx: 7, ty: 8, dir: 'cima' } },
     { tx: 16, ty: 17, para: 'terreiroPortoIara',    destino: { tx: 8, ty: 12, dir: 'cima' } },
+    /* a travessia a nado, só depois do Dom "Nadar": água funda sem cais o
+       resto do caminho, direto para o igarapé que leva à Mata do Curupira */
+    { tx: 24, ty: 36, para: 'igarapeCurupira',       destino: { tx: 9,  ty: 1, dir: 'baixo' } },
+    { tx: 25, ty: 36, para: 'igarapeCurupira',       destino: { tx: 10, ty: 1, dir: 'baixo' } },
   ],
 
   cenario: 'praia',

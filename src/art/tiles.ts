@@ -1,7 +1,7 @@
 /* Tiles 16x16 do cenario. Gerados por codigo com RNG semeado, entao o mesmo
    tile sai identico toda vez e nao dependemos de nenhum asset externo. */
 import { Buf, rng } from '../core/buf.ts';
-import { P } from './palette.ts';
+import { P, TIPOS, type Tipo } from './palette.ts';
 import { texto, larguraTexto } from './font.ts';
 
 export const TS = 16; // tamanho do tile
@@ -320,6 +320,25 @@ export function tilePocaDagua(seed = 16): Buf {
   return b;
 }
 
+/* raiz viva do chão do Terreiro de Raiz: escorrega igual à poça de Porto
+   Iara — mesma regra, cara nova — mas em vez de água é uma trama de raízes
+   grossas que empurra quem pisa nelas, e o chão por baixo aparece nos vãos. */
+export function tileRaizViva(seed = 17): Buf {
+  const b = tilePisoMadeira(seed); const r = rng(seed * 5 + 2);
+  for (let y = 0; y < TS; y++) {
+    for (let x = 0; x < TS; x++) {
+      if ((x + y * 3 + seed) % 7 === 0) continue;      // vaos: o piso por baixo
+      b.set(x, y, (x + y) % 9 === 0 ? P.treeD! : P.trunk!);
+    }
+  }
+  for (const y of [3, 9, 14]) {
+    const off = (seed * 5 + y * 3) % TS;
+    for (let k = 0; k < 5; k++) b.set((off + k) % TS, y, P.trunkD!);
+  }
+  for (let i = 0; i < 4; i++) b.set(r() * TS, r() * TS, P.tallL!);
+  return b;
+}
+
 /* ---- moveis: desenhados em blocos de tile, como as construcoes ---- */
 
 /* balcao da loja: tampo de madeira com frente de tabua */
@@ -483,7 +502,9 @@ export const CONTAS_NA_GUIA = 5;
    Uma guia esticada de poste a poste. Cada desafio da regiao acende uma conta;
    com as cinco acesas a guia se abre. Desenhar as cinco desde o comeco e o que
    diz ao jogador, sem uma linha de texto, quanto falta. */
-export function guia(larguraTiles: number, acesas = 0): Buf {
+export function guia(larguraTiles: number, acesas = 0, tipo: Tipo | null = null): Buf {
+  const corAcesa = tipo ? TIPOS[tipo].cor : P.water!;
+  const corAcesaD = tipo ? TIPOS[tipo].corD : P.waterD!;
   const w = larguraTiles * TS;
   const b = new Buf(w, TS);
 
@@ -507,9 +528,9 @@ export function guia(larguraTiles: number, acesas = 0): Buf {
     const x = Math.round(4 + ((w - 8) * (i + 0.5)) / CONTAS_NA_GUIA);
     const y = alturaEm(x) + 1;
     if (i < acesas) {
-      b.ellipse(x, y, 4, 4, P.waterL!);      // brilho da conta acesa
-      b.ellipse(x, y, 3, 3, P.waterD!);
-      b.ellipse(x, y, 2, 2, P.water!);
+      b.ellipse(x, y, 4, 4, corAcesa);       // brilho da conta acesa
+      b.ellipse(x, y, 3, 3, corAcesaD);
+      b.ellipse(x, y, 2, 2, corAcesa);
       b.set(x - 1, y - 1, P.foam!);
     } else {
       b.ellipse(x, y, 3, 3, P.ink2!);

@@ -58,6 +58,12 @@ const LISTA: readonly Item[] = [
   { id: 'rede', nome: 'Rede de Pesca', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Rede do Mestre do Porto, surrupiada por mão pequena e rápida.' },
+  { id: 'carta_tie', nome: 'Carta para a Tiê', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Dobrada em quatro, lacrada com cera. A Dona Firmina escreveu para a Tiê.' },
+  { id: 'muda', nome: 'Muda de Árvore', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Muda do viveiro do Seu Elias, escondida por uma Caiporinha arteira.' },
 ];
 
 export const ITENS: Record<string, Item> =

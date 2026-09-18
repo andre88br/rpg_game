@@ -35,8 +35,8 @@ import type { Cenario } from '../art/battlebg.ts';
 import { adicionar, consumir } from '../data/items.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
-  aplicarFala, CONTAS, contasAcesas, contasFaltando, escolherFala, ligada, preencher,
-  type Fala,
+  aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
+  terreiroDaConta, TERREIROS, type Fala,
 } from '../game/quests.ts';
 import { salvar } from '../game/save.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
@@ -155,7 +155,7 @@ export class CenaMundo implements Cena {
   private pendenteEntrouNoTime = false;
   /* uma conta da guia acendeu: o corte de câmera espera a vez, sem interromper
      conversa, batalha ou qualquer outra coisa que já esteja tomando a tela */
-  private cutscenePendente: { faltam: number } | null = null;
+  private cutscenePendente: { terreiro: string; faltam: number } | null = null;
   private cutscene: Cutscene | null = null;
 
   constructor(op: OpcoesCenaMundo) {
@@ -194,7 +194,7 @@ export class CenaMundo implements Cena {
   private contexto(): ContextoMapa {
     const e = this.op.estado;
     return {
-      contas: contasAcesas(e),
+      contas: (terreiro) => contasAcesasDe(e, terreiro),
       nadar: ligada(e, 'dom_nadar'),
       ligada: (c) => ligada(e, c),
     };
@@ -293,8 +293,9 @@ export class CenaMundo implements Cena {
           });
         }
       } else if (o.tipo === 'portao') {
-        const acesas = o.contas ?? ctx.contas;
-        const faltando = contasFaltando(this.op.estado);
+        const terreiro = o.terreiro ?? 'agua';
+        const acesas = o.contas ?? ctx.contas(terreiro);
+        const faltando = contasFaltandoDe(this.op.estado, terreiro);
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'GUIA DO TERREIRO',
@@ -371,13 +372,13 @@ export class CenaMundo implements Cena {
     if (!c || !c.fala) { this.duelo = null; return; }
 
     const e = this.op.estado;
-    const antes = contasAcesas(e);
+    const terreiro = this.terreiroDaFala(c.fala.liga);
     const efeito = aplicarFala(e, c.fala, {
       adicionar: (id, n) => adicionar(e.mochila, id, n),
       consumir: (id, n) => consumir(e.mochila, id, n),
     });
     this.atualizarCenario();
-    if (contasAcesas(e) > antes) this.prepararCutscene(contasAcesas(e));
+    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
 
     if (efeito.batalha && c.npc?.def.treinador) {
       if (temTimeEmPe(e)) { this.lutarCom(c.npc); return; }
@@ -397,8 +398,7 @@ export class CenaMundo implements Cena {
     /* gravar depois de curar, de acender uma conta, de ganhar item de serviço
        ou de conquistar medalha: são os pontos em que perder progresso doeria
        de verdade */
-    if (efeito.curou || efeito.deu || efeito.levou || efeito.medalha
-        || contasAcesas(e) !== antes) {
+    if (efeito.curou || efeito.deu || efeito.levou || efeito.medalha || terreiro) {
       salvar(e);
     }
     if (efeito.medalha) this.atualizarCenario();   // o Dom muda o mapa
@@ -526,8 +526,8 @@ export class CenaMundo implements Cena {
     if (!ganhou) return;
 
     const e = this.op.estado;
-    const antes = contasAcesas(e);
     const t = d.npc.def.treinador!;
+    const terreiro = this.terreiroDaFala(t.liga);
     e.flags[`venceu_${d.npc.def.id}`] = true;
     const extras = t.liga === undefined ? []
                  : typeof t.liga === 'string' ? [t.liga] : t.liga;
@@ -537,7 +537,7 @@ export class CenaMundo implements Cena {
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
     if (r === 'captura') this.sumirNpc(d.npc);
-    if (contasAcesas(e) > antes) this.prepararCutscene(contasAcesas(e));
+    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
     salvar(e);
     if (t.falaDerrota && r !== 'captura') this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
   }
@@ -547,16 +547,29 @@ export class CenaMundo implements Cena {
      Uma conta da guia acabou de acender. O corte não pode atropelar nada
      que já esteja na tela — conversa, batalha, loja — então ele só GUARDA o
      que precisa mostrar; é `atualizar()` que decide a hora certa de soltar. */
-  private prepararCutscene(contasAgora: number): void {
-    this.cutscenePendente = { faltam: CONTAS.length - contasAgora };
+  /* de qual terreiro é a conta que uma fala ou vitória acabou de ligar —
+     nenhuma diferença de contagem: uma flag `conta_*` pertence a um único
+     terreiro, e é ela que diz qual guia cortar a câmera para mostrar. */
+  private terreiroDaFala(liga?: string | readonly string[]): string | null {
+    const lista = liga === undefined ? [] : typeof liga === 'string' ? [liga] : liga;
+    for (const f of lista) {
+      const t = terreiroDaConta(f);
+      if (t) return t;
+    }
+    return null;
   }
 
-  /* acha a guia do terreiro em qualquer mapa do registro. A Região da Foz só
-     tem uma; quando a Fase 4 trouxer a segunda, isto precisa escolher a do
-     terreiro mais perto do que o jogador está fazendo, não a primeira. */
-  private encontrarGuia(): { mapaId: string; tx: number; ty: number; larg: number } | null {
+  private prepararCutscene(terreiro: string, contasAgora: number): void {
+    const total = TERREIROS[terreiro]?.length ?? CONTAS_NA_GUIA;
+    this.cutscenePendente = { terreiro, faltam: total - contasAgora };
+  }
+
+  /* acha a guia de UM terreiro específico entre os mapas do registro */
+  private encontrarGuia(terreiro: string):
+      { mapaId: string; tx: number; ty: number; larg: number } | null {
     for (const id of this.op.mundo.ids) {
-      const o = this.op.mundo.def(id).objetos.find((x) => x.tipo === 'portao');
+      const o = this.op.mundo.def(id).objetos
+        .find((x) => x.tipo === 'portao' && (x.terreiro ?? 'agua') === terreiro);
       if (o) return { mapaId: id, tx: o.tx, ty: o.ty, larg: o.larg ?? 4 };
     }
     return null;
@@ -565,7 +578,7 @@ export class CenaMundo implements Cena {
   private iniciarCutscene(): void {
     const pend = this.cutscenePendente;
     this.cutscenePendente = null;
-    const g = pend && this.encontrarGuia();
+    const g = pend && this.encontrarGuia(pend.terreiro);
     if (!pend || !g) return;
 
     const mapa = this.op.mundo.obter(g.mapaId, this.contexto());
