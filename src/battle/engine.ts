@@ -92,6 +92,11 @@ export interface Treinador {
   falaInicio?: string;
   falaDerrota?: string;
   premio?: number;
+  /* liga a troca e o uso de item da IA — ligado POR TREINADOR, desligado
+     por padrão: sem isto, todo treinador de time 2+ (Zeca incluído) já
+     trocaria de Encantado, e as regiões 1 e 2 não podiam mudar de
+     comportamento. Ausente ou falso = a IA de sempre, só escolhe golpe. */
+  esperta?: boolean;
 }
 
 export interface OpcoesBatalha {
@@ -99,9 +104,19 @@ export interface OpcoesBatalha {
   oponentes: Encantado[];
   treinador?: Treinador | null;    // ausente = batalha selvagem
   mochila?: Mochila;
+  /* o bolso do TREINADOR inimigo — nunca a mochila do jogador. Sem isto (ou
+     vazio), a IA nunca usa item: é o que segura os 88 testes de hoje, que
+     não passam nada aqui, sem tocar um único `if`. */
+  itensIA?: Mochila;
   semente?: number;
   podeFugir?: boolean;
 }
+
+/* abaixo desta fração de HP a IA considera curar; acima, nunca gasta item */
+const LIMIAR_CURA_IA = 0.35;
+/* mesmo podendo, a IA não usa item nem troca toda vez — senão fica previsível */
+const CHANCE_ITEM_IA = 70;
+const CHANCE_TROCA_IA = 55;
 
 /* ===================================================================== */
 
@@ -111,6 +126,9 @@ export class Batalha {
   readonly treinador: Treinador | null;
   readonly selvagem: boolean;
   readonly mochila: Mochila;
+  /* clonado do treinador: consumir aqui nunca esvazia o bolso da FICHA do
+     treinador, que é o mesmo objeto reaproveitado em toda luta futura com ele */
+  readonly itensIA: Mochila;
   readonly rnd: Aleatorio;
   readonly podeFugir: boolean;
 
@@ -132,6 +150,7 @@ export class Batalha {
     this.treinador = op.treinador ?? null;
     this.selvagem = !this.treinador;
     this.mochila = op.mochila ?? {};
+    this.itensIA = { ...(op.itensIA ?? {}) };
     this.rnd = new Aleatorio(op.semente);
     this.podeFugir = op.podeFugir ?? this.selvagem;
 
@@ -237,16 +256,24 @@ export class Batalha {
   /* ---------------------------------------------------------- trocar */
 
   private acaoTrocar(lado: Lado, indice: number, ev: Evento[]): void {
-    if (lado !== 'aliado') return;              // a IA desta fase não troca
-    const alvo = this.time[indice];
-    if (!alvo || desmaiado(alvo) || indice === this.iAliado) return;
-    ev.push({ k: 'texto', t: `Volta, ${nome(this.aliado.enc)}!` });
-    ev.push({ k: 'sair', lado: 'aliado' });
-    ev.push({ k: 'quebranto', lado: 'aliado', ativo: false });
-    this.iAliado = indice;
-    this.aliado = envolver(alvo);               // estágios zeram ao trocar
-    ev.push({ k: 'entrar', lado: 'aliado', indice });
-    ev.push({ k: 'texto', t: `Vai lá, ${nome(alvo)}!` });
+    const time = lado === 'aliado' ? this.time : this.oponentes;
+    const iAtual = lado === 'aliado' ? this.iAliado : this.iInimigo;
+    const alvo = time[indice];
+    if (!alvo || desmaiado(alvo) || indice === iAtual) return;
+
+    const atual = this.lado(lado).enc;
+    ev.push({ k: 'texto',
+              t: lado === 'aliado' ? `Volta, ${nome(atual)}!`
+                                    : `${this.treinador!.nome} recolheu ${nome(atual)}!` });
+    ev.push({ k: 'sair', lado });
+    ev.push({ k: 'quebranto', lado, ativo: false });
+    const combatente = envolver(alvo);           // estágios zeram ao trocar
+    if (lado === 'aliado') { this.iAliado = indice; this.aliado = combatente; }
+    else { this.iInimigo = indice; this.inimigo = combatente; }
+    ev.push({ k: 'entrar', lado, indice });
+    ev.push({ k: 'texto',
+              t: lado === 'aliado' ? `Vai lá, ${nome(alvo)}!`
+                                    : `${this.treinador!.nome} mandou ${nome(alvo)}!` });
   }
 
   /* troca obrigatória depois que o seu Encantado desmaia */
@@ -266,7 +293,8 @@ export class Batalha {
   /* ------------------------------------------------------------ item */
 
   private acaoItem(lado: Lado, id: string, alvo: number | undefined, ev: Evento[]): void {
-    if (lado !== 'aliado') return;
+    if (lado === 'inimigo') return this.acaoItemIA(id, ev);
+
     const it = fichaItem(id);
     if (!consumir(this.mochila, id)) return;
     ev.push({ k: 'texto', t: `Você usou ${it.nome}.` });
@@ -311,6 +339,29 @@ export class Batalha {
       if (!desmaiado(destino)) { ev.push({ k: 'texto', t: 'Não adiantou nada.' }); return; }
       reviver(destino, ef.fracao);
       ev.push({ k: 'texto', t: `${nome(destino)} voltou a si!` });
+    }
+  }
+
+  /* o treinador inimigo usa item do PRÓPRIO bolso (itensIA), sempre no
+     Encantado que está em campo — nunca na mochila nem no time do jogador */
+  private acaoItemIA(id: string, ev: Evento[]): void {
+    const it = fichaItem(id);
+    if (!consumir(this.itensIA, id)) return;
+    const destino = this.inimigo.enc;
+    const nomeQuem = this.treinador?.nome ?? '???';
+    ev.push({ k: 'texto', t: `${nomeQuem} usou ${it.nome} em ${nome(destino)}!` });
+    const ef = it.efeito;
+
+    if (ef.k === 'cura') {
+      const antes = destino.hp;
+      const ganho = curar(destino, ef.hp);
+      ev.push({ k: 'cura', lado: 'inimigo', de: antes, para: destino.hp });
+      ev.push({ k: 'texto', t: `${nome(destino)} recuperou ${ganho} de fôlego.` });
+    } else if (ef.k === 'limpar') {
+      destino.status = null;
+      destino.turnosStatus = 0;
+      ev.push({ k: 'status', lado: 'inimigo', status: null });
+      ev.push({ k: 'texto', t: `${nome(destino)} se sente bem melhor.` });
     }
   }
 
@@ -650,6 +701,11 @@ export class Batalha {
      =================================================================== */
 
   private decidirIA(): AcaoJogador {
+    const item = this.itemDaIA();
+    if (item) return { tipo: 'item', item };
+    const troca = this.trocaDaIA();
+    if (troca >= 0) return { tipo: 'trocar', indice: troca };
+
     const eu = this.inimigo, alvo = this.aliado;
     const notas = eu.enc.golpes.map((_, i) => this.notaGolpe(i, eu, alvo));
     if (notas.length === 0) return { tipo: 'golpe', indice: 0 };
@@ -659,6 +715,50 @@ export class Batalha {
     const corte = this.selvagem ? melhor * 0.6 : melhor * 0.9;
     const bons = notas.map((n, i) => (n >= corte ? i : -1)).filter((i) => i >= 0);
     return { tipo: 'golpe', indice: this.rnd.escolher(bons.length ? bons : [0]) };
+  }
+
+  /* usa item do próprio bolso quando está mal — nunca sem bolso, e nunca
+     fora de um treinador `esperta`: o que mantém intacta toda batalha de
+     hoje (nenhuma delas passa `itensIA` nem `esperta`) */
+  private itemDaIA(): string | null {
+    if (this.selvagem || !this.treinador?.esperta) return null;
+    if (Object.keys(this.itensIA).length === 0) return null;
+
+    const frac = this.inimigo.enc.hp / hpMaximo(this.inimigo.enc);
+    if (frac > LIMIAR_CURA_IA) {
+      if ((this.itensIA['erva_doce'] ?? 0) > 0 && this.inimigo.enc.status
+          && this.rnd.chance(CHANCE_ITEM_IA)) return 'erva_doce';
+      return null;
+    }
+    for (const id of ['garrafada_forte', 'garrafada']) {
+      if ((this.itensIA[id] ?? 0) > 0 && this.rnd.chance(CHANCE_ITEM_IA)) return id;
+    }
+    return null;
+  }
+
+  /* troca quando o ativo leva 2x do tipo do time do jogador, tem para onde
+     ir sem levar 2x de novo, e não está prestes a derrubar o jogador agora.
+     Só para treinador `esperta` — todo o resto do jogo (regiões 1 e 2
+     incluídas) continua com a IA de sempre, que nunca troca. */
+  private trocaDaIA(): number {
+    if (this.selvagem || !this.treinador?.esperta) return -1;
+    const reservas = this.oponentes
+      .map((e, i) => (i !== this.iInimigo && !desmaiado(e) ? i : -1))
+      .filter((i) => i >= 0);
+    if (reservas.length === 0) return -1;
+
+    const ameaca = Math.max(...this.aliado.enc.golpes
+      .map((g) => eficacia(fichaGolpe(g.id).tipo, tipos(this.inimigo.enc))));
+    if (ameaca < 2) return -1;
+
+    const melhor = Math.max(...this.inimigo.enc.golpes
+      .map((_, i) => this.notaGolpe(i, this.inimigo, this.aliado)));
+    if (melhor >= this.aliado.enc.hp) return -1;   // pode derrubar agora: fica
+
+    const bom = reservas.find((i) => Math.max(...this.aliado.enc.golpes
+      .map((g) => eficacia(fichaGolpe(g.id).tipo, tipos(this.oponentes[i]!)))) < 2);
+    if (bom === undefined) return -1;
+    return this.rnd.chance(CHANCE_TROCA_IA) ? bom : -1;
   }
 
   private notaGolpe(indice: number, eu: Combatente, alvo: Combatente): number {

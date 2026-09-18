@@ -34,13 +34,15 @@ import {
 } from '../battle/encantado.ts';
 import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
-import { adicionar, consumir } from '../data/items.ts';
+import { adicionar, consumir, quantidade } from '../data/items.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
   aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
   terreiroDaConta, TERREIROS, type Fala,
 } from '../game/quests.ts';
 import { salvar } from '../game/save.ts';
+import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
+import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
@@ -69,6 +71,9 @@ const CUT_ESPERA = 3.2;
    isso nenhum pode ser sufixo de outro, senão os dois disparariam juntos. */
 const CODIGO_REGIAO2: readonly Acao[] =
   ['cima', 'cima', 'baixo', 'baixo', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
+/* o da região 3 é o mesmo de cabeça para baixo: nenhum é sufixo do outro */
+const CODIGO_REGIAO3: readonly Acao[] =
+  ['baixo', 'baixo', 'cima', 'cima', 'dir', 'esq', 'dir', 'esq', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -113,6 +118,8 @@ export interface PedidoBatalha {
   oponentes: Encantado[];
   treinador?: Treinador | null;
   cenario?: Cenario;
+  /* o bolso do treinador inimigo, nunca a mochila do jogador */
+  itensIA?: Record<string, number>;
 }
 
 export interface OpcoesCenaMundo {
@@ -165,6 +172,11 @@ export class CenaMundo implements Cena {
   private deslizando = false;
   /* folhas de sprite assadas uma vez por estilo, valem para todos os mapas */
   private folhas = new Map<string, FolhaAssada>();
+  /* máscaras de escuridão, assadas uma vez por raio de luz já usado */
+  private mascarasLuz = new Map<number, Assado>();
+  /* pedras que se empurram: posição de cada uma, na sala atual */
+  private pedras: Pedra[] = [];
+  private pedraImg: Assado | null = null;
   /* resultado da última batalha, aplicado quando a cena volta a ser a da vez */
   private pendente: Resultado | null = null;
   private pendenteEntrouNoTime = false;
@@ -233,6 +245,7 @@ export class CenaMundo implements Cena {
         ator: new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir),
         folego: d.fujao?.folego ?? FOLEGO_PADRAO,
       }));
+    this.pedras = posicoesIniciais(this.def.pedras, (f) => ligada(this.op.estado, f));
     this.recontarOcupados();
     this.montarAvisos();
 
@@ -414,10 +427,13 @@ export class CenaMundo implements Cena {
       this.escolha!.abrir((id) => this.receberInicial(id));
     }
     if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
+    /* um Encantado que acaba de entrar por fala é a mesma oferta de reordenar
+       que uma captura dá — só que sem passar pela tela de batalha */
+    if (efeito.encantado && e.time.length > 1) this.abrirReordenar();
     /* gravar depois de curar, de acender uma conta, de ganhar item de serviço
        ou de conquistar medalha: são os pontos em que perder progresso doeria
        de verdade */
-    if (efeito.curou || efeito.deu || efeito.levou || efeito.medalha || terreiro) {
+    if (efeito.curou || efeito.deu || efeito.levou || efeito.medalha || efeito.encantado || terreiro) {
       salvar(e);
     }
     if (efeito.medalha) this.atualizarCenario();   // o Dom muda o mapa
@@ -429,6 +445,10 @@ export class CenaMundo implements Cena {
     const bicho = criar(id, NIVEL_INICIAL);
     guardar(e, bicho);
     e.flags['escolheu_inicial'] = true;
+    /* qual foi o inicial, para o trunfo de Brás — sem isto, um save antigo
+       (de antes desta flag existir) simplesmente cai no primeiro par do
+       objeto `trunfo`, nunca num "!" que quebraria a luta */
+    e.flags[`inicial_${id}`] = true;
     salvar(e);
     this.abrirConversa('DONA FIRMINA', [
       `${nomeDe(bicho)} é seu, ${e.nome}. Trate bem e ele trata melhor.`,
@@ -505,12 +525,20 @@ export class CenaMundo implements Cena {
     /* bicho não é treinador: sem painel de treinador, e o patuá funciona.
        Prender o Boitatá do farol vale tanto quanto derrubá-lo. */
     const oponentes = t.time.map((c) => criar(c.especie, c.nivel, { selvagem: t.selvagem }));
+    if (t.trunfo) {
+      const e = this.op.estado;
+      const chave = Object.keys(t.trunfo).find((esp) => e.flags[`inicial_${esp}`] === true);
+      const escolhido = (chave ? t.trunfo[chave] : undefined) ?? Object.values(t.trunfo)[0]!;
+      oponentes.push(criar(escolhido.especie, escolhido.nivel));
+    }
     this.op.aoBatalhar({
       oponentes,
       treinador: t.selvagem ? null : {
         nome: npc.def.nome, classe: t.classe,
         falaInicio: t.falaInicio, falaDerrota: t.falaDerrota, premio: t.premio,
+        esperta: t.esperta,
       },
+      itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
     });
   }
@@ -663,7 +691,8 @@ export class CenaMundo implements Cena {
     if (apertados.length === 0) return;
 
     this.bufferCodigo.push(...apertados);
-    const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
+    const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length,
+                           CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
 
@@ -674,6 +703,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao2();
+    } else if (this.bateCodigo(CODIGO_REGIAO3)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao3();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -696,7 +729,10 @@ export class CenaMundo implements Cena {
     if (!e.medalhas.includes('mare')) e.medalhas.push('mare');
     e.flags['dom_nadar'] = true;
     e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) guardar(e, criar('curupinho', NIVEL_INICIAL));
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
     if (!e.flags['deu_carta_tie'] && !e.flags['conta_recado_mata']) {
       e.flags['deu_carta_tie'] = true;
       adicionar(e.mochila, 'carta_tie');
@@ -707,6 +743,30 @@ export class CenaMundo implements Cena {
     this.montarMapa('mataDoCurupira');   // já grava: medalha, Dom e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A travessia para a Mata do Curupira se abre.']);
+  }
+
+  /* pula direto para a Serra Boitatá: leva as duas medalhas anteriores e os
+     dois Dons que abrem o caminho até lá, um time se estiver vazio e cinco
+     patuás bons — sem eles a conta do Mestre Patueiro (seis Encantados
+     presos) ficaria impossível para quem pulou a economia das duas
+     primeiras regiões. */
+  private ativarCodigoRegiao3(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    e.flags['dom_nadar'] = true;
+    e.flags['dom_cortarCipo'] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('trilhaDaBrasa').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('trilhaDaBrasa');   // já grava: medalhas, Dons e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. A subida para a Serra Boitatá se abre.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -906,8 +966,10 @@ export class CenaMundo implements Cena {
     // ---- andar ----
     const { x, y } = entrada.direcao();
     const dir: Direcao | null = direcaoDe(x, y);
+    if (dir) this.tentarEmpurrar(dir);
     this.jogador.comandar(this.mapa, dir, entrada.segurando('b'),
-                          (tx, ty) => this.ocupados.has(`${tx},${ty}`));
+                          (tx, ty) => this.ocupados.has(`${tx},${ty}`)
+                                    || ocupadaPorPedra(this.pedras, tx, ty));
     const chegou = this.jogador.atualizar(dt);
 
     if (this.carencia > 0) this.carencia -= dt;
@@ -917,6 +979,50 @@ export class CenaMundo implements Cena {
     if (!this.duelo && !this.deslizando && entrada.apertou('a')) this.interagir();
 
     this.centrarCamera();
+  }
+
+  /* toda cova AINDA ABERTA deste mapa — a lista que world/pedras.ts precisa
+     para saber onde uma pedra empurrada se funde de vez */
+  private covasDeste(): Cova[] {
+    const abertas: Cova[] = [];
+    for (const o of this.def.objetos) {
+      if (o.tipo !== 'cova') continue;
+      const flag = typeof o.seNao === 'string' ? o.seNao : null;
+      if (!flag || ligada(this.op.estado, flag)) continue;
+      abertas.push({ tx: o.tx, ty: o.ty, flag });
+    }
+    return abertas;
+  }
+
+  /* se há uma pedra na direção que o jogador está tentando andar, tenta
+     empurrá-la antes do próprio passo — exatamente o que `bloqueado` faz
+     pelo jogador, mas pela pedra. Encaixando numa cova, acende a flag,
+     reassa o cenário (o `entulho` troca de lugar com a `cova`) e grava. */
+  private tentarEmpurrar(dir: Direcao): void {
+    if (this.jogador.movendo || this.jogador.dir !== dir) return;
+    const [dx, dy] = DELTAS[dir];
+    if (!ocupadaPorPedra(this.pedras, this.jogador.tx + dx, this.jogador.ty + dy)) return;
+
+    const covas = this.covasDeste();
+    const r = empurrar(this.pedras, this.jogador.tx, this.jogador.ty, dx, dy,
+      (tx, ty) => {
+        // a cova aberta é sólida para quem anda, mas é onde a pedra tem
+        // que ir — sem esta ressalva nenhuma pedra jamais chegaria lá
+        const naCova = covas.some((c) => c.tx === tx && c.ty === ty);
+        return (naCova || !this.mapa.solido(tx, ty))
+            && !ocupadaPorPedra(this.pedras, tx, ty) && !this.ocupados.has(`${tx},${ty}`);
+      },
+      covas);
+    if (r.encaixou) {
+      this.op.estado.flags[r.encaixou] = true;
+      // todas as covas da sala tapadas: acende a conta que esse
+      // quebra-cabeça resolve, se o mapa declarar uma
+      if (this.def.pedrasConta && this.covasDeste().length === 0) {
+        this.op.estado.flags[this.def.pedrasConta] = true;
+      }
+      this.atualizarCenario();
+      salvar(this.op.estado);
+    }
   }
 
   /* o jogador acabou de ocupar um tile novo: é aqui que o mundo reage */
@@ -1012,28 +1118,45 @@ export class CenaMundo implements Cena {
     r.limpar('#101018');
     this.mapa.desenhar(r.ctx, this.camera.x, this.camera.y, LARGURA, ALTURA);
 
-    // atores ordenados pela base: quem está mais abaixo passa na frente
+    // atores e pedras, juntos, ordenados pela base: quem está mais abaixo
+    // passa na frente — senão uma pedra numa fileira de baixo tampava
+    // indevidamente quem andasse por cima dela na fileira de cima
     const todos = [this.jogador, ...this.npcs.map((n) => n.ator)];
-    todos.sort((a, b) => a.py - b.py);
-    for (const a of todos) {
-      const x = a.desenhoX - this.camera.x, y = a.desenhoY - this.camera.y;
-      if (this.mapa.agua(a.tx, a.ty)) {
-        // nadando: só a cabeça de fora. O corpo nem se desenha — é a água
-        // do próprio tile, já pintada por baixo, que faz o resto do trabalho
-        const img = a.quadro();
-        r.recorte(img, 0, 0, larguraDe(img), ALTURA_NADANDO, x, y);
-        const q = Math.floor(this.tempoAnim * 2) % 2;
-        r.sprite(this.ondas[q]!, a.px - this.camera.x, y + ALTURA_NADANDO - 3);
-      } else {
-        r.sprite(a.quadro(), x, y);
-      }
-      if (this.mapa.temEncontro(a.tx, a.ty)) {
-        const q = a.movendo ? 1 + (Math.floor(this.tempoAnim * 12) % 2) : 0;
-        r.sprite(this.rocadas[q]!, a.px - this.camera.x, a.py + 8 - this.camera.y);
+    const itens: { py: number; desenhar: () => void }[] = todos.map((a) => ({
+      py: a.py,
+      desenhar: () => {
+        const x = a.desenhoX - this.camera.x, y = a.desenhoY - this.camera.y;
+        if (this.mapa.agua(a.tx, a.ty)) {
+          // nadando: só a cabeça de fora. O corpo nem se desenha — é a água
+          // do próprio tile, já pintada por baixo, que faz o resto do trabalho
+          const img = a.quadro();
+          r.recorte(img, 0, 0, larguraDe(img), ALTURA_NADANDO, x, y);
+          const q = Math.floor(this.tempoAnim * 2) % 2;
+          r.sprite(this.ondas[q]!, a.px - this.camera.x, y + ALTURA_NADANDO - 3);
+        } else {
+          r.sprite(a.quadro(), x, y);
+        }
+        if (this.mapa.temEncontro(a.tx, a.ty)) {
+          const q = a.movendo ? 1 + (Math.floor(this.tempoAnim * 12) % 2) : 0;
+          r.sprite(this.rocadas[q]!, a.px - this.camera.x, a.py + 8 - this.camera.y);
+        }
+      },
+    }));
+    if (this.pedras.length > 0) {
+      if (!this.pedraImg) this.pedraImg = assar(T.pedraRolante());
+      for (const p of this.pedras) {
+        itens.push({
+          py: p.ty * TS,
+          desenhar: () => r.sprite(this.pedraImg!, p.tx * TS - this.camera.x, p.ty * TS - this.camera.y),
+        });
       }
     }
+    itens.sort((a, b) => a.py - b.py);
+    for (const it of itens) it.desenhar();
 
     if (this.duelo?.fase === 'susto') this.desenharSusto(r);
+
+    if (this.def.escuro) this.desenharEscuridao(r);
 
     // faixa com o nome do lugar, ao chegar
     if (this.tempoFaixa > 0 && this.faixaNome) {
@@ -1068,6 +1191,23 @@ export class CenaMundo implements Cena {
     r.retangulo(x - 1, y - 1, 10, 14, P.uiBg!);
     r.retangulo(x + 3, y + 1, 2, 7, P.hpRed!);
     r.retangulo(x + 3, y + 10, 2, 2, P.hpRed!);
+  }
+
+  /* breu com um disco de luz em volta do jogador: `escuro.raio`, quando
+     fixo, trava o tamanho do disco (o breu do Terreiro de Brasa, que nem a
+     Tocha ilumina); senão o raio vem do que o jogador carrega (candeia ou
+     o próprio Dom "Tocha"), calculado em game/luz.ts. */
+  private desenharEscuridao(r: Renderizador): void {
+    const def = this.def.escuro!;
+    const raio = def.fixo ? (def.raio ?? RAIO_SEM_LUZ) : raioDaLuz(this.op.estado);
+    let mascara = this.mascarasLuz.get(raio);
+    if (!mascara) {
+      mascara = assar(T.mascaraLuz(raio));
+      this.mascarasLuz.set(raio, mascara);
+    }
+    const cx = this.jogador.px - this.camera.x + TS / 2;
+    const cy = this.jogador.py - this.camera.y + TS / 2;
+    r.escuridao(mascara, cx, cy);
   }
 
   private desenharDialogo(r: Renderizador): void {

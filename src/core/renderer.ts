@@ -146,6 +146,21 @@ export class Renderizador {
 
   larguraTexto(s: string): number { return fonte.largura(s); }
 
+  /* breu com um disco de luz em volta de (cx,cy): a mascara (já assada por
+     game/luz.ts + art/tiles.ts, uma vez por raio) cobre só o próprio
+     quadrado; as quatro faixas em volta ficam opacas de verdade, sem
+     depender de a mascara alcançar a borda da tela. */
+  escuridao(mascara: Assado, cx: number, cy: number): void {
+    const s = escalaDe(mascara);
+    const w = mascara.width / s, h = mascara.height / s;
+    const x = Math.round(cx - w / 2), y = Math.round(cy - h / 2);
+    this.retangulo(0, 0, LARGURA, Math.max(0, y), '#000000');
+    this.retangulo(0, y + h, LARGURA, Math.max(0, ALTURA - (y + h)), '#000000');
+    this.retangulo(0, y, Math.max(0, x), h, '#000000');
+    this.retangulo(x + w, y, Math.max(0, LARGURA - (x + w)), h, '#000000');
+    this.sprite(mascara, x, y);
+  }
+
   /* escurece a tela inteira; usado nas transicoes */
   cortina(alfa: number, cor = '#000000'): void {
     if (alfa <= 0) return;

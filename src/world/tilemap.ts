@@ -13,6 +13,7 @@ import type { Cenario } from '../art/battlebg.ts';
 /* so o TIPO: em tempo de execucao quests.ts depende do registro de mapas,
    e importar de volta fecharia um ciclo. `import type` some na compilacao. */
 import type { Fala } from '../game/quests.ts';
+import type { DefPedra } from './pedras.ts';
 
 export const TS = 16;
 
@@ -42,17 +43,26 @@ export const TILES: Record<string, DefTile> = {
   'm': { desenho: T.tileTatame },
   'u': { desenho: T.tilePocaDagua, escorrega: true },
   'v': { desenho: T.tileRaizViva, escorrega: true },
+  /* Serra Boitatá */
+  'c': { desenho: T.tileCinza },
+  'n': { desenho: T.tileCapimSeco, encontro: true },
+  'L': { desenho: T.tileLava, solido: true },
+  'S': { desenho: T.tileParedeCaverna, solido: true },
+  's': { desenho: T.tileChaoCaverna },
+  /* cascalho: o mesmo chão de caverna, mas onde o entulho solto esconde
+     bicho — é o "mato alto" de dentro da mina */
+  'g': { desenho: T.tileChaoCaverna, encontro: true },
 };
 
 export type TipoObjeto =
-  | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto'  // construcoes com porta
+  | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto' | 'forja'  // construcoes com porta
   | 'farol'                                          // construcao sem porta
-  | 'placa' | 'barreira' | 'portao' | 'achado'       // cenario
+  | 'placa' | 'barreira' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
-const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto'];
+const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja'];
 
 /* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
 const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
@@ -115,6 +125,18 @@ export interface DefTreinador {
   /* flags acesas pela vitoria, alem de `venceu_<id>` — e assim que vencer
      o Zeca acende a conta da estrada sem precisar falar com ele de novo */
   liga?: string | readonly string[];
+  /* o bolso do PRÓPRIO treinador — nunca a mochila do jogador. Sem isto a
+     IA nunca usa item, o que mantem toda batalha de hoje exatamente igual */
+  itens?: Record<string, number>;
+  /* liga a troca e o uso de item da IA. Ausente ou falso = a IA de sempre,
+     que só escolhe golpe — é o que mantém as regiões 1 e 2 exatamente como
+     estão, mesmo os treinadores delas com time de 2 ou mais. */
+  esperta?: boolean;
+  /* um sexto membro de vantagem contra o inicial do jogador, indexado pela
+     espécie desse inicial (a flag `inicial_<especie>`). Sem nenhuma flag
+     acesa (save de antes dela existir), cai no primeiro par do objeto —
+     nunca falha, nunca lança. */
+  trunfo?: Record<string, { especie: string; nivel: number }>;
 }
 
 export interface DefNPC {
@@ -157,6 +179,17 @@ export interface DefMapa {
   refugio?: boolean;
   /* quem recebe o jogador que apagou, e o que essa pessoa diz */
   socorro?: { quem: string; falas: readonly string[] };
+  /* breu: só se vê num raio pequeno em volta do jogador (game/luz.ts decide
+     quanto). `fixo` trava o raio nesse valor mesmo com o Dom "Tocha" — é o
+     breu do Terreiro de Brasa, que nem a Tocha ilumina de verdade. */
+  escuro?: { raio?: number; fixo?: boolean };
+  /* pedras que se empurram: nascem aqui, mas vivem na cena (world/pedras.ts)
+     — sair do mapa e voltar devolve cada uma ao lugar de partida. Só a cova
+     que ela tapa (a flag do nome `cova`) é permanente. */
+  pedras?: readonly DefPedra[];
+  /* flag acesa quando TODAS as covas desta sala foram tapadas — geralmente
+     a conta da guia que esse quebra-cabeça resolve */
+  pedrasConta?: string;
 }
 
 /* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um
@@ -308,6 +341,11 @@ export class Mapa {
                                            sign: 'ENCRUZILHADA', signColor: '#e0c090',
                                            portaCol: o.portaCol });
         break;
+      case 'forja':
+        sprite = T.construcao(larg, alt, { roof: '#7a3a2a', roofD: '#582719', roofL: '#a0553f',
+                                           sign: 'FORJA', signColor: '#e8a870',
+                                           portaCol: o.portaCol });
+        break;
       case 'terreiro':
         sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
                                            sign: 'TERREIRO', signColor: P.uiAcc,
@@ -325,6 +363,12 @@ export class Mapa {
         break;
       case 'achado':
         sprite = T.pote(o.vazio === true);
+        break;
+      case 'cova':
+        sprite = T.cova();
+        break;
+      case 'entulho':
+        sprite = T.entulho();
         break;
     }
     if (!sprite) return;
@@ -344,8 +388,8 @@ export class Mapa {
 
     /* quanto do desenho vira parede: a construcao inteira; a gamela, os seus
        2x2; a placa, so o tile do poste; o resto, uma linha na base */
-    const marcarL = o.tipo === 'placa' ? 1 : o.tipo === 'gamela' ? 2 : larg;
-    const marcarA = o.tipo === 'placa' ? 1
+    const marcarL = o.tipo === 'placa' || o.tipo === 'cova' ? 1 : o.tipo === 'gamela' ? 2 : larg;
+    const marcarA = o.tipo === 'placa' || o.tipo === 'cova' ? 1
                   : o.tipo === 'gamela' ? 2
                   : BLOCO.includes(o.tipo) ? alt : 1;
     const balcao = ATRAVESSA_FALA.includes(o.tipo);

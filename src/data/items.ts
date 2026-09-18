@@ -64,6 +64,15 @@ const LISTA: readonly Item[] = [
   { id: 'muda', nome: 'Muda de Árvore', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Muda do viveiro do Seu Elias, escondida por uma Caiporinha arteira.' },
+  { id: 'carvao', nome: 'Carvão da Mina', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Pedaço de carvão ainda quente, achado no breu da Caverna do Boitatá.' },
+  { id: 'sino', nome: 'Sino de Bronze', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Um dos três sinos da capela da serra. Toca sozinho quando venta forte.' },
+  { id: 'candeia', nome: 'Candeia', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Candeia de querosene do Ferreiro. Clareia um pouco mais que nada.' },
 ];
 
 export const ITENS: Record<string, Item> =

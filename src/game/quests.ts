@@ -10,7 +10,8 @@
    sorteado. Por isso ele tem teste de verdade em quests.test.ts.
    ========================================================================= */
 import { quantidade } from '../data/items.ts';
-import { curarTime, pronomeDe, type EstadoJogo } from './state.ts';
+import { curarTime, guardar, pronomeDe, type EstadoJogo } from './state.ts';
+import { criar } from '../battle/encantado.ts';
 
 /* -------------------------------------------------------------- condições
 
@@ -73,6 +74,8 @@ export interface Fala {
   caixa?: boolean;          // abre a caixa da benzedeira
   medalha?: string;         // entrega a medalha do terreiro
   dom?: string;             // e o Dom de Campo que vem junto com ela
+  /* entrega um Encantado pronto, direto no time (ou na caixa, se não couber) */
+  encantado?: { especie: string; nivel: number };
 }
 
 export function serve(e: EstadoJogo, f: Fala): boolean {
@@ -99,6 +102,7 @@ export interface EfeitoFala {
   deu: string | null;        // item recebido, para anunciar
   levou: string | null;      // item entregue
   medalha: string | null;    // medalha conquistada agora
+  encantado: string | null;  // espécie que acabou de entrar no time/caixa
 }
 
 export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
@@ -107,7 +111,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
 }): EfeitoFala {
   const efeito: EfeitoFala = {
     curou: false, batalha: false, loja: false, escolher: false, caixa: false,
-    deu: null, levou: null, medalha: null,
+    deu: null, levou: null, medalha: null, encantado: null,
   };
 
   /* o pedido vem antes da entrega: quem troca uma coisa por outra não pode
@@ -132,6 +136,10 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
     efeito.medalha = f.medalha;
   }
   if (f.dom) e.flags[`dom_${f.dom}`] = true;
+  if (f.encantado) {
+    guardar(e, criar(f.encantado.especie, f.encantado.nivel));
+    efeito.encantado = f.encantado.especie;
+  }
   efeito.batalha = f.batalha === true;
   efeito.loja = f.loja === true;
   efeito.escolher = f.escolher === true;
@@ -194,7 +202,22 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_mudas', servico: 'as mudas do viveiro, sumidas com as Caiporinhas' },
     { flag: 'conta_grota', servico: 'o Curupira que mora na grota funda' },
   ],
+  fogo: [
+    { flag: 'conta_tropa', servico: 'os quatro tropeiros da Trilha da Brasa' },
+    { flag: 'conta_fole', servico: 'os cinco carvões da Caverna do Boitatá, para o Ferreiro' },
+    { flag: 'conta_patua', servico: 'seis Encantados presos em patuá, para o Mestre Patueiro' },
+    { flag: 'conta_breu', servico: 'o desmoronamento no breu da caverna' },
+    { flag: 'conta_mula', servico: 'a Mula-sem-Cabeça que corre a cumeeira' },
+  ],
 };
+
+/* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
+   e (o segundo) um Encantado exclusivo, mas o terreiro abre sem eles */
+export interface ServicoOpcional { flag: string; servico: string }
+export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
+  { flag: 'servico_sinos', servico: 'os três sinos de bronze da capela da serra' },
+  { flag: 'servico_maeDoOuro', servico: 'a Mãe-do-Ouro, no fundo do breu' },
+];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do
    conteúdo da Região da Foz cita CONTAS/contasAcesas/contasFaltando direto,

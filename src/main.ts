@@ -58,6 +58,7 @@ function lutar(p: PedidoBatalha): void {
     estado: est,
     oponentes: p.oponentes,
     treinador: p.treinador ?? null,
+    itensIA: p.itensIA,
     cenario: p.cenario ?? 'praia',
     aoTerminar: (resultado, entrouNoTime) => {
       // a cena do mundo aplica o resultado quando volta a ser a cena da vez

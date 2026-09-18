@@ -159,6 +159,82 @@ const LISTA: readonly Especie[] = [
       { nv: 18, golpe: 'raiz_sugadora' },
     ],
   },
+
+  /* --------------------- da Serra Boitatá --------------------- */
+  {
+    id: 'cabritinha', nome: 'Cabritinha', tipos: ['terra'],
+    base: { hp: 52, atq: 58, def: 56, esp: 44, vel: 42 },
+    taxaCaptura: 190, xpBase: 58, crescimento: 'rapido',
+    arte: 'cabritinha', categoria: 'Bode da Serra',
+    sobre: 'Sobe pedra que nem cabra de verdade. Topada dela derruba gente feita.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'pedrada' },
+      { nv: 7, golpe: 'areia' }, { nv: 13, golpe: 'tremor' },
+      { nv: 20, golpe: 'afiar' },
+    ],
+    evolui: { em: 'cabraCabriola', nv: 32 },
+  },
+  {
+    id: 'cabraCabriola', nome: 'Cabra-Cabriola', tipos: ['terra', 'fogo'],
+    base: { hp: 82, atq: 98, def: 80, esp: 70, vel: 72 },
+    taxaCaptura: 30, xpBase: 168, crescimento: 'medio',
+    arte: 'cabraCabriola', categoria: 'Bode da Serra',
+    sobre: 'Solta fumaça pelas narinas quando pisa fundo. Ninguém segura uma cabriola dela.',
+    aprende: [
+      { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
+      { nv: 1, golpe: 'brasa' }, { nv: 32, golpe: 'desmoronamento' },
+      { nv: 38, golpe: 'rabo_brasa' }, { nv: 44, golpe: 'afiar' },
+    ],
+  },
+  {
+    id: 'mulinha', nome: 'Mulinha', tipos: ['fogo'],
+    base: { hp: 46, atq: 52, def: 44, esp: 56, vel: 70 },
+    taxaCaptura: 190, xpBase: 60, crescimento: 'medio',
+    arte: 'mulinha', categoria: 'Assombração da Estrada',
+    sobre: 'Casco de fogo bate na terra da trilha. Ninguém vê o que carrega no lombo.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'brasa' },
+      { nv: 8, golpe: 'fogo_fatuo' }, { nv: 15, golpe: 'labareda' },
+      { nv: 22, golpe: 'mau_olhado' },
+    ],
+    evolui: { em: 'mulaSemCabeca', nv: 30 },
+  },
+  {
+    id: 'mulaSemCabeca', nome: 'Mula-sem-Cabeça', tipos: ['fogo'],
+    base: { hp: 75, atq: 92, def: 68, esp: 88, vel: 95 },
+    taxaCaptura: 25, xpBase: 172, crescimento: 'medio',
+    arte: 'mulaSemCabeca', categoria: 'Assombração da Estrada',
+    sobre: 'Corre a serra inteira numa noite só. O pescoço solta fogo em vez de pescoço.',
+    aprende: [
+      { nv: 1, golpe: 'labareda' }, { nv: 1, golpe: 'fogo_fatuo' },
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 30, golpe: 'rabo_brasa' },
+      { nv: 36, golpe: 'clarao_boitata' }, { nv: 42, golpe: 'breu' },
+    ],
+  },
+  {
+    id: 'salamanca', nome: 'Salamanca', tipos: ['fogo', 'terra'],
+    base: { hp: 68, atq: 70, def: 78, esp: 74, vel: 48 },
+    taxaCaptura: 90, xpBase: 110, crescimento: 'medio',
+    arte: 'salamanca', categoria: 'Guardiã da Mina',
+    sobre: 'Some se pisar em cinza morta. Onde ela passou, a pedra fica quente por dias.',
+    aprende: [
+      { nv: 1, golpe: 'brasa' }, { nv: 1, golpe: 'pedrada' },
+      { nv: 10, golpe: 'areia' }, { nv: 18, golpe: 'labareda' },
+      { nv: 26, golpe: 'tremor' }, { nv: 34, golpe: 'desmoronamento' },
+    ],
+  },
+  {
+    id: 'maeDoOuro', nome: 'Mãe-do-Ouro', tipos: ['fogo', 'luz'],
+    base: { hp: 78, atq: 72, def: 70, esp: 105, vel: 85 },
+    taxaCaptura: 3, xpBase: 180, crescimento: 'lento',
+    arte: 'maeDoOuro', categoria: 'Fogo da Mina',
+    sobre: 'Risca o céu da serra de noite, sempre em cima de ouro que ninguém acha.',
+    aprende: [
+      { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 20, golpe: 'benzecao' },
+      { nv: 30, golpe: 'aurora' }, { nv: 40, golpe: 'clarao_boitata' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =

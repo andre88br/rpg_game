@@ -6,8 +6,8 @@
    A gride é editável à mão, um caractere por tile de 16x16:
      .  grama          ,  mato alto (encontros)   #  árvore
    No canto sudoeste, uma touceira de cipó fecha um bolso da mata — só o
-   Dom "Cortar Cipó" abre, e não leva a lugar nenhum ainda: é o começo da
-   trilha que um dia vai para a Serra Boitatá.                              */
+   Dom "Cortar Cipó" abre. Do outro lado do bolso, ao sul, começa a Trilha
+   da Brasa, e com ela a Serra Boitatá.                                    */
 import type { DefMapa } from '../../world/tilemap.ts';
 
 export const mataDoCurupira: DefMapa = {
@@ -31,7 +31,7 @@ export const mataDoCurupira: DefMapa = {
     '#....................#',
     '##..##################',
     '##..##################',
-    '######################',
+    '##..##################',
   ],
 
   objetos: [
@@ -45,8 +45,8 @@ export const mataDoCurupira: DefMapa = {
       placa: 'MATA DO CURUPIRA. Ao norte, o igarapé leva de volta a Porto Iara.' },
     /* a touceira de cipó: some no instante em que o Dom "Cortar Cipó" chega */
     { tipo: 'barreira', tx: 2, ty: 14, larg: 2, seNao: 'dom_cortarCipo' },
-    { tipo: 'placa',    tx: 2, ty: 15,
-      placa: 'A trilha segue mata adentro. Ninguém foi além ainda — talvez, um dia, até a Serra Boitatá.' },
+    { tipo: 'placa',    tx: 5, ty: 13,
+      placa: 'A trilha segue mata adentro, rumo à Serra Boitatá.' },
   ],
 
   npcs: [
@@ -112,6 +112,8 @@ export const mataDoCurupira: DefMapa = {
     { tx: 11, ty: 0, para: 'igarapeCurupira', destino: { tx: 10, ty: 21, dir: 'cima' } },
     { tx: 6,  ty: 6, para: 'terreiroCurupira', destino: { tx: 6, ty: 12, dir: 'cima' } },
     { tx: 15, ty: 6, para: 'casaEncruzilhada', destino: { tx: 7, ty: 8, dir: 'cima' } },
+    { tx: 2,  ty: 16, para: 'trilhaDaBrasa', destino: { tx: 14, ty: 1, dir: 'baixo' } },
+    { tx: 3,  ty: 16, para: 'trilhaDaBrasa', destino: { tx: 15, ty: 1, dir: 'baixo' } },
   ],
 
   cenario: 'mata',

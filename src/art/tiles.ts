@@ -339,6 +339,72 @@ export function tileRaizViva(seed = 17): Buf {
   return b;
 }
 
+/* =========================================================================
+   Serra Boitatá
+   ========================================================================= */
+
+/* cinza batida: o chao da trilha e da vila, mais claro e mais frio que a
+   terra do caminho comum, para ficar claro que a regiao mudou de bioma */
+export function tileCinza(seed = 18): Buf {
+  const b = base('#a89a8c'); const r = rng(seed * 3 + 5);
+  for (let i = 0; i < 18; i++) b.set(r() * TS, r() * TS, r() < 0.5 ? '#8f8276' : '#c2b6a8');
+  return b;
+}
+
+/* capim seco: o mato alto da serra, cor de palha queimada — mesmo desenho
+   do mato alto comum, paleta trocada, para reconhecer de longe onde a
+   serra ainda gera encontro */
+export function tileCapimSeco(seed = 19): Buf {
+  const seco = '#a88a3a', secoL = '#c9ab52', secoD = '#7c6626';
+  const b = base(secoD); const r = rng(seed * 7 + 3);
+  for (let i = 0; i < 20; i++) b.set(r() * TS, r() * TS, seco);
+  for (let fila = 0; fila < 2; fila++) {
+    const yBase = fila === 0 ? 9 : TS - 1;
+    for (let x = 1; x < TS; x += 4) {
+      const jitter = ((r() * 2) | 0) - 1;
+      const cx = x + jitter;
+      const alt = 6 + ((r() * 3) | 0);
+      const c = fila === 0 ? seco : secoL;
+      b.line(cx, yBase, cx, yBase - alt, c);
+      b.line(cx - 2, yBase, cx - 1, yBase - alt + 2, c);
+      b.line(cx + 2, yBase, cx + 1, yBase - alt + 2, c);
+      b.set(cx, yBase - alt - 1, secoL);
+    }
+  }
+  return b;
+}
+
+/* lava: intransponivel, como a agua funda — mas ninguem atravessa isto a
+   nado. Fica sempre solida, Dom nenhum abre */
+export function tileLava(seed = 20): Buf {
+  const b = base(P.fireD!); const r = rng(seed);
+  for (let y = 0; y < TS; y++) {
+    if ((y + ((seed * 3) % 4)) % 5 === 0) b.rect(0, y, TS, 1, '#7a1c0a');
+  }
+  for (let i = 0; i < 16; i++) b.set(r() * TS, r() * TS, P.fire!);
+  for (const y of [2, 7, 12]) {
+    const off = ((seed * 7 + y * 5) % TS);
+    for (let k = 0; k < 4; k++) b.set((off + k) % TS, y, P.fireL!);
+  }
+  return b;
+}
+
+/* parede de caverna: bloqueia igual arvore, mas escura — e o que faz o
+   contraste com o piso claro necessario para o jogador se achar no breu */
+export function tileParedeCaverna(seed = 21): Buf {
+  const b = base('#252023'); const r = rng(seed * 5 + 1);
+  for (let i = 0; i < 20; i++) b.set(r() * TS, r() * TS, r() < 0.5 ? '#332b2e' : '#171316');
+  return b;
+}
+
+/* chao de caverna: pedra escura andavel, contraste alto com a parede para
+   dar para achar o caminho mesmo com pouca luz */
+export function tileChaoCaverna(seed = 22): Buf {
+  const b = base('#5b524c'); const r = rng(seed * 3 + 2);
+  for (let i = 0; i < 18; i++) b.set(r() * TS, r() * TS, r() < 0.5 ? '#453e39' : '#83786f');
+  return b;
+}
+
 /* ---- moveis: desenhados em blocos de tile, como as construcoes ---- */
 
 /* balcao da loja: tampo de madeira com frente de tabua */
@@ -452,6 +518,35 @@ export function pote(vazio = false): Buf {
   return b.outline(P.ink!);
 }
 
+/* ---- pedra rolante, cova e entulho — o quebra-cabeça de empurrar ----
+   A pedra é bloco de escória com brilho de brasa nas fendas: reconhecível a
+   distância, inclusive no breu. A cova tem beirada quente para o mesmo
+   motivo. O entulho é a mesma cova, já tapada — chão comum outra vez. */
+export function pedraRolante(seed = 23): Buf {
+  const b = base('#5b524c'); const r = rng(seed);
+  b.rect(1, 1, TS - 2, TS - 2, '#4a4038');
+  b.rect(2, 2, TS - 4, TS - 4, '#5b524c');
+  for (let i = 0; i < 6; i++) b.set(3 + r() * (TS - 6), 3 + r() * (TS - 6), '#78695c');
+  // fendas em brasa: é o que faz a pedra ler como "da serra", não pedra comum
+  b.line(4, 6, 9, 9, P.fire!); b.line(9, 9, 11, 12, P.fireD!);
+  b.set(5, 6, P.fireL!);
+  return b.outline(P.ink!);
+}
+
+export function cova(seed = 24): Buf {
+  const b = tileChaoCaverna(seed);
+  b.ellipse(8, 9, 6, 5, '#2e2822');
+  b.ellipse(8, 9, 4, 3, '#171316');
+  b.ellipse(6, 7, 2, 1, P.fireD!);       // brasa no fundo, mal se vê
+  return b;
+}
+
+export function entulho(seed = 25): Buf {
+  const b = tileChaoCaverna(seed); const r = rng(seed * 3 + 1);
+  for (let i = 0; i < 8; i++) b.set(3 + r() * (TS - 6), 3 + r() * (TS - 6), '#78695c');
+  return b;
+}
+
 /* ---- o farol da barra ----
    Torre listrada de vermelho e branco com a lanterna acesa no alto. E o fim
    do cais e o fim da Fase 1: o bicho que mora nela e o ultimo servico da
@@ -537,5 +632,24 @@ export function guia(larguraTiles: number, acesas = 0, tipo: Tipo | null = null)
       b.ellipse(x, y, 2, 2, '#4a4258');
     }
   }
+  return b;
+}
+
+/* =========================================================================
+   Máscara de escuridão: um disco apagado (transparente) no meio de um
+   quadrado preto, com dois anéis de meia-luz na borda para o corte não
+   ficar duro demais. Assada UMA VEZ por raio usado (o overworld guarda um
+   cache), igual a qualquer outro sprite do jogo — nunca redesenhada pixel a
+   pixel a cada quadro.
+   ========================================================================= */
+export function mascaraLuz(raio: number): Buf {
+  const pad = 6;
+  const s = raio * 2 + pad * 2;
+  const c = raio + pad;
+  const b = new Buf(s, s);
+  b.rect(0, 0, s, s, '#000000');
+  b.ellipse(c, c, raio + 3, raio + 3, '#000000b4');
+  b.ellipse(c, c, raio + 1, raio + 1, '#00000060');
+  b.apagarElipse(c, c, raio, raio);
   return b;
 }

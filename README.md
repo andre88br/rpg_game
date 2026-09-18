@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: duas regiões fechadas, a Fase 4 em andamento.** A **Região da Foz**
+**Estado: três regiões fechadas, a Fase 4 em andamento.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -15,6 +15,18 @@ e o Curupira da grota funda acendem a guia do Terreiro de Raiz, onde a Tiê
 entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
 inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
 troca, XP, nível e evolução.
+
+Depois da touceira de cipó começa a **Serra Boitatá**, a primeira região do
+tamanho e da dificuldade novos: **4.480 tiles ao ar livre** (contra 3.058 da
+Foz e 834 da Mata), **doze treinadores** com times de 2 a 5, dois
+quebra-cabeças de verdade — uma caverna onde só se enxerga o círculo da
+candeia e pedras de escória que se empurram até as covas — e um terreiro que
+deixou de ser uma sala só: **quatro salas, três guardas e dois campos de
+pedra** entre a porta da vila e o Brás, que ainda escala um quinto Encantado
+escolhido contra o inicial de quem chegou até ele. Fecham a região a
+**Medalha Brasa** e o Dom de **Tocha**, mais dois serviços opcionais que não
+travam a guia: os três sinos da capela e a **Mãe-do-Ouro**, o Encantado
+exclusivo que só desce para quem fez os dois.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -44,6 +56,19 @@ Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
 | correr / voltar | X ou Shift | botão B |
 | menu | Esc | botão MENU |
 
+### Códigos secretos
+
+Digitados com os próprios botões do jogo, andando livre pelo mundo — não valem
+em conversa, batalha, loja nem menu. Servem para testar as regiões sem jogar
+tudo de novo.
+
+| Código | O que faz |
+|---|---|
+| ↑ ↑ ↓ ↓ ← → ← → B A | pula para a **Mata do Curupira** (com a Medalha Maré, o Dom "Nadar" e a carta para a Tiê) |
+| ↓ ↓ ↑ ↑ → ← → ← B A | pula para a **Serra Boitatá** (com as duas medalhas, os dois Dons e cinco patuás bons) |
+| A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
+| A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
+
 ## Como está construído
 
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
@@ -60,16 +85,18 @@ src/
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
+│             pedras.ts (empurrar, e o BFS que prova que a sala tem solução)
 │             mapas.test.ts (coerência: saídas, alcance, encontros)
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
-│             + *.test.ts (os dois são puros: rodam sem navegador)
+│             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 ├─ scenes/    title.ts · overworld.ts · battle.ts
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
 ├─ data/      creatures.ts · moves.ts · items.ts
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
-│             Curupira: 2 externos + 2 interiores)
+│             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
+│             + 3 interiores + o terreiro em 4 salas)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -389,7 +416,9 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - **8 terreiros.** Cada terreiro é fechado por uma **guia de cinco contas**: cinco
   desafios espalhados pela região, um de cada sabor — um recado para entregar, um
   rival que barra a estrada, uma caçada no mato alto, um sumiço para resolver e um
-  chefe. Cinco contas acesas abrem a guia; derrotar o líder dá a medalha e um
+  chefe. Da Serra Boitatá em diante vêm ainda **dois serviços opcionais por
+  região**, que não travam a guia mas pagam item raro e Encantado exclusivo.
+  Cinco contas acesas abrem a guia; derrotar o líder dá a medalha e um
   **Dom de Campo**, que remove o obstáculo da estrada para a região seguinte.
 - **Uma região por vez.** Cada região sai completa e jogável antes de a seguinte
   começar. A primeira é a **Região da Foz**: Vila Aurora → Rota da Foz → Porto Iara.
@@ -411,6 +440,9 @@ Elenco: Tainá / Bento (protagonista) · Zeca "Redemoinho" (rival) · Dona Firmi
 (mentora) · Companhia Mata-Seca (antagonistas) · Anhangá (campeão).
 Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-Mãe ·
 **Curupinho** (Planta) → Curupirá.
+Da Serra Boitatá: **Cabritinha** (Terra) → Cabra-Cabriola · **Mulinha** (Fogo)
+→ Mula-sem-Cabeça · **Salamanca** (Fogo/Terra) · **Mãe-do-Ouro** (Fogo/Luz),
+exclusiva de quem faz os dois serviços opcionais da região.
 
 ## Fases
 
@@ -438,8 +470,21 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
         as Caiporinhas com as mudas, o Curupira selvagem da grota, o Terreiro
         de Raiz com quebra-cabeça de raízes vivas (a mesma regra do salão
         alagado, cara nova), a Tiê, a Medalha Raiz e o Dom "Cortar Cipó".
-  - [ ] Serra Boitatá, Campo do Saci, Aldeia Tupã, Minas da Caipora, Bairro da
-        Cuca, Cidade do Sol — uma de cada vez, na mesma forma.
+  - [x] **Serra Boitatá.** A primeira região grande e difícil de verdade, a
+        pedido de quem joga: 4.480 tiles ao ar livre em quatro mapas, doze
+        treinadores com times de 2 a 5, e duas mecânicas novas — a
+        **escuridão** (`game/luz.ts` + `mascaraLuz`, com a candeia do
+        Ferreiro e depois o Dom "Tocha" aumentando o que se enxerga) e as
+        **pedras que se empurram** (`world/pedras.ts`, com busca em largura
+        provando que toda sala tem solução). A IA de batalha passou a trocar
+        de Encantado e a usar item, mas só para treinador marcado `esperta` —
+        as regiões 1 e 2 ficaram exatamente como estavam. O Terreiro de Brasa
+        tem quatro salas, três guardas e dois campos de pedra até o Brás, que
+        escala um quinto Encantado escolhido contra o inicial do jogador. Mais
+        a Medalha Brasa, o Dom "Tocha", e dois serviços opcionais (os três
+        sinos e a Mãe-do-Ouro) que não travam a guia.
+  - [ ] Campo do Saci, Aldeia Tupã, Minas da Caipora, Bairro da Cuca, Cidade
+        do Sol — uma de cada vez, na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
@@ -455,3 +500,14 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
 - As formas intermediárias (Boitatá, Iaraí, Curupira) ainda não existem: por
   enquanto cada inicial evolui direto para a forma final, no nível 18.
+- A Serra Boitatá usa `cenario: 'caverna'` nas batalhas da caverna e da
+  cumeeira: não existe fundo de montanha próprio, e a trilha e a vila caem no
+  fundo de mata mesmo.
+- Uma placa é sólida. Num corredor de largura 1 isso parte o caminho em dois —
+  foi exatamente o que aconteceu na câmara das covas da caverna e travou uma
+  cova inalcançável. O teste de solução das pedras pega, mas só se a sala
+  tiver `pedras` declaradas; em corredor sem pedra, nada acusa.
+- `temSolucao` lê o sólido do mapa já assado: uma tranca do lado de fora da
+  sala, presa à mesma flag da cova, continua fechada dentro da busca. O
+  `objetivo` tem que ser um ponto deste lado da tranca — quem confere se ela
+  abre é outro teste, com outro `Mapa`.

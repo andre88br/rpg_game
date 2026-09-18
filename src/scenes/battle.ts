@@ -78,6 +78,8 @@ export interface OpcoesCenaBatalha {
   estado: EstadoJogo;
   oponentes: Encantado[];
   treinador?: Treinador | null;
+  /* o bolso do treinador inimigo, nunca a mochila do jogador */
+  itensIA?: Record<string, number>;
   cenario?: Cenario;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
@@ -145,6 +147,7 @@ export class CenaBatalha implements Cena {
       time: est.time,
       oponentes: this.op.oponentes,
       treinador: this.op.treinador ?? null,
+      itensIA: this.op.itensIA,
       mochila: est.mochila,
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
@@ -302,7 +305,7 @@ export class CenaBatalha implements Cena {
         this.queda[e.lado] = 0.7;
         this.espera = 0.75;
         break;
-      case 'sair': this.entradaSprite.aliado = 0; this.espera = 0.2; break;
+      case 'sair': this.entradaSprite[e.lado] = 0; this.espera = 0.2; break;
       case 'entrar':
         this.vis[e.lado] = this.instantaneo(this.b.lado(e.lado).enc);
         this.queda[e.lado] = 0;

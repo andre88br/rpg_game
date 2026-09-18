@@ -14,6 +14,17 @@ import { igarapeCurupira } from './igarapeCurupira.ts';
 import { mataDoCurupira } from './mataDoCurupira.ts';
 import { casaEncruzilhada } from './casaEncruzilhada.ts';
 import { terreiroCurupira } from './terreiroCurupira.ts';
+import { trilhaDaBrasa } from './trilhaDaBrasa.ts';
+import { vilaFornalha } from './vilaFornalha.ts';
+import { lojaFornalha } from './lojaFornalha.ts';
+import { benzimentoFornalha } from './benzimentoFornalha.ts';
+import { forjaFornalha } from './forjaFornalha.ts';
+import { cavernaBoitata } from './cavernaBoitata.ts';
+import { cumeeiraBoitata } from './cumeeiraBoitata.ts';
+import { terreiroBrasaPatio } from './terreiroBrasaPatio.ts';
+import { terreiroBrasaEscoria } from './terreiroBrasaEscoria.ts';
+import { terreiroBrasaBreu } from './terreiroBrasaBreu.ts';
+import { terreiroBrasaSalao } from './terreiroBrasaSalao.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -28,6 +39,17 @@ export const MAPAS: Record<string, DefMapa> = {
   mataDoCurupira,
   casaEncruzilhada,
   terreiroCurupira,
+  trilhaDaBrasa,
+  vilaFornalha,
+  lojaFornalha,
+  benzimentoFornalha,
+  forjaFornalha,
+  cavernaBoitata,
+  cumeeiraBoitata,
+  terreiroBrasaPatio,
+  terreiroBrasaEscoria,
+  terreiroBrasaBreu,
+  terreiroBrasaSalao,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

@@ -8,15 +8,16 @@ import type { Mochila } from '../data/items.ts';
 
 function montar(op: {
   meu?: Encantado[]; dele?: Encantado[]; semente?: number;
-  treinador?: boolean; mochila?: Mochila;
+  treinador?: boolean; mochila?: Mochila; itensIA?: Mochila; esperta?: boolean;
 } = {}) {
   const time = op.meu ?? [criar('boitatinha', 10)];
   const oponentes = op.dele ?? [criar('piragua', 8, { selvagem: true })];
   return new Batalha({
     time, oponentes, semente: op.semente ?? 1,
     mochila: op.mochila ?? {},
+    itensIA: op.itensIA,
     treinador: op.treinador
-      ? { nome: 'Zeca', classe: 'RIVAL', falaDerrota: 'Da próxima eu ganho!' }
+      ? { nome: 'Zeca', classe: 'RIVAL', falaDerrota: 'Da próxima eu ganho!', esperta: op.esperta }
       : null,
   });
 }
@@ -395,4 +396,149 @@ test('o treinador é mais certeiro que o bicho selvagem', () => {
     return bons;
   };
   assert.ok(conta(true) >= conta(false), 'treinador devia errar menos a escolha');
+});
+
+/* ---------------------------------------------------------- IA: itens */
+
+test('a IA usa garrafada quando o time inimigo está com HP baixo', () => {
+  const b = montar({
+    meu: [criar('boitatinha', 20)],
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'] })],
+    treinador: true, esperta: true, itensIA: { garrafada: 2 }, semente: 1,
+  });
+  b.inimigo.enc.hp = Math.max(1, Math.floor(hpMaximo(b.inimigo.enc) * 0.2));
+  const antes = b.inimigo.enc.hp;
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(tem(ev, 'cura'), 'a IA devia ter usado a garrafada');
+  assert.ok(b.inimigo.enc.hp > antes);
+  assert.equal(b.itensIA['garrafada'], 1, 'a garrafada devia sair do bolso do treinador');
+});
+
+test('a IA não usa item acima do limiar de HP, nem sem estoque', () => {
+  const cheio = montar({
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'] })],
+    treinador: true, esperta: true, itensIA: { garrafada: 5 }, semente: 1,
+  });
+  const ev1 = cheio.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(!tem(ev1, 'cura'), 'HP cheio não devia gastar garrafada');
+
+  const semEstoque = montar({
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'] })],
+    treinador: true, esperta: true, itensIA: {}, semente: 1,
+  });
+  semEstoque.inimigo.enc.hp = 1;
+  const ev2 = semEstoque.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(!tem(ev2, 'cura'), 'sem item no bolso a IA não pode curar');
+});
+
+test('a garrafada da IA nunca sai da mochila do jogador', () => {
+  const mochila: Mochila = { garrafada: 3 };
+  const b = montar({
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'] })],
+    treinador: true, esperta: true, itensIA: { garrafada: 1 }, mochila, semente: 1,
+  });
+  b.inimigo.enc.hp = 1;
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(mochila['garrafada'], 3, 'a mochila do jogador não devia mudar');
+});
+
+test('um selvagem nunca usa item, mesmo com estoque na ficha', () => {
+  const b = montar({
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'], selvagem: true })],
+    itensIA: { garrafada: 5 }, semente: 1,
+  });
+  b.inimigo.enc.hp = 1;
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(!tem(ev, 'cura'));
+});
+
+test('sem `esperta`, nenhum treinador usa item — nem com estoque na ficha', () => {
+  const b = montar({
+    dele: [criar('piragua', 20, { golpes: ['jato_agua'] })],
+    treinador: true, itensIA: { garrafada: 5 }, semente: 1,   // esperta ausente
+  });
+  b.inimigo.enc.hp = 1;
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(!tem(ev, 'cura'), 'treinador comum não pode usar item — só `esperta` pode');
+});
+
+/* ---------------------------------------------------------- IA: troca */
+
+test('a IA troca quando o ativo leva 2x e há reserva segura', () => {
+  const dele = [
+    criar('caiporinha', 20, { golpes: ['folha_afiada'] }),   // planta: leva 2x de fogo
+    criar('piragua', 20, { golpes: ['jato_agua'] }),         // água: não leva 2x de fogo
+  ];
+  const b = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele, treinador: true, esperta: true, semente: 6,
+  });
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(tem(ev, 'entrar') && b.iInimigo === 1, 'a IA devia trocar para a piraguá');
+  assert.equal(b.inimigo.estagios.atq, 0, 'a troca zera os estágios do novo ativo');
+});
+
+test('a IA não troca quando pode derrubar o jogador agora', () => {
+  const dele = [
+    criar('caiporinha', 20, { golpes: ['folha_afiada'] }),
+    criar('piragua', 20, { golpes: ['jato_agua'] }),
+  ];
+  const b = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele, treinador: true, esperta: true, semente: 6,
+  });
+  b.aliado.enc.hp = 1;      // qualquer golpe da caiporinha derruba agora
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(b.iInimigo, 0, 'a IA devia ficar e tentar derrubar, não trocar');
+  assert.ok(!tem(ev, 'entrar') || b.iInimigo === 0);
+});
+
+test('a IA não troca sem reserva, ou quando ninguém escapa da vantagem', () => {
+  const sozinho = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele: [criar('caiporinha', 20, { golpes: ['folha_afiada'] })],
+    treinador: true, esperta: true, semente: 6,
+  });
+  sozinho.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(sozinho.iInimigo, 0);
+
+  const semSaida = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele: [
+      criar('caiporinha', 20, { golpes: ['folha_afiada'] }),
+      criar('curupinho', 20, { golpes: ['cipo'] }),   // planta também: continua 2x
+    ],
+    treinador: true, esperta: true, semente: 6,
+  });
+  semSaida.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(semSaida.iInimigo, 0, 'não há reserva sem desvantagem — não devia trocar');
+});
+
+test('um selvagem nunca troca de Encantado', () => {
+  const b = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele: [
+      criar('caiporinha', 20, { golpes: ['folha_afiada'], selvagem: true }),
+      criar('piragua', 20, { golpes: ['jato_agua'], selvagem: true }),
+    ],
+    semente: 6,
+  });
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(b.iInimigo, 0);
+});
+
+test('sem `esperta`, nenhum treinador troca — nem com a mesma desvantagem de tipo', () => {
+  // exatamente o cenário do primeiro teste desta seção, mas sem `esperta`:
+  // é o que prova que Zeca e todo treinador das regiões 1 e 2 continuam
+  // escolhendo golpe do jeito de sempre, mesmo tendo time de 2 ou mais
+  const dele = [
+    criar('caiporinha', 20, { golpes: ['folha_afiada'] }),
+    criar('piragua', 20, { golpes: ['jato_agua'] }),
+  ];
+  const b = montar({
+    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    dele, treinador: true, semente: 6,   // esperta ausente
+  });
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(b.iInimigo, 0, 'sem `esperta` o treinador não devia trocar');
 });
