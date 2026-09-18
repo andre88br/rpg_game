@@ -191,6 +191,10 @@ export class Mapa {
   private encontros: Uint8Array;
   private escorregas: Uint8Array;
   private balcoes: Uint8Array;
+  /* tile de água DE VERDADE, independente de estar sólido agora — o Dom
+     "Nadar" tira a água da colisão, mas quem desenha ainda precisa saber
+     que ali é água, para afundar o personagem até o pescoço */
+  private aguas: Uint8Array;
   private saidas = new Map<string, DefSaida>();
   /* o cenário fica em pixels crus até alguém pedir para desenhar. Assar exige
      um <canvas>, e os testes de coerência dos mapas rodam no Node, sem DOM. */
@@ -214,6 +218,7 @@ export class Mapa {
     this.encontros = new Uint8Array(n);
     this.escorregas = new Uint8Array(n);
     this.balcoes = new Uint8Array(n);
+    this.aguas = new Uint8Array(n);
 
     const buf = new Buf(this.largTiles * TS, this.altTiles * TS);
 
@@ -229,6 +234,7 @@ export class Mapa {
         if (d.solido && !(d.agua && ctx.nadar)) this.solidos[i] = 1;
         if (d.encontro) this.encontros[i] = 1;
         if (d.escorrega) this.escorregas[i] = 1;
+        if (d.agua) this.aguas[i] = 1;
       }
     }
 
@@ -389,6 +395,13 @@ export class Mapa {
   escorrega(tx: number, ty: number): boolean {
     if (!this.dentro(tx, ty)) return false;
     return this.escorregas[ty * this.largTiles + tx] === 1;
+  }
+
+  /* água de verdade, sólida ou não — quem desenha usa isto pra saber quando
+     afundar o personagem até o pescoço, não `solido()` (que muda com o Dom) */
+  agua(tx: number, ty: number): boolean {
+    if (!this.dentro(tx, ty)) return false;
+    return this.aguas[ty * this.largTiles + tx] === 1;
   }
 
   /* recorta a janela da camera direto do mapa ja desenhado */

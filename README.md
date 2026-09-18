@@ -206,6 +206,14 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
 - **A água funda deixa de ser parede** quando a Medalha Maré entrega o Dom de
   Nadar. Isso muda a colisão do mapa inteiro, não de um objeto, então entra na
   impressão que o `Mundo` guarda e o cenário é remontado na hora.
+- **E quem nada, afunda até o pescoço.** `Mapa` guarda um `aguas` à parte de
+  `solidos` — água continua sendo água pro desenho mesmo depois de o Dom
+  tirá-la da colisão. Em cima dela, `desenhar()` corta o sprite do ator em
+  `ALTURA_NADANDO` (`scenes/overworld.ts`) com `recorte()`: só a cabeça e um
+  fiapo de ombro aparecem, o resto do corpo nem se desenha — quem faz parecer
+  água ali é o próprio tile já pintado por baixo, sem gastar um pixel a mais.
+  Duas ondinhas (`art/tiles.ts:ondaNado`) alternam ao lado da cabeça, do
+  mesmo jeito que a folha baixa (`rocada`) já marca o mato alto.
 - **A conversa passa por cima do balcão.** Balcão de loja e mesa de cozinha são
   parede para o corpo e não para a voz: quem está do outro lado escuta. Sem
   isso, um NPC posto atrás do próprio balcão vira enfeite — a Dona Firmina

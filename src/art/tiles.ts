@@ -247,6 +247,16 @@ export function rocada(quadro = 0): Buf {
   return b;
 }
 
+/* ondinhas em volta de quem está nadando — dois arcos que se abrem e
+   fecham a cada quadro, pra dar a sensação de água se mexendo */
+export function ondaNado(quadro = 0): Buf {
+  const b = new Buf(16, 6);
+  const raio = quadro === 0 ? 6 : 7;
+  b.ellipse(8, 2, raio, 1, P.waterL!);
+  b.ellipse(8, 3, raio - 3, 1, P.foam!);
+  return b;
+}
+
 /* ======================= interiores =======================
    Os tiles de dentro precisam ler como "dentro" na primeira olhada: madeira
    quente no chao, ripa vertical na parede. Sem isso o jogador atravessa a

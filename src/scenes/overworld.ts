@@ -10,7 +10,7 @@
    O menu de pausa e a loja NÃO são cenas: são sobreposições desenhadas por
    cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
    ========================================================================= */
-import { assar, assarSuave, type Assado } from '../core/buf.ts';
+import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -47,6 +47,10 @@ import { TelaCaixa } from './caixa.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
+/* quanto do sprite (de 20px de altura) fica visível nadando — corta bem no
+   pescoço, água na altura do peito. O resto de baixo nem se desenha: quem
+   mostra que é água ali é o próprio tile por baixo. */
+const ALTURA_NADANDO = 14;
 /* um respiro de escuro entre um mapa e outro: sem isso a troca é um tranco */
 const FADE = 0.18;
 /* quanto tempo o "!" fica sobre a cabeça do treinador antes de ele vir */
@@ -121,6 +125,7 @@ export class CenaMundo implements Cena {
   private faixaNome: Assado | null = null;
   private tempoFaixa = 0;
   private rocadas: Assado[] = [];
+  private ondas: Assado[] = [];
   private tempoAnim = 0;
 
   private op: OpcoesCenaMundo;
@@ -172,6 +177,7 @@ export class CenaMundo implements Cena {
     // recursos visuais assados uma vez, valem para todos os mapas
     this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
     this.rocadas = [assarSuave(T.rocada(0)), assarSuave(T.rocada(1)), assarSuave(T.rocada(2))];
+    this.ondas = [assarSuave(T.ondaNado(0)), assarSuave(T.ondaNado(1))];
     this.menu = new MenuPausa({ estado: this.op.estado });
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
@@ -883,7 +889,17 @@ export class CenaMundo implements Cena {
     const todos = [this.jogador, ...this.npcs.map((n) => n.ator)];
     todos.sort((a, b) => a.py - b.py);
     for (const a of todos) {
-      r.sprite(a.quadro(), a.desenhoX - this.camera.x, a.desenhoY - this.camera.y);
+      const x = a.desenhoX - this.camera.x, y = a.desenhoY - this.camera.y;
+      if (this.mapa.agua(a.tx, a.ty)) {
+        // nadando: só a cabeça de fora. O corpo nem se desenha — é a água
+        // do próprio tile, já pintada por baixo, que faz o resto do trabalho
+        const img = a.quadro();
+        r.recorte(img, 0, 0, larguraDe(img), ALTURA_NADANDO, x, y);
+        const q = Math.floor(this.tempoAnim * 2) % 2;
+        r.sprite(this.ondas[q]!, a.px - this.camera.x, y + ALTURA_NADANDO - 3);
+      } else {
+        r.sprite(a.quadro(), x, y);
+      }
       if (this.mapa.temEncontro(a.tx, a.ty)) {
         const q = a.movendo ? 1 + (Math.floor(this.tempoAnim * 12) % 2) : 0;
         r.sprite(this.rocadas[q]!, a.px - this.camera.x, a.py + 8 - this.camera.y);
