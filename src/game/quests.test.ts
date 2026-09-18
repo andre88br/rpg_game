@@ -155,6 +155,16 @@ test('chave que ninguém conhece fica como está', () => {
   assert.equal(preencher(e, 'um {troco} qualquer'), 'um {troco} qualquer');
 });
 
+test('o recheio concorda em gênero com o personagem escolhido', () => {
+  const tai = novoJogo('TAINÁ', 'taina');
+  assert.equal(preencher(tai, 'Oi, {crianca}.'), 'Oi, menina.');
+  assert.equal(preencher(tai, 'Te acharam {caida} no mato.'), 'Te acharam caída no mato.');
+
+  const ben = novoJogo('BENTO', 'bento');
+  assert.equal(preencher(ben, 'Oi, {crianca}.'), 'Oi, menino.');
+  assert.equal(preencher(ben, 'Te acharam {caida} no mato.'), 'Te acharam caído no mato.');
+});
+
 test('a medalha entra na caixinha junto com o Dom', () => {
   const e = novoJogo();
   const efeito = aplicarFala(e, {

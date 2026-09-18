@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { novoJogo, trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha } from './state.ts';
+import {
+  novoJogo, pronomeDe, trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha,
+} from './state.ts';
 import { criar, desmaiado } from '../battle/encantado.ts';
 import { quantidade } from '../data/items.ts';
 
@@ -70,4 +72,21 @@ test('sem item na mochila, usarItemForaDeBatalha não gasta o que não existe', 
   e.time[0]!.hp = 1;
   const r = usarItemForaDeBatalha(e, 'garrafada', 0);
   assert.equal(r.usou, false);
+});
+
+test('novoJogo sem personagem escolhido é a Tainá, por padrão', () => {
+  const e = novoJogo();
+  assert.equal(e.personagem, 'taina');
+  assert.equal(pronomeDe(e), 'ela');
+});
+
+test('novoJogo com Bento guarda o personagem, e o pronome muda', () => {
+  const e = novoJogo('BENTO', 'bento');
+  assert.equal(e.personagem, 'bento');
+  assert.equal(pronomeDe(e), 'ele');
+});
+
+test('personagem desconhecido cai no pronome padrão, sem quebrar', () => {
+  const e = novoJogo('QUEM QUER QUE SEJA', 'ninguem_assim');
+  assert.equal(pronomeDe(e), 'ela');
 });

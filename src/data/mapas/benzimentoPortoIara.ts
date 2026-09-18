@@ -9,7 +9,7 @@ export const benzimentoPortoIara: DefMapa = {
   interior: true,
   refugio: true,
   socorro: { quem: 'DONA ROSA', falas: [
-    'Acordou. Te acharam caída perto do cais, menina.',
+    'Acordou. Te acharam {caida} perto do cais, {crianca}.',
     'Passei os seus Encantados na gamela. Estão todos de pé outra vez.'] },
 
   chao: [

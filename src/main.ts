@@ -6,6 +6,7 @@ import { Laco } from './core/loop.ts';
 import { GerenciadorCenas } from './core/scene.ts';
 import { CenaTitulo, type Comeco } from './scenes/title.ts';
 import { CenaIntro } from './scenes/intro.ts';
+import { CenaPersonagem } from './scenes/personagem.ts';
 import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
 import { CenaBatalha } from './scenes/battle.ts';
 import { MAPAS } from './data/mapas/index.ts';
@@ -93,10 +94,13 @@ function comecar(modo: Comeco, slot: number): void {
     iniciarMundo();
     return;
   }
-  // jogo novo: a introdução toca antes de o mundo existir de verdade
+  // jogo novo: a introdução toca, depois a escolha de quem vai andar a
+  // trilha — só então o mundo existe de verdade
   cenas.trocar(new CenaIntro(() => {
-    estado = novoJogo();
-    iniciarMundo();
+    cenas.trocar(new CenaPersonagem((personagem, nome) => {
+      estado = novoJogo(nome, personagem);
+      iniciarMundo();
+    }));
   }));
 }
 

@@ -95,14 +95,14 @@ export const portoIara: DefMapa = {
       tx: 17, ty: 29, dir: 'cima',
       falas: [
         { se: 'item:carta', pede: { item: 'carta' }, liga: 'conta_recado', paga: 800, linhas: [
-          'Carta da Dona Firmina? Passa pra cá, moça.',
+          'Carta da Dona Firmina? Passa pra cá, {crianca}.',
           'Chegou seca, apesar da maré. Toma aqui pelo incômodo — e mandei acender sua primeira conta.',
           'Agora o meu problema: sumiram três redes minhas. Dizem que foi bicho, não gente.'] },
         { se: 'item:rede>=3', pede: { item: 'rede', n: 3 }, liga: 'conta_redes',
           paga: 700, linhas: [
           'As TRÊS! Eu sabia que era bicho, e ninguém acreditava em mim.',
           'Sacizinho gosta de nó, e rede é nó que não acaba. Agora entendo o sumiço.',
-          'Outra conta acesa por sua conta, moça. E toma pelo trabalho.'] },
+          'Outra conta acesa por sua conta, {crianca}. E toma pelo trabalho.'] },
         { se: 'conta_redes', seNao: 'conta_farol', linhas: [
           'Com as redes de volta eu pesco. Sair da barra é que não dá.',
           'Tem bicho morando no farol, e de noite o mar ali ferve. Isso ninguém resolve.'] },
@@ -111,8 +111,8 @@ export const portoIara: DefMapa = {
           'Vi um Sacizinho no cais, outro na praia e um terceiro subindo a estrada.',
           'Quem me trouxer as três de volta acende outra conta da guia.'] },
         { se: 'tem_recado', linhas: [
-          'A Dona Firmina mandou carta e você não trouxe? Volta lá, menina.'] },
-        { linhas: ['Sem as redes ninguém pesca hoje, moça. Nem eu, nem ninguém.'] },
+          'A Dona Firmina mandou carta e você não trouxe? Volta lá, {crianca}.'] },
+        { linhas: ['Sem as redes ninguém pesca hoje, {crianca}. Nem eu, nem ninguém.'] },
       ],
     },
     {
@@ -120,13 +120,13 @@ export const portoIara: DefMapa = {
       tx: 24, ty: 21, dir: 'esq',
       falas: [
         { se: 'conta_caderno', linhas: [
-          'Quatro bichos anotados com a sua letra. O caderno agradece, moça.'] },
+          'Quatro bichos anotados com a sua letra. O caderno agradece, {crianca}.'] },
         { se: ['tem_caderno', 'vistos>=4'], liga: 'conta_caderno', paga: 500, linhas: [
           'Deixa eu ver... um, dois, três, QUATRO. Os quatro da região, todos anotados.',
           'Serviço é serviço: acendi uma conta da guia pra você. E toma um trocado.'] },
         { se: 'tem_caderno', linhas: [
           'Ainda faltam bichos no caderno. Você anotou {vistos} de quatro.',
-          'Anda pelo mato alto, moça. Bicho não vem até a praça.'] },
+          'Anda pelo mato alto, {crianca}. Bicho não vem até a praça.'] },
         { liga: 'tem_caderno', da: { item: 'caderno' }, linhas: [
           'Eu anoto num caderno todo Encantado que aparece por aqui. São quatro na região.',
           'Toma o caderno. Encontre os quatro e eu mesmo acendo uma conta pra você.'] },

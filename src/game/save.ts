@@ -23,7 +23,7 @@ import { ITENS } from '../data/items.ts';
 import { STATUS, type Status } from '../battle/status.ts';
 import { hpMaximo, xpDoNivel, NIVEL_MAX, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
-import type { Direcao } from '../art/people.ts';
+import { ESTILOS, type Direcao } from '../art/people.ts';
 import { TAMANHO_TIME, type EstadoJogo, type Lugar } from './state.ts';
 
 /* chave do formato ANTIGO, de um save só — só existe para migrar quem já
@@ -156,8 +156,12 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
   const f = (j['flags'] ?? {}) as Record<string, unknown>;
   for (const [k, v] of Object.entries(f)) if (v === true) flags[k] = true;
 
+  const personagem = typeof j['personagem'] === 'string' && ESTILOS[j['personagem']]
+    ? j['personagem'] : 'taina';
+
   return {
     nome: texto(j['nome'], 'TAINÁ'),
+    personagem,
     posicao: lugar(j['posicao'], padrao),
     refugio: lugar(j['refugio'], padrao),
     time,

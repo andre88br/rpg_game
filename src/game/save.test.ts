@@ -29,7 +29,7 @@ function memoria(): Armazem & { dados: Map<string, string> } {
 }
 
 test('ida e volta preserva o que importa', () => {
-  const e = comTime(novoJogo('ROSA'));
+  const e = comTime(novoJogo('ROSA', 'bento'));
   ligar(e, 'conta_recado');
   e.dinheiro = 1234;
   e.medalhas = ['mare'];
@@ -42,6 +42,7 @@ test('ida e volta preserva o que importa', () => {
   const v = restaurar(serializar(e))!;
   assert.ok(v);
   assert.equal(v.nome, 'ROSA');
+  assert.equal(v.personagem, 'bento');
   assert.equal(v.dinheiro, 1234);
   assert.equal(v.flags['conta_recado'], true);
   assert.deepEqual(v.medalhas, ['mare']);
@@ -59,6 +60,20 @@ test('o save é uma cópia: mexer nele não mexe na partida', () => {
   s.jogo.dinheiro = 0;
   assert.notEqual(e.time[0]!.hp, 1);
   assert.equal(e.dinheiro, 3000);
+});
+
+test('save de antes da escolha de personagem volta como Tainá', () => {
+  const s = serializar(novoJogo('ANTIGA'));
+  delete (s.jogo as { personagem?: string }).personagem;
+  const v = restaurar(s)!;
+  assert.equal(v.personagem, 'taina');
+});
+
+test('personagem desconhecido no save não quebra a partida', () => {
+  const s = serializar(novoJogo());
+  (s.jogo as { personagem: string }).personagem = 'ninguem_assim';
+  const v = restaurar(s)!;
+  assert.equal(v.personagem, 'taina');
 });
 
 test('versão diferente não é save desta publicação', () => {

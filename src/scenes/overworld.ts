@@ -178,7 +178,7 @@ export class CenaMundo implements Cena {
     this.telaCaixa = new TelaCaixa(this.op.estado);
 
     const pos = this.op.estado.posicao;
-    this.jogador = new Ator(this.folhaDe('taina'), pos.tx, pos.ty, pos.dir);
+    this.jogador = new Ator(this.folhaDe(this.op.estado.personagem), pos.tx, pos.ty, pos.dir);
     this.montarMapa(pos.mapa, { gravar: false });
     this.jogador.teleportar(pos.tx, pos.ty, pos.dir);
     this.centrarCamera();

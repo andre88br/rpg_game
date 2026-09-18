@@ -56,9 +56,9 @@ export const vilaAurora: DefMapa = {
       tx: 19, ty: 7, dir: 'baixo',
       falas: [
         { se: 'medalha:mare', linhas: [
-          'A menina da Vila Aurora com a Medalha Maré. Vou contar isso até morrer.'] },
+          'Vou contar isso até morrer: {crianca} da Vila Aurora com a Medalha Maré!'] },
         { se: 'item:carta', linhas: [
-          'Carta na mão e cara de pressa. Desce a estrada, menina, que o porto não anda até aqui.'] },
+          'Carta na mão e cara de pressa. Desce a estrada, {crianca}, que o porto não anda até aqui.'] },
         { se: 'escolheu_inicial', linhas: [
           'Já pegou o patuá, então. Agora é só não voltar antes de valer a pena.'] },
         { linhas: [

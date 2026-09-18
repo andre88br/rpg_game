@@ -12,11 +12,29 @@ import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 
 export const TAMANHO_TIME = 6;
 
+/* Os dois protagonistas — a mesma escolha que abre um jogo novo, em
+   scenes/personagem.ts. O pronome mora aqui, não lá, porque é dado que
+   quests.ts também precisa (para {crianca}/{caida} no recheio das falas) e
+   quests.ts não pode importar de scenes/. */
+export interface Protagonista { id: string; nome: string; pronome: 'ele' | 'ela' }
+
+export const PROTAGONISTAS: readonly Protagonista[] = [
+  { id: 'taina', nome: 'TAINÁ', pronome: 'ela' },
+  { id: 'bento', nome: 'BENTO', pronome: 'ele' },
+];
+
+export function pronomeDe(e: EstadoJogo): 'ele' | 'ela' {
+  return PROTAGONISTAS.find((p) => p.id === e.personagem)?.pronome ?? 'ela';
+}
+
 /* onde o jogador está, ou onde ele acorda depois de apagar */
 export interface Lugar { mapa: string; tx: number; ty: number; dir: Direcao }
 
 export interface EstadoJogo {
   nome: string;
+  /* chave em ESTILOS (art/people.ts) — qual dos dois protagonistas anda o
+     mapa; escolhido junto com o nome, antes do primeiro passo */
+  personagem: string;
   posicao: Lugar;
   refugio: Lugar;
   time: Encantado[];
@@ -32,11 +50,12 @@ export interface EstadoJogo {
 /* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
    Dona Firmina, em Vila Aurora. Até lá o mato alto não gera encontro e nenhum
    treinador desafia — as duas coisas checam se há alguém de pé. */
-export function novoJogo(nome = 'TAINÁ'): EstadoJogo {
+export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
   const inicio = MAPAS[MAPA_INICIAL]!.inicio;
   const lugar = (): Lugar => ({ mapa: MAPA_INICIAL, ...inicio });
   const est: EstadoJogo = {
     nome,
+    personagem,
     posicao: lugar(),
     refugio: lugar(),
     time: [],

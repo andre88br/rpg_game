@@ -10,7 +10,7 @@
    sorteado. Por isso ele tem teste de verdade em quests.test.ts.
    ========================================================================= */
 import { quantidade } from '../data/items.ts';
-import { curarTime, type EstadoJogo } from './state.ts';
+import { curarTime, pronomeDe, type EstadoJogo } from './state.ts';
 
 /* -------------------------------------------------------------- condições
 
@@ -153,6 +153,9 @@ export function preencher(e: EstadoJogo, linha: string): string {
       case 'capturados': return String(e.capturados.length);
       case 'dinheiro': return String(e.dinheiro);
       case 'medalhas': return String(e.medalhas.length);
+      /* concordância de gênero: quem escolheu Bento não quer ouvir "menina" */
+      case 'crianca': return pronomeDe(e) === 'ele' ? 'menino' : 'menina';
+      case 'caida': return pronomeDe(e) === 'ele' ? 'caído' : 'caída';
       default: return inteiro;
     }
   });

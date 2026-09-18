@@ -92,7 +92,7 @@ export const rotaFoz: DefMapa = {
       tx: 15, ty: 14, dir: 'esq',
       falas: [
         { se: 'venceu_zeca', linhas: [
-          'O moleque tirou a tranca? Então o paredão está livre. Boa viagem, moça.'] },
+          'O moleque tirou a tranca? Então o paredão está livre. Boa viagem, {crianca}.'] },
         { linhas: [
           'Esse atalho ali do lado não leva a lugar nenhum: é só volta.',
           'Mais pro sul tem um moleque com uma tranca atravessada na estrada.',

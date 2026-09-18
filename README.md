@@ -244,7 +244,11 @@ negada (`!falou_firmina`), `item:carta`, `item:patua>=3`, `vistos>=4`,
 `capturados>=2`, `contas>=5`, `medalha:mare`, `dinheiro>=200`. Uma fala pode
 `liga`r flags, `da`r e `pede`r itens, `paga`r, `cura`r o time, abrir a `loja` ou
 virar `batalha`. O texto aceita recheio: `{nome}`, `{contas}`, `{faltam}`,
-`{servico}`, `{vistos}`.
+`{servico}`, `{vistos}`, e dois que concordam em gênero com o protagonista
+escolhido — `{crianca}` ("menino" ou "menina") e `{caida}` ("caído" ou
+"caída"), resolvidos por `pronomeDe(estado)` em `game/state.ts`. Quem
+escreve uma fala nova para "a menina"/"moça" escreve `{crianca}` no lugar,
+e ela lê certo para os dois.
 
 Isso mora todo em `src/game/quests.ts`, que é puro — nada de canvas, nada de
 DOM. Por isso ele tem teste de verdade, e por isso o conteúdo da região continua
@@ -279,8 +283,11 @@ slot 1 na primeira vez que o jogo carrega, e nunca mais toca naquela chave.
 
 Um jogo NOVO — nunca um CONTINUAR — passa primeiro por `scenes/intro.ts`:
 quatro páginas de texto sobre um céu escuro, lidas como qualquer conversa (A
-revela e avança, B pula a introdução inteira). Só depois disso o mundo e o
-Encantado inicial existem de verdade.
+revela e avança, B pula a introdução inteira). Depois vem `scenes/
+personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
+teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
+volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,
+personagem)` roda e o mundo existe de verdade.
 
 E `src/game/config.ts` guarda a **velocidade do jogo** — NORMAL, RÁPIDA ou
 TURBO — à parte de qualquer slot, porque é preferência do dispositivo, não da
