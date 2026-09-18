@@ -56,6 +56,18 @@ export const mataDoCurupira: DefMapa = {
       falas: [
         { se: ['conta_pegadas', 'conta_mudas'], linhas: [
           'Caderno cheio e viveiro completo, os dois graças a você. A mata inteira agradece, {crianca}.'] },
+        /* a entrega da carta vem ANTES de qualquer relatório de muda/pegada,
+           não importa o que mais esteja pendente: sem essa prioridade, quem
+           trouxesse as três mudas antes de dar a carta ficava preso para
+           sempre no relatório de "viveiro completo, caderno não" — essa
+           condição continuaria valendo por cima da entrega da carta em
+           qualquer visita seguinte, e a carta nunca mais seria aceita */
+        { se: 'item:carta_tie', pede: { item: 'carta_tie' },
+          liga: ['conta_recado_mata', 'tem_caderno_mata'], linhas: [
+          'Carta da Dona Firmina? Ora, passa pra cá que eu levo à Tiê agora mesmo.',
+          'Ela vai gostar de saber que a Foz não esqueceu da Mata. Acendi a sua primeira conta aqui.',
+          'Já que está aqui: eu anoto pegada de bicho num caderno, e sumiram três mudas do meu viveiro.',
+          'Resolva os dois, e eu acendo mais duas contas da sua guia.'] },
         { se: 'item:muda>=3', pede: { item: 'muda', n: 3 }, liga: 'conta_mudas', paga: 500, linhas: [
           'As TRÊS de volta! Eu sabia que era travessura de Caiporinha, e não sumiço de verdade.',
           'Muda gosta de nó no cipó, e Caiporinha gosta de nó em qualquer coisa. Faz sentido agora.',
@@ -72,14 +84,6 @@ export const mataDoCurupira: DefMapa = {
           'Duas coisas em aberto, {crianca}: o caderno, que você mesma enche andando pelo mato,',
           'e as três mudas do viveiro, sumidas com Caiporinhas — uma no igarapé, uma no mato fechado,',
           'e uma mais adiante. Resolva as duas e acendo mais duas contas da guia.'] },
-        { se: 'conta_recado_mata', liga: 'tem_caderno_mata', linhas: [
-          'A Tiê já sabe que você chegou com carta da Dona Firmina. Boa notícia viaja rápido na mata.',
-          'Já que está aqui: eu anoto pegada de bicho num caderno, para conhecer a fauna da região.',
-          'E, por falar nisso — sumiram três mudas do meu viveiro. Aposto que foi bicho, não gente.',
-          'Resolva os dois, e eu acendo mais duas contas da sua guia.'] },
-        { se: 'item:carta_tie', pede: { item: 'carta_tie' }, liga: 'conta_recado_mata', linhas: [
-          'Carta da Dona Firmina? Ora, passa pra cá que eu levo à Tiê agora mesmo.',
-          'Ela vai gostar de saber que a Foz não esqueceu da Mata. Acendi a sua primeira conta aqui.'] },
         { linhas: [
           'Sou mateiro desta região há mais anos do que gosto de contar.',
           'Se trouxer alguma carta ou serviço, é comigo mesmo. Ninguém entra na mata sem eu saber.'] },
