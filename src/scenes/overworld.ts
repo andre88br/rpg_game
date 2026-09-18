@@ -686,14 +686,21 @@ export class CenaMundo implements Cena {
   }
 
   /* pula direto para a Mata do Curupira: dá a Medalha Maré e o Dom "Nadar"
-     de brinde (a travessia depende dos dois), e um Curupinho se o time
-     estiver vazio, para nenhum encontro ou treinador travar a partida. */
+     de brinde (a travessia depende dos dois), um Curupinho se o time
+     estiver vazio (para nenhum encontro ou treinador travar a partida), e a
+     carta da Dona Firmina para a Tiê — sem ela, o Seu Elias não aceita nada
+     e a primeira conta da guia fica impossível de acender, já que quem daria
+     a carta (a própria Firmina, em Vila Aurora) ficou pra trás no pulo. */
   private ativarCodigoRegiao2(): void {
     const e = this.op.estado;
     if (!e.medalhas.includes('mare')) e.medalhas.push('mare');
     e.flags['dom_nadar'] = true;
     e.flags['escolheu_inicial'] = true;
     if (e.time.length === 0) guardar(e, criar('curupinho', NIVEL_INICIAL));
+    if (!e.flags['deu_carta_tie'] && !e.flags['conta_recado_mata']) {
+      e.flags['deu_carta_tie'] = true;
+      adicionar(e.mochila, 'carta_tie');
+    }
 
     const alvo = this.op.mundo.def('mataDoCurupira').inicio;
     this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
