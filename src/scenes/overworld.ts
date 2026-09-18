@@ -29,7 +29,9 @@ import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
 import { acaso } from '../core/rng.ts';
-import { criar, nome as nomeDe, sortearSelvagem, type Encantado } from '../battle/encantado.ts';
+import {
+  criar, evoluir, ficha, nome as nomeDe, sortearSelvagem, type Encantado,
+} from '../battle/encantado.ts';
 import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
 import { adicionar, consumir } from '../data/items.ts';
@@ -44,6 +46,7 @@ import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
 import { EscolhaInicial, NIVEL_INICIAL } from './escolha.ts';
 import { TelaCaixa } from './caixa.ts';
+import { TelaPoder } from './poder.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
@@ -60,13 +63,15 @@ const SUSTO = 0.7;
 const CUT_FADE = 0.35;
 const CUT_ESPERA = 3.2;
 
-/* código secreto: o Konami Code, com os próprios botões do jogo. Digitado
-   andando livre pelo mundo (não conta em conversa, batalha ou menu), pula
-   direto para a Mata do Curupira — dá a Medalha Maré e o Dom "Nadar" de
-   brinde, porque sem eles a travessia nem é alcançável. É a forma mais
-   rápida de testar a segunda região sem jogar a primeira inteira. */
-const CODIGO_SECRETO: readonly Acao[] =
+/* códigos secretos: digitados com os próprios botões do jogo, andando livre
+   pelo mundo (não contam em conversa, batalha, loja ou qualquer menu). Cada
+   um é conferido contra o fim do mesmo buffer de botões apertados — por
+   isso nenhum pode ser sufixo de outro, senão os dois disparariam juntos. */
+const CODIGO_REGIAO2: readonly Acao[] =
   ['cima', 'cima', 'baixo', 'baixo', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
+/* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
+const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
+const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
 
 interface Cutscene {
   mapa: Mapa;
@@ -150,10 +155,12 @@ export class CenaMundo implements Cena {
   private loja: Loja | null = null;
   private escolha: EscolhaInicial | null = null;
   private telaCaixa: TelaCaixa | null = null;
+  private telaPoder: TelaPoder | null = null;
   private emMenu = false;
   private emLoja = false;
   private emEscolha = false;
   private emCaixa = false;
+  private emPoder = false;
   /* deslizando numa poça: o passo continua sozinho até bater em alguma coisa */
   private deslizando = false;
   /* folhas de sprite assadas uma vez por estilo, valem para todos os mapas */
@@ -193,6 +200,7 @@ export class CenaMundo implements Cena {
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
     this.telaCaixa = new TelaCaixa(this.op.estado);
+    this.telaPoder = new TelaPoder(this.op.estado);
 
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(this.folhaDe(this.op.estado.personagem), pos.tx, pos.ty, pos.dir);
@@ -642,6 +650,12 @@ export class CenaMundo implements Cena {
 
   /* ------------------------------------------------------ código secreto */
 
+  private bateCodigo(codigo: readonly Acao[]): boolean {
+    if (this.bufferCodigo.length < codigo.length) return false;
+    const cauda = this.bufferCodigo.slice(this.bufferCodigo.length - codigo.length);
+    return codigo.every((a, i) => cauda[i] === a);
+  }
+
   private verificarCodigoSecreto(entrada: Entrada): void {
     const apertados: Acao[] =
       (['cima', 'baixo', 'esq', 'dir', 'a', 'b'] as const)
@@ -649,26 +663,32 @@ export class CenaMundo implements Cena {
     if (apertados.length === 0) return;
 
     this.bufferCodigo.push(...apertados);
-    const excesso = this.bufferCodigo.length - CODIGO_SECRETO.length;
+    const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
+    const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
 
-    if (this.bufferCodigo.length < CODIGO_SECRETO.length) return;
-    if (!CODIGO_SECRETO.every((a, i) => this.bufferCodigo[i] === a)) return;
-
-    this.bufferCodigo = [];
-    /* o último botão do código é 'a' — sem consumi-lo aqui, o mesmo toque
-       cairia de novo lá embaixo em `entrada.apertou('a')` e abriria uma
-       conversa com o que estiver na frente do jogador, por cima da que a
-       ativação já abriu */
-    entrada.apertou('a');
-    entrada.apertou('b');
-    this.ativarCodigoSecreto();
+    // todo código termina em 'a' — sem consumi-lo aqui, o mesmo toque cairia
+    // de novo em `entrada.apertou('a')` lá embaixo, no andar, e abriria
+    // conversa com o que estiver na frente do jogador por cima da ativação
+    if (this.bateCodigo(CODIGO_REGIAO2)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao2();
+    } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoEvoluir();
+    } else if (this.bateCodigo(CODIGO_POTENCIA)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoPotencia();
+    }
   }
 
   /* pula direto para a Mata do Curupira: dá a Medalha Maré e o Dom "Nadar"
      de brinde (a travessia depende dos dois), e um Curupinho se o time
      estiver vazio, para nenhum encontro ou treinador travar a partida. */
-  private ativarCodigoSecreto(): void {
+  private ativarCodigoRegiao2(): void {
     const e = this.op.estado;
     if (!e.medalhas.includes('mare')) e.medalhas.push('mare');
     e.flags['dom_nadar'] = true;
@@ -680,6 +700,34 @@ export class CenaMundo implements Cena {
     this.montarMapa('mataDoCurupira');   // já grava: medalha, Dom e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A travessia para a Mata do Curupira se abre.']);
+  }
+
+  /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
+     não importa o nível — é o código secreto, não a régua do jogo */
+  private ativarCodigoEvoluir(): void {
+    const e = this.op.estado;
+    let evoluidos = 0;
+    for (const bicho of e.time) {
+      const alvo = ficha(bicho).evolui;
+      if (!alvo) continue;
+      evoluir(bicho, alvo.em);
+      evoluidos++;
+    }
+    salvar(e);
+    this.abrirConversa('???', evoluidos > 0
+      ? [`Código aceito. ${evoluidos} do time evoluiu na hora.`]
+      : ['Código aceito. Mas ninguém no time tinha pra onde evoluir agora.']);
+  }
+
+  /* abre a tela de poder máximo: escolhe quem do time, sobe pro nível 60 e
+     deixa escolher os quatro golpes dentro de tudo que a espécie aprende */
+  private ativarCodigoPotencia(): void {
+    if (this.op.estado.time.length === 0) {
+      this.abrirConversa('???', ['Código aceito. Mas o time está vazio — nada para potencializar.']);
+      return;
+    }
+    this.emPoder = true;
+    this.telaPoder!.abrir();
   }
 
   /* ------------------------------------------------------------- entrada */
@@ -781,9 +829,9 @@ export class CenaMundo implements Cena {
     if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
-    // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, porta)
+    // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)
     if (this.cutscenePendente && !this.conversa && !this.emLoja && !this.emMenu
-        && !this.emEscolha && !this.emCaixa && !this.indo && !this.duelo) {
+        && !this.emEscolha && !this.emCaixa && !this.emPoder && !this.indo && !this.duelo) {
       this.iniciarCutscene();
       return;
     }
@@ -797,6 +845,10 @@ export class CenaMundo implements Cena {
       const saida = this.menu!.atualizar(dt, entrada);
       if (saida === 'fechar') this.emMenu = false;
       else if (saida === 'titulo') { this.emMenu = false; this.op.aoSair?.(); }
+      return;
+    }
+    if (this.emPoder) {
+      if (this.telaPoder!.atualizar(dt, entrada) === 'fechar') this.emPoder = false;
       return;
     }
     if (this.emEscolha) {
@@ -996,6 +1048,7 @@ export class CenaMundo implements Cena {
     if (this.emEscolha) { r.cortina(0.45); this.escolha!.desenhar(r); }
     else if (this.emLoja) { r.cortina(0.45); this.loja!.desenhar(r); }
     else if (this.emCaixa) { r.cortina(0.45); this.telaCaixa!.desenhar(r); }
+    else if (this.emPoder) { r.cortina(0.45); this.telaPoder!.desenhar(r); }
     else if (this.emMenu) { r.cortina(0.45); this.menu!.desenhar(r); }
   }
 
