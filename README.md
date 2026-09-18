@@ -250,12 +250,45 @@ Isso mora todo em `src/game/quests.ts`, que é puro — nada de canvas, nada de
 DOM. Por isso ele tem teste de verdade, e por isso o conteúdo da região continua
 sendo **dado**, não código de cena.
 
-A partida se grava em `localStorage` sob `encantados:save:v1`, sozinha: ao curar
-no benzimento, ao trocar de mapa, ao acender uma conta e ao vencer um treinador.
-O save atravessa publicações do jogo, então `restaurar()` não confia nele —
-espécie que sumiu, golpe renomeado, mapa que não existe mais e vida acima do
-máximo são corrigidos em silêncio, porque perder a partida inteira por causa de
-um campo torto seria pior do que voltar com um item a menos.
+A partida se grava em `localStorage`, sozinha: ao curar no benzimento, ao
+trocar de mapa, ao acender uma conta e ao vencer um treinador. O save
+atravessa publicações do jogo, então `restaurar()` não confia nele — espécie
+que sumiu, golpe renomeado, mapa que não existe mais e vida acima do máximo
+são corrigidos em silêncio, porque perder a partida inteira por causa de um
+campo torto seria pior do que voltar com um item a menos.
+
+## Seis slots, uma introdução, e a velocidade do jogo
+
+`src/game/save.ts` guarda até **seis partidas independentes**
+(`encantados:save:v1:0` a `:5`), cada uma na sua própria chave — sobrescrever
+uma nunca risca as outras. Todo ponto de gravação automática espalhado pelo
+jogo continua chamando só `salvar(estado)`, sem saber de slot nenhum: por
+baixo, isso cai sempre no **slot ativo** da sessão (`obterSlotAtivo()`), que só
+muda quando o jogador escolhe outro de propósito — ao CONTINUAR, ou gravando
+num slot diferente pela tela SALVAR.
+
+Essa tela — `scenes/slots.ts:TelaSlots` — é uma sobreposição só, usada em três
+lugares: CONTINUAR e NOVO JOGO no título, SALVAR no menu de pausa. Ela lista
+os seis slots como uma coisa só (nome, nível, quando foi gravado), mas o
+comportamento muda com o `modo`: CONTINUAR só aceita slot ocupado; NOVO JOGO e
+SALVAR aceitam qualquer um, e um slot ocupado pede confirmação antes. Isso mora
+dentro do próprio componente, então as três telas que o usam ganham a
+confirmação de graça, sem reescrever nada. Quem jogava antes dos seis slots
+tinha um save só, numa chave sem número; `migrarSaveAntigo()` o move para o
+slot 1 na primeira vez que o jogo carrega, e nunca mais toca naquela chave.
+
+Um jogo NOVO — nunca um CONTINUAR — passa primeiro por `scenes/intro.ts`:
+quatro páginas de texto sobre um céu escuro, lidas como qualquer conversa (A
+revela e avança, B pula a introdução inteira). Só depois disso o mundo e o
+Encantado inicial existem de verdade.
+
+E `src/game/config.ts` guarda a **velocidade do jogo** — NORMAL, RÁPIDA ou
+TURBO — à parte de qualquer slot, porque é preferência do dispositivo, não da
+partida: trocar de save não deveria trocar a velocidade do texto. O
+multiplicador entra em dois lugares só: quanto texto revela por segundo
+(diálogo e batalha) e a duração do passo do `Ator` — ambos dividem o valor de
+sempre pelo multiplicador, então nenhum outro código precisa saber que a
+velocidade existe. A opção mora no menu de pausa, junto de TIME e MOCHILA.
 
 Três coisas pequenas que valem a pena entender juntas, porque moram todas em
 `game/state.ts` e `scenes/menu.ts`:

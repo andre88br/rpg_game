@@ -5,8 +5,10 @@ import { adicionar, quantidade } from '../data/items.ts';
 import { criar, hpMaximo } from '../battle/encantado.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import {
-  CHAVE, apagar, carregar, quandoSalvou, restaurar, salvar, serializar, temSave,
-  usarArmazem, type Armazem,
+  NUM_SLOTS, algumSlotOcupado, apagar, apagarSlot, carregar, carregarDeSlot,
+  definirSlotAtivo, migrarSaveAntigo, obterSlotAtivo, primeiroSlotVazio,
+  quandoSalvou, resumoSlot, resumoTodos, restaurar, salvar, salvarEmSlot,
+  serializar, temSave, temSaveEmSlot, usarArmazem, type Armazem,
 } from './save.ts';
 
 /* armazém de mentira: o mesmo contrato do localStorage, sem navegador */
@@ -130,9 +132,10 @@ test('item que não existe mais não volta na mochila', () => {
   assert.equal(quantidade(v.mochila, 'patua'), 7);
 });
 
-test('gravar, achar e retomar pelo armazém', () => {
+test('gravar, achar e retomar pelo slot ativo', () => {
   const ls = memoria();
   usarArmazem(ls);
+  definirSlotAtivo(0);
   apagar();
   assert.equal(temSave(), false);
   assert.equal(carregar(), null);
@@ -140,7 +143,6 @@ test('gravar, achar e retomar pelo armazém', () => {
   const e = novoJogo('BENTA');
   adicionar(e.mochila, 'patua_bom', 2);
   assert.equal(salvar(e), true);
-  assert.equal(ls.dados.has(CHAVE), true);
   assert.equal(temSave(), true);
   assert.ok(quandoSalvou());
 
@@ -156,10 +158,12 @@ test('gravar, achar e retomar pelo armazém', () => {
 test('save corrompido no armazém não derruba o jogo', () => {
   const ls = memoria();
   usarArmazem(ls);
-  ls.setItem(CHAVE, '{isso não é json');
+  definirSlotAtivo(2);
+  ls.dados.set('encantados:save:v1:2', '{isso não é json');
   assert.equal(carregar(), null);
   assert.equal(temSave(), true);      // existe, mas não serve
   assert.equal(quandoSalvou(), null);
+  apagarSlot(2);
   usarArmazem(null);
 });
 
@@ -168,4 +172,107 @@ test('sem armazém nenhum, salvar apenas devolve falso', () => {
   assert.equal(salvar(novoJogo()), false);
   assert.equal(carregar(), null);
   assert.equal(temSave(), false);
+});
+
+test('os seis slots são independentes', () => {
+  const ls = memoria();
+  usarArmazem(ls);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+
+  assert.equal(algumSlotOcupado(), false);
+  assert.equal(primeiroSlotVazio(), 0);
+
+  salvarEmSlot(novoJogo('UM'), 0);
+  salvarEmSlot(novoJogo('DOIS'), 3);
+
+  assert.equal(algumSlotOcupado(), true);
+  assert.equal(temSaveEmSlot(0), true);
+  assert.equal(temSaveEmSlot(1), false);
+  assert.equal(temSaveEmSlot(3), true);
+  assert.equal(primeiroSlotVazio(), 1);
+
+  assert.equal(carregarDeSlot(0)!.nome, 'UM');
+  assert.equal(carregarDeSlot(3)!.nome, 'DOIS');
+  assert.equal(carregarDeSlot(1), null);
+
+  // sobrescrever um slot não mexe nos outros
+  salvarEmSlot(novoJogo('UM-DE-NOVO'), 0);
+  assert.equal(carregarDeSlot(0)!.nome, 'UM-DE-NOVO');
+  assert.equal(carregarDeSlot(3)!.nome, 'DOIS');
+
+  apagarSlot(0);
+  assert.equal(temSaveEmSlot(0), false);
+  assert.equal(temSaveEmSlot(3), true);
+
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  usarArmazem(null);
+});
+
+test('resumoSlot mostra o que a tela de slots precisa, e nada de um slot vazio', () => {
+  const ls = memoria();
+  usarArmazem(ls);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+
+  assert.equal(resumoSlot(0), null);
+
+  const e = comTime(novoJogo('CAIPORA'));
+  e.medalhas = ['mare'];
+  e.time[0]!.nivel = 22;
+  salvarEmSlot(e, 2);
+
+  const r = resumoSlot(2)!;
+  assert.ok(r);
+  assert.equal(r.slot, 2);
+  assert.equal(r.nome, 'CAIPORA');
+  assert.equal(r.medalhas, 1);
+  assert.equal(r.nivel, 22);
+  assert.ok(r.quando);
+
+  const todos = resumoTodos();
+  assert.equal(todos.length, NUM_SLOTS);
+  assert.equal(todos[2]!.nome, 'CAIPORA');
+  assert.equal(todos[0], null);
+
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  usarArmazem(null);
+});
+
+test('slot ativo fica preso a [0, NUM_SLOTS)', () => {
+  definirSlotAtivo(-3);
+  assert.equal(obterSlotAtivo(), 0);
+  definirSlotAtivo(999);
+  assert.equal(obterSlotAtivo(), NUM_SLOTS - 1);
+  definirSlotAtivo(2);
+  assert.equal(obterSlotAtivo(), 2);
+});
+
+test('migração: um save do formato antigo vira o slot 1', () => {
+  const ls = memoria();
+  usarArmazem(ls);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  ls.dados.set('encantados:save:v1', JSON.stringify(serializar(novoJogo('ANTIGA'))));
+
+  migrarSaveAntigo();
+
+  assert.equal(ls.dados.has('encantados:save:v1'), false);
+  assert.equal(temSaveEmSlot(0), true);
+  assert.equal(carregarDeSlot(0)!.nome, 'ANTIGA');
+
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  usarArmazem(null);
+});
+
+test('migração não sobrescreve um slot 1 que já existe', () => {
+  const ls = memoria();
+  usarArmazem(ls);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  salvarEmSlot(novoJogo('JA_TINHA'), 0);
+  ls.dados.set('encantados:save:v1', JSON.stringify(serializar(novoJogo('ANTIGA'))));
+
+  migrarSaveAntigo();
+
+  assert.equal(carregarDeSlot(0)!.nome, 'JA_TINHA');
+
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  usarArmazem(null);
 });

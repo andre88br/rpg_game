@@ -18,18 +18,22 @@ import { item } from '../data/items.ts';
 import {
   trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
 } from '../game/state.ts';
+import { obterSlotAtivo, salvarEmSlot, definirSlotAtivo } from '../game/save.ts';
+import { TelaSlots } from './slots.ts';
+import {
+  VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade,
+} from '../game/config.ts';
 
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
-type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia' | 'sair';
+type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
+            | 'velocidade' | 'slots' | 'sair';
 
-const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'SALVAR', 'SAIR'] as const;
+const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'VELOCIDADE', 'SALVAR', 'SAIR'] as const;
 
 export interface OpcoesMenu {
   estado: EstadoJogo;
-  /* devolve false quando o navegador não deixou gravar (aba privada) */
-  aoSalvar: () => boolean;
 }
 
 export class MenuPausa {
@@ -48,11 +52,14 @@ export class MenuPausa {
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
   private medalhinhas = new Map<string, Assado>();
+  private slots: TelaSlots;
+  private velSel = 0;
 
   constructor(op: OpcoesMenu) {
     this.op = op;
     this.caixaCheia = assar(UI.caixa(LARGURA - 8, ALTURA - 8));
     this.caixaRaiz = assar(UI.caixa(92, 18 + RAIZ.length * 13));
+    this.slots = new TelaSlots();
   }
 
   abrir(): void {
@@ -101,10 +108,19 @@ export class MenuPausa {
       case 'MOCHILA': this.pagina = 'mochila'; this.selLista = 0; break;
       case 'MEDALHAS': this.pagina = 'medalhas'; break;
       case 'GUIA': this.pagina = 'guia'; break;
+      case 'VELOCIDADE':
+        this.pagina = 'velocidade';
+        this.velSel = VELOCIDADES.indexOf(obterVelocidade());
+        break;
       case 'SALVAR':
-        this.avisar(this.op.aoSalvar()
-          ? 'PARTIDA GRAVADA.'
-          : 'ESTE NAVEGADOR NÃO DEIXA GRAVAR.');
+        this.pagina = 'slots';
+        this.slots.abrir('salvar', (slot) => {
+          const ok = salvarEmSlot(this.op.estado, slot);
+          if (ok) definirSlotAtivo(slot);
+          this.avisar(ok
+            ? `PARTIDA GRAVADA NO SLOT ${slot + 1}.`
+            : 'ESTE NAVEGADOR NÃO DEIXA GRAVAR.', 2.2);
+        }, obterSlotAtivo());
         break;
       /* o cursor começa no NÃO: largar a partida não pode ser um A distraído */
       case 'SAIR': this.pagina = 'sair'; this.sel = 1; break;
@@ -124,6 +140,21 @@ export class MenuPausa {
     }
 
     if (this.pagina === 'mochilaAlvo') return this.naMochilaAlvo(entrada);
+
+    if (this.pagina === 'slots') {
+      if (this.slots.atualizar(entrada) === 'fechar') this.pagina = 'raiz';
+      return 'aberto';
+    }
+
+    if (this.pagina === 'velocidade') {
+      this.velSel = this.andar(entrada, this.velSel, VELOCIDADES.length);
+      if (entrada.apertou('a')) {
+        definirVelocidade(VELOCIDADES[this.velSel]!);
+        this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[VELOCIDADES[this.velSel]!]}.`);
+      }
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
+      return 'aberto';
+    }
 
     if (this.pagina === 'time') {
       this.selLista = this.andar(entrada, this.selLista, this.op.estado.time.length);
@@ -175,7 +206,7 @@ export class MenuPausa {
     if (entrada.apertou('a')) {
       const r = usarItemForaDeBatalha(this.op.estado, this.itemUsando!, this.selAlvo);
       this.avisar(r.msg);
-      if (r.usou) this.op.aoSalvar();
+      if (r.usou) salvarEmSlot(this.op.estado, obterSlotAtivo());
       this.pagina = 'mochila';
       this.selLista = Math.min(this.selLista, Math.max(0, this.itens().length - 1));
     }
@@ -190,6 +221,7 @@ export class MenuPausa {
 
   desenhar(r: Renderizador): void {
     if (this.pagina === 'raiz' || this.pagina === 'sair') this.desenharRaiz(r);
+    else if (this.pagina === 'slots') this.slots.desenhar(r);
     else this.desenharPagina(r);
     if (this.recado) {
       const larg = r.larguraTexto(this.recado) + 20;
@@ -261,6 +293,17 @@ export class MenuPausa {
                   acesa ? P.uiInk! : P.uiBg3!);
         });
         break;
+      case 'velocidade': {
+        L.telaCheia(r, this.caixaCheia, 'VELOCIDADE DO JOGO', 'A ESCOLHER   B VOLTAR');
+        const atual = obterVelocidade();
+        VELOCIDADES.forEach((v, i) => {
+          const y = 32 + i * 16;
+          if (i === this.velSel) r.texto('=', 16, y, P.uiAccD!);
+          r.texto(NOME_VELOCIDADE[v], 28, y, v === atual ? P.uiAccD! : P.uiInk!);
+          if (v === atual) r.texto('(ATUAL)', 100, y, P.uiBg3!);
+        });
+        break;
+      }
       default:
         break;
     }

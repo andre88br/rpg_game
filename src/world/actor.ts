@@ -6,6 +6,7 @@
 import { assarSuave, larguraDe, alturaDe, type Assado, type Buf } from '../core/buf.ts';
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
+import { multiplicadorVelocidade } from '../game/config.ts';
 
 export type FolhaAssada = Record<Direcao, [Assado, Assado, Assado]>;
 
@@ -123,7 +124,7 @@ export class Ator {
     this.deX = this.tx; this.deY = this.ty;
     this.tx = ntx; this.ty = nty;
     this.progresso = 0;
-    this.duracao = correr ? VEL_CORRER : VEL_ANDAR;
+    this.duracao = (correr ? VEL_CORRER : VEL_ANDAR) / multiplicadorVelocidade();
     this.movendo = true;
   }
 

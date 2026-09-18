@@ -39,6 +39,7 @@ import {
   type Fala,
 } from '../game/quests.ts';
 import { salvar } from '../game/save.ts';
+import { multiplicadorVelocidade } from '../game/config.ts';
 import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
 import { EscolhaInicial, NIVEL_INICIAL } from './escolha.ts';
@@ -171,10 +172,7 @@ export class CenaMundo implements Cena {
     // recursos visuais assados uma vez, valem para todos os mapas
     this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
     this.rocadas = [assarSuave(T.rocada(0)), assarSuave(T.rocada(1)), assarSuave(T.rocada(2))];
-    this.menu = new MenuPausa({
-      estado: this.op.estado,
-      aoSalvar: () => salvar(this.op.estado),
-    });
+    this.menu = new MenuPausa({ estado: this.op.estado });
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
     this.telaCaixa = new TelaCaixa(this.op.estado);
@@ -744,7 +742,8 @@ export class CenaMundo implements Cena {
     // ---- conversa em andamento: trava o movimento ----
     if (this.conversa) {
       const total = this.textoDaPagina().length;
-      this.conversa.revelados = Math.min(total, this.conversa.revelados + CHARS_POR_SEG * dt);
+      this.conversa.revelados = Math.min(total,
+        this.conversa.revelados + CHARS_POR_SEG * multiplicadorVelocidade() * dt);
       if (entrada.apertou('a')) {
         if (this.conversa.revelados < total) {
           this.conversa.revelados = total;            // primeiro A: revela tudo

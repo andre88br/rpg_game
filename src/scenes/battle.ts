@@ -29,6 +29,7 @@ import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import * as L from '../ui/listas.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
+import { multiplicadorVelocidade } from '../game/config.ts';
 
 /* ------------------------------------------------------------ constantes */
 
@@ -445,7 +446,7 @@ export class CenaBatalha implements Cena {
     // 1. frase em digitação
     if (this.linha !== null) {
       const total = this.linha.length;
-      this.revelados = Math.min(total, this.revelados + CHARS_POR_SEG * dt);
+      this.revelados = Math.min(total, this.revelados + CHARS_POR_SEG * multiplicadorVelocidade() * dt);
       if (entrada.apertou('a')) {
         if (this.revelados < total) { this.revelados = total; return; }
         this.pausa = 0;

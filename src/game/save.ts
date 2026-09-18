@@ -1,12 +1,18 @@
 /* =========================================================================
-   Gravar e retomar a partida.
+   Gravar e retomar a partida — em 6 slots.
 
-   O save é um JSON no localStorage. Ele atravessa publicações do jogo, então
-   o que ele diz NÃO é confiável: uma espécie pode ter sumido do jogo, um
-   golpe pode ter mudado de nome, um mapa pode não existir mais. Por isso
-   `restaurar()` confere tudo contra os dados atuais e descarta o que não
-   reconhece, em vez de estourar uma exceção na cara de quem só queria
-   continuar jogando.
+   O save é um JSON no localStorage, um por slot. Ele atravessa publicações
+   do jogo, então o que ele diz NÃO é confiável: uma espécie pode ter sumido
+   do jogo, um golpe pode ter mudado de nome, um mapa pode não existir mais.
+   Por isso `restaurar()` confere tudo contra os dados atuais e descarta o
+   que não reconhece, em vez de estourar uma exceção na cara de quem só
+   queria continuar jogando.
+
+   A partida sabe em qual slot está — `slotAtivo()` — e é nele que as
+   gravações automáticas (curar, trocar de mapa, acender uma conta...) caem
+   sem perguntar nada. Escolher UM slot entre os seis, e perguntar antes de
+   sobrescrever um que já tem gente dentro, é trabalho de tela — de
+   `scenes/slots.ts`, não deste arquivo.
 
    A parte pura — serializar e restaurar — não toca em localStorage, e é por
    isso que ela tem teste em save.test.ts.
@@ -20,12 +26,18 @@ import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import type { Direcao } from '../art/people.ts';
 import { TAMANHO_TIME, type EstadoJogo, type Lugar } from './state.ts';
 
-export const CHAVE = 'encantados:save:v1';
+/* chave do formato ANTIGO, de um save só — só existe para migrar quem já
+   jogava antes dos slots. Nunca mais é escrita. */
+const CHAVE_ANTIGA = 'encantados:save:v1';
+
+export const NUM_SLOTS = 6;
 export const VERSAO = 1;
+
+function chaveSlot(slot: number): string { return `encantados:save:v1:${slot}`; }
 
 export interface SaveJogo {
   v: number;
-  quando: number;          // milissegundos, só para mostrar no título
+  quando: number;          // milissegundos, só para mostrar na tela
   jogo: EstadoJogo;
 }
 
@@ -177,7 +189,7 @@ function loja(): Armazem | null {
   if (armazem !== undefined) return armazem;
   try {
     const ls = (globalThis as { localStorage?: Armazem }).localStorage ?? null;
-    if (ls) { ls.getItem(CHAVE); armazem = ls; } else { armazem = null; }
+    if (ls) { ls.getItem(chaveSlot(0)); armazem = ls; } else { armazem = null; }
   } catch { armazem = null; }
   return armazem;
 }
@@ -185,46 +197,134 @@ function loja(): Armazem | null {
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazem(a: Armazem | null): void { armazem = a; }
 
-export function salvar(e: EstadoJogo): boolean {
+/* --------------------------------------------------------------- os slots
+
+   Seis gavetas independentes. Cada uma vive na sua própria chave — trocar
+   de slot nunca risca o vizinho, e apagar um não mexe nos outros cinco. */
+
+export function salvarEmSlot(e: EstadoJogo, slot: number): boolean {
   const ls = loja();
   if (!ls) return false;
-  try { ls.setItem(CHAVE, JSON.stringify(serializar(e))); return true; }
+  try { ls.setItem(chaveSlot(slot), JSON.stringify(serializar(e))); return true; }
   catch { return false; }        // cota estourada, modo privado do Safari...
 }
 
-export function carregar(): EstadoJogo | null {
+export function carregarDeSlot(slot: number): EstadoJogo | null {
   const ls = loja();
   if (!ls) return null;
   try {
-    const cru = ls.getItem(CHAVE);
+    const cru = ls.getItem(chaveSlot(slot));
     if (!cru) return null;
     return restaurar(JSON.parse(cru));
   } catch { return null; }
 }
 
-export function temSave(): boolean {
+export function temSaveEmSlot(slot: number): boolean {
   const ls = loja();
   if (!ls) return false;
-  try { return ls.getItem(CHAVE) !== null; } catch { return false; }
+  try { return ls.getItem(chaveSlot(slot)) !== null; } catch { return false; }
 }
 
-export function apagar(): void {
+export function apagarSlot(slot: number): void {
   const ls = loja();
   if (!ls) return;
-  try { ls.removeItem(CHAVE); } catch { /* nada a fazer */ }
+  try { ls.removeItem(chaveSlot(slot)); } catch { /* nada a fazer */ }
 }
 
-/* Quando o save foi gravado, em palavras curtas, para a tela de título. */
-export function quandoSalvou(): string | null {
+export function algumSlotOcupado(): boolean {
+  for (let i = 0; i < NUM_SLOTS; i++) if (temSaveEmSlot(i)) return true;
+  return false;
+}
+
+/* o primeiro slot livre, para "novo jogo" não precisar perguntar nada
+   quando ainda sobra uma gaveta vazia */
+export function primeiroSlotVazio(): number | null {
+  for (let i = 0; i < NUM_SLOTS; i++) if (!temSaveEmSlot(i)) return i;
+  return null;
+}
+
+function formatarData(ms: number): string {
+  const d = new Date(ms);
+  const dois = (n: number) => String(n).padStart(2, '0');
+  return `${dois(d.getDate())}/${dois(d.getMonth() + 1)} ${dois(d.getHours())}:${dois(d.getMinutes())}`;
+}
+
+/* O que a tela de slots mostra de cada gaveta, sem precisar montar a
+   partida inteira toda vez que redesenha. */
+export interface ResumoSlot {
+  slot: number;
+  nome: string;
+  quando: string | null;
+  nivel: number;          // maior nível do time; 0 se ainda não tem ninguém
+  mapa: string;
+  medalhas: number;
+}
+
+export function resumoSlot(slot: number): ResumoSlot | null {
   const ls = loja();
   if (!ls) return null;
-  try {
-    const cru = ls.getItem(CHAVE);
-    if (!cru) return null;
-    const q = (JSON.parse(cru) as SaveJogo).quando;
-    if (typeof q !== 'number') return null;
-    const d = new Date(q);
-    const dois = (n: number) => String(n).padStart(2, '0');
-    return `${dois(d.getDate())}/${dois(d.getMonth() + 1)} ${dois(d.getHours())}:${dois(d.getMinutes())}`;
-  } catch { return null; }
+  let cru: string | null;
+  try { cru = ls.getItem(chaveSlot(slot)); } catch { return null; }
+  if (!cru) return null;
+
+  let bruto: unknown;
+  try { bruto = JSON.parse(cru); } catch { return null; }
+  const jogo = restaurar(bruto);
+  if (!jogo) return null;
+
+  const quandoMs = (bruto as Record<string, unknown>)['quando'];
+  return {
+    slot,
+    nome: jogo.nome,
+    quando: typeof quandoMs === 'number' ? formatarData(quandoMs) : null,
+    nivel: jogo.time.reduce((max, c) => Math.max(max, c.nivel), 0),
+    mapa: MAPAS[jogo.posicao.mapa]?.nome ?? '???',
+    medalhas: jogo.medalhas.length,
+  };
 }
+
+export function resumoTodos(): (ResumoSlot | null)[] {
+  return Array.from({ length: NUM_SLOTS }, (_, i) => resumoSlot(i));
+}
+
+/* --------------------------------------------------------- o slot ativo
+
+   Qual das seis gavetas a sessão atual está jogando — é nela que caem as
+   gravações automáticas, sem perguntar nada a cada uma. Só muda quando o
+   jogador escolhe outro slot de propósito: ao CONTINUAR, ou ao gravar num
+   slot diferente pela tela SALVAR. */
+let slotAtivo = 0;
+
+export function obterSlotAtivo(): number { return slotAtivo; }
+
+export function definirSlotAtivo(slot: number): void {
+  slotAtivo = Math.max(0, Math.min(NUM_SLOTS - 1, Math.floor(slot)));
+}
+
+/* Quem jogava antes dos seis slots tinha UM save, numa chave sem número.
+   Essa chave nunca mais é escrita; só é lida aqui, uma vez, para o slot 1
+   de quem já jogava não amanhecer vazio. */
+export function migrarSaveAntigo(): void {
+  const ls = loja();
+  if (!ls) return;
+  try {
+    const antigo = ls.getItem(CHAVE_ANTIGA);
+    if (!antigo) return;
+    if (ls.getItem(chaveSlot(0)) === null) ls.setItem(chaveSlot(0), antigo);
+    ls.removeItem(CHAVE_ANTIGA);
+  } catch { /* nada a fazer */ }
+}
+
+/* ------------------------------------------------------- atalhos do slot ativo
+
+   Os pontos de gravação automática espalhados pelo jogo (curar, trocar de
+   mapa, acender uma conta, vencer um treinador...) não sabem de slot — só
+   chamam `salvar(estado)`, como sempre chamaram. Por baixo, cai sempre no
+   slot ativo da sessão. */
+export function salvar(e: EstadoJogo): boolean { return salvarEmSlot(e, slotAtivo); }
+export function carregar(): EstadoJogo | null { return carregarDeSlot(slotAtivo); }
+export function temSave(): boolean { return temSaveEmSlot(slotAtivo); }
+export function apagar(): void { apagarSlot(slotAtivo); }
+
+/* Quando o slot ativo foi gravado, em palavras curtas. */
+export function quandoSalvou(): string | null { return resumoSlot(slotAtivo)?.quando ?? null; }

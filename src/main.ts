@@ -5,12 +5,17 @@ import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
 import { GerenciadorCenas } from './core/scene.ts';
 import { CenaTitulo, type Comeco } from './scenes/title.ts';
+import { CenaIntro } from './scenes/intro.ts';
 import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
 import { CenaBatalha } from './scenes/battle.ts';
 import { MAPAS } from './data/mapas/index.ts';
 import { Mundo } from './world/mundo.ts';
 import { novoJogo, type EstadoJogo } from './game/state.ts';
-import { carregar } from './game/save.ts';
+import { carregarDeSlot, definirSlotAtivo, migrarSaveAntigo } from './game/save.ts';
+
+// quem jogava antes dos seis slots tinha um save só: essa migração acontece
+// uma vez, aqui, antes de qualquer tela olhar para os slots
+migrarSaveAntigo();
 
 const canvas = document.getElementById('jogo') as HTMLCanvasElement | null;
 const palco = document.getElementById('palco');
@@ -68,18 +73,31 @@ function aoTitulo(): void {
   cenas.trocar(new CenaTitulo(comecar));
 }
 
-function comecar(modo: Comeco): void {
-  estado = (modo === 'continuar' ? carregar() : null) ?? novoJogo();
+function iniciarMundo(): void {
   /* A cena de mundo é criada UMA vez por partida e reaproveitada: voltar de
      uma batalha não pode remontar o mapa nem devolver o jogador ao ponto de
      partida. */
   mundo = new CenaMundo({
     mundo: regiao,
-    estado,
+    estado: estado!,
     aoBatalhar: lutar,
     aoSair: aoTitulo,
   });
   cenas.trocar(mundo);
+}
+
+function comecar(modo: Comeco, slot: number): void {
+  definirSlotAtivo(slot);
+  if (modo === 'continuar') {
+    estado = carregarDeSlot(slot) ?? novoJogo();
+    iniciarMundo();
+    return;
+  }
+  // jogo novo: a introdução toca antes de o mundo existir de verdade
+  cenas.trocar(new CenaIntro(() => {
+    estado = novoJogo();
+    iniciarMundo();
+  }));
 }
 
 cenas.definir(new CenaTitulo(comecar));
