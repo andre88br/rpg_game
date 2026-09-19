@@ -80,18 +80,25 @@ export function listaMochila(r: Renderizador, m: Mochila, ids: readonly string[]
   });
 }
 
-/* Descrição do item apontado. O limite de linhas é de quem chama: na loja
-   só cabe uma antes do rodapé, e duas escreveriam por cima dele. */
-export function descricaoItem(r: Renderizador, id: string | undefined, y: number,
-                              maxLinhas = 2): void {
-  if (!id) return;
-  const linhas = quebrarCurto(fichaItem(id).descricao, LARGURA - 32);
+/* Texto corrido quebrado em linhas curtas, com reticências quando sobra
+   mais do que o chamador tem espaço para mostrar. */
+export function paragrafo(r: Renderizador, texto: string, x: number, y: number,
+                          largura: number, maxLinhas: number, cor: string): void {
+  const linhas = quebrarCurto(texto, largura);
   const mostradas = linhas.slice(0, maxLinhas);
   // frase cortada no meio parece defeito; as reticências dizem que tem mais
   if (linhas.length > mostradas.length && mostradas.length > 0) {
     mostradas[mostradas.length - 1] += '...';
   }
-  mostradas.forEach((l, i) => r.texto(l, 14, y + i * 10, P.uiBg3!));
+  mostradas.forEach((l, i) => r.texto(l, x, y + i * 10, cor));
+}
+
+/* Descrição do item apontado. O limite de linhas é de quem chama: na loja
+   só cabe uma antes do rodapé, e duas escreveriam por cima dele. */
+export function descricaoItem(r: Renderizador, id: string | undefined, y: number,
+                              maxLinhas = 2): void {
+  if (!id) return;
+  paragrafo(r, fichaItem(id).descricao, 14, y, LARGURA - 32, maxLinhas, P.uiBg3!);
 }
 
 function quebrarCurto(s: string, larg: number): string[] {

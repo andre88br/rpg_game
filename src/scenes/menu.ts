@@ -15,6 +15,8 @@ import { ficha, nome, type Encantado } from '../battle/encantado.ts';
 import * as L from '../ui/listas.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
 import { item } from '../data/items.ts';
+import { especie, ESPECIES_ORDEM } from '../data/creatures.ts';
+import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import {
   trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
 } from '../game/state.ts';
@@ -28,9 +30,11 @@ import {
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
 type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
-            | 'velocidade' | 'slots' | 'sair';
+            | 'caderno' | 'velocidade' | 'slots' | 'sair';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'VELOCIDADE', 'SALVAR', 'SAIR'] as const;
+
+const CADERNO_LINHAS_VISIVEIS = 10;
 
 export interface OpcoesMenu {
   estado: EstadoJogo;
@@ -49,9 +53,14 @@ export class MenuPausa {
   private itemUsando: string | null = null;
   private selAlvo = 0;
 
+  /* cursor e rolagem do Caderno de Bichos */
+  private selCaderno = 0;
+  private topoCaderno = 0;
+
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
   private medalhinhas = new Map<string, Assado>();
+  private spritesCaderno = new Map<string, Assado>();
   private slots: TelaSlots;
   private velSel = 0;
 
@@ -173,6 +182,13 @@ export class MenuPausa {
       return 'aberto';
     }
 
+    if (this.pagina === 'caderno') {
+      this.selCaderno = this.andar(entrada, this.selCaderno, ESPECIES_ORDEM.length);
+      this.ajustarJanelaCaderno();
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'mochila';
+      return 'aberto';
+    }
+
     if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
     return 'aberto';
   }
@@ -190,6 +206,7 @@ export class MenuPausa {
   private tentarUsarItem(): void {
     const id = this.itens()[this.selLista];
     if (!id) return;
+    if (id === 'caderno') { this.abrirCaderno(); return; }
     if (!usavelForaDeBatalha(id)) { this.avisar('Isso não se usa fora de batalha.'); return; }
     if (this.op.estado.time.length === 0) {
       this.avisar('Você ainda não tem nenhum Encantado.');
@@ -198,6 +215,20 @@ export class MenuPausa {
     this.itemUsando = id;
     this.selAlvo = 0;
     this.pagina = 'mochilaAlvo';
+  }
+
+  private abrirCaderno(): void {
+    this.pagina = 'caderno';
+    this.selCaderno = 0;
+    this.topoCaderno = 0;
+  }
+
+  /* mantém a espécie escolhida sempre visível na janela que rola */
+  private ajustarJanelaCaderno(): void {
+    if (this.selCaderno < this.topoCaderno) this.topoCaderno = this.selCaderno;
+    if (this.selCaderno >= this.topoCaderno + CADERNO_LINHAS_VISIVEIS) {
+      this.topoCaderno = this.selCaderno - CADERNO_LINHAS_VISIVEIS + 1;
+    }
   }
 
   private naMochilaAlvo(entrada: Entrada): SaidaMenu {
@@ -297,6 +328,9 @@ export class MenuPausa {
         });
         break;
       }
+      case 'caderno':
+        this.desenharCaderno(r);
+        break;
       case 'velocidade': {
         L.telaCheia(r, this.caixaCheia, 'VELOCIDADE DO JOGO', 'A ESCOLHER   B VOLTAR');
         const atual = obterVelocidade();
@@ -317,6 +351,50 @@ export class MenuPausa {
     if (!e) return;
     const f = ficha(e);
     r.texto(`${nome(e)} — ${f.nome}`, 14, ALTURA - 32, P.uiBg3!);
+  }
+
+  /* lista à esquerda, com o nome trocado por "? ? ?" para quem ainda não
+     apareceu; a direita mostra o sprite e o que o Contador anotou dele. */
+  private desenharCaderno(r: Renderizador): void {
+    const est = this.op.estado;
+    L.telaCheia(r, this.caixaCheia, 'CADERNO DE BICHOS',
+                `B VOLTAR    ${est.vistos.length} DE ${ESPECIES_ORDEM.length}`);
+
+    for (let i = 0; i < CADERNO_LINHAS_VISIVEIS; i++) {
+      const idx = this.topoCaderno + i;
+      const id = ESPECIES_ORDEM[idx];
+      if (!id) break;
+      const vista = est.vistos.includes(id);
+      const y = 30 + i * 10;
+      if (idx === this.selCaderno) r.texto('=', 12, y, P.uiAccD!);
+      r.texto(vista ? especie(id).nome.toUpperCase() : '? ? ?', 22, y,
+              vista ? P.uiInk! : P.uiBg3!);
+    }
+    if (this.topoCaderno > 0) r.texto('...', 96, 30, P.uiBg3!);
+    if (this.topoCaderno + CADERNO_LINHAS_VISIVEIS < ESPECIES_ORDEM.length) {
+      r.texto('...', 96, 30 + (CADERNO_LINHAS_VISIVEIS - 1) * 10, P.uiBg3!);
+    }
+
+    const idSel = ESPECIES_ORDEM[this.selCaderno];
+    if (!idSel) return;
+    if (!est.vistos.includes(idSel)) {
+      r.texto('AINDA NÃO VISTO.', 120, 40, P.uiBg3!);
+      return;
+    }
+    const esp = especie(idSel);
+    r.sprite(this.spriteCaderno(esp.arte), 160, 26);
+    r.texto(esp.categoria, 120, 64, P.uiAccD!);
+    L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiBg3!);
+  }
+
+  private spriteCaderno(arte: string): Assado {
+    let a = this.spritesCaderno.get(arte);
+    if (a) return a;
+    const desenho = ARTE_CRIATURAS[arte];
+    if (!desenho) throw new Error(`sem arte para ${arte}`);
+    a = assarSuave(desenho());
+    this.spritesCaderno.set(arte, a);
+    return a;
   }
 
   private desenharMedalhas(r: Renderizador): void {
