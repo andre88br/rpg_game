@@ -60,7 +60,8 @@ export const campoAberto: DefMapa = {
     /* as três trancas: cada uma some quando o catador dela cai */
     { tipo: 'barreira', tx: 8,  ty: 9,  larg: 2, seNao: 'venceu_catador1' },
     { tipo: 'barreira', tx: 22, ty: 17, larg: 2, seNao: 'venceu_catador2' },
-    { tipo: 'barreira', tx: 8,  ty: 25, larg: 2, seNao: 'venceu_chefe_catadores' },
+    { tipo: 'barreira', tx: 8,  ty: 25, larg: 2, seNao: 'venceu_catador3' },
+    { tipo: 'barreira', tx: 14, ty: 33, larg: 2, seNao: 'venceu_chefe_catadores' },
     { tipo: 'placa', tx: 25, ty: 26,
       placa: 'Sente? O capim aqui não para de se mexer. É a primeira corrente — tem mais adiante.' },
 

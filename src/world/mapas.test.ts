@@ -895,6 +895,60 @@ test('cada tranca do Terreiro de Brasa fecha e abre de verdade', () => {
   }
 });
 
+test('cada tranca do Campo Aberto fecha e abre de verdade, uma de cada vez', () => {
+  /* pegou um bug de verdade: a terceira tranca estava condicionada a
+     `venceu_chefe_catadores`, e o chefe mora do OUTRO lado dela — um laço
+     sem saída que o usuário bateu de frente. Este teste confere elo por
+     elo, não só que "a saída final abre com tudo vencido" (isso o teste
+     geral sob ABERTO já mascarava, porque ali toda condição vale). */
+  const def = MAPAS['campoAberto']!;
+  const elos: [string, number, number][] = [
+    ['venceu_catador1', 8, 9],
+    ['venceu_catador2', 22, 17],
+    ['venceu_catador3', 8, 25],
+    ['venceu_chefe_catadores', 14, 33],
+  ];
+  const fechado = new Mapa(def, FECHADO);
+  for (const [, tx, ty] of elos) {
+    assert.ok(fechado.solido(tx, ty), `campoAberto: a tranca em (${tx},${ty}) devia começar fechada`);
+  }
+  for (const [flag, tx, ty] of elos) {
+    const aberto = new Mapa(def, { contas: () => 0, nadar: false, ligada: (c) => c === flag });
+    assert.ok(!aberto.solido(tx, ty),
+              `campoAberto: a tranca em (${tx},${ty}) devia abrir com "${flag}" ligada`);
+    // e nenhuma OUTRA continua trancada por engano com essa flag sozinha
+    for (const [, ox, oy] of elos) {
+      if (ox === tx && oy === ty) continue;
+      assert.ok(aberto.solido(ox, oy),
+                `campoAberto: "${flag}" sozinha não devia abrir a tranca em (${ox},${oy})`);
+    }
+  }
+});
+
+test('cada tranca da Trilha da Brasa fecha e abre de verdade, uma de cada vez', () => {
+  const def = MAPAS['trilhaDaBrasa']!;
+  const elos: [string, number, number][] = [
+    ['venceu_tropeiro1', 6, 10],
+    ['venceu_tropeiro2', 22, 17],
+    ['venceu_tropeiro3', 6, 24],
+    ['venceu_chefe_tropa', 4, 31],
+  ];
+  const fechado = new Mapa(def, FECHADO);
+  for (const [, tx, ty] of elos) {
+    assert.ok(fechado.solido(tx, ty), `trilhaDaBrasa: a tranca em (${tx},${ty}) devia começar fechada`);
+  }
+  for (const [flag, tx, ty] of elos) {
+    const aberto = new Mapa(def, { contas: () => 0, nadar: false, ligada: (c) => c === flag });
+    assert.ok(!aberto.solido(tx, ty),
+              `trilhaDaBrasa: a tranca em (${tx},${ty}) devia abrir com "${flag}" ligada`);
+    for (const [, ox, oy] of elos) {
+      if (ox === tx && oy === ty) continue;
+      assert.ok(aberto.solido(ox, oy),
+                `trilhaDaBrasa: "${flag}" sozinha não devia abrir a tranca em (${ox},${oy})`);
+    }
+  }
+});
+
 test('os campos de pedra do Terreiro de Brasa têm solução a partir da porta', () => {
   /* Este teste já existiu errado, e deixou passar duas salas impossíveis:
      partia de (8,1) — a faixa NORTE, do outro lado do quebra-cabeça — e
