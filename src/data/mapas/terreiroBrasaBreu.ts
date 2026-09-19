@@ -2,7 +2,11 @@
    O mesmo quebra-cabeça da escória, cara nova: agora no escuro de
    verdade, com o Guarda do Breu esperando do outro lado. É onde o pedido
    do usuário — um caminho longo até o mestre — e as duas mecânicas da
-   região se encontram de vez. */
+   região se encontram de vez.
+
+   Vale aqui a mesma ORIENTAÇÃO da escória: entra-se pelo sul, logo a pedra
+   fica ABAIXO da cova em cada corredor. Ver o comentário completo em
+   terreiroBrasaEscoria.ts. */
 import type { DefMapa } from '../../world/tilemap.ts';
 
 export const terreiroBrasaBreu: DefMapa = {
@@ -33,15 +37,15 @@ export const terreiroBrasaBreu: DefMapa = {
 
   objetos: [
     { tipo: 'barreira', tx: 8, ty: 0, larg: 1, seNao: 'venceu_guarda_breu' },
-    { tipo: 'cova', tx: 5, ty: 6, seNao: 'cova_fundo_a' },
-    { tipo: 'entulho', tx: 5, ty: 6, se: 'cova_fundo_a', solido: false },
-    { tipo: 'cova', tx: 11, ty: 6, seNao: 'cova_fundo_b' },
-    { tipo: 'entulho', tx: 11, ty: 6, se: 'cova_fundo_b', solido: false },
+    { tipo: 'cova', tx: 5, ty: 3, seNao: 'cova_fundo_a' },
+    { tipo: 'entulho', tx: 5, ty: 3, se: 'cova_fundo_a', solido: false },
+    { tipo: 'cova', tx: 11, ty: 3, seNao: 'cova_fundo_b' },
+    { tipo: 'entulho', tx: 11, ty: 3, se: 'cova_fundo_b', solido: false },
   ],
 
   pedras: [
-    { tx: 5, ty: 3, cova: 'cova_fundo_a' },
-    { tx: 11, ty: 3, cova: 'cova_fundo_b' },
+    { tx: 5, ty: 6, cova: 'cova_fundo_a' },
+    { tx: 11, ty: 6, cova: 'cova_fundo_b' },
   ],
 
   npcs: [

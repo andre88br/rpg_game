@@ -731,7 +731,18 @@ test('cada tranca do Terreiro de Brasa fecha e abre de verdade', () => {
   }
 });
 
-test('os campos de pedra do Terreiro de Brasa têm solução', () => {
+test('os campos de pedra do Terreiro de Brasa têm solução a partir da porta', () => {
+  /* Este teste já existiu errado, e deixou passar duas salas impossíveis:
+     partia de (8,1) — a faixa NORTE, do outro lado do quebra-cabeça — e
+     pedia para chegar em (5,7), ao sul. Ou seja, resolvia a sala de trás
+     para a frente, de um tile onde o jogador só consegue pisar DEPOIS de
+     resolvê-la. Com a pedra acima da cova, quem subia do salão batia na
+     cova (que é sólida) antes de alcançar a pedra, e a partida travava sem
+     saída.
+
+     Por isso agora o começo é `def.inicio` — a porta por onde o jogador
+     entra de verdade — e o objetivo é (8,1), a faixa norte onde ficam o
+     guarda e a porta seguinte. É o percurso real, no sentido real. */
   for (const id of ['terreiroBrasaEscoria', 'terreiroBrasaBreu']) {
     const def = MAPAS[id]!;
     const m = new Mapa(def, FECHADO);
@@ -741,10 +752,22 @@ test('os campos de pedra do Terreiro de Brasa têm solução', () => {
       .map((o) => ({ tx: o.tx, ty: o.ty, flag: o.seNao as string }));
     assert.equal(pedras.length, 2, `${id}: devia ter duas pedras`);
     assert.equal(covas.length, 2, `${id}: devia ter duas covas`);
-    // empurrar de cima para baixo, a partir do corredor de acesso (linha 1)
-    assert.ok(temSolucao(m, { tx: 8, ty: 1 }, pedras, covas, { tx: 5, ty: 7 },
-                         { x0: 1, y0: 1, x1: 15, y1: 8 }),
-              `${id}: as duas pedras não chegam às duas covas`);
+
+    /* subindo cada corredor a partir do salão, a PEDRA tem que vir antes da
+       cova — senão a cova (sólida) barra o caminho e a pedra fica do lado
+       de lá, inalcançável. É a checagem que falta ao BFS dizer em voz alta */
+    for (const p of def.pedras ?? []) {
+      const cova = covas.find((c) => c.flag === p.cova)!;
+      assert.equal(cova.tx, p.tx, `${id}: pedra e cova de ${p.cova} em corredores diferentes`);
+      assert.ok(cova.ty < p.ty,
+                `${id}: a cova de ${p.cova} está ABAIXO da pedra — quem sobe do salão ` +
+                `bate nela antes de alcançar a pedra e trava a sala`);
+    }
+
+    // o percurso de verdade: da porta de entrada até a faixa norte
+    assert.ok(temSolucao(m, { tx: def.inicio.tx, ty: def.inicio.ty }, pedras, covas,
+                         { tx: 8, ty: 1 }),
+              `${id}: não dá para chegar ao guarda entrando pela porta`);
   }
 });
 

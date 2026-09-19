@@ -377,6 +377,11 @@ abaixo:
 três vezes**. A pedra desce três tiles e cai na cova. Repita nos três
 corredores.
 
+> Atenção ao sentido: aqui na caverna você entra pelo norte e empurra para
+> **baixo**. Nas duas salas de pedra do Terreiro de Brasa você entra pelo sul,
+> e lá o empurrão é para **cima**. A regra que nunca muda: você sempre chega
+> na pedra pelo lado de cá e empurra para o lado de lá, onde está o buraco.
+
 Com as três covas tapadas, `conta_breu` acende **e** a barreira tripla em
 (15,25) some — é ela que fecha a descida para a Cumeeira, em (16,37)/(17,37).
 
@@ -409,15 +414,18 @@ Prêmio 1400. Vencê-lo abre a passagem norte em (7,0).
 
 ### Sala 2 — ESCÓRIA (duas pedras)
 
-Mesmo empurrão da caverna, em dois corredores de largura 1:
+Mesmo empurrão da caverna, mas **no sentido contrário**: aqui você entra pelo
+sul e sobe, então empurra a pedra **de baixo para cima**.
 
 | Pedra | Começa em | Cova em |
 |---|---|---|
-| A | (5,3) | (5,6) |
-| B | (11,3) | (11,6) |
+| A | (5,6) | (5,3) |
+| B | (11,6) | (11,3) |
 
-De novo: fique acima da pedra e **ande para baixo três vezes**. Errou? Sai da
-sala e volta.
+Entre num dos dois corredores pelo salão, chegue por baixo da pedra e **ande
+para cima três vezes**. A pedra cai na cova, o buraco fica tapado e você passa
+por cima dele rumo ao norte. Resolver **um** dos dois corredores já basta.
+Errou? Sai da sala e volta: as pedras voltam ao lugar.
 
 Depois, **SOPRADORA DO FOLE**, (8,1), visão 4: **Salamanca 31**,
 **Cabra-Cabriola 32**. Prêmio 1600. Esperta, com **1 Garrafada**. Passagem em
@@ -430,10 +438,10 @@ mudam nada, o raio é curto e pronto. Mesmas posições da sala anterior:
 
 | Pedra | Começa em | Cova em |
 |---|---|---|
-| A | (5,3) | (5,6) |
-| B | (11,3) | (11,6) |
+| A | (5,6) | (5,3) |
+| B | (11,6) | (11,3) |
 
-Mesma receita: por cima da pedra, três passos para baixo. Você não vai
+Mesma receita: por baixo da pedra, **três passos para cima**. Você não vai
 *enxergar* a cova — confie nas três contagens.
 
 Guardando a saída, **GUARDA DO BREU**, (8,9), visão 4: **Mula-sem-Cabeça 32**,

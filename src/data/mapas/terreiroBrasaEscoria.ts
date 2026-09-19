@@ -1,7 +1,15 @@
 /* Terreiro de Brasa — sala 2 de 4, o campo de escória.
    Dois corredores de largura 1, cada um com sua pedra e sua cova — resolver
    qualquer um dos dois abre caminho para o norte, onde a Sopradora do Fole
-   guarda a porta seguinte. */
+   guarda a porta seguinte.
+
+   ORIENTAÇÃO (já saiu errada uma vez e travou a sala): aqui se ENTRA PELO
+   SUL, em `inicio`, e se sobe. Então, subindo o corredor, a PEDRA tem que
+   vir antes da COVA — a pedra em ty maior, a cova em ty menor. A cova aberta
+   é sólida: se ela ficar abaixo da pedra, quem sobe do salão esbarra nela e
+   nunca alcança a pedra, e a sala fica impossível. (Na Caverna do Boitatá é
+   o contrário justamente porque lá se entra pelo norte.) `mapas.test.ts`
+   confere isso partindo de `inicio`, no sentido real. */
 import type { DefMapa } from '../../world/tilemap.ts';
 
 export const terreiroBrasaEscoria: DefMapa = {
@@ -29,15 +37,15 @@ export const terreiroBrasaEscoria: DefMapa = {
 
   objetos: [
     { tipo: 'barreira', tx: 8, ty: 0, larg: 1, seNao: 'venceu_sopradora' },
-    { tipo: 'cova', tx: 5, ty: 6, seNao: 'cova_forja_a' },
-    { tipo: 'entulho', tx: 5, ty: 6, se: 'cova_forja_a', solido: false },
-    { tipo: 'cova', tx: 11, ty: 6, seNao: 'cova_forja_b' },
-    { tipo: 'entulho', tx: 11, ty: 6, se: 'cova_forja_b', solido: false },
+    { tipo: 'cova', tx: 5, ty: 3, seNao: 'cova_forja_a' },
+    { tipo: 'entulho', tx: 5, ty: 3, se: 'cova_forja_a', solido: false },
+    { tipo: 'cova', tx: 11, ty: 3, seNao: 'cova_forja_b' },
+    { tipo: 'entulho', tx: 11, ty: 3, se: 'cova_forja_b', solido: false },
   ],
 
   pedras: [
-    { tx: 5, ty: 3, cova: 'cova_forja_a' },
-    { tx: 11, ty: 3, cova: 'cova_forja_b' },
+    { tx: 5, ty: 6, cova: 'cova_forja_a' },
+    { tx: 11, ty: 6, cova: 'cova_forja_b' },
   ],
 
   npcs: [
