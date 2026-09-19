@@ -3,6 +3,12 @@
    qualquer um dos dois abre caminho para o norte, onde a Sopradora do Fole
    guarda a porta seguinte.
 
+   A faixa de cima tem DUAS linhas (1 e 2), não uma: a Sopradora fica ao
+   lado da porta, em (7,1), e NPC é sólido — numa faixa de uma linha só ela
+   viraria parede para quem sobe pelo corredor da esquerda. Com a linha 2
+   aberta, os dois corredores chegam à porta, e a visão dela pega o jogador
+   em (8,1) de qualquer um dos dois lados.
+
    ORIENTAÇÃO (já saiu errada uma vez e travou a sala): aqui se ENTRA PELO
    SUL, em `inicio`, e se sobe. Então, subindo o corredor, a PEDRA tem que
    vir antes da COVA — a pedra em ty maior, a cova em ty menor. A cova aberta
@@ -20,7 +26,7 @@ export const terreiroBrasaEscoria: DefMapa = {
   chao: [
     'WWWWWWWW_WWWWWWWW',
     'W_______________W',
-    'WWWWW_WWWWW_WWWWW',
+    'W_______________W',
     'WWWWW_WWWWW_WWWWW',
     'WWWWW_WWWWW_WWWWW',
     'WWWWW_WWWWW_WWWWW',
@@ -50,8 +56,13 @@ export const terreiroBrasaEscoria: DefMapa = {
 
   npcs: [
     {
+      /* (7,1), NÃO (8,1): a porta para o breu é (8,0), e (8,1) é o único
+         vizinho andável dela — NPC é sólido, então quem ficasse ali
+         trancaria a saída para sempre, mesmo depois de perder a batalha.
+         Daqui, de olho na direita, ela continua cobrindo a faixa inteira
+         com a visão, e a tranca de verdade é a barreira em (8,0). */
       id: 'sopradora', nome: 'SOPRADORA DO FOLE', estilo: 'aldeao',
-      tx: 8, ty: 1, dir: 'baixo',
+      tx: 7, ty: 1, dir: 'dir',
       treinador: {
         classe: 'SOPRADORA DO FOLE', visao: 4, premio: 1600,
         esperta: true, itens: { garrafada: 1 },

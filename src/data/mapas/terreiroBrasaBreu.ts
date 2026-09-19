@@ -72,7 +72,7 @@ export const terreiroBrasaBreu: DefMapa = {
   inicio: { tx: 8, ty: 15, dir: 'cima' },
 
   saidas: [
-    /* cai ao lado da Sopradora, não em cima dela: (8,1) é o posto dela */
+    /* cai ao lado da Sopradora, que fica em (7,1) */
     { tx: 8, ty: 16, para: 'terreiroBrasaEscoria', destino: { tx: 9, ty: 1, dir: 'baixo' } },
     { tx: 8, ty: 0,  para: 'terreiroBrasaSalao', destino: { tx: 7, ty: 13, dir: 'cima' } },
   ],

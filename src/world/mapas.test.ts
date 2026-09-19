@@ -132,6 +132,22 @@ test('toda saída leva a um mapa que existe, e cai em chão livre', () => {
                    `${onde}: o destino é outra saída — isso faz laço de porta`);
       assert.ok(!MAPAS[s.para]!.npcs.some((n) => n.tx === s.destino.tx && n.ty === s.destino.ty),
                 `${onde}: tem um NPC parado em cima do destino`);
+
+      /* NPC é sólido (overworld.ts, `livre`): um que exista SEMPRE e esteja
+         plantado no único vizinho andável da porta tranca a saída para
+         valer, mesmo depois de vencido — foi o que aconteceu com a
+         Sopradora do Fole, parada em (8,1), o único acesso à porta (8,0) do
+         campo de escória. Quem tem `se`/`seNao` some em algum momento, e
+         por isso não conta como bloqueio permanente. */
+      const fixos = def.npcs.filter((n) => n.se === undefined && n.seNao === undefined);
+      const vizinhos = [[0, -1], [0, 1], [-1, 0], [1, 0]]
+        .map(([dx, dy]) => ({ tx: s.tx + dx!, ty: s.ty + dy! }))
+        .filter((v) => !m.solido(v.tx, v.ty));
+      const livres = vizinhos.filter(
+        (v) => !fixos.some((n) => n.tx === v.tx && n.ty === v.ty));
+      assert.ok(vizinhos.length === 0 || livres.length > 0,
+                `${onde}: todo acesso à porta tem NPC fixo em cima — ` +
+                `o jogador não consegue chegar nela`);
     }
   }
 });
@@ -768,6 +784,47 @@ test('os campos de pedra do Terreiro de Brasa têm solução a partir da porta',
     assert.ok(temSolucao(m, { tx: def.inicio.tx, ty: def.inicio.ty }, pedras, covas,
                          { tx: 8, ty: 1 }),
               `${id}: não dá para chegar ao guarda entrando pela porta`);
+  }
+});
+
+test('nas salas de pedra, os DOIS corredores chegam à porta', () => {
+  /* Cada sala tem dois corredores de largura 1, e resolver UM já devia
+     bastar. Mas NPC é sólido: a Sopradora, parada na antessala de uma linha
+     só, virava parede para quem subia por um dos lados — quem resolvesse o
+     corredor "errado" chegava lá em cima e não passava. O BFS do mapa todo
+     não pega isso, porque no cenário "tudo aberto" ele sempre acha o outro
+     corredor. Então aqui se testa cada boca de corredor por vez. */
+  const VIZ = [[0, -1], [0, 1], [-1, 0], [1, 0]] as const;
+  for (const id of ['terreiroBrasaEscoria', 'terreiroBrasaBreu']) {
+    const def = MAPAS[id]!;
+    const m = mapa(id);
+    const porta = (def.saidas ?? []).find((x) => x.ty === 0)!;
+    const fixos = new Set(def.npcs.filter((n) => n.se === undefined && n.seNao === undefined)
+                                  .map((n) => `${n.tx},${n.ty}`));
+    const livre = (x: number, y: number) => !m.solido(x, y) && !fixos.has(`${x},${y}`);
+
+    for (const p of def.pedras ?? []) {
+      /* de onde a pedra encaixada deixa o jogador sair: logo acima da cova
+         daquele corredor, já na faixa de cima */
+      const cova = def.objetos.find((o) => o.tipo === 'cova' && o.seNao === p.cova)!;
+      const saidaDoCorredor = { tx: cova.tx, ty: cova.ty - 1 };
+      assert.ok(livre(saidaDoCorredor.tx, saidaDoCorredor.ty),
+                `${id}: acima da cova de ${p.cova} não é chão livre`);
+
+      const vistos = new Set([`${saidaDoCorredor.tx},${saidaDoCorredor.ty}`]);
+      const fila = [[saidaDoCorredor.tx, saidaDoCorredor.ty]];
+      while (fila.length) {
+        const [x, y] = fila.shift() as [number, number];
+        for (const [dx, dy] of VIZ) {
+          const nx = x + dx, ny = y + dy, k = `${nx},${ny}`;
+          if (vistos.has(k) || !livre(nx, ny)) continue;
+          vistos.add(k); fila.push([nx, ny]);
+        }
+      }
+      assert.ok(vistos.has(`${porta.tx},${porta.ty}`),
+                `${id}: quem resolve o corredor de ${p.cova} sobe e não alcança a porta ` +
+                `(${porta.tx},${porta.ty}) — tem NPC fixo no caminho`);
+    }
   }
 });
 
