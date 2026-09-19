@@ -25,6 +25,14 @@ import { terreiroBrasaPatio } from './terreiroBrasaPatio.ts';
 import { terreiroBrasaEscoria } from './terreiroBrasaEscoria.ts';
 import { terreiroBrasaBreu } from './terreiroBrasaBreu.ts';
 import { terreiroBrasaSalao } from './terreiroBrasaSalao.ts';
+import { campoAberto } from './campoAberto.ts';
+import { ventaniaFunda } from './ventaniaFunda.ts';
+import { aldeiaCatavento } from './aldeiaCatavento.ts';
+import { lojaCatavento } from './lojaCatavento.ts';
+import { benzimentoCatavento } from './benzimentoCatavento.ts';
+import { moinhoCatavento } from './moinhoCatavento.ts';
+import { topoDoRedemoinho } from './topoDoRedemoinho.ts';
+import { terreiroRodamoinho } from './terreiroRodamoinho.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -50,6 +58,14 @@ export const MAPAS: Record<string, DefMapa> = {
   terreiroBrasaEscoria,
   terreiroBrasaBreu,
   terreiroBrasaSalao,
+  campoAberto,
+  ventaniaFunda,
+  aldeiaCatavento,
+  lojaCatavento,
+  benzimentoCatavento,
+  moinhoCatavento,
+  topoDoRedemoinho,
+  terreiroRodamoinho,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

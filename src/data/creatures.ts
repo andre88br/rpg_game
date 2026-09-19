@@ -146,6 +146,7 @@ const LISTA: readonly Especie[] = [
       { nv: 7, golpe: 'pe_de_vento' }, { nv: 12, golpe: 'encarada' },
       { nv: 18, golpe: 'redemoinho' },
     ],
+    evolui: { em: 'saci', nv: 24 },
   },
   {
     id: 'caiporinha', nome: 'Caiporinha', tipos: ['planta'],
@@ -233,6 +234,43 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
       { nv: 1, golpe: 'lampejo' }, { nv: 20, golpe: 'benzecao' },
       { nv: 30, golpe: 'aurora' }, { nv: 40, golpe: 'clarao_boitata' },
+    ],
+  },
+
+  /* --------------------- do Campo do Saci --------------------- */
+  {
+    id: 'saci', nome: 'Saci', tipos: ['vento'],
+    base: { hp: 64, atq: 74, def: 56, esp: 90, vel: 118 },
+    taxaCaptura: 25, xpBase: 165, crescimento: 'rapido',
+    arte: 'saci', categoria: 'Peralta do Vento',
+    sobre: 'Cresceu, mas não emendou. Atravessa cerca fechada sem tirar o gorro do lugar.',
+    aprende: [
+      { nv: 1, golpe: 'pe_de_vento' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 1, golpe: 'encarada' }, { nv: 24, golpe: 'vendaval' },
+      { nv: 30, golpe: 'afiar' },
+    ],
+  },
+  {
+    id: 'matinta', nome: 'Matinta', tipos: ['vento'],
+    base: { hp: 70, atq: 66, def: 62, esp: 88, vel: 80 },
+    taxaCaptura: 70, xpBase: 120, crescimento: 'medio',
+    arte: 'matinta', categoria: 'Bruxa do Vento',
+    sobre: 'De dia é véia sentada na porta. De noite vira coruja e pede fumo pela janela.',
+    aprende: [
+      { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'pe_de_vento' },
+      { nv: 12, golpe: 'encarada' }, { nv: 20, golpe: 'redemoinho' },
+      { nv: 28, golpe: 'rosnado' }, { nv: 36, golpe: 'vendaval' },
+    ],
+  },
+  {
+    id: 'uirapuru', nome: 'Uirapuru', tipos: ['vento'],
+    base: { hp: 74, atq: 60, def: 58, esp: 112, vel: 98 },
+    taxaCaptura: 3, xpBase: 185, crescimento: 'lento',
+    arte: 'uirapuru', categoria: 'Canto do Mato',
+    sobre: 'Canta uma vez por noite, uma vez no ano. Quem escuta não esquece mais o resto da vida.',
+    aprende: [
+      { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 1, golpe: 'vendaval' }, { nv: 20, golpe: 'encarada' },
     ],
   },
 ];

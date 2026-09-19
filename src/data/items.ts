@@ -73,6 +73,12 @@ const LISTA: readonly Item[] = [
   { id: 'candeia', nome: 'Candeia', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Candeia de querosene do Ferreiro. Clareia um pouco mais que nada.' },
+  { id: 'pena', nome: 'Pena de Vento', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Pena leve que não cai: fica boiando até alguém fechar a mão nela.' },
+  { id: 'capim_dourado', nome: 'Capim Dourado', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Capim que só cresce onde bate vento o ano inteiro. Não murcha, não apaga.' },
 ];
 
 export const ITENS: Record<string, Item> =

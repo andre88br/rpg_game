@@ -52,17 +52,20 @@ export const TILES: Record<string, DefTile> = {
   /* cascalho: o mesmo chão de caverna, mas onde o entulho solto esconde
      bicho — é o "mato alto" de dentro da mina */
   'g': { desenho: T.tileChaoCaverna, encontro: true },
+  /* Campo do Saci: capim batido ao ar livre, escorrega como poça/raiz —
+     mesma regra, mapa aberto (ver `escorrega()` mais abaixo) */
+  'V': { desenho: T.tileCorrenteVento, escorrega: true },
 };
 
 export type TipoObjeto =
-  | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto' | 'forja'  // construcoes com porta
+  | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto' | 'forja' | 'moinho'  // construcoes com porta
   | 'farol'                                          // construcao sem porta
-  | 'placa' | 'barreira' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
+  | 'placa' | 'barreira' | 'monteFolhas' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
-const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja'];
+const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja', 'moinho'];
 
 /* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
 const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
@@ -346,6 +349,11 @@ export class Mapa {
                                            sign: 'FORJA', signColor: '#e8a870',
                                            portaCol: o.portaCol });
         break;
+      case 'moinho':
+        sprite = T.construcao(larg, alt, { roof: '#c9a85a', roofD: '#9c7f3e', roofL: '#e8cf8a',
+                                           sign: 'MOINHO', signColor: '#f0e4b8',
+                                           portaCol: o.portaCol });
+        break;
       case 'terreiro':
         sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
                                            sign: 'TERREIRO', signColor: P.uiAcc,
@@ -357,6 +365,9 @@ export class Mapa {
         break;
       case 'barreira':
         sprite = T.barreira(larg);
+        break;
+      case 'monteFolhas':
+        sprite = T.monteFolhas(larg);
         break;
       case 'farol':
         sprite = T.farol(larg, alt);

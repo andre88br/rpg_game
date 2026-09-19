@@ -585,6 +585,121 @@ export function maeDoOuro(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- SACI (Vento, evoluído) ---------------- */
+export function saci(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#4a3a3a', peleL = '#6b5555', gorro = '#d63b2f', gorroD = '#9c2620', gorroL = '#f0655a';
+  const vento = '#bfe9e0', ventoD = '#7fc4b8';
+
+  // redemoinho maior, agora quase engolindo a perna inteira
+  b.ellipse(20, 35, 15, 4, ventoD);
+  b.ellipse(20, 34, 11, 3, vento);
+  b.line(4, 32, 9, 29, ventoD); b.line(36, 32, 31, 29, ventoD);
+  b.line(2, 36, 8, 34, ventoD); b.line(38, 36, 32, 34, ventoD);
+
+  // a perna única, mais longa
+  b.rect(17, 25, 6, 8, pele);
+  b.ellipse(20, 33, 5, 2, peleL);
+
+  // tronco largo, um braço erguido segurando o cachimbo bem alto
+  b.ellipse(20, 22, 8, 5, pele);
+  b.ellipse(20, 23, 5, 3, peleL);
+  b.rect(28, 14, 3, 9, pele);                  // braço erguido
+  b.ellipse(11, 21, 3, 4, pele);                // braço caído
+
+  // cabeça, maior e mais redonda que a do Sacizinho
+  b.ellipse(20, 13, 9, 7, pele);
+  b.ellipse(20, 15, 6, 3, peleL);
+
+  // gorro maior, aba larga, ponta bem jogada para trás
+  b.ellipse(20, 4, 9, 4, gorro);
+  b.ellipse(20, 3, 6, 2, gorroL);
+  b.tri(11, 5, 1, 2, 14, 3, gorro);
+  b.ellipse(1, 2, 2, 2, gorroD);
+  b.rect(9, 7, 22, 3, gorroD);                  // aba
+
+  // rosto de riso escancarado — o dono da graça toda
+  olho(b, 16, 13, 3, 1); olho(b, 24, 13, 3, -1);
+  b.tri(15, 16, 20, 20, 25, 16, '#c9553f');     // boca aberta, triangular
+  b.line(16, 17, 24, 17, '#7a2e22');
+
+  // cachimbo na mão erguida, fumaça grande
+  b.rect(30, 14, 4, 2, P.trunkD);
+  b.ellipse(35, 12, 3, 2, P.trunk);
+  for (const [x, y, r] of [[38, 9, 1], [39, 5, 2], [37, 1, 2]] as const) {
+    b.ellipse(x, y, r, r, '#e8e8e8');
+  }
+  return b.outline(P.ink);
+}
+
+/* ---------------- MATINTA (Vento, bruxa do vento) ---------------- */
+export function matinta(): Buf {
+  const b = new Buf(32, 32);
+  const capa = '#4a3f52', capaL = '#6e5f78', capaD = '#2e2638';
+  const pena = '#8f7aa3', penaL = '#b3a0c4';
+  const bico = '#e8a838', olhoAm = '#f2d23a';
+
+  // asas fechadas como capa, atrás do corpo
+  b.tri(4, 26, 2, 10, 13, 22, capaD);
+  b.tri(28, 26, 30, 10, 19, 22, capaD);
+  b.tri(6, 25, 5, 13, 13, 22, capa);
+  b.tri(26, 25, 27, 13, 19, 22, capa);
+
+  // corpo arredondado, penugem
+  b.ellipse(16, 22, 8, 7, capa);
+  b.ellipse(16, 24, 5, 4, capaL);
+  for (const [x, y] of [[12, 20], [20, 20], [16, 17]]) b.ellipse(x, y, 2, 2, pena);
+
+  // cabeça grande de coruja, sem pescoço aparente
+  b.ellipse(16, 12, 8, 7, capa);
+  b.ellipse(16, 14, 5, 3, capaL);
+
+  // disco facial claro, típico de coruja
+  b.ellipse(16, 12, 6, 5, penaL);
+  olho(b, 13, 11, 3, 1); olho(b, 19, 11, 3, -1);
+  b.tri(15, 13, 16, 16, 17, 13, bico);           // bico curvo
+
+  // "orelhas" de penacho, torcidas para os lados — o toque de bruxa
+  b.tri(9, 6, 4, 0, 12, 5, capaD);
+  b.tri(23, 6, 28, 0, 20, 5, capaD);
+  b.set(4, 0, olhoAm); b.set(28, 0, olhoAm);
+  return b.outline(P.ink);
+}
+
+/* ---------------- UIRAPURU (Vento, exclusivo) ---------------- */
+export function uirapuru(): Buf {
+  const b = new Buf(40, 40);
+  const corpo = '#e8d94a', corpoL = '#fff2a0', corpoD = '#b8a020', asa = '#4a9fd0', asaL = '#7fc4ef';
+
+  // asas abertas, em pleno canto — atrás do corpo
+  b.tri(20, 22, 2, 12, 16, 28, asa);
+  b.tri(20, 22, 38, 12, 24, 28, asa);
+  b.tri(20, 22, 6, 16, 17, 26, asaL);
+  b.tri(20, 22, 34, 16, 23, 26, asaL);
+
+  // cauda em leque, curta
+  b.tri(20, 28, 14, 37, 26, 37, corpoD);
+  b.tri(20, 28, 17, 34, 23, 34, corpo);
+
+  // corpo pequeno e redondo, peito claro
+  b.ellipse(20, 22, 7, 8, corpo);
+  b.ellipse(20, 24, 4, 5, corpoL);
+
+  // cabeça pequena, bico fino erguido — no meio do canto
+  b.ellipse(20, 12, 6, 6, corpo);
+  b.ellipse(20, 14, 4, 3, corpoL);
+  b.tri(20, 10, 26, 7, 21, 13, corpoD);          // bico apontado para cima
+
+  olho(b, 18, 10, 2, 1);
+
+  // notas do canto, subindo no ar
+  for (const [x, y] of [[28, 6], [32, 10], [30, 15]] as const) {
+    b.ellipse(x, y, 1, 2, '#fff3c0');
+    b.set(x + 1, y - 2, '#fff3c0');
+  }
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -593,4 +708,5 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   boitatinha, boitatao, iarinha, iaraMae, curupinho, curupira,
   piragua, sacizinho, caiporinha,
   cabritinha, cabraCabriola, mulinha, mulaSemCabeca, salamanca, maeDoOuro,
+  saci, matinta, uirapuru,
 };

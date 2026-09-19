@@ -234,6 +234,23 @@ export function barreira(larguraTiles: number): Buf {
   return b.outline(P.ink);
 }
 
+/* monte de folha seca: some com o Dom Rajada — a mesma trava condicional da
+   barreira (`seNao: 'dom_rajada'`), cara própria: um montinho baixo em vez
+   de tranca de madeira erguida, para não confundir com o que se destranca
+   vencendo alguém. */
+export function monteFolhas(larguraTiles: number, seed = 26): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, 16); const r = rng(seed);
+  const folha = '#c9a83a', folhaD = '#9c7f26', folhaL = '#e8cf6a';
+  b.ellipse(w / 2, 13, w / 2 - 1, 4, folhaD);
+  b.ellipse(w / 2, 11, w / 2 - 2, 4, folha);
+  for (let i = 0; i < w; i++) {
+    const x = (r() * (w - 2) + 1) | 0, y = 6 + ((r() * 5) | 0);
+    b.set(x, y, r() < 0.5 ? folhaL : folhaD);
+  }
+  return b.outline(P.ink);
+}
+
 /* folhas que balancam na frente dos pes quando se anda no mato alto */
 export function rocada(quadro = 0): Buf {
   const b = new Buf(16, 9);
@@ -402,6 +419,26 @@ export function tileParedeCaverna(seed = 21): Buf {
 export function tileChaoCaverna(seed = 22): Buf {
   const b = base('#5b524c'); const r = rng(seed * 3 + 2);
   for (let i = 0; i < 18; i++) b.set(r() * TS, r() * TS, r() < 0.5 ? '#453e39' : '#83786f');
+  return b;
+}
+
+/* =========================================================================
+   Campo do Saci
+   ========================================================================= */
+
+/* corrente de vento: escorrega igual à poça de Porto Iara e à raiz viva do
+   Curupira — mesma regra, ao ar livre. Sem direção própria no desenho (o
+   mesmo tile serve corredor em qualquer sentido do quebra-cabeça): capim
+   fino sempre curvado, e riscos pálidos curtos em duas diagonais soltas
+   sugerindo rajada, não uma seta. */
+export function tileCorrenteVento(seed = 23): Buf {
+  const b = base(P.grass); const r = rng(seed * 11 + 5);
+  for (let i = 0; i < 18; i++) b.set(r() * TS, r() * TS, r() < 0.5 ? P.grassD : P.grassL);
+  const risco = '#eaf6ec';
+  for (const [x, y, dx] of [[2, 4, 1], [9, 3, -1], [4, 11, 1], [12, 10, -1], [7, 7, 1]] as const) {
+    b.line(x, y, x + dx * 3, y + 1, risco);
+    b.set(x + dx * 4, y + 1, risco);
+  }
   return b;
 }
 

@@ -67,7 +67,7 @@ test('toda linha do chão tem o mesmo comprimento', () => {
 test('todo caractere do chão é um tile conhecido', () => {
   // TILES cai no '.' quando não conhece o caractere, e um erro de digitação
   // viraria grama silenciosamente no meio do mar
-  const conhecidos = new Set('.,=af~p#oR_WTmuvcnLSsg'.split(''));
+  const conhecidos = new Set('.,=af~p#oR_WTmuvcnLSsgV'.split(''));
   for (const [id, def] of entradas) {
     def.chao.forEach((linha, y) => {
       [...linha].forEach((c, x) => {
@@ -516,6 +516,154 @@ test('o campo de raízes não se resolve segurando uma direção só', () => {
       .some(([ax, ay]) => x === tie.tx + ax! && y === tie.ty + ay!);
     assert.ok(!chegou, `segurando só uma direção (${dx},${dy}) não devia chegar do lado da Tiê`);
   }
+});
+
+/* ------------------------------------------- o Campo do Saci: correntes
+
+   As duas piscinas de vento (a Ventania Funda, obrigatória no caminho, e o
+   Terreiro do Rodamoinho, o salão do Pererê) foram achadas por busca larga
+   do mesmo jeito que os dois salões acima: solução garantida, ninguém fica
+   preso, e segurar uma direção só nunca resolve. Aqui a busca larga entra
+   de novo, generalizada (não hard-coded a um dos dois lugares), exatamente
+   o ponto do risco #1 da Serra: todo BFS de quebra-cabeça tem que partir da
+   entrada de verdade — nunca de um ponto do meio. */
+
+/* segurar uma direção só, do início até onde ela empacar — a mesma checagem
+   já usada no campo de raízes do Curupira, agora reaproveitável para
+   qualquer sala com correntes/escorregões */
+function segurarUmaDirecao(
+  m: Mapa, ix: number, iy: number, dx: number, dy: number, passos = 60,
+): [number, number] {
+  let x = ix, y = iy;
+  for (let i = 0; i < passos; i++) {
+    let nx = x + dx, ny = y + dy;
+    if (m.solido(nx, ny)) break;
+    while (m.escorrega(nx, ny)) {
+      const ax = nx + dx, ay = ny + dy;
+      if (m.solido(ax, ay)) break;
+      nx = ax; ny = ay;
+    }
+    if (nx === x && ny === y) break;
+    x = nx; y = ny;
+  }
+  return [x, y];
+}
+
+test('a Ventania Funda tem solução, partindo da entrada de verdade', () => {
+  const def = MAPAS['ventaniaFunda']!;
+  const m = mapa('ventaniaFunda');
+  const saidaSul = (def.saidas ?? []).find((s) => s.para === 'aldeiaCatavento')!;
+
+  const desliz = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
+  assert.ok(desliz.has(`${saidaSul.tx},${saidaSul.ty}`),
+            'a ventania devia ter caminho escorregando até a saída sul');
+});
+
+test('e ninguém fica preso dentro da Ventania Funda', () => {
+  const def = MAPAS['ventaniaFunda']!;
+  const m = mapa('ventaniaFunda');
+  const entrada = `${def.inicio.tx},${def.inicio.ty}`;
+  for (const lugar of alcanceDeslizando(m, def.inicio.tx, def.inicio.ty)) {
+    const [x, y] = lugar.split(',').map(Number) as [number, number];
+    assert.ok(alcanceDeslizando(m, x, y).has(entrada),
+              `quem chega em (${lugar}) na ventania não consegue mais voltar até a entrada`);
+  }
+});
+
+test('a Ventania Funda não se resolve segurando uma direção só', () => {
+  const def = MAPAS['ventaniaFunda']!;
+  const m = mapa('ventaniaFunda');
+  const saidaSul = (def.saidas ?? []).find((s) => s.para === 'aldeiaCatavento')!;
+  for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+    const [x, y] = segurarUmaDirecao(m, def.inicio.tx, def.inicio.ty, dx, dy);
+    assert.ok(!(x === saidaSul.tx && y === saidaSul.ty) && !(x === saidaSul.tx + 1 && y === saidaSul.ty),
+              `segurando só uma direção (${dx},${dy}) não devia atravessar a ventania inteira`);
+  }
+});
+
+test('conta_ventania é alcançável sem nenhum Dom — o trecho é obrigatório, não opcional', () => {
+  /* risco #4 do plano: o Dom Rajada só pode abrir bônus, nunca o caminho
+     principal. A travessia acende sozinha (a placa do fim), sem depender
+     de flag nenhuma de Dom. */
+  const def = MAPAS['ventaniaFunda']!;
+  const semDomNenhum = new Mapa(def, FECHADO);
+  const saidaSul = (def.saidas ?? []).find((s) => s.para === 'aldeiaCatavento')!;
+  const desliz = alcanceDeslizando(semDomNenhum, def.inicio.tx, def.inicio.ty);
+  assert.ok(desliz.has(`${saidaSul.tx},${saidaSul.ty}`),
+            'sem Dom nenhum, a ventania ainda tem que ter solução');
+});
+
+test('o Terreiro do Rodamoinho tem solução, partindo da porta de verdade', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const m = mapa('terreiroRodamoinho');
+  const perere = def.npcs.find((n) => n.id === 'perere')!;
+  const daPorta = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
+
+  const vizinhos = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+    .map(([dx, dy]) => `${perere.tx + dx!},${perere.ty + dy!}`);
+  assert.ok(vizinhos.some((v) => daPorta.has(v)),
+            'o salão do Pererê não tem caminho até ele, partindo da entrada de verdade');
+});
+
+test('e ninguém fica preso no Terreiro do Rodamoinho', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const m = mapa('terreiroRodamoinho');
+  const entrada = `${def.inicio.tx},${def.inicio.ty}`;
+  for (const lugar of alcanceDeslizando(m, def.inicio.tx, def.inicio.ty)) {
+    const [x, y] = lugar.split(',').map(Number) as [number, number];
+    assert.ok(alcanceDeslizando(m, x, y).has(entrada),
+              `quem chega em (${lugar}) não consegue mais voltar para a porta`);
+  }
+});
+
+test('o Terreiro do Rodamoinho é mesmo um quebra-cabeça, não um corredor', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const m = mapa('terreiroRodamoinho');
+  const ventos = def.chao.join('').split('').filter((c) => c === 'V').length;
+  assert.ok(ventos > 40, `o salão tem só ${ventos} tiles de corrente`);
+
+  const perere = def.npcs.find((n) => n.id === 'perere')!;
+  const escorregando = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
+  const aPe = alcance(m, def.inicio.tx, def.inicio.ty);
+  assert.ok(aPe.has(`${perere.tx},${perere.ty - 1}`),
+            'sem escorregar o salão devia ser um corredor reto');
+  assert.ok(escorregando.size < aPe.size,
+            'a corrente devia tirar lugares de alcance, não deixar tudo igual');
+});
+
+test('o Terreiro do Rodamoinho não se resolve segurando uma direção só', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const m = mapa('terreiroRodamoinho');
+  const perere = def.npcs.find((n) => n.id === 'perere')!;
+  for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+    const [x, y] = segurarUmaDirecao(m, def.inicio.tx, def.inicio.ty, dx, dy);
+    const chegou = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+      .some(([ax, ay]) => x === perere.tx + ax! && y === perere.ty + ay!);
+    assert.ok(!chegou, `segurando só uma direção (${dx},${dy}) não devia chegar do lado do Pererê`);
+  }
+});
+
+test('o monte de folhas do Topo do Redemoinho só some com o Dom Rajada', () => {
+  const def = MAPAS['topoDoRedemoinho']!;
+  const semRajada = new Mapa(def, FECHADO);
+  const comRajada = new Mapa(def, { contas: () => 0, nadar: false, ligada: (c) => c === 'dom_rajada' });
+  const esconderijo = def.objetos.find(
+    (o) => o.tipo === 'achado' && o.placa === 'ESCONDERIJO' && o.se === undefined)!;
+  const alvo = `${esconderijo.tx},${esconderijo.ty}`;
+
+  assert.ok(!alcance(semRajada, def.inicio.tx, def.inicio.ty).has(alvo),
+            'sem o Dom Rajada o esconderijo devia continuar fechado');
+  assert.ok(alcance(comRajada, def.inicio.tx, def.inicio.ty).has(alvo),
+            'com o Dom Rajada o esconderijo devia abrir');
+});
+
+test('os três capins dourados existem, espalhados por três mapas diferentes', () => {
+  const mapasComCapim = entradas
+    .filter(([, def]) => def.objetos.some(
+      (o) => o.tipo === 'achado' && o.falas?.some((f) => f.da?.item === 'capim_dourado')))
+    .map(([id]) => id);
+  assert.equal(mapasComCapim.length, 3,
+    `esperava capim dourado em 3 mapas, achou em: ${mapasComCapim.join(', ')}`);
 });
 
 /* --------------------------------------------- o Dom e as cinco contas */

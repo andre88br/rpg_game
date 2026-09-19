@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: três regiões fechadas, a Fase 4 em andamento.** A **Região da Foz**
+**Estado: quatro regiões fechadas.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -27,6 +27,19 @@ escolhido contra o inicial de quem chegou até ele. Fecham a região a
 **Medalha Brasa** e o Dom de **Tocha**, mais dois serviços opcionais que não
 travam a guia: os três sinos da capela e a **Mãe-do-Ouro**, o Encantado
 exclusivo que só desce para quem fez os dois.
+
+Depois do vão que se abre na Cumeeira quando o Brás cai começa o **Campo do
+Saci**, tipo Vento — mesma escala da Serra (quatro mapas externos + seis
+interiores), com uma mecânica nova ao ar livre: **correntes de vento** que
+escorregam quem pisa nelas, a mesma regra dos dois salões que escorregam
+(água e raiz), agora fora de sala fechada. A Ventania Funda é o trecho
+**obrigatório** — atravessá-la é o próprio desafio, não um recado — e o
+Terreiro do Rodamoinho repete a fórmula lá dentro, com o Pererê no fim.
+**Todo treinador da região** troca de Encantado e usa item (na Serra isso
+valia só para os chefes). Fecham a região a **Medalha Rodamoinho** e o Dom de
+**Rajada**, que sopra montes de folha seca e abre bolsos que ninguém alcançava
+antes — mais dois serviços opcionais: os três punhados de capim dourado e o
+**Uirapuru**, o Encantado exclusivo que só desce para quem fez os dois.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -73,6 +86,7 @@ tudo de novo.
 |---|---|
 | ↑ ↑ ↓ ↓ ← → ← → B A | pula para a **Mata do Curupira** (com a Medalha Maré, o Dom "Nadar" e a carta para a Tiê) |
 | ↓ ↓ ↑ ↑ → ← → ← B A | pula para a **Serra Boitatá** (com as duas medalhas, os dois Dons e cinco patuás bons) |
+| ↑ → ↓ ← ↑ → ↓ ← B A | pula para o **Campo do Saci** (com as três medalhas, os três Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
 
@@ -103,7 +117,8 @@ src/
 ├─ data/      creatures.ts · moves.ts · items.ts
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
-│             + 3 interiores + o terreiro em 4 salas)
+│             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4
+│             externos + 3 interiores + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -450,6 +465,9 @@ Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-M�
 Da Serra Boitatá: **Cabritinha** (Terra) → Cabra-Cabriola · **Mulinha** (Fogo)
 → Mula-sem-Cabeça · **Salamanca** (Fogo/Terra) · **Mãe-do-Ouro** (Fogo/Luz),
 exclusiva de quem faz os dois serviços opcionais da região.
+Do Campo do Saci: **Sacizinho** (Vento) → **Saci** · **Matinta** (Vento, sem
+evolução) · **Uirapuru** (Vento), exclusivo de quem faz os dois serviços
+opcionais da região.
 
 ## Fases
 
@@ -490,7 +508,22 @@ exclusiva de quem faz os dois serviços opcionais da região.
         escala um quinto Encantado escolhido contra o inicial do jogador. Mais
         a Medalha Brasa, o Dom "Tocha", e dois serviços opcionais (os três
         sinos e a Mãe-do-Ouro) que não travam a guia.
-  - [ ] Campo do Saci, Aldeia Tupã, Minas da Caipora, Bairro da Cuca, Cidade
+  - [x] **Campo do Saci.** Mesma escala da Serra — 4 mapas externos + 6
+        interiores —, com o quebra-cabeça de escorregar saindo da sala
+        fechada pela primeira vez: `world/tilemap.ts` ganha um tile de
+        corrente de vento (`escorrega: true`, mesma regra da água e da
+        raiz), e a Ventania Funda é um trecho **obrigatório** no caminho —
+        duas piscinas de correntes achadas por busca larga, sem NPC nem
+        treinador dentro, onde atravessar é o próprio desafio. O Terreiro
+        do Rodamoinho fecha a fórmula numa sala só, com o Pererê no fim.
+        Todo treinador da região (não só os chefes, como na Serra) troca de
+        Encantado e usa item. Um `TipoObjeto` novo, `'monteFolhas'` (molde
+        de `'forja'`/`'moinho'`), some com o Dom Rajada e abre bolsos que
+        ninguém alcançava antes — sem nunca trancar o caminho obrigatório,
+        que se resolve só andando. Mais a Medalha Rodamoinho, o Dom
+        "Rajada", e dois serviços opcionais (os três punhados de capim
+        dourado e o Uirapuru) que não travam a guia.
+  - [ ] Aldeia Tupã, Minas da Caipora, Bairro da Cuca, Cidade
         do Sol — uma de cada vez, na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
@@ -518,3 +551,14 @@ exclusiva de quem faz os dois serviços opcionais da região.
   sala, presa à mesma flag da cova, continua fechada dentro da busca. O
   `objetivo` tem que ser um ponto deste lado da tranca — quem confere se ela
   abre é outro teste, com outro `Mapa`.
+- Objeto sólido (`placa`, `achado`) plantado em cima do `inicio` de um mapa, ou
+  bem no meio de um corredor de largura 1 que liga duas partes de um
+  quebra-cabeça, bloqueia tudo sem avisar em lugar nenhum do `tsc` — foi
+  exatamente o que aconteceu duas vezes construindo o Campo do Saci (uma
+  placa em cima da própria entrada da Ventania Funda, outra na única boca de
+  saída da primeira piscina de vento). Os testes gerais de mapa pegam o
+  primeiro caso; o segundo só aparece rodando o BFS de verdade a partir do
+  início, e foi assim que apareceu.
+- As correntes de vento ao ar livre reaproveitam 100% o mesmo `escorrega` dos
+  salões fechados — nenhuma linha nova de motor. A única coisa que muda de
+  região para região é onde o tile aparece no `chao` e o tamanho da sala.

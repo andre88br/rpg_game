@@ -4,6 +4,11 @@
    próprio anel, que se escondeu um dos três sinos de bronze da capela.
    Mais ao sul, a Mula-sem-Cabeça corre a cumeeira inteira — a quinta e
    última conta da guia de fogo.
+
+   A ÚNICA linha que toca a Fase 5: um vão novo no muro sul, trancado por
+   `seNao: 'venceu_bras'` — só depois de vencer o dono do próprio Terreiro
+   de Brasa (e não antes) é que a subida para o Campo do Saci se revela.
+   Nenhum tile, NPC ou treinador da Serra muda.
    A gride é editável à mão, um caractere por tile de 16x16:
      c  cinza batida   n  capim seco (encontros)   L  lava   o  pedra      */
 import type { DefMapa } from '../../world/tilemap.ts';
@@ -48,7 +53,7 @@ export const cumeeiraBoitata: DefMapa = {
     'RccccccccccccccccccccccccccccccR',
     'RccccccccccccccccccccccccccccccR',
     'RccccccccccccccccccccccccccccccR',
-    'RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR',
+    'RRRRRRRRccRRRRRRRRRRRRRRRRRRRRRR',
   ],
 
   objetos: [
@@ -56,6 +61,11 @@ export const cumeeiraBoitata: DefMapa = {
       placa: 'CUMEEIRA DO BOITATÁ. A serra acaba aqui — o que vem depois é outra história.' },
     { tipo: 'placa', tx: 19, ty: 9,
       placa: 'O anel de lava não se atravessa. A volta é pelo corredor a oeste.' },
+
+    /* o único ponto de contato com a Fase 5: some depois de vencer o Brás */
+    { tipo: 'barreira', tx: 8, ty: 35, larg: 2, seNao: 'venceu_bras' },
+    { tipo: 'placa', tx: 6, ty: 33,
+      placa: 'Um vento de outra serra sopra por essa fenda no muro. Ainda não dá para sentir de onde vem.' },
 
     /* o sino escondido atrás do anel de lava — um dos três de servico_sinos */
     { tipo: 'achado', tx: 12, ty: 17, solido: false, placa: 'SINO DE BRONZE',
@@ -106,6 +116,8 @@ export const cumeeiraBoitata: DefMapa = {
   saidas: [
     { tx: 16, ty: 0, para: 'cavernaBoitata', destino: { tx: 16, ty: 36, dir: 'cima' } },
     { tx: 17, ty: 0, para: 'cavernaBoitata', destino: { tx: 17, ty: 36, dir: 'cima' } },
+    { tx: 8,  ty: 35, para: 'campoAberto', destino: { tx: 14, ty: 1, dir: 'baixo' } },
+    { tx: 9,  ty: 35, para: 'campoAberto', destino: { tx: 15, ty: 1, dir: 'baixo' } },
   ],
 
   cenario: 'caverna',

@@ -209,6 +209,13 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_breu', servico: 'o desmoronamento no breu da caverna' },
     { flag: 'conta_mula', servico: 'a Mula-sem-Cabeça que corre a cumeeira' },
   ],
+  vento: [
+    { flag: 'conta_catadores', servico: 'os quatro catadores de vento do Campo Aberto' },
+    { flag: 'conta_ventania', servico: 'a travessia da Ventania Funda' },
+    { flag: 'conta_penas', servico: 'seis Encantados presos, para a Prendedora de Ventos' },
+    { flag: 'conta_catavento', servico: 'as cinco penas de vento, para o Moleiro' },
+    { flag: 'conta_redemoinho', servico: 'a Matinta que mora no olho do redemoinho' },
+  ],
 };
 
 /* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
@@ -217,6 +224,8 @@ export interface ServicoOpcional { flag: string; servico: string }
 export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
   { flag: 'servico_sinos', servico: 'os três sinos de bronze da capela da serra' },
   { flag: 'servico_maeDoOuro', servico: 'a Mãe-do-Ouro, no fundo do breu' },
+  { flag: 'servico_capim', servico: 'os três punhados de capim dourado do Campo do Saci' },
+  { flag: 'servico_uirapuru', servico: 'o Uirapuru, no moinho' },
 ];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do
