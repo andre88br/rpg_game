@@ -1,7 +1,7 @@
-# Manual dos desafios — das três regiões, do começo ao fim
+# Manual dos desafios — das quatro regiões, do começo ao fim
 
 Guia completo de como acender todas as contas de cada terreiro, vencer cada
-mestre e pegar as três medalhas. Tudo aqui foi conferido direto nos mapas do
+mestre e pegar as quatro medalhas. Tudo aqui foi conferido direto nos mapas do
 jogo: nomes, níveis, quantidades e coordenadas são os de verdade.
 
 As coordenadas aparecem como `(coluna, linha)` contadas a partir do canto
@@ -21,14 +21,17 @@ do terreiro só abre com as cinco acesas. Uma conta acende sozinha assim que
 você cumpre o serviço — não precisa voltar para "entregar" em lugar nenhum,
 fora os serviços que pedem item na mão.
 
-**Quem conta as contas.** Em cada região tem um NPC que diz quantas faltam e
-qual é a próxima. Use-o sempre que ficar perdido:
+**Quem conta as contas.** A própria **guia do terreiro** (o portão de
+correntes na frente da porta) diz quantas contas estão acesas e qual falta,
+só de encostar nela e apertar A — não precisa de NPC nenhum para isso. Ela
+fica sempre bem na frente da porta do terreiro:
 
-| Região | Quem conta | Onde |
-|---|---|---|
-| Foz | Dona Benta | Vila Aurora, (22,9) |
-| Mata do Curupira | Seu Elias | Mata do Curupira, (14,9) |
-| Serra Boitatá | Mestre Patueiro | Vila Fornalha, (17,19) |
+| Região | Onde fica a guia |
+|---|---|
+| Foz | Porto Iara, em frente à porta do Terreiro de Água, (13-19,19) |
+| Mata do Curupira | Mata do Curupira, em frente à porta do Terreiro de Raiz, (3-8,8) |
+| Serra Boitatá | Vila Fornalha, no pátio do Terreiro de Brasa, (13-19,11) |
+| Campo do Saci | Aldeia Catavento, no pátio do Terreiro do Rodamoinho, (13-19,11) |
 
 **Tipos.** São só três regras, e elas decidem quase toda batalha:
 
@@ -48,8 +51,9 @@ Treinador não se captura.
 
 **Benzimento.** Cura de graça, e é onde a partida recomeça se seu time apagar:
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
-na região 3 (Vila Fornalha). **Na Trilha da Brasa não tem benzimento nenhum:**
-quem apagar lá volta lá para a Mata do Curupira.
+na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia
+Catavento). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
+nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
 você chega perto. Cada um aguenta **quatro fugas**: encoste nele quatro vezes
@@ -293,7 +297,7 @@ Vencer o Chefe acende `conta_tropa` e abre a descida para a Vila Fornalha, em
 - **Loja da Serra**, porta em (5,21).
 - **Forja**, porta em (5,29) — o **Ferreiro** dá a **Candeia** de graça. Pegue
   antes de entrar na caverna; sem luz você não enxerga nada.
-- **Mestre Patueiro**, (17,19) — conta as contas e cobra a conta 3.
+- **Mestre Patueiro**, (17,19) — cobra a conta 3 (capturados).
 - **Sineiro da Capela**, (12,19) — o serviço opcional dos sinos.
 - **Terreiro de Brasa**, porta em (16,7).
 
@@ -520,6 +524,173 @@ logo depois de ganhar a medalha.
 
 ---
 
+# REGIÃO 4 — CAMPO DO SACI · Terreiro do Rodamoinho · Medalha Rodamoinho · Dom Rajada
+
+Quatro mapas ao ar livre, na mesma escala da Serra: **Campo Aberto** →
+**Ventania Funda** → **Aldeia Catavento** → **Topo do Redemoinho** (+ loja,
+benzimento, moinho e o Terreiro do Rodamoinho, agora numa sala só). **Cinco
+contas obrigatórias + dois serviços opcionais.**
+
+A diferença desta região para a Serra: **todo treinador troca de Encantado e
+usa item**, não só os chefes — carregue Garrafadas de sobra. E o desafio
+principal não mora no terreiro: mora no **caminho**. A Ventania Funda é um
+trecho **obrigatório** de correntes de vento — atravessá-la é a própria
+conta da guia, não um recado para alguém.
+
+> **Chegue preparado.** Vindo da Serra com o time na faixa 36, suba com pelo
+> menos 40. As correntes de vento empurram você sozinho até bater em algo —
+> errar a direção custa tempo, não vida, mas os treinadores desta região não
+> perdoam quem chega fraco.
+
+## Ordem recomendada da região
+
+1. Campo Aberto: os quatro catadores de vento → **conta_catadores**.
+2. Ventania Funda: atravesse as duas correntes → **conta_ventania**.
+3. Aldeia Catavento: pegue as 6 capturas para a Prendedora de Ventos; entregue
+   o capim dourado (se já tiver) ao Capinzeiro; vença o Zeca pela quarta vez.
+4. Topo do Redemoinho: a Sentinela do Vento, depois a Matinta selvagem →
+   **conta_redemoinho**.
+5. Moinho: entregue as 5 penas ao Moleiro → **conta_catavento**.
+6. Terreiro do Rodamoinho, até o Pererê.
+7. (Opcional) os três punhados de capim dourado e o Uirapuru.
+
+## Conta 1 — `conta_catadores`: os quatro catadores de vento
+
+O Campo Aberto tranca em fila, igual à Trilha da Brasa: cada catador fecha o
+trecho seguinte, sem como contornar.
+
+| # | Quem | Time | Prêmio |
+|---|---|---|---|
+| 1 | CATADOR DE VENTO | Cabritinha 37, Sacizinho 38 | 1000 |
+| 2 | CATADORA DE VENTO | Saci 39, Sacizinho 38, Cabritinha 39 | 1100 |
+| 3 | CATADOR DE VENTO | Matinta 40, Saci 39, Cabritinha 40 | 1200 |
+| 4 | **CHEFE DOS CATADORES** | Saci 41, Matinta 41, Cabritinha 42, Saci 43 | 2200 |
+
+Todos **trocam de Encantado e usam item** (o Chefe carrega 2 Garrafadas).
+Cabritinha é Terra (leva 2x de Vento); Saci e Matinta são Vento puro (levam
+2x de Raio, que ainda não existe no jogo — leve golpe neutro forte ou
+Encantados da Serra/Mata para essa parte). Vencer o Chefe acende a conta e
+abre a Ventania Funda.
+
+No canto sudeste do campo, um bolso de corrente de vento é só um gostinho —
+não tranca nada, é a primeira vez que você pisa numa corrente ao ar livre.
+Também há 5 **Penas de Vento** e 1 **Capim Dourado** espalhados pelo mapa
+(ver contas 4 e opcional, abaixo).
+
+## Conta 2 — `conta_ventania`: a travessia da Ventania Funda
+
+Não tem treinador nem NPC aqui dentro — o próprio vento é o desafio. Duas
+piscinas de corrente, ligadas por corredores de capim parado onde dá para
+respirar. **A conta acende sozinha** ao ler a placa perto do fim, mas o
+difícil é chegar até lá.
+
+Cada piscina se resolve como os salões de Porto Iara e do Curupira: ande até
+bater em algo, sem segurar uma direção só.
+
+**Primeira piscina** — depois de descer o corredor de entrada:
+
+> **baixo · direita · cima · esquerda · baixo · esquerda · baixo**
+
+**Segunda piscina**, depois de atravessar o corredor do meio:
+
+> **baixo · esquerda · baixo · direita · baixo · direita · baixo**
+
+Depois da segunda piscina, mais um corredor leva à placa que acende a conta
+e à saída para a Aldeia Catavento. Não existe Dom que ajude aqui — a
+travessia é a mesma para todo mundo, com ou sem o Dom Rajada.
+
+## Parada obrigatória: Aldeia Catavento
+
+- **Casa de Benzimento** (Dona Cacilda) — cura e ponto de retorno. Último
+  benzimento antes do Terreiro do Rodamoinho.
+- **Loja do Catavento** e **Moinho** (Moleiro — conta 4, abaixo).
+- **Prendedora de Ventos** — conta 3.
+- **Capinzeiro** — serviço opcional dos capins dourados.
+- O **Zeca**, pela quarta vez, guardando a subida para o Topo do Redemoinho:
+  Matinta 41, Saci 42, Cabra-Cabriola 42, Curupirá 43. Prêmio 2200, esperto,
+  2 Garrafadas Fortes.
+
+## Conta 3 — `conta_penas`: seis Encantados presos
+
+Tenha **6 capturas** e fale com a **Prendedora de Ventos**, na aldeia: paga
+**500**. Igual à conta do Mestre Patueiro na Serra — precisa prender, não só
+ver.
+
+## Conta 4 — `conta_catavento`: as cinco penas de vento
+
+Cinco **Penas de Vento**, todas espalhadas pelo **Campo Aberto** (não
+precisa entrar na Ventania Funda para achá-las). Com as cinco na mochila,
+volte no **Moleiro**, no moinho da aldeia: paga **400**.
+
+## Conta 5 — `conta_redemoinho`: a Matinta que mora no olho do vento
+
+No **Topo do Redemoinho**, primeiro a **SENTINELA DO VENTO** (visão 5):
+Saci 43, Cabra-Cabriola 43, Matinta 44. Prêmio 2400, esperta, 2 Garrafadas
+Fortes + 1 Erva-Doce.
+
+Mais fundo, no meio de um redemoinho decorativo de correntes (não travam
+nada — o corredor central fica sempre limpo), uma **Matinta selvagem nível
+45**. É o bicho mais forte antes do Pererê. Vencer acende a conta;
+**capturar também vale**, e uma Matinta 45 é ótima para o terreiro.
+
+Com as cinco contas acesas, a guia da região fecha.
+
+## O Terreiro do Rodamoinho — o salão do Pererê
+
+Porta na Aldeia Catavento, ao norte. Uma sala só, com o mesmo quebra-cabeça
+de corrente — entra-se por baixo, sai-se por cima, do lado do Pererê.
+**Dez escorregões:**
+
+> **cima · cima · cima · esquerda · cima · direita · cima · cima · cima · cima**
+
+Os três primeiros são só subir até a corrente pegar; as decisões de verdade
+começam na quarta.
+
+### Mestre: Pererê
+
+**Saci 45, Matinta 46, Cabra-Cabriola 46, Saci 47, Matinta 48.** Prêmio
+4000. Esperto, com 2 Garrafadas Fortes e 1 Erva-Doce — é o time mais forte
+do jogo até aqui.
+
+- Time todo de Vento ou Terra/Fogo — sem contra-tipo pronto ainda no jogo
+  (Raio, que bate em Vento, é da próxima região). Leve o time mais forte que
+  tiver, com golpes neutros de alto poder e Encantados de nível alto.
+- Ele **troca de Encantado** quando está em desvantagem e **cura** abaixo de
+  ~1/3 de vida — derrube rápido, antes que ele beba a Garrafada.
+- Leve pelo menos 4-5 Garrafadas Fortes; não tem benzimento entre o Zeca e
+  o Pererê além da Casa de Benzimento da aldeia.
+
+Vencer dá a **Medalha Rodamoinho** e o **Dom Rajada** de uma vez.
+
+## Os dois serviços opcionais
+
+### `servico_capim` — os três punhados de capim dourado
+
+| # | Onde |
+|---|---|
+| 1 | Aldeia Catavento — canto do largo |
+| 2 | Campo Aberto — no meio do mato |
+| 3 | Topo do Redemoinho — o ponto mais alto |
+
+Com os três, fale com o **Capinzeiro**, na aldeia: **3000 de dinheiro + 3
+Patuás de Mestre**.
+
+### `servico_uirapuru` — o Encantado exclusivo
+
+No **Moinho**, atrás do Moleiro, o **Uirapuru** espera — só aparece com os
+três capins entregues **e** a Medalha Rodamoinho. Com as duas coisas, ele
+desce das vigas e vai com você: **Uirapuru nível 30**, de graça, sem
+batalha.
+
+### O bolso do Dom Rajada
+
+No **Topo do Redemoinho**, um **monte de folhas** esconde um cantinho com
+**2 Patuás Bons** — só abre depois do Dom Rajada. É puramente bônus: não
+afeta guia nem serviço nenhum, e a Ventania Funda continua alcançável sem
+qualquer Dom.
+
+---
+
 ## Códigos secretos
 
 Digitados com os próprios botões do jogo, **andando livre pelo mundo** — não
@@ -529,6 +700,7 @@ valem em conversa, batalha, loja nem menu.
 |---|---|
 | ↑ ↑ ↓ ↓ ← → ← → B A | Pula para a **Mata do Curupira** com Medalha Maré, Dom Nadar, um time se estiver vazio e a carta para a Tiê |
 | ↓ ↓ ↑ ↑ → ← → ← B A | Pula para a **Serra Boitatá** com as duas medalhas, os dois Dons e 5 Patuás Bons |
+| ↑ → ↓ ← ↑ → ↓ ← B A | Pula para o **Campo do Saci** com as três medalhas, os três Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
 
@@ -547,3 +719,8 @@ Cipó** → cipó em (2,14).
 **Serra** — 4 tropeiros · 6 capturados · 5 carvões · 3 pedras · Mula da
 cumeeira → pátio · escória · breu · salão → Brás → **Brasa + Tocha** →
 (3 sinos → Sineiro; Tocha + sinos + medalha → Mãe-do-Ouro).
+
+**Campo do Saci** — 4 catadores · travessia da Ventania Funda (2 piscinas:
+↓→↑←↓←↓ · ↓←↓→↓→↓) · 6 capturados · 5 penas · Matinta do redemoinho →
+terreiro (↑↑↑←↑→↑↑↑↑) → Pererê → **Rodamoinho + Rajada** →
+(3 capins → Capinzeiro; capins + medalha → Uirapuru; Rajada → bolso no topo).
