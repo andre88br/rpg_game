@@ -47,6 +47,13 @@ npm run dev          # http://localhost:5173  (e pela rede local, para testar no
 
 Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
 
+## Manual dos desafios
+
+[`MANUAL.md`](MANUAL.md) traz o passo a passo de todas as contas das três
+regiões: onde está cada NPC, o que cada serviço exige, os times e níveis de
+todo treinador, as soluções dos dois salões que escorregam, as rotas das pedras
+empurráveis e os dois serviços opcionais da Serra.
+
 ## Controles
 
 | | Teclado | Toque |
