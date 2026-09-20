@@ -49,7 +49,7 @@ export const terreiroRodamoinho: DefMapa = {
   npcs: [
     {
       id: 'perere', nome: 'PERERÊ', estilo: 'mariana',
-      tx: 7, ty: 1, dir: 'baixo',
+      tx: 5, ty: 1, dir: 'baixo',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 4000,
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1 },
