@@ -170,7 +170,7 @@ export const portoIara: DefMapa = {
       tx: 17, ty: 35, dir: 'cima', seNao: 'conta_farol',
       treinador: {
         classe: 'BICHO DO FAROL', selvagem: true, visao: 4, liga: 'conta_farol',
-        time: [{ especie: 'boitatao', nivel: 18 }],
+        time: [{ especie: 'boitatao', nivel: 10 }],
         falaInicio: 'O mar clareia de uma vez. A cobra de fogo desenrola do farol e vem.',
       },
       falas: [
