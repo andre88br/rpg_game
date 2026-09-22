@@ -515,8 +515,14 @@ opcionais da região.
         raiz), e a Ventania Funda é um trecho **obrigatório** no caminho —
         duas piscinas de correntes achadas por busca larga, sem NPC nem
         treinador dentro, onde atravessar é o próprio desafio. O Terreiro
-        do Rodamoinho fecha a fórmula numa sala só, com o Pererê no fim.
-        Todo treinador da região (não só os chefes, como na Serra) troca de
+        do Rodamoinho fecha a região com três correntes empilhadas — cada
+        uma com mais forquilhas que a anterior, e uma guarda entre elas —
+        onde errar o lado certo de qualquer forquilha pisa numa saída de
+        mapa disfarçada (a mesma `DefSaida` usada entre regiões, aqui com
+        destino igual ao próprio `inicio`) e devolve pro começo do salão
+        inteiro; guarda já vencida continua vencida, só a corrente em si
+        tem que ser refeita. O Pererê espera no topo, depois da terceira
+        guarda. Todo treinador da região (não só os chefes, como na Serra) troca de
         Encantado e usa item. Um `TipoObjeto` novo, `'monteFolhas'` (molde
         de `'forja'`/`'moinho'`), some com o Dom Rajada e abre bolsos que
         ninguém alcançava antes — sem nunca trancar o caminho obrigatório,
