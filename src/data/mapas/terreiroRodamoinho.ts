@@ -150,7 +150,8 @@ export const terreiroRodamoinho: DefMapa = {
       },
       falas: [
         { se: 'medalha:rodamoinho', linhas: [
-          'A Medalha Rodamoinho é sua, e o Dom Rajada com ela. Use os dois com cuidado.'] },
+          'A Medalha Rodamoinho é sua, e o Dom Rajada com ela. Use os dois com cuidado.',
+          'E sobe no Topo de novo: o vento abriu um vão na parede leste. Dali se vê a Aldeia Tupã.'] },
         { se: 'venceu_perere', medalha: 'rodamoinho', dom: 'rajada', linhas: [
           'Ganhou limpo. Toma a Medalha Rodamoinho — e o Dom Rajada, que abre o que o vento tranca.'] },
         { batalha: true, linhas: [

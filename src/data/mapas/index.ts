@@ -33,6 +33,14 @@ import { benzimentoCatavento } from './benzimentoCatavento.ts';
 import { moinhoCatavento } from './moinhoCatavento.ts';
 import { topoDoRedemoinho } from './topoDoRedemoinho.ts';
 import { terreiroRodamoinho } from './terreiroRodamoinho.ts';
+import { campinaDosRaios } from './campinaDosRaios.ts';
+import { aldeiaTupa } from './aldeiaTupa.ts';
+import { lojaTupa } from './lojaTupa.ts';
+import { benzimentoTupa } from './benzimentoTupa.ts';
+import { casaPaje } from './casaPaje.ts';
+import { charcoRelampejante } from './charcoRelampejante.ts';
+import { morroDoTrovao } from './morroDoTrovao.ts';
+import { terreiroTrovao } from './terreiroTrovao.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -66,6 +74,14 @@ export const MAPAS: Record<string, DefMapa> = {
   moinhoCatavento,
   topoDoRedemoinho,
   terreiroRodamoinho,
+  campinaDosRaios,
+  aldeiaTupa,
+  lojaTupa,
+  benzimentoTupa,
+  casaPaje,
+  charcoRelampejante,
+  morroDoTrovao,
+  terreiroTrovao,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

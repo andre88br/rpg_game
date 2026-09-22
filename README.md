@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: quatro regiões fechadas.** A **Região da Foz**
+**Estado: cinco regiões fechadas.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -41,6 +41,19 @@ valia só para os chefes). Fecham a região a **Medalha Rodamoinho** e o Dom de
 antes — mais dois serviços opcionais: os três punhados de capim dourado e o
 **Uirapuru**, o Encantado exclusivo que só desce para quem fez os dois.
 
+Depois do vão que se abre na parede leste do Topo do Redemoinho começa a
+**Aldeia Tupã**, tipo Raio — a primeira região que cresce **para os lados**
+e não só para baixo. Todo mapa ao ar livre das regiões anteriores parava em
+34 colunas; os quatro daqui têm de **56 a 64** (≈ 9.300 tiles, o dobro da
+Serra), e a região deixou de ser uma fila norte → sul: a aldeia fica no
+meio, com estrada para a **Campina dos Raios** a oeste, o **Charco
+Relampejante** a leste e o **Morro do Trovão** ao norte. Mecânica nova: as
+**chaves de para-raio** — cada chave liga uma cerca de raio e desliga outra,
+e o casarão do Charco (seis salas) e o Terreiro do Trovão só se atravessam
+pensando na ordem. O Guaraci fecha a região com a **Medalha Trovão** e o Dom
+**Faísca**, que parte pedra rachada — mais dois serviços opcionais: as três
+penas de trovão e o **Arco-da-Velha**, o Encantado exclusivo.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -62,7 +75,7 @@ Páginas: `/` é o jogo, `/esbocos.html` é a galeria de esboços de tela.
 
 ## Manual dos desafios
 
-[`MANUAL.md`](MANUAL.md) traz o passo a passo de todas as contas das três
+[`MANUAL.md`](MANUAL.md) traz o passo a passo de todas as contas das cinco
 regiões: onde está cada NPC, o que cada serviço exige, os times e níveis de
 todo treinador, as soluções dos dois salões que escorregam, as rotas das pedras
 empurráveis e os dois serviços opcionais da Serra.
@@ -87,6 +100,7 @@ tudo de novo.
 | ↑ ↑ ↓ ↓ ← → ← → B A | pula para a **Mata do Curupira** (com a Medalha Maré, o Dom "Nadar" e a carta para a Tiê) |
 | ↓ ↓ ↑ ↑ → ← → ← B A | pula para a **Serra Boitatá** (com as duas medalhas, os dois Dons e cinco patuás bons) |
 | ↑ → ↓ ← ↑ → ↓ ← B A | pula para o **Campo do Saci** (com as três medalhas, os três Dons e cinco patuás bons) |
+| ← → ← → ↑ ↓ ↑ ↓ B A | pula para a **Aldeia Tupã**, pela Campina dos Raios (com as quatro medalhas, os quatro Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
 
@@ -118,7 +132,8 @@ src/
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
 │             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4
-│             externos + 3 interiores + o terreiro em 1 sala)
+│             externos + 3 interiores + o terreiro em 1 sala; Aldeia Tupã:
+│             4 externos largos + 3 interiores + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -468,6 +483,9 @@ exclusiva de quem faz os dois serviços opcionais da região.
 Do Campo do Saci: **Sacizinho** (Vento) → **Saci** · **Matinta** (Vento, sem
 evolução) · **Uirapuru** (Vento), exclusivo de quem faz os dois serviços
 opcionais da região.
+Da Aldeia Tupã: **Faisquinha** (Raio) → **Relampo** · **Tatu-Trovão**
+(Raio/Terra) · **Arco-da-Velha** (Raio/Luz), exclusivo de quem faz os dois
+serviços opcionais da região.
 
 ## Fases
 
@@ -529,8 +547,28 @@ opcionais da região.
         que se resolve só andando. Mais a Medalha Rodamoinho, o Dom
         "Rajada", e dois serviços opcionais (os três punhados de capim
         dourado e o Uirapuru) que não travam a guia.
-  - [ ] Aldeia Tupã, Minas da Caipora, Bairro da Cuca, Cidade
-        do Sol — uma de cada vez, na mesma forma.
+  - [x] **Aldeia Tupã.** Maior para baixo E para os lados: quatro mapas
+        externos de 56 a 64 colunas (as regiões anteriores paravam em 34),
+        e a primeira região em cruz em vez de fila — Campina dos Raios a
+        oeste, Charco Relampejante a leste, Morro do Trovão ao norte, todos
+        saindo da aldeia. A travessia é de lado: cercas de norte a sul na
+        campina e cristas de oeste a leste no morro, com os vãos alternando
+        de ponta, e as cinco pedras-de-raio do Pajé nos cantos mais longe.
+        Mecânica nova sem código de motor: **chaves de para-raio** — um par
+        de objetos `paraRaio` por chave (`se`/`seNao` na flag, o molde do
+        `achado`) e `cercaRaio`s condicionados às mesmas flags, que
+        `Fala.desliga` e `atualizarCenario()` já sabiam ligar e desligar.
+        Toda chave abre uma cerca e fecha outra; `mapas.test.ts` busca em
+        largura sobre posição × chaves e prova que o casarão do Charco pede
+        seis toques e o Terreiro do Trovão quatro (e, como todo movimento
+        é reversível, que ninguém fica preso). Dois `TipoObjeto` novos de
+        cenário (`cercaRaio`, `pedraRachada` — molde do `monteFolhas`, some
+        com o Dom Faísca) e um de chave (`paraRaio`). O Guaraci escala um
+        sexto Encantado contra o inicial, como o Brás. Mais a Medalha
+        Trovão, o Dom "Faísca", e dois serviços opcionais (as três penas de
+        trovão e o Arco-da-Velha) que não travam a guia.
+  - [ ] Minas da Caipora, Bairro da Cuca, Cidade do Sol — uma de cada vez,
+        na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
@@ -568,3 +606,14 @@ opcionais da região.
 - As correntes de vento ao ar livre reaproveitam 100% o mesmo `escorrega` dos
   salões fechados — nenhuma linha nova de motor. A única coisa que muda de
   região para região é onde o tile aparece no `chao` e o tamanho da sala.
+- Objeto sólido sem `larg` vira parede em **quatro** tiles (`larg ?? 4` em
+  `desenharObjeto`), mesmo que o desenho ocupe um só. `achado` escapa porque
+  quase sempre é `solido: false`; o `paraRaio` é sólido, então toda chave
+  declara `larg: 1`.
+- Tocar numa chave de para-raio muda a flag, mas não grava sozinho — o save
+  só acontece nos pontos de sempre (cura, conta acesa, troca de mapa). Quem
+  fechar o jogo no meio do casarão volta com as chaves como estavam no
+  último save, o que nunca trava: toda chave desfaz o próprio toque.
+- A Aldeia Tupã e o Morro do Trovão usam fundos de batalha que já existiam
+  (`mata` e `caverna`), e o Charco usa `praia`: não há fundo de brejo nem de
+  tempestade próprio.

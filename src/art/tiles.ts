@@ -251,6 +251,56 @@ export function monteFolhas(larguraTiles: number, seed = 26): Buf {
   return b.outline(P.ink);
 }
 
+/* ======================= Aldeia Tupã =======================
+   Chave de para-raio: um poste de madeira com a ponta de ferro. Acesa, a
+   ponta brilha amarela e solta faísca; apagada, é ferro frio. É o que se
+   aperta com o A para ligar e desligar as cercas de raio. */
+export function paraRaio(aceso: boolean): Buf {
+  const b = new Buf(TS, TS);
+  b.ellipse(8, 14, 5, 2, P.rockD!);                       // base de pedra
+  b.rect(7, 4, 3, 11, P.trunkD!); b.rect(8, 4, 1, 11, P.trunk!);
+  const ponta = aceso ? P.bolt! : '#8a8f99', pontaD = aceso ? P.boltD! : '#5c616b';
+  b.tri(5, 5, 8, 0, 11, 5, pontaD);
+  b.tri(6, 5, 8, 1, 10, 5, ponta);
+  if (aceso) {                                           // faíscas em volta da ponta
+    for (const [x, y] of [[3, 2], [13, 3], [2, 6], [14, 7]] as const) b.set(x, y, P.bolt!);
+    b.set(8, 2, '#fffbe0');
+  }
+  return b.outline(P.ink!);
+}
+
+/* cerca de raio: dois mourões e três fios que faíscam — a tranca que as
+   chaves de para-raio ligam e desligam. Amarela, para não confundir com a
+   barreira vermelha dos treinadores. */
+export function cercaRaio(larguraTiles: number): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, 16);
+  for (const px of [0, w - 3]) { b.rect(px, 2, 3, 14, P.trunkD!); b.rect(px + 1, 2, 1, 14, P.trunk!); }
+  for (const y of [5, 9, 13]) b.rect(0, y, w, 1, '#8a8f99');
+  for (let px = 3; px < w - 3; px += 4) {
+    const y = 4 + ((px * 7) % 9);
+    b.line(px, y, px + 2, y + 2, P.bolt!);
+    b.set(px + 1, y + 1, '#fffbe0');
+  }
+  return b.outline(P.ink!);
+}
+
+/* pedra rachada: some com o Dom Faísca — a mesma trava condicional do monte
+   de folhas (`seNao: 'dom_faisca'`), cara de rocha partida ao meio. */
+export function pedraRachada(larguraTiles: number, seed = 27): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, 16); const r = rng(seed);
+  b.ellipse(w / 2, 10, w / 2 - 1, 6, P.rockD!);
+  b.ellipse(w / 2, 9, w / 2 - 2, 5, P.rock!);
+  for (let i = 0; i < w / 2; i++) b.set((r() * (w - 4) + 2) | 0, 6 + ((r() * 6) | 0), P.rockD!);
+  // a rachadura em zigue-zague, com o fundo escuro
+  const meio = (w / 2) | 0;
+  b.line(meio - 1, 4, meio + 1, 8, P.ink!);
+  b.line(meio + 1, 8, meio - 1, 11, P.ink!);
+  b.line(meio - 1, 11, meio, 15, P.ink!);
+  return b.outline(P.ink!);
+}
+
 /* folhas que balancam na frente dos pes quando se anda no mato alto */
 export function rocada(quadro = 0): Buf {
   const b = new Buf(16, 9);

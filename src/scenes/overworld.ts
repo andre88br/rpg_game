@@ -78,6 +78,10 @@ const CODIGO_REGIAO3: readonly Acao[] =
    ou 10 elementos dela bate com o final de nenhum código acima */
 const CODIGO_REGIAO4: readonly Acao[] =
   ['cima', 'dir', 'baixo', 'esq', 'cima', 'dir', 'baixo', 'esq', 'b', 'a'];
+/* o da região 5 vai de um lado para o outro antes de subir e descer — a
+   região que cresce para os lados. Nenhum final dele bate com os de cima. */
+const CODIGO_REGIAO5: readonly Acao[] =
+  ['esq', 'dir', 'esq', 'dir', 'cima', 'baixo', 'cima', 'baixo', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -332,6 +336,18 @@ export class CenaMundo implements Cena {
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'MONTE DE FOLHAS', falas: diz('O vento ainda não abriu caminho aqui.'),
+          });
+        }
+      } else if (o.tipo === 'cercaRaio') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'CERCA DE RAIO', falas: diz('A cerca estala de faísca. Alguma chave de para-raio a mantém ligada.'),
+          });
+        }
+      } else if (o.tipo === 'pedraRachada') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'PEDRA RACHADA', falas: diz('Uma rachadura atravessa a pedra. Falta a faísca que a parta.'),
           });
         }
       } else if (o.tipo === 'portao') {
@@ -702,7 +718,7 @@ export class CenaMundo implements Cena {
 
     this.bufferCodigo.push(...apertados);
     const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
+                           CODIGO_REGIAO5.length, CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
 
@@ -721,6 +737,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao4();
+    } else if (this.bateCodigo(CODIGO_REGIAO5)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao5();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -804,6 +824,30 @@ export class CenaMundo implements Cena {
     this.montarMapa('campoAberto');   // já grava: medalhas, Dons e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A entrada para o Campo do Saci se abre.']);
+  }
+
+  /* pula direto para a Aldeia Tupã, pela Campina dos Raios: leva as quatro
+     medalhas anteriores e os quatro Dons, um time se estiver vazio e cinco
+     patuás bons — mesma lógica dos códigos das regiões 3 e 4. */
+  private ativarCodigoRegiao5(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    e.flags['dom_nadar'] = true;
+    e.flags['dom_cortarCipo'] = true;
+    e.flags['dom_tocha'] = true;
+    e.flags['dom_rajada'] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('campinaDosRaios').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('campinaDosRaios');   // já grava: medalhas, Dons e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. A estrada para a Aldeia Tupã se abre.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,

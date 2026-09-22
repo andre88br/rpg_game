@@ -216,6 +216,13 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_catavento', servico: 'as cinco penas de vento, para o Moleiro' },
     { flag: 'conta_redemoinho', servico: 'a Matinta que mora no olho do redemoinho' },
   ],
+  raio: [
+    { flag: 'conta_tambores', servico: 'os quatro tocadores de tambor da Campina dos Raios' },
+    { flag: 'conta_zeca5', servico: 'o Zeca, pela quinta vez, na subida do Morro do Trovão' },
+    { flag: 'conta_pedras_raio', servico: 'as cinco pedras-de-raio, para o Pajé' },
+    { flag: 'conta_para_raios', servico: 'as chaves de para-raio do Charco Relampejante' },
+    { flag: 'conta_trovao', servico: 'o Relampo que mora no cume do Morro do Trovão' },
+  ],
 };
 
 /* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
@@ -226,6 +233,8 @@ export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
   { flag: 'servico_maeDoOuro', servico: 'a Mãe-do-Ouro, no fundo do breu' },
   { flag: 'servico_capim', servico: 'os três punhados de capim dourado do Campo do Saci' },
   { flag: 'servico_uirapuru', servico: 'o Uirapuru, no moinho' },
+  { flag: 'servico_penas_trovao', servico: 'as três penas de trovão, para a Tecelã da Aldeia Tupã' },
+  { flag: 'servico_arco', servico: 'o Arco-da-Velha, atrás do casarão do Charco' },
 ];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do

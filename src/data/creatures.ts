@@ -273,6 +273,56 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'vendaval' }, { nv: 20, golpe: 'encarada' },
     ],
   },
+
+  /* --------------------- da Aldeia Tupã --------------------- */
+  {
+    id: 'faisquinha', nome: 'Faisquinha', tipos: ['raio'],
+    base: { hp: 40, atq: 42, def: 38, esp: 60, vel: 80 },
+    taxaCaptura: 180, xpBase: 60, crescimento: 'rapido',
+    arte: 'faisquinha', categoria: 'Vaga-lume do Raio',
+    sobre: 'Nasce onde o raio cai no capim. Pisca três vezes antes de sumir no mato.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'faisca' },
+      { nv: 9, golpe: 'teia_eletrica' }, { nv: 15, golpe: 'encarada' },
+      { nv: 22, golpe: 'trovoada' },
+    ],
+    evolui: { em: 'relampo', nv: 46 },
+  },
+  {
+    id: 'relampo', nome: 'Relampo', tipos: ['raio'],
+    base: { hp: 68, atq: 70, def: 60, esp: 104, vel: 112 },
+    taxaCaptura: 35, xpBase: 175, crescimento: 'rapido',
+    arte: 'relampo', categoria: 'Vaga-lume do Raio',
+    sobre: 'Risca o céu de uma serra a outra num piscar. O trovão só chega depois que ele já foi.',
+    aprende: [
+      { nv: 1, golpe: 'faisca' }, { nv: 1, golpe: 'teia_eletrica' },
+      { nv: 1, golpe: 'trovoada' }, { nv: 46, golpe: 'raio_tupa' },
+      { nv: 50, golpe: 'afiar' },
+    ],
+  },
+  {
+    id: 'tatuTrovao', nome: 'Tatu-Trovão', tipos: ['raio', 'terra'],
+    base: { hp: 82, atq: 88, def: 96, esp: 62, vel: 44 },
+    taxaCaptura: 60, xpBase: 150, crescimento: 'medio',
+    arte: 'tatuTrovao', categoria: 'Cavador de Tempestade',
+    sobre: 'Enterra o raio que cai no morro e devolve o estrondo pelo chão, dias depois.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'pedrada' },
+      { nv: 1, golpe: 'faisca' }, { nv: 20, golpe: 'tremor' },
+      { nv: 32, golpe: 'trovoada' }, { nv: 44, golpe: 'desmoronamento' },
+    ],
+  },
+  {
+    id: 'arcoDaVelha', nome: 'Arco-da-Velha', tipos: ['raio', 'luz'],
+    base: { hp: 80, atq: 62, def: 70, esp: 116, vel: 92 },
+    taxaCaptura: 3, xpBase: 190, crescimento: 'lento',
+    arte: 'arcoDaVelha', categoria: 'Serpente da Chuva',
+    sobre: 'Bebe água da lagoa pelas duas pontas depois da tempestade. Quem passa por baixo troca de sina.',
+    aprende: [
+      { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'lampejo' },
+      { nv: 1, golpe: 'raio_tupa' }, { nv: 1, golpe: 'aurora' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =

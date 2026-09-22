@@ -700,6 +700,123 @@ export function uirapuru(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- FAISQUINHA (Raio, vaga-lume do raio) ---------------- */
+export function faisquinha(): Buf {
+  const b = new Buf(32, 32);
+  const corpo = '#3f4a6b', corpoL = '#5d6b94', luz = P.bolt, luzL = '#fff6b0', asa = '#cfe6f2';
+
+  // asinhas transparentes, abertas
+  b.ellipse(9, 12, 6, 4, asa); b.ellipse(23, 12, 6, 4, asa);
+  b.ellipse(9, 12, 4, 2, '#eef8fc'); b.ellipse(23, 12, 4, 2, '#eef8fc');
+
+  // a lanterna: o traseiro inteiro aceso, maior que o resto
+  b.ellipse(16, 23, 8, 7, P.boltD);
+  b.ellipse(16, 22, 7, 6, luz);
+  b.ellipse(14, 20, 3, 2, luzL);
+
+  // corpo e cabeça escuros
+  b.ellipse(16, 13, 6, 5, corpo);
+  b.ellipse(16, 12, 4, 2, corpoL);
+  olho(b, 13, 12, 2, 1); olho(b, 19, 12, 2, -1);
+
+  // antenas em zigue-zague, como um raio pequeno
+  b.line(13, 8, 11, 5, corpo); b.line(11, 5, 13, 3, corpo); b.set(13, 2, luz);
+  b.line(19, 8, 21, 5, corpo); b.line(21, 5, 19, 3, corpo); b.set(19, 2, luz);
+
+  // faíscas soltas em volta
+  for (const [x, y] of [[4, 24], [28, 22], [6, 29], [27, 28]] as const) {
+    b.set(x, y, luz); b.set(x + 1, y - 1, luzL);
+  }
+  return b.outline(P.ink);
+}
+
+/* ---------------- RELAMPO (Raio, evolução da Faisquinha) ---------------- */
+export function relampo(): Buf {
+  const b = new Buf(40, 40);
+  const corpo = '#2f3656', corpoL = '#4d5988', luz = P.bolt, luzD = P.boltD, luzL = '#fff6b0';
+
+  // asas longas em forma de raio, abertas para trás
+  b.tri(20, 16, 1, 6, 10, 20, luzD);
+  b.tri(10, 20, 3, 24, 16, 20, luzD);
+  b.tri(20, 16, 39, 6, 30, 20, luzD);
+  b.tri(30, 20, 37, 24, 24, 20, luzD);
+  b.tri(20, 16, 5, 8, 11, 18, luz);
+  b.tri(20, 16, 35, 8, 29, 18, luz);
+
+  // a lanterna comprida, riscando para baixo
+  b.ellipse(20, 30, 7, 8, luzD);
+  b.ellipse(20, 29, 6, 7, luz);
+  b.ellipse(18, 26, 2, 3, luzL);
+  b.tri(16, 35, 20, 39, 24, 35, luz);
+
+  // corpo e cabeça
+  b.ellipse(20, 18, 6, 6, corpo);
+  b.ellipse(20, 11, 6, 5, corpo);
+  b.ellipse(20, 10, 4, 2, corpoL);
+  olho(b, 17, 11, 2, 1); olho(b, 23, 11, 2, -1);
+
+  // chifre-antena único, um raio inteiro
+  b.line(20, 6, 17, 3, luz); b.line(17, 3, 22, 2, luz); b.line(22, 2, 19, 0, luz);
+  return b.outline(P.ink);
+}
+
+/* ---------------- TATU-TROVÃO (Raio/Terra) ---------------- */
+export function tatuTrovao(): Buf {
+  const b = new Buf(40, 40);
+  const casco = '#7a6a58', cascoD = '#54483b', cascoL = '#a08c74', pele = '#c9a88a';
+
+  // rabo grosso e pernas curtas
+  b.tri(4, 26, 1, 33, 9, 29, cascoD);
+  for (const x of [10, 16, 25, 31]) b.rect(x, 30, 4, 5, pele);
+
+  // o casco em arco, dividido em cintas
+  b.ellipse(20, 24, 16, 10, cascoD);
+  b.ellipse(20, 22, 15, 9, casco);
+  for (const x of [11, 16, 21, 26]) b.rect(x, 14, 2, 17, cascoD);
+  b.ellipse(16, 18, 5, 2, cascoL);
+
+  // um raio amarelo cravado em cada cinta
+  for (const x of [13, 18, 23, 28]) {
+    b.line(x, 17, x - 1, 21, P.bolt); b.line(x - 1, 21, x + 1, 22, P.bolt); b.line(x + 1, 22, x, 26, P.bolt);
+  }
+
+  // cabeça comprida, focinho no chão
+  b.ellipse(34, 26, 5, 4, pele);
+  b.tri(36, 24, 40, 29, 35, 30, pele);
+  b.ellipse(32, 20, 2, 3, pele);               // orelha
+  olho(b, 34, 25, 2, 1);
+  return b.outline(P.ink);
+}
+
+/* ---------------- ARCO-DA-VELHA (Raio/Luz, exclusivo) ---------------- */
+export function arcoDaVelha(): Buf {
+  const b = new Buf(40, 40);
+  const faixas = ['#e0524a', '#f09a3a', P.bolt, '#5fbf6a', '#4a9fd0', '#8a6ad0'];
+
+  // o corpo é o próprio arco-íris: seis faixas em meia-lua
+  faixas.forEach((cor, i) => {
+    const r = 18 - i * 2;
+    for (let a = 0; a <= 180; a += 2) {
+      const rad = (a * Math.PI) / 180;
+      const x = 20 + Math.cos(rad) * r, y = 30 - Math.sin(rad) * r;
+      b.rect(x | 0, y | 0, 2, 2, cor);
+    }
+  });
+
+  // as duas cabeças, uma em cada ponta, bebendo da lagoa
+  b.ellipse(20, 36, 18, 3, P.waterD);
+  b.ellipse(20, 36, 16, 2, P.water);
+  for (const [x, d] of [[4, 1], [36, -1]] as const) {
+    b.ellipse(x, 31, 4, 3, faixas[0]!);
+    olho(b, x + d, 30, 1, d);
+    b.set(x + d * 3, 33, '#f2f0ea');
+  }
+
+  // faísca no alto do arco
+  b.line(20, 6, 18, 10, '#fffbe0'); b.line(18, 10, 22, 10, '#fffbe0'); b.line(22, 10, 20, 14, '#fffbe0');
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -709,4 +826,5 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   piragua, sacizinho, caiporinha,
   cabritinha, cabraCabriola, mulinha, mulaSemCabeca, salamanca, maeDoOuro,
   saci, matinta, uirapuru,
+  faisquinha, relampo, tatuTrovao, arcoDaVelha,
 };

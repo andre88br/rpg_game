@@ -61,6 +61,7 @@ export type TipoObjeto =
   | 'casa' | 'loja' | 'benzimento' | 'terreiro' | 'posto' | 'forja' | 'moinho'  // construcoes com porta
   | 'farol'                                          // construcao sem porta
   | 'placa' | 'barreira' | 'monteFolhas' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
+  | 'paraRaio' | 'cercaRaio' | 'pedraRachada'        // Aldeia Tupã
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
@@ -368,6 +369,20 @@ export class Mapa {
         break;
       case 'monteFolhas':
         sprite = T.monteFolhas(larg);
+        break;
+      /* chave de para-raio: o mesmo par de objetos do `achado` (um por
+         estado, `se`/`seNao` na flag da chave), com `vazio` = apagada */
+      case 'paraRaio':
+        sprite = T.paraRaio(o.vazio !== true);
+        break;
+      /* portão de raio: a mesma trava condicional da barreira, cara de cerca
+         eletrificada — é o que as chaves ligam e desligam */
+      case 'cercaRaio':
+        sprite = T.cercaRaio(larg);
+        break;
+      /* some com o Dom Faísca — molde exato do monte de folhas */
+      case 'pedraRachada':
+        sprite = T.pedraRachada(larg);
         break;
       case 'farol':
         sprite = T.farol(larg, alt);

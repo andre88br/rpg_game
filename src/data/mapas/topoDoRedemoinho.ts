@@ -1,6 +1,8 @@
 /* Topo do Redemoinho — o alto da Serra... do Campo do Saci. Sem saída ao
    sul: quem sobe até aqui só tem um motivo, e ele mora no meio do redemoinho
-   de vento que gira sozinho perto do fim do platô. A Sentinela do Vento
+   de vento que gira sozinho perto do fim do platô. Depois do Pererê, um vão
+   se abre na parede LESTE (linhas 12-13) para a Campina dos Raios — a
+   entrada da Aldeia Tupã, a primeira região que cresce para os lados. A Sentinela do Vento
    guarda a subida; a Matinta que mora no olho do redemoinho é a quinta e
    última conta da guia — `conta_redemoinho`.
    As correntes ('V') em volta do redemoinho são só paisagem: não travam
@@ -28,8 +30,8 @@ export const topoDoRedemoinho: DefMapa = {
     '#.,.,..................,......,.#',
     '#...........,....,..,...........#',
     '#...............................#',
-    '#...........o.,.......,.........#',
-    '#....,,...........o.............#',
+    '#...........o.,.......,..........',
+    '#....,,...........o..............',
     '#......,...,.,.......,...,......#',
     '#.............o.,............,,.#',
     '#.o..,.............,.,..........#',
@@ -55,6 +57,11 @@ export const topoDoRedemoinho: DefMapa = {
   objetos: [
     { tipo: 'placa', tx: 19, ty: 1,
       placa: 'TOPO DO REDEMOINHO. O vento aqui em cima gira sozinho, e não para nunca.' },
+    /* o vão leste: só abre para quem já tem a Medalha Rodamoinho */
+    { tipo: 'barreira', tx: 32, ty: 12, larg: 1, seNao: 'medalha:rodamoinho' },
+    { tipo: 'barreira', tx: 32, ty: 13, larg: 1, seNao: 'medalha:rodamoinho' },
+    { tipo: 'placa', tx: 30, ty: 10,
+      placa: 'A leste, a Campina dos Raios e a Aldeia Tupã. Só passa quem traz a Medalha Rodamoinho.' },
     { tipo: 'placa', tx: 19, ty: 24,
       placa: 'O olho do redemoinho fica logo à frente. Alguma coisa mora nele.' },
 
@@ -118,6 +125,8 @@ export const topoDoRedemoinho: DefMapa = {
   saidas: [
     { tx: 16, ty: 0, para: 'aldeiaCatavento', destino: { tx: 16, ty: 31, dir: 'cima' } },
     { tx: 17, ty: 0, para: 'aldeiaCatavento', destino: { tx: 17, ty: 31, dir: 'cima' } },
+    { tx: 32, ty: 12, para: 'campinaDosRaios', destino: { tx: 1, ty: 16, dir: 'dir' } },
+    { tx: 32, ty: 13, para: 'campinaDosRaios', destino: { tx: 1, ty: 17, dir: 'dir' } },
   ],
 
   cenario: 'mata',

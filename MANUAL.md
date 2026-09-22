@@ -1,7 +1,7 @@
-# Manual dos desafios — das quatro regiões, do começo ao fim
+# Manual dos desafios — das cinco regiões, do começo ao fim
 
 Guia completo de como acender todas as contas de cada terreiro, vencer cada
-mestre e pegar as quatro medalhas. Tudo aqui foi conferido direto nos mapas do
+mestre e pegar as cinco medalhas. Tudo aqui foi conferido direto nos mapas do
 jogo: nomes, níveis, quantidades e coordenadas são os de verdade.
 
 As coordenadas aparecem como `(coluna, linha)` contadas a partir do canto
@@ -32,6 +32,7 @@ fica sempre bem na frente da porta do terreiro:
 | Mata do Curupira | Mata do Curupira, em frente à porta do Terreiro de Raiz, (3-8,8) |
 | Serra Boitatá | Vila Fornalha, no pátio do Terreiro de Brasa, (13-19,11) |
 | Campo do Saci | Aldeia Catavento, no pátio do Terreiro do Rodamoinho, (13-19,11) |
+| Aldeia Tupã | Aldeia Tupã, no pátio do Terreiro do Trovão, (8-14,12) |
 
 **Tipos.** São só três regras, e elas decidem quase toda batalha:
 
@@ -52,7 +53,7 @@ Treinador não se captura.
 **Benzimento.** Cura de graça, e é onde a partida recomeça se seu time apagar:
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
 na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia
-Catavento). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
+Catavento), Casa de Dona Jurema na região 5 (Aldeia Tupã). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
 nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
@@ -697,6 +698,206 @@ No **Topo do Redemoinho**, um **monte de folhas** esconde um cantinho com
 afeta guia nem serviço nenhum, e a Ventania Funda continua alcançável sem
 qualquer Dom.
 
+# REGIÃO 5 — ALDEIA TUPÃ · Terreiro do Trovão · Medalha Trovão · Dom Faísca
+
+A primeira região que cresce **para os lados**, não só para baixo. Todo mapa
+ao ar livre das regiões anteriores tinha no máximo 34 colunas; aqui eles têm
+de **56 a 64**, e a região não é mais uma fila norte → sul: a **Aldeia Tupã**
+fica no meio e abre estrada para os três lados.
+
+```
+                              Morro do Trovão (N)
+                                      │
+Topo do Redemoinho ─→ Campina dos Raios ─→ Aldeia Tupã ─→ Charco Relampejante
+                                      │
+                             Terreiro do Trovão
+```
+
+Quatro mapas ao ar livre (≈ 9.300 tiles, o dobro da Serra) + loja,
+benzimento, casa do Pajé e o Terreiro do Trovão. **Cinco contas obrigatórias
++ dois serviços opcionais.** Todo treinador troca de Encantado e usa item.
+
+**Como entrar.** Depois do Pererê, um vão se abre na **parede leste do Topo
+do Redemoinho** (linhas 12-13) — só passa quem tem a Medalha Rodamoinho.
+
+> **Chegue preparado.** Suba com o time perto de 46-48. Espécies novas:
+> **Faisquinha** (Raio) → **Relampo** no 46, **Tatu-Trovão** (Raio/Terra) e,
+> para quem faz os dois serviços, o **Arco-da-Velha** (Raio/Luz). Raio leva
+> 2x de **Terra** — Cabra-Cabriola e Salamanca da Serra rendem aqui. Mas o
+> Tatu-Trovão é Terra também, e contra ele o melhor é **Vento** (que bate em
+> Terra) — o Saci e a Matinta do Campo do Saci voltam a servir.
+
+## Ordem recomendada da região
+
+1. Campina dos Raios: os quatro tocadores de tambor → **conta_tambores**.
+   Pegue as 2 pedras-de-raio da campina pelo caminho.
+2. Aldeia Tupã: benzimento, loja; pegue a pedra-de-raio do canto nordeste.
+3. Charco Relampejante (leste): as chaves de para-raio → **conta_para_raios**.
+   Pegue a pedra-de-raio do canto noroeste.
+4. Aldeia: vença o Zeca pela quinta vez → **conta_zeca5**.
+5. Morro do Trovão (norte): três cristas, três vigias, o Relampo do cume →
+   **conta_trovao**. Pegue a pedra-de-raio do pé do morro.
+6. Casa do Pajé: entregue as 5 pedras → **conta_pedras_raio**.
+7. Terreiro do Trovão, até o Guaraci.
+8. (Opcional) as três penas de trovão e o Arco-da-Velha; os três esconderijos
+   do Dom Faísca.
+
+## Conta 1 — `conta_tambores`: os quatro tocadores de tambor
+
+A Campina dos Raios (64×34) é cortada por **quatro cercas de norte a sul**.
+Cada cerca tem **um vão só**, e os vãos se alternam: alto (linhas 4-5), baixo
+(27-28), alto (5-6), meio (16-17). Atravessar é andar em zigue-zague de ponta
+a ponta. Em cada vão, um tambor e uma tranca que só some quando ele cai.
+
+| # | Quem | Time | Prêmio |
+|---|---|---|---|
+| 1 | TOCADOR DE TAMBOR | Faisquinha 44, Tatu-Trovão 45 | 1400 |
+| 2 | TOCADORA DE TAMBOR | Relampo 45, Faisquinha 45, Cabra-Cabriola 46 | 1600 |
+| 3 | TOCADOR DE TAMBOR | Tatu-Trovão 46, Matinta 46, Relampo 47 | 1800 |
+| 4 | **CHEFE DOS TAMBORES** | Relampo 47, Tatu-Trovão 47, Saci 48, Relampo 48 | 2600 |
+
+Vencer o Chefe acende a conta e abre a estrada para a aldeia.
+
+## Parada obrigatória: Aldeia Tupã
+
+- **Casa de Benzimento** (Dona Jurema) — o único abrigo da região; campina,
+  charco e morro voltam todos para cá.
+- **Loja da Aldeia Tupã**, a **Casa do Pajé** (conta 3) e a **Tecelã**
+  (serviço opcional das penas).
+- O **Zeca**, pela quinta vez, na estrada norte (conta 2).
+
+## Conta 2 — `conta_zeca5`: o Zeca na subida do morro
+
+Relampo 47, Saci 48, Cabra-Cabriola 48, Tatu-Trovão 48, Curupirá 49. Prêmio
+2600, esperto, 2 Garrafadas Fortes + 1 Erva-Doce. A tranca dele fecha a
+estrada para o Morro do Trovão.
+
+## Conta 3 — `conta_pedras_raio`: as cinco pedras-de-raio, para o Pajé
+
+Uma em cada canto distante — é o serviço que obriga a andar de lado:
+
+| # | Onde |
+|---|---|
+| 1 | Campina dos Raios — canto noroeste, (2,2) |
+| 2 | Campina dos Raios — canto sudeste, (61,32) |
+| 3 | Aldeia Tupã — canto nordeste, (53,2) |
+| 4 | Charco Relampejante — canto noroeste, (3,3) |
+| 5 | Morro do Trovão — pé do morro, canto sudeste, (55,37) |
+
+Com as cinco, fale com o **Pajé**, na casa dele (sul da estrada da aldeia):
+paga **600**.
+
+## Conta 4 — `conta_para_raios`: as chaves do Charco
+
+A metade leste do Charco é o **casarão dos para-raios**: seis salas, três
+por duas, separadas por **cercas de raio**. Há **três chaves** (postes com a
+ponta de ferro) — encoste e aperte A para ligar ou desligar. **Toda chave
+abre uma cerca e fecha outra**; nenhuma só abre. O para-raio mestre fica na
+sala sudeste.
+
+```
+  NO ──A── N ──C── NE          ─X─  abre com a chave X LIGADA
+   │!C     │!A     │!C          !X  abre com a chave X DESLIGADA
+  SO ─!B── S ──B── SE (mestre)
+  chave A: sala NE · chave B: sala SO · chave C: sala N
+```
+
+Entra-se na sala NO, pelo oeste. Solução mais curta (**seis toques**):
+
+1. NO → SO → S → N (as três cercas do caminho começam abertas).
+2. Na sala N, **ligue C**. Vá para NE.
+3. Na sala NE, **ligue A**. Volte para N.
+4. Na sala N, **desligue C**. Vá para NO → SO.
+5. Na sala SO, **ligue B**. Volte para NO → N.
+6. Na sala N, **ligue C**. Vá para NE.
+7. Na sala NE, **desligue A**. Volte para N → S → SE.
+8. Encoste no **para-raio mestre**: todas as cercas se calam de vez.
+
+Se errar, nada trava: toda chave desfaz o que fez, e sempre dá para voltar.
+
+## Conta 5 — `conta_trovao`: o Relampo do cume
+
+O Morro do Trovão (58×40) tem **três cristas de rocha** de ponta a ponta,
+cada uma com um vão, alternando oeste (colunas 2-3) e leste (53-54): subir é
+cruzar o morro inteiro de lado quatro vezes. Três **Vigias do Trovão** ficam
+ao pé dos vãos (não trancam nada, mas enxergam longe):
+
+| Onde | Time | Prêmio |
+|---|---|---|
+| 1ª crista (oeste) | Tatu-Trovão 47, Relampo 47, Cabra-Cabriola 48 | 2000 |
+| 2ª crista (leste) | Relampo 48, Saci 48, Tatu-Trovão 48, Matinta 48 | 2200 |
+| 3ª crista (oeste) | Relampo 49, Curupirá 48, Tatu-Trovão 49, Relampo 49 | 2400 |
+
+No cume, do lado leste, um **Relampo selvagem nível 50**. Vencer acende a
+conta; **capturar também vale**.
+
+## O Terreiro do Trovão — o salão do Guaraci
+
+Porta na Aldeia Tupã, ao norte do pátio. O primeiro terreiro **mais largo que
+alto** (29×23): saguão com a primeira guarda, depois seis salas com **duas
+chaves** (a mesma regra do Charco), depois o corredor do alto com as outras
+duas guardas e, na ponta oeste, o Guaraci.
+
+```
+  NO ───── N ──!1── NE ─→ (guarda 2) corredor do alto
+   │1      │!2      │!1
+  SO ──2── S ───1── SE
+ (entra)   chave 1: sala SO · chave 2: sala S
+```
+
+1. **Guarda da Faísca** (saguão) — Faisquinha 47, Tatu-Trovão 48, Relampo 48.
+2. Salas — **quatro toques**: em SO **ligue 1** → NO → N → S; em S **ligue
+   2** → SO; em SO **desligue 1** → S; em S **desligue 2** → N → NE.
+3. **Guarda do Relâmpago** (sala NE) — Relampo 49, Saci 49, Tatu-Trovão 49,
+   Cabra-Cabriola 50.
+4. **Guarda da Trovoada** (corredor do alto) — Relampo 50, Matinta 50,
+   Tatu-Trovão 50, Relampo 51.
+
+### Mestre: Guaraci
+
+**Relampo 51, Tatu-Trovão 51, Saci 52, Tatu-Trovão 52, Relampo 53** — e um
+**sexto** escolhido contra o seu inicial, como o Brás: Iara-Mãe 52 contra
+Boitatinha, Curupirá 52 contra Iarinha, Boitatão 52 contra Curupinho. Prêmio
+5000. Esperto, com 2 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
+
+- Relampo é Raio puro: leva 2x de **Terra**. Tatu-Trovão (Raio/Terra) leva
+  2x de **Terra** e de **Vento**. Saci (Vento) leva 2x de **Raio**.
+- As cercas do terreiro somem quando o Guaraci cai: a saída fica livre.
+
+Vencer dá a **Medalha Trovão** e o **Dom Faísca**, que parte **pedra
+rachada**.
+
+## Os dois serviços opcionais
+
+### `servico_penas_trovao` — as três penas de trovão
+
+| # | Onde |
+|---|---|
+| 1 | Aldeia Tupã — canto sudoeste, (2,40) |
+| 2 | Charco Relampejante — canto sudeste, (59,37) |
+| 3 | Morro do Trovão — cume, canto noroeste, (2,2) |
+
+Com as três, fale com a **Tecelã**, na aldeia: **3500 de dinheiro + 3
+Patuás de Mestre**.
+
+### `servico_arco` — o Encantado exclusivo
+
+Atrás do casarão do Charco (só se chega depois das chaves, pela cerca da
+sala SE, que some com a conta), o **Arco-da-Velha** espera — só se entrega
+com as penas entregues **e** a Medalha Trovão: **Arco-da-Velha nível 35**,
+de graça, sem batalha.
+
+### Os bolsos do Dom Faísca
+
+Três **pedras rachadas** fecham três esconderijos — nenhum no caminho
+obrigatório:
+
+| Onde | O que tem |
+|---|---|
+| Campina dos Raios — trecho do meio, canto sul | 1 Patuá de Mestre |
+| Aldeia Tupã — canto sudeste | 1 Água Benta |
+| Morro do Trovão — 2ª faixa, lado leste | 2 Patuás de Mestre |
+
 ---
 
 ## Códigos secretos
@@ -709,6 +910,7 @@ valem em conversa, batalha, loja nem menu.
 | ↑ ↑ ↓ ↓ ← → ← → B A | Pula para a **Mata do Curupira** com Medalha Maré, Dom Nadar, um time se estiver vazio e a carta para a Tiê |
 | ↓ ↓ ↑ ↑ → ← → ← B A | Pula para a **Serra Boitatá** com as duas medalhas, os dois Dons e 5 Patuás Bons |
 | ↑ → ↓ ← ↑ → ↓ ← B A | Pula para o **Campo do Saci** com as três medalhas, os três Dons e 5 Patuás Bons |
+| ← → ← → ↑ ↓ ↑ ↓ B A | Pula para a **Aldeia Tupã** (entrando pela Campina dos Raios) com as quatro medalhas, os quatro Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
 
@@ -733,3 +935,9 @@ cumeeira → pátio · escória · breu · salão → Brás → **Brasa + Tocha*
 terreiro (3 correntes · 3 guardas · errar uma forquilha devolve ao início) →
 Pererê → **Rodamoinho + Rajada** →
 (3 capins → Capinzeiro; capins + medalha → Uirapuru; Rajada → bolso no topo).
+
+**Aldeia Tupã** — 4 tambores · 5 pedras-de-raio (campina ×2, aldeia,
+charco, morro) · chaves do Charco (N: C · NE: A · N: C · SO: B · N: C ·
+NE: A → mestre) · Zeca 5 · Relampo do cume → terreiro (guarda · chaves 1-2-1-2
+· 2 guardas) → Guaraci → **Trovão + Faísca** →
+(3 penas → Tecelã; penas + medalha → Arco-da-Velha; Faísca → 3 esconderijos).
