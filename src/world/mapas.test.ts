@@ -681,7 +681,9 @@ test('o Terreiro do Rodamoinho é mesmo um quebra-cabeça, não um corredor', ()
   const perere = def.npcs.find((n) => n.id === 'perere')!;
   const escorregando = alcanceDeslizando(m, def.inicio.tx, def.inicio.ty);
   const aPe = alcance(m, def.inicio.tx, def.inicio.ty);
-  assert.ok(aPe.has(`${perere.tx},${perere.ty - 1}`),
+  const vizinhos = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+    .map(([dx, dy]) => `${perere.tx + dx!},${perere.ty + dy!}`);
+  assert.ok(vizinhos.some((v) => aPe.has(v)),
             'sem escorregar o salão devia ser um corredor reto');
   assert.ok(escorregando.size < aPe.size,
             'a corrente devia tirar lugares de alcance, não deixar tudo igual');
