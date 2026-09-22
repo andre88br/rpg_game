@@ -637,14 +637,22 @@ Com as cinco contas acesas, a guia da região fecha.
 
 ## O Terreiro do Rodamoinho — o salão do Pererê
 
-Porta na Aldeia Catavento, ao norte. Uma sala só, com o mesmo quebra-cabeça
-de corrente — entra-se por baixo, sai-se por cima, do lado do Pererê.
-**Dez escorregões:**
+Porta na Aldeia Catavento, ao norte. Uma sala só, mas comprida: três
+correntes de vento empilhadas, cada uma com mais forquilhas que a anterior
+(1, depois 2, depois 3), e uma guarda entre cada corrente. Entra-se por
+baixo, sai-se por cima, do lado do Pererê.
 
-> **cima · cima · cima · esquerda · cima · direita · cima · cima · cima · cima**
+Diferente dos outros salões de corrente, aqui não tem meio-termo: em cada
+forquilha, o lado certo volta pro corredor central e segue subindo — o lado
+errado pisa numa saída disfarçada de chão e devolve pro **início do salão
+inteiro**. Guarda já vencida continua vencida (a barreira dela não volta a
+fechar), mas a corrente em si tem que ser refeita do zero.
 
-Os três primeiros são só subir até a corrente pegar; as decisões de verdade
-começam na quarta.
+1. **Guarda da Correnteza** — Sacizinho 39, Cabritinha 40. Uma forquilha só.
+2. **Guarda do Remoinho** — Matinta 41, Saci 41, Cabra-Cabriola 42. Duas
+   forquilhas.
+3. **Guarda da Tormenta** — Saci 43, Curupira 44, Cabra-Cabriola 44. Três
+   forquilhas — a mais longa das três correntes, bem antes do Pererê.
 
 ### Mestre: Pererê
 
@@ -722,5 +730,6 @@ cumeeira → pátio · escória · breu · salão → Brás → **Brasa + Tocha*
 
 **Campo do Saci** — 4 catadores · travessia da Ventania Funda (2 piscinas:
 ↓→↑←↓←↓ · ↓←↓→↓→↓) · 6 capturados · 5 penas · Matinta do redemoinho →
-terreiro (↑↑↑←↑→↑↑↑↑) → Pererê → **Rodamoinho + Rajada** →
+terreiro (3 correntes · 3 guardas · errar uma forquilha devolve ao início) →
+Pererê → **Rodamoinho + Rajada** →
 (3 capins → Capinzeiro; capins + medalha → Uirapuru; Rajada → bolso no topo).

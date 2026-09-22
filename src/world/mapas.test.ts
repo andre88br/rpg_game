@@ -605,14 +605,70 @@ test('o Terreiro do Rodamoinho tem solução, partindo da porta de verdade', () 
             'o salão do Pererê não tem caminho até ele, partindo da entrada de verdade');
 });
 
-test('e ninguém fica preso no Terreiro do Rodamoinho', () => {
+/* Diferente dos outros salões de corrente, o Rodamoinho é de mão única de
+   propósito: quem erra uma forquilha não anda de volta até a porta (a
+   corrente não deixa) — pisa numa saída disfarçada de chão, que devolve
+   pro início do salão. As seis saídas abaixo são exatamente as seis
+   forquilhas erradas das três correntes; se uma pedra se mover e abrir um
+   jeito de voltar andando por engano, os testes abaixo pegam isso. */
+test('as seis saídas disfarçadas do Rodamoinho devolvem pro início, e ficam na corrente', () => {
   const def = MAPAS['terreiroRodamoinho']!;
   const m = mapa('terreiroRodamoinho');
-  const entrada = `${def.inicio.tx},${def.inicio.ty}`;
-  for (const lugar of alcanceDeslizando(m, def.inicio.tx, def.inicio.ty)) {
-    const [x, y] = lugar.split(',').map(Number) as [number, number];
-    assert.ok(alcanceDeslizando(m, x, y).has(entrada),
-              `quem chega em (${lugar}) não consegue mais voltar para a porta`);
+  const disfarcadas = (def.saidas ?? []).filter((s) => s.para === 'terreiroRodamoinho');
+  assert.equal(disfarcadas.length, 6,
+    'esperava seis saídas disfarçadas — uma por forquilha errada, em três correntes');
+  for (const s of disfarcadas) {
+    assert.equal(s.destino.tx, def.inicio.tx, `saída (${s.tx},${s.ty}): destino.tx devia ser o início`);
+    assert.equal(s.destino.ty, def.inicio.ty, `saída (${s.tx},${s.ty}): destino.ty devia ser o início`);
+    assert.ok(m.escorrega(s.tx, s.ty),
+      `a saída disfarçada em (${s.tx},${s.ty}) devia ficar numa corrente de vento`);
+  }
+});
+
+test('em cada uma das seis forquilhas, o lado errado pisa numa saída disfarçada', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const m = mapa('terreiroRodamoinho');
+  const disfarcadas = new Set(
+    (def.saidas ?? []).filter((s) => s.para === 'terreiroRodamoinho').map((s) => `${s.tx},${s.ty}`));
+
+  // cada forquilha: onde ela trava (parada pela pedra central) e qual lado
+  // é o CERTO — o outro lado tem que cair exatamente numa saída disfarçada
+  const forquilhas: [number, number, 'esquerda' | 'direita'][] = [
+    [7, 35, 'esquerda'],  // 1ª corrente (a mais perto da porta)
+    [7, 28, 'direita'],   // 2ª corrente, forquilha de baixo
+    [7, 24, 'esquerda'],  // 2ª corrente, forquilha de cima
+    [7, 17, 'esquerda'],  // 3ª corrente, forquilha de baixo
+    [7, 13, 'direita'],   // 3ª corrente, forquilha do meio
+    [7, 9,  'esquerda'],  // 3ª corrente, forquilha de cima (a mais perto do Pererê)
+  ];
+
+  for (const [tx, ty, certo] of forquilhas) {
+    const [dx] = certo === 'esquerda' ? [-1] : [1];
+    const [px, py] = passo(m, tx, ty, dx, 0);
+    assert.ok(!(px === tx && py === ty),
+      `forquilha (${tx},${ty}): o lado certo (${certo}) devia mover o jogador`);
+
+    const errado = -dx;
+    const [ex, ey] = passo(m, tx, ty, errado, 0);
+    assert.ok(disfarcadas.has(`${ex},${ey}`),
+      `forquilha (${tx},${ty}): o lado errado parou em (${ex},${ey}), que não é saída disfarçada`);
+  }
+});
+
+test('cada guarda do Rodamoinho tranca e destranca a corrente seguinte', () => {
+  const def = MAPAS['terreiroRodamoinho']!;
+  const guardas: [string, number, number][] = [
+    ['venceu_guarda_correnteza', 7, 30],
+    ['venceu_guarda_remoinho',   7, 19],
+    ['venceu_guarda_tormenta',   7, 4],
+  ];
+  for (const [flag, tx, ty] of guardas) {
+    const fechado = new Mapa(def, FECHADO);
+    const aberto = new Mapa(def, { contas: () => 0, nadar: false, ligada: (c) => c === flag });
+    assert.ok(fechado.solido(tx, ty),
+      `a barreira em (${tx},${ty}) devia estar trancada antes de ${flag}`);
+    assert.ok(!aberto.solido(tx, ty),
+      `a barreira em (${tx},${ty}) devia abrir depois de ${flag}`);
   }
 });
 
