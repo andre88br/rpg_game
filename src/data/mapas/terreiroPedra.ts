@@ -10,7 +10,10 @@
       `passou_charada_pedra`, que tira a barreira da passagem para cima;
       errar só faz ela perguntar de novo;
    4. na sala de cima, a GUARDA DA ROCHA (batalha) guarda a porta da câmara;
-   5. o Ubirajara, na ponta oeste da câmara.
+   5. o Ubirajara, na ponta oeste da câmara;
+   6. a volta: o trilho A → B só anda para um lado, então um trilho de uma
+      casa só, em (25,17), desce da plataforma B direto ao saguão. De baixo
+      para cima ele empurra de volta — não é atalho, é só a saída.
    ========================================================================= */
 import type { DefMapa } from '../../world/tilemap.ts';
 
@@ -37,7 +40,7 @@ export const terreiroPedra: DefMapa = {
     'W_____BDDDDDDDDDDDDDDDD_____W', // 14
     'W_____BWWWWWWWWWWWWWWWW_____W', // 15
     'W_____BWWWWWWWWWWWWWWWW_____W', // 16
-    'WWW_WWBWWWWWWWWWWWWWWWWWWWWWW', // 17
+    'WWW_WWBWWWWWWWWWWWWWWWWWWBWWW', // 17
     'W___________________________W', // 18
     'W___________TTTTT___________W', // 19
     'W___________TTTTT___________W', // 20
@@ -85,7 +88,8 @@ export const terreiroPedra: DefMapa = {
       tx: 24, ty: 12, dir: 'baixo',
       falas: [
         { se: 'passou_charada_pedra', linhas: [
-          'Acertou, então passa. O Ubirajara gosta de quem pensa antes de bater.'] },
+          'Acertou, então passa. O Ubirajara gosta de quem pensa antes de bater.',
+          'Pra voltar pro saguão, é o trilho do canto de baixo desta plataforma.'] },
         { liga: 'passou_charada_pedra', linhas: [
           'Aqui ninguém luta comigo. Aqui se responde.',
           'O que é, o que é: cai em pé e corre deitado?'],

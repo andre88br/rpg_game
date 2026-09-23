@@ -1563,6 +1563,14 @@ test('o Terreiro da Pedra tem solução: uma alavanca, a charada e três guardas
   const ubirajara = def.npcs.find((n) => n.id === 'ubirajara')!;
   const alvo = { tx: ubirajara.tx + 1, ty: ubirajara.ty };
   assert.equal(resolverChaves(def, ['alavanca_terreiro_pedra'], flags, def.inicio, alvo), 1);
+  // e do Ubirajara se volta à porta, com qualquer posição da alavanca
+  const porta = def.saidas![0]!;
+  const acima = { tx: porta.tx, ty: porta.ty - 1 };
+  for (const extra of [[], ['alavanca_terreiro_pedra']]) {
+    const tudo = new Set([...flags, ...extra]);
+    assert.equal(resolverChaves(def, [], tudo, alvo, acima), 0,
+                 `do Ubirajara devia dar para voltar à porta (alavanca ${extra.length ? 'puxada' : 'solta'})`);
+  }
   for (const falta of flags) {
     const sem = new Set([...flags].filter((f) => f !== falta));
     assert.equal(resolverChaves(def, ['alavanca_terreiro_pedra'], sem, def.inicio, alvo), null,
@@ -1657,4 +1665,37 @@ test('a Caipora só se entrega depois dos diamantes E da medalha', () => {
   assert.equal(entrega.encantado!.especie, 'caipora');
   const exige = [entrega.se].flat();
   assert.ok(exige.includes('servico_diamantes') && exige.includes('medalha:pedra'));
+});
+
+/* Pegou de verdade o Terreiro da Pedra: o trilho da plataforma A para a B só
+   anda num sentido, e quem subia até o Ubirajara não tinha mais por onde
+   voltar à porta. Aqui, para todo mapa, com toda condição valendo: de todo
+   tile alcançável (seguindo os trilhos) ainda se chega a alguma saída. As
+   Galerias ficam de fora — lá o caminho depende de quais das três alavancas
+   estão puxadas, e quem prova a volta é a busca de estados própria delas. */
+test('de todo lugar alcançável se volta a alguma saída', () => {
+  for (const [id, def] of entradas) {
+    if (id === 'galeriasDaMina') continue;
+    if (!def.saidas?.length) continue;
+    const m = mapa(id);
+    const grafo = new Map<string, string[]>();
+    const fila = [`${def.inicio.tx},${def.inicio.ty}`];
+    grafo.set(fila[0]!, []);
+    while (fila.length) {
+      const k = fila.shift()!;
+      const [x, y] = k.split(',').map(Number) as [number, number];
+      const saidas: string[] = [];
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+        const onde = passoComTrilho(m, x, y, dx, dy);
+        if (onde) saidas.push(`${onde[0]},${onde[1]}`);
+      }
+      grafo.set(k, saidas);
+      for (const n of saidas) if (!grafo.has(n)) { grafo.set(n, []); fila.push(n); }
+    }
+    const portas = new Set(def.saidas.map((s) => `${s.tx},${s.ty}`));
+    const voltam = chegamAo(new Map([...grafo].map(([k, v]) => [`${k},0`, v.map((n) => `${n},0`)])),
+                            (x, y) => portas.has(`${x},${y}`));
+    const presos = [...grafo.keys()].filter((k) => !voltam.has(`${k},0`));
+    assert.deepEqual(presos.slice(0, 5), [], `${id}: ${presos.length} tiles sem caminho de volta a uma saída`);
+  }
 });

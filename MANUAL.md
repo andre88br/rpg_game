@@ -1040,7 +1040,8 @@ e um **sexto** contra o seu inicial (Iara-Mãe 58 contra Boitatinha, Curupirá
   Terra/Fogo — Água também bate 2x nelas.
 
 Vencer dá a **Medalha Pedra** e o **Dom Escavar**, que abre **monte de
-terra**.
+terra**. Para sair, desça até a plataforma B e pise no **trilho do canto de
+baixo**: ele leva direto ao saguão da porta.
 
 ## Os dois serviços opcionais
 
