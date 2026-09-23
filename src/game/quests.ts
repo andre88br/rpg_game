@@ -271,6 +271,13 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_ladrilhos', servico: 'os ladrilhos do Casarão, na ordem certa' },
     { flag: 'conta_cuca', servico: 'a Cuca que mora no sótão do Casarão' },
   ],
+  luz: [
+    { flag: 'conta_oraculo', servico: 'as três perguntas do Oráculo do Sol' },
+    { flag: 'conta_lampioes', servico: 'os cinco lampiões acesos antes do sol se pôr' },
+    { flag: 'conta_espelhos', servico: 'o feixe do Jardim dos Espelhos, no cristal' },
+    { flag: 'conta_zeca8', servico: 'o Zeca, pela oitava vez, na subida do Pico' },
+    { flag: 'conta_estrela', servico: 'a Estrela-d\'Alva que pousa no Pico da Aurora' },
+  ],
 };
 
 /* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
@@ -287,6 +294,8 @@ export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
   { flag: 'servico_caipora', servico: 'a Caipora, no fundo da Cava Funda' },
   { flag: 'servico_retratos', servico: 'os três retratos antigos, para a Velha do Bairro' },
   { flag: 'servico_pisadeira', servico: 'a Pisadeira, no telhado do Casarão' },
+  { flag: 'servico_cristais', servico: 'os três cristais solares enterrados, para a Joalheira' },
+  { flag: 'servico_jaci', servico: 'a Jaci, no alto do Pico da Aurora' },
 ];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do

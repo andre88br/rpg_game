@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: sete regiões fechadas.** A **Região da Foz**
+**Estado: as oito regiões fechadas.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -80,6 +80,20 @@ Morgana fecha a região com a **Medalha Breu** e o Dom **Visão Noturna**, que
 ilumina o breu e desfaz os véus de sombra — mais dois serviços opcionais:
 três retratos antigos e a **Pisadeira**, a Encantada exclusiva.
 
+Atrás do véu de sombra da saída sul do Bairro, que só o Dom Visão Noturna
+desfaz, fica a última região: a **Cidade do Sol**, tipo Luz, com mais dois
+tipos de tarefa novos: o **feixe de luz** — no Jardim dos Espelhos, um disco
+de pedra solta um raio de sol que anda reto e dobra em nove espelhos; o A
+gira cada espelho, e o feixe precisa chegar ao cristal (a solução mais curta
+gira quatro) — e a **corrida contra o sol** — o Acendedor dá a largada, um
+relógio aparece no canto da tela, e os cinco lampiões espalhados pela cidade
+precisam acender antes do sol se pôr: correndo dá, andando não. O Oráculo
+faz três perguntas, o Zeca barra a subida do Pico pela oitava vez e a
+Estrela-d'Alva espera no cume. O Solano fecha o jogo com a **Medalha
+Aurora** e o Dom **Prisma**, que atravessa as cortinas de luz — mais dois
+serviços opcionais: três cristais solares enterrados e a **Jaci**, a
+Encantada exclusiva.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -144,6 +158,7 @@ tudo de novo.
 | ← → ← → ↑ ↓ ↑ ↓ B A | pula para a **Aldeia Tupã**, pela Campina dos Raios (com as quatro medalhas, os quatro Dons e cinco patuás bons) |
 | ↓ ↑ ↓ ↑ ← → ← → B A | pula para as **Minas da Caipora**, pela Boca da Mina (com as cinco medalhas, os cinco Dons e cinco patuás bons) |
 | ↑ ↓ ↑ ↓ → ← → ← B A | pula para o **Bairro da Cuca**, pela Rua do Breu (com as seis medalhas, os seis Dons e cinco patuás bons) |
+| ← ↓ → ↑ ← ↓ → ↑ B A | pula para a **Cidade do Sol**, pelo Caminho da Aurora (com as sete medalhas, os sete Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
 
@@ -168,6 +183,7 @@ src/
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
 │             tesouro.ts (a forquilha: quente/frio) · escolta.ts (quem te segue)
 │             ronda.ts (o que um vigia enxerga) · sequencia.ts (ladrilhos)
+│             feixe.ts (o raio que dobra nos espelhos) · corrida.ts (o relógio)
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
@@ -182,7 +198,8 @@ src/
 │             4 externos largos + 3 interiores + o terreiro em 1 sala;
 │             Minas da Caipora: 4 externos largos + 3 interiores + o
 │             terreiro em 1 sala; Bairro da Cuca: 3 externos largos + o
-│             Casarão + 3 interiores + o terreiro em 1 sala)
+│             Casarão + 3 interiores + o terreiro em 1 sala; Cidade do Sol:
+│             4 externos largos + 3 interiores + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -541,6 +558,9 @@ opcionais da região.
 Do Bairro da Cuca: **Lobinho** (Sombra) → **Lobisomem** · **Corpo-Seco**
 (Sombra/Terra) · **Cuca** (Sombra) · **Pisadeira** (Sombra/Vento), exclusiva
 de quem faz os dois serviços opcionais da região.
+Da Cidade do Sol: **Luzeiro** (Luz) → **Estrela-d'Alva** · **Lamparina**
+(Luz/Fogo) · **Jaci** (Luz/Sombra), exclusiva de quem faz os dois serviços
+opcionais da região.
 
 ## Fases
 
@@ -658,7 +678,20 @@ de quem faz os dois serviços opcionais da região.
         sequência liga a conta da guia. O Dom Visão Noturna amplia a luz
         (`RAIO_VISAO`) e desfaz `'veu'` (molde do monte de terra); o Dom
         Escavar da região 6 abre a estrada na borda oeste da Cava Funda.
-  - [ ] Cidade do Sol — a última, na mesma forma.
+  - [x] **Cidade do Sol.** Mais dois tipos de tarefa novos. **Feixe de
+        luz**: `DefMapa.feixe` e objetos `'fonteLuz'`, `'espelho'` (com
+        `inclinacao` "/" ou "\\", girado pelo mesmo par de objetos das
+        chaves de para-raio) e `'cristal'`; `game/feixe.ts` (puro) traça o
+        raio tile a tile, a cena o desenha e, ao bater no cristal, acende a
+        flag. `mapas.test.ts` testa as 512 combinações do Jardim: a solução
+        mais curta gira quatro espelhos, e é única. **Corrida contra o
+        sol**: `DefMapa.corrida` (flag que dá a largada, marcos, conta,
+        segundos); `game/corrida.ts` (puro) diz se está correndo, venceu ou
+        perdeu, a cena desconta o tempo só com o jogador andando livre e
+        mostra o relógio. O teste acha a rota mais curta pelos cinco
+        lampiões e confere que ela cabe no tempo correndo, mas não andando.
+        O Dom Prisma desfaz `'cortinaLuz'`; o Dom Visão Noturna da região 7
+        desfaz o véu da saída sul do Bairro da Cuca.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 

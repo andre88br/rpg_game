@@ -8,7 +8,7 @@
    ========================================================================= */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Mapa, type ContextoMapa, type DefMapa } from './tilemap.ts';
+import { Mapa, objetoAtivo, type ContextoMapa, type DefMapa } from './tilemap.ts';
 import { Mundo } from './mundo.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESPECIES } from '../data/creatures.ts';
@@ -16,6 +16,10 @@ import { ITENS } from '../data/items.ts';
 import { SERVICOS_OPCIONAIS, TERREIROS, type Fala } from '../game/quests.ts';
 import { CONTAS_NA_GUIA } from '../art/tiles.ts';
 import { temSolucao } from './pedras.ts';
+import { tracarFeixe } from '../game/feixe.ts';
+/* segundos por tile, os mesmos de world/actor.ts (que não carrega no node:
+   usa propriedade de parâmetro, fora do modo só-tipos) */
+const VEL_ANDAR = 0.20, VEL_CORRER = 0.115;
 
 /* A região com TODOS os serviços feitos: a tranca do Zeca caiu, a guia se
    abriu, e o Dom "Nadar" já foi conquistado — é ele que abre a travessia
@@ -275,6 +279,10 @@ test('objeto e NPC condicionais só usam condição que alguém liga', () => {
     if (def.pedrasConta) acendiveis.add(def.pedrasConta);
     // os ladrilhos de memória acendem a flag deles em código (overworld.ts)
     if (def.sequencia) acendiveis.add(def.sequencia.flag);
+    // o feixe acende a flag dele ao bater no cristal, e a corrida a conta
+    // dela ao chegar no último lampião — as duas em código (overworld.ts)
+    if (def.feixe) acendiveis.add(def.feixe.flag);
+    if (def.corrida) acendiveis.add(def.corrida.conta);
   }
 
   const cobradas = (se?: string | readonly string[], seNao?: string | readonly string[]) =>
@@ -802,6 +810,8 @@ test('as cinco contas de cada guia podem mesmo ser acesas jogando', () => {
     // overworld.ts), quando a última cova é tapada — não em fala nenhuma
     if (def.pedrasConta) acesas.add(def.pedrasConta);
     if (def.sequencia) acesas.add(def.sequencia.flag);
+    if (def.feixe) acesas.add(def.feixe.flag);
+    if (def.corrida) acesas.add(def.corrida.conta);
   }
   for (const lista of Object.values(TERREIROS)) {
     for (const c of lista) {
@@ -1596,7 +1606,8 @@ test('toda charada tem resposta certa entre as opções, e cabe na caixinha', ()
       }
     }
   }
-  assert.equal(perguntas, 7, 'três do Velho Garimpeiro, a da guarda da Pedra e três cartas da Cartomante');
+  assert.equal(perguntas, 10,
+    'três do Velho Garimpeiro, a da guarda da Pedra, três cartas da Cartomante e três do Oráculo');
 });
 
 test('errar uma charada do Velho Garimpeiro apaga as anteriores', () => {
@@ -1839,7 +1850,11 @@ test('a Medalha Breu vem com o Dom Visão Noturna, e os véus só caem com ele',
     const pes = alcance(sem, def.inicio.tx, def.inicio.ty);
     assert.ok(!pes.has(alvo), `${id}: sem o Dom o esconderijo devia fechar`);
     assert.ok(alcance(new Mapa(def, ABERTO), def.inicio.tx, def.inicio.ty).has(alvo), `${id}: com o Dom devia abrir`);
-    for (const s of def.saidas ?? []) assert.ok(pes.has(`${s.tx},${s.ty}`), `${id}: o véu trancou uma saída`);
+    // a saída sul do bairro é o próprio véu: é o Dom que abre a Cidade do Sol
+    for (const s of def.saidas ?? []) {
+      if (s.para === 'caminhoAurora') { assert.ok(!pes.has(`${s.tx},${s.ty}`), `${id}: a saída sul devia ter véu`); continue; }
+      assert.ok(pes.has(`${s.tx},${s.ty}`), `${id}: o véu trancou uma saída`);
+    }
   }
   assert.equal(veus, 2);
 });
@@ -1874,5 +1889,132 @@ test('o mapa de cada região está escondido nela mesma, e se acha sem Dom nenhu
     const semDom = new Mapa(def, { contas: () => 5, nadar: false, ligada: (c) => !c.startsWith('dom_') });
     assert.ok(alcance(semDom, def.inicio.tx, def.inicio.ty).has(`${o.tx},${o.ty}`),
               `${item} em (${o.tx},${o.ty}) exige algum Dom`);
+  }
+});
+
+/* ------------------------------------------------------------- região 8 */
+
+/* o feixe de um mapa com estas flags ligadas: acerta o cristal? */
+function feixeAcerta(def: DefMapa, flags: ReadonlySet<string>): boolean {
+  const ctx: ContextoMapa = { ...ABERTO, ligada: (c) => flags.has(c) };
+  const m = new Mapa(def, ctx);
+  const ativos = def.objetos.filter((o) => objetoAtivo(o, ctx));
+  const fonte = ativos.find((o) => o.tipo === 'fonteLuz')!;
+  const alvo = ativos.find((o) => o.tipo === 'cristal')!;
+  const espelhos = new Map(ativos.filter((o) => o.tipo === 'espelho')
+    .map((o) => [`${o.tx},${o.ty}`, o.inclinacao ?? '/'] as const));
+  return tracarFeixe(fonte, fonte.dir ?? 'dir', alvo, (x, y) => m.solido(x, y),
+                     (x, y) => espelhos.get(`${x},${y}`) ?? null).acertou;
+}
+
+/* todas as combinações de espelhos girados que levam o feixe ao cristal */
+function solucoesDoFeixe(id: string): string[][] {
+  const def = MAPAS[id]!;
+  const giros = [...new Set(def.objetos.filter((o) => o.tipo === 'espelho')
+    .flatMap((o) => [o.se, o.seNao].flat()).filter((c): c is string => typeof c === 'string'))];
+  const achadas: string[][] = [];
+  for (let mask = 0; mask < 1 << giros.length; mask++) {
+    const ligadas = giros.filter((_, i) => mask & (1 << i));
+    if (feixeAcerta(def, new Set(ligadas))) achadas.push(ligadas);
+  }
+  return achadas;
+}
+
+test('o Jardim dos Espelhos: a solução mais curta gira quatro espelhos, e é uma só', () => {
+  const s = solucoesDoFeixe('jardimEspelhos');
+  assert.ok(s.length > 0, 'o feixe nunca chega ao cristal');
+  const menor = Math.min(...s.map((x) => x.length));
+  assert.equal(menor, 4);
+  const curtas = s.filter((x) => x.length === menor);
+  assert.equal(curtas.length, 1, `há ${curtas.length} soluções de ${menor} giros`);
+  assert.deepEqual(curtas[0]!.sort(), ['espelho_1', 'espelho_2', 'espelho_3', 'espelho_5']);
+});
+
+test('o feixe do Terreiro da Aurora tem solução, e é ele que abre a porta do salão', () => {
+  assert.ok(solucoesDoFeixe('terreiroAurora').length > 0);
+  assert.ok(!feixeAcerta(MAPAS['terreiroAurora']!, new Set()), 'já começa resolvido');
+  const def = MAPAS['terreiroAurora']!;
+  const fechado = new Mapa(def, { ...ABERTO, ligada: (c) => c !== 'cristal_aurora' });
+  assert.ok(fechado.solido(14, 17));
+  assert.ok(!new Mapa(def, ABERTO).solido(14, 17));
+});
+
+test('a corrida dos lampiões cabe no tempo correndo, mas não andando', () => {
+  const def = MAPAS['cidadeDoSol']!;
+  const c = def.corrida!;
+  const m = new Mapa(def, { ...ABERTO, ligada: (f) => f === c.ativa });
+  const lampioes = c.marcos.map((f) => def.objetos.find((o) => o.tipo === 'lampiao' && o.seNao === f)!);
+  const distancias = (x0: number, y0: number): Map<string, number> => {
+    const d = new Map([[`${x0},${y0}`, 0]]);
+    const fila: [number, number][] = [[x0, y0]];
+    while (fila.length) {
+      const [x, y] = fila.shift()!;
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+        const k = `${x + dx},${y + dy}`;
+        if (d.has(k) || m.solido(x + dx, y + dy)) continue;
+        d.set(k, d.get(`${x},${y}`)! + 1);
+        fila.push([x + dx, y + dy]);
+      }
+    }
+    return d;
+  };
+  // os pontos de parada: na frente do Acendedor e ao lado de cada lampião
+  const acendedor = def.npcs.find((n) => n.id === 'acendedor')!;
+  const nos: { x: number; y: number; l: number }[] = [{ x: acendedor.tx, y: acendedor.ty + 1, l: -1 }];
+  lampioes.forEach((o, l) => {
+    for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]] as const) {
+      if (!m.solido(o.tx + dx, o.ty + dy)) nos.push({ x: o.tx + dx, y: o.ty + dy, l });
+    }
+  });
+  const d = nos.map((n) => distancias(n.x, n.y));
+  let melhor = Infinity;
+  const busca = (i: number, feitos: number, soma: number): void => {
+    if (soma >= melhor) return;
+    if (feitos === (1 << lampioes.length) - 1) { melhor = soma; return; }
+    nos.forEach((n, j) => {
+      if (n.l < 0 || feitos & (1 << n.l)) return;
+      const passo = d[i]!.get(`${n.x},${n.y}`);
+      if (passo !== undefined) busca(j, feitos | (1 << n.l), soma + passo);
+    });
+  };
+  busca(0, 0, 0);
+  assert.ok(Number.isFinite(melhor), 'algum lampião não se alcança');
+  assert.ok(melhor * VEL_CORRER < c.segundos - 4, `correndo leva ${melhor * VEL_CORRER}s de ${c.segundos}s`);
+  assert.ok(melhor * VEL_ANDAR > c.segundos, `andando leva ${melhor * VEL_ANDAR}s, e devia não caber`);
+});
+
+test('a Medalha Aurora vem com o Dom Prisma, e as cortinas de luz só se abrem com ele', () => {
+  const falas = entradas.flatMap(([, def]) => def.npcs.flatMap((n) => n.falas));
+  assert.equal(falas.find((f) => f.medalha === 'aurora')?.dom, 'prisma');
+  let cortinas = 0;
+  for (const [id, def] of entradas) {
+    if (!def.objetos.some((o) => o.tipo === 'cortinaLuz')) continue;
+    cortinas++;
+    const esconderijo = def.objetos.find(
+      (o) => o.tipo === 'achado' && o.placa === 'ESCONDERIJO' && o.seNao !== undefined)!;
+    const alvo = `${esconderijo.tx},${esconderijo.ty}`;
+    const sem = new Mapa(def, { ...ABERTO, ligada: (c) => c !== 'dom_prisma' });
+    const pes = alcance(sem, def.inicio.tx, def.inicio.ty);
+    assert.ok(!pes.has(alvo), `${id}: sem o Dom o esconderijo devia fechar`);
+    assert.ok(alcance(new Mapa(def, ABERTO), def.inicio.tx, def.inicio.ty).has(alvo), `${id}: com o Dom devia abrir`);
+    for (const s of def.saidas ?? []) assert.ok(pes.has(`${s.tx},${s.ty}`), `${id}: a cortina trancou uma saída`);
+  }
+  assert.equal(cortinas, 2);
+});
+
+test('três cristais solares em três mapas, e a Jaci só depois deles E da medalha', () => {
+  const onde = entradas.filter(([, def]) => def.objetos.some((o) => o.falas?.some((f) => f.da?.item === 'cristal_solar')))
+    .map(([id]) => id);
+  assert.equal(onde.length, 3);
+  const j = MAPAS['picoAurora']!.npcs.find((n) => n.id === 'jaci_cume')!;
+  const entrega = j.falas.find((f) => f.encantado)!;
+  assert.equal(entrega.encantado!.especie, 'jaci');
+  const exige = [entrega.se].flat();
+  assert.ok(exige.includes('servico_cristais') && exige.includes('medalha:aurora'));
+});
+
+test('a região 8 também é larga', () => {
+  for (const id of ['caminhoAurora', 'cidadeDoSol', 'jardimEspelhos', 'picoAurora']) {
+    assert.ok(MAPAS[id]!.chao[0]!.length >= 56, `${id}: estreito demais`);
   }
 });

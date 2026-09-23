@@ -1,5 +1,6 @@
 /* Bairro da Cuca — o eixo da sétima região: rua para leste (Rua do Breu),
-   beco para o norte (Beco das Rondas) e, a oeste, o Casarão Assombrado,
+   beco para o norte (Beco das Rondas), ao sul o véu que leva à Cidade do
+   Sol e, a oeste, o Casarão Assombrado,
    trancado pelo Zeca pela sétima vez. Loja, benzimento, a casa da
    Cartomante (as cartas: charadas, como as do Velho Garimpeiro) e a Velha
    do Bairro, que procura três retratos antigos. O pátio do Terreiro do
@@ -54,7 +55,7 @@ export const bairroDaCuca: DefMapa = {
     '#...............................................R......#', // 38
     '#.......o.......................................R......#', // 39
     '#...............................................R......#', // 40
-    '########################################################', // 41
+    '###########################..###########################', // 41
   ],
 
   objetos: [
@@ -75,6 +76,13 @@ export const bairroDaCuca: DefMapa = {
     /* a tranca do Zeca, pela sétima vez: o caminho do Casarão */
     { tipo: 'barreira', tx: 0, ty: 20, larg: 1, seNao: 'venceu_zeca7' },
     { tipo: 'barreira', tx: 0, ty: 21, larg: 1, seNao: 'venceu_zeca7' },
+
+    /* a saída sul, para a Cidade do Sol: um véu de sombra que só o Dom
+       Visão Noturna (a recompensa da Morgana) desfaz */
+    { tipo: 'veu', tx: 27, ty: 41, larg: 1, seNao: 'dom_visao' },
+    { tipo: 'veu', tx: 28, ty: 41, larg: 1, seNao: 'dom_visao' },
+    { tipo: 'placa', tx: 26, ty: 39,
+      placa: 'SUL: CAMINHO DA AURORA E CIDADE DO SOL. Um véu de sombra fecha a passagem.' },
 
     /* bolso do Dom Visão Noturna no canto sudeste */
     { tipo: 'veu', tx: 51, ty: 35, larg: 1, seNao: 'dom_visao' },
@@ -136,6 +144,8 @@ export const bairroDaCuca: DefMapa = {
     { tx: 11, ty: 8,  para: 'terreiroBreu',      destino: { tx: 14, ty: 21, dir: 'cima' } },
     { tx: 40, ty: 8,  para: 'lojaCuca',          destino: { tx: 7,  ty: 8,  dir: 'cima' } },
     { tx: 47, ty: 8,  para: 'benzimentoCuca',    destino: { tx: 7,  ty: 8,  dir: 'cima' } },
+    { tx: 27, ty: 41, para: 'caminhoAurora',     destino: { tx: 29, ty: 1,  dir: 'baixo' } },
+    { tx: 28, ty: 41, para: 'caminhoAurora',     destino: { tx: 30, ty: 1,  dir: 'baixo' } },
     { tx: 40, ty: 26, para: 'casaCartomante',    destino: { tx: 7,  ty: 8,  dir: 'cima' } },
   ],
 

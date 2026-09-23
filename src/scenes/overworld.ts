@@ -46,6 +46,11 @@ import { sondarTesouro } from '../game/tesouro.ts';
 import { escoltaAtiva, derrubarEscolta } from '../game/escolta.ts';
 import { pisarLadrilho } from '../game/sequencia.ts';
 import { avista, proximoDaRonda } from '../game/ronda.ts';
+import { tracarFeixe } from '../game/feixe.ts';
+import { avaliarCorrida, encerrar, type DefCorrida } from '../game/corrida.ts';
+
+/* todas as corridas contra o sol do jogo, de qualquer mapa */
+const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
 import { salvar } from '../game/save.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
@@ -95,6 +100,9 @@ const CODIGO_REGIAO6: readonly Acao[] =
 /* o da região 7 é o da 6 com cada direção trocada pela oposta */
 const CODIGO_REGIAO7: readonly Acao[] =
   ['cima', 'baixo', 'cima', 'baixo', 'dir', 'esq', 'dir', 'esq', 'b', 'a'];
+/* o da região 8 gira a bússola ao contrário da 4, duas voltas */
+const CODIGO_REGIAO8: readonly Acao[] =
+  ['esq', 'baixo', 'dir', 'cima', 'esq', 'baixo', 'dir', 'cima', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -197,6 +205,10 @@ export class CenaMundo implements Cena {
   /* quem está sendo escoltado anda um passo atrás do jogador (game/escolta.ts) */
   private seguidor: Ator | null = null;
   private seguidorId: string | null = null;
+  /* os tiles por onde passa o feixe de luz deste mapa (vazio sem feixe) */
+  private feixe: [number, number][] = [];
+  /* segundos que faltam em cada corrida em andamento, pela flag `ativa` */
+  private relogios = new Map<string, number>();
   /* quantos ladrilhos de memória certos seguidos, neste mapa, nesta visita */
   private progressoLadrilhos = 0;
   /* charada aberta: a pergunta já foi lida, falta escolher a resposta */
@@ -253,6 +265,10 @@ export class CenaMundo implements Cena {
     this.telaCaixa = new TelaCaixa(this.op.estado);
     this.telaPoder = new TelaPoder(this.op.estado);
 
+    /* o relógio de uma corrida não vai para o save: quem volta com uma
+       corrida ativa perde ela (e os marcos) e recomeça quando quiser */
+    for (const c of CORRIDAS) if (this.op.estado.flags[c.ativa]) encerrar(c, this.op.estado.flags, false);
+
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(this.folhaDe(this.op.estado.personagem), pos.tx, pos.ty, pos.dir);
     this.montarMapa(pos.mapa, { gravar: false });
@@ -293,6 +309,7 @@ export class CenaMundo implements Cena {
     this.montarAvisos();
     this.seguidor = null;          // o escoltado reaparece atrás de quem chegou
     this.sincronizarSeguidor();
+    this.acenderFeixe();
 
     // faixa com o nome do lugar — dentro de casa ela só atrapalharia
     if (this.def.interior) {
@@ -330,6 +347,7 @@ export class CenaMundo implements Cena {
     if (novo === this.mapa) return;
     this.mapa = novo;
     this.montarAvisos();
+    this.acenderFeixe();
   }
 
   /* O Mapa do Mundo só mostra onde o jogador já pisou: cada lugar ao ar livre
@@ -340,6 +358,60 @@ export class CenaMundo implements Cena {
     const lugar = lugarNoMundo(id, MAPAS);
     if (lugar) e.flags[`visitou_${lugar}`] = true;
     if (e.flags['escolheu_inicial'] && quantidade(e.mochila, 'mapa') === 0) adicionar(e.mochila, 'mapa');
+  }
+
+  /* Refaz o caminho do feixe de luz (depois de girar um espelho, ou ao
+     chegar no mapa). Se ele chega ao cristal pela primeira vez, acende a
+     flag do feixe — geralmente uma conta da guia. */
+  private acenderFeixe(): void {
+    this.feixe = [];
+    const f = this.def.feixe;
+    if (!f) return;
+    const ativo = (o: { se?: string | readonly string[]; seNao?: string | readonly string[] }) =>
+      this.condicoesValem(o.se, o.seNao);
+    const fonte = this.def.objetos.find((o) => o.tipo === 'fonteLuz' && ativo(o));
+    const alvo = this.def.objetos.find((o) => o.tipo === 'cristal' && ativo(o));
+    if (!fonte || !alvo) return;
+    const espelhos = new Map(this.def.objetos
+      .filter((o) => o.tipo === 'espelho' && ativo(o))
+      .map((o) => [`${o.tx},${o.ty}`, o.inclinacao ?? '/'] as const));
+    const r = tracarFeixe(fonte, fonte.dir ?? 'dir', alvo, (x, y) => this.mapa.solido(x, y),
+                          (x, y) => espelhos.get(`${x},${y}`) ?? null);
+    this.feixe = r.caminho;
+    const e = this.op.estado;
+    if (!r.acertou || e.flags[f.flag]) return;
+    e.flags[f.flag] = true;
+    const terreiro = this.terreiroDaFala(f.flag);
+    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+    salvar(e);
+    this.atualizarCenario();
+    this.abrirConversa('CRISTAL', ['O feixe bate no cristal, e o cristal acende inteiro, de dentro para fora.']);
+  }
+
+  /* O relógio das corridas contra o sol: corre enquanto o jogador anda (não
+     em conversa, menu ou batalha), vence com todos os marcos acesos a
+     tempo, e perde — apagando os marcos — quando o tempo acaba. */
+  private andarCorridas(dt: number): void {
+    const e = this.op.estado;
+    for (const c of CORRIDAS) {
+      let resta = this.relogios.get(c.ativa) ?? null;
+      if (e.flags[c.ativa] && resta === null) resta = c.segundos;
+      if (resta !== null) resta -= dt;
+      const r = avaliarCorrida(c, e.flags, resta);
+      if (r === 'parada') { this.relogios.delete(c.ativa); continue; }
+      if (r === 'correndo') { this.relogios.set(c.ativa, resta!); continue; }
+      this.relogios.delete(c.ativa);
+      encerrar(c, e.flags, r === 'venceu');
+      this.atualizarCenario();
+      if (r === 'venceu') {
+        const terreiro = this.terreiroDaFala(c.conta);
+        if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+        salvar(e);
+        this.abrirConversa('LAMPIÕES', ['O último lampião acende, e o sol some no mesmo instante. Chegou a tempo!']);
+      } else {
+        this.abrirConversa('LAMPIÕES', [c.fim]);
+      }
+    }
   }
 
   /* A escolta é só flag: se há alguém sendo escoltado e ele ainda não está
@@ -410,6 +482,12 @@ export class CenaMundo implements Cena {
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'CERCA DE RAIO', falas: diz('A cerca estala de faísca. Alguma chave de para-raio a mantém ligada.'),
+          });
+        }
+      } else if (o.tipo === 'cortinaLuz') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'CORTINA DE LUZ', falas: diz('Um clarão tão forte que o olho fecha sozinho. Falta o que desfaça a luz.'),
           });
         }
       } else if (o.tipo === 'veu') {
@@ -811,7 +889,7 @@ export class CenaMundo implements Cena {
 
     this.bufferCodigo.push(...apertados);
     const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length,
+                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length, CODIGO_REGIAO8.length,
                            CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
@@ -843,6 +921,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao7();
+    } else if (this.bateCodigo(CODIGO_REGIAO8)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao8();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -992,6 +1074,26 @@ export class CenaMundo implements Cena {
     this.montarMapa('ruaDoBreu');   // já grava: medalhas, Dons e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A estrada para o Bairro da Cuca se abre.']);
+  }
+
+  /* pula direto para o Caminho da Aurora: as sete medalhas e os sete Dons
+     (o véu da saída sul do bairro só cede ao Dom Visão Noturna) */
+  private ativarCodigoRegiao8(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra', 'breu']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar', 'visao']) e.flags[`dom_${d}`] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('caminhoAurora').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('caminhoAurora');   // já grava: medalhas, Dons e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. O véu se abre, e o caminho da Cidade do Sol aparece.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -1189,6 +1291,10 @@ export class CenaMundo implements Cena {
 
     // ---- vigias de ronda andam, e olham ----
     if (this.andarRondas(dt)) return;
+
+    // ---- o relógio das corridas contra o sol ----
+    this.andarCorridas(dt);
+    if (this.conversa) return;
 
     this.verificarCodigoSecreto(entrada);
 
@@ -1440,6 +1546,13 @@ export class CenaMundo implements Cena {
     r.limpar('#101018');
     this.mapa.desenhar(r.ctx, this.camera.x, this.camera.y, LARGURA, ALTURA);
 
+    // o feixe de luz, por cima do chão e por baixo de quem anda
+    for (const [fx, fy] of this.feixe) {
+      const px = fx * TS - this.camera.x, py = fy * TS - this.camera.y;
+      r.retangulo(px + 5, py + 5, 6, 6, '#ffe860');
+      r.retangulo(px + 7, py + 7, 2, 2, '#ffffff');
+    }
+
     // atores e pedras, juntos, ordenados pela base: quem está mais abaixo
     // passa na frente — senão uma pedra numa fileira de baixo tampava
     // indevidamente quem andasse por cima dela na fileira de cima
@@ -1489,6 +1602,7 @@ export class CenaMundo implements Cena {
       r.ctx.globalAlpha = 1;
     }
 
+    if (this.relogios.size > 0) this.desenharRelogio(r);
     if (this.conversa) this.desenharDialogo(r);
     if (this.pergunta) this.desenharPergunta(r);
 
@@ -1549,6 +1663,16 @@ export class CenaMundo implements Cena {
     // errada: o progresso já foi desligado em `responder`, só resta ouvir
     this.abrirConversa(p.falante, [...r.linhas], r.fala, p.npc);
     if (!r.certa) this.atualizarCenario();
+  }
+
+  /* quanto falta para o sol se pôr, no canto de cima */
+  private desenharRelogio(r: Renderizador): void {
+    const resta = Math.max(0, Math.ceil(Math.min(...this.relogios.values())));
+    const texto = `SOL: ${resta}s`;
+    const w = r.larguraTexto(texto) + 10;
+    r.retangulo(LARGURA - w - 6, 6, w, 14, P.ink!);
+    r.retangulo(LARGURA - w - 5, 7, w - 2, 12, resta <= 10 ? '#8a2a1a' : '#5a3e24');
+    r.texto(texto, LARGURA - w - 1, 10, P.bolt!);
   }
 
   private desenharPergunta(r: Renderizador): void {

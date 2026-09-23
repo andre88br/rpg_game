@@ -391,6 +391,56 @@ export function veu(larguraTiles: number, seed = 33): Buf {
   return b;
 }
 
+/* ======================= Cidade do Sol =======================
+   Espelho num pedestal, inclinado "/" ou "\" — é o que desvia o feixe. */
+export function espelho(inclinacao: '/' | '\\'): Buf {
+  const b = new Buf(TS, TS);
+  b.rect(3, 12, 10, 3, '#8a8078'); b.rect(4, 12, 8, 1, '#b8b0a8');
+  const [x0, y0, x1, y1] = inclinacao === '/' ? [3, 11, 12, 2] : [3, 2, 12, 11];
+  for (let k = -1; k <= 1; k++) b.line(x0 + k, y0, x1 + k, y1, k === 0 ? '#e8f4ff' : '#9ab8d0');
+  b.set((x0 + x1) >> 1, (y0 + y1) >> 1, '#ffffff');
+  return b.outline(P.ink!);
+}
+
+/* a fonte: um disco de pedra com o sol gravado, de onde sai o feixe */
+export function fonteLuz(): Buf {
+  const b = new Buf(TS, TS);
+  b.ellipse(8, 8, 7, 7, '#b8a878'); b.ellipse(8, 8, 5, 5, P.bolt!); b.ellipse(8, 8, 3, 3, '#fff6b0');
+  for (const [x, y] of [[8, 0], [8, 15], [0, 8], [15, 8]] as const) b.set(x, y, P.bolt!);
+  return b.outline(P.ink!);
+}
+
+/* o cristal que recebe o feixe: apagado é vidro fosco, aceso brilha */
+export function cristal(aceso: boolean): Buf {
+  const b = new Buf(TS, TS);
+  b.rect(4, 13, 8, 2, '#8a8078');
+  const c = aceso ? '#fff6b0' : '#9ab8c8', cD = aceso ? P.bolt! : '#6a8a9a';
+  b.tri(4, 13, 8, 1, 12, 13, cD); b.tri(6, 12, 8, 3, 10, 12, c);
+  if (aceso) for (const [x, y] of [[2, 4], [14, 5], [3, 10], [13, 11]] as const) b.set(x, y, '#fff6b0');
+  return b.outline(P.ink!);
+}
+
+/* cortina de luz: um clarão que ninguém atravessa. Some com o Dom Prisma,
+   que desfaz a luz em cores — a mesma trava condicional do véu de sombra */
+export function cortinaLuz(larguraTiles: number, seed = 34): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, TS); const r = rng(seed);
+  b.rect(0, 0, w, TS, '#fff6b0');
+  for (let i = 0; i < w * 2; i++) b.set((r() * w) | 0, (r() * TS) | 0, r() < 0.5 ? '#ffffff' : '#ffe860');
+  for (let x = 1; x < w; x += 4) b.line(x, 0, x, TS - 1, '#fffbe0');
+  return b;
+}
+
+/* lampião de rua: marco da corrida contra o sol */
+export function lampiao(aceso: boolean): Buf {
+  const b = new Buf(TS, TS);
+  b.rect(7, 5, 2, 10, '#4f535c');
+  b.rect(5, 1, 6, 5, '#4f535c');
+  b.rect(6, 2, 4, 3, aceso ? '#ffd93b' : '#3a3346');
+  if (aceso) { b.set(4, 2, '#fff6b0'); b.set(11, 3, '#fff6b0'); }
+  return b.outline(P.ink!);
+}
+
 /* folhas que balancam na frente dos pes quando se anda no mato alto */
 export function rocada(quadro = 0): Buf {
   const b = new Buf(16, 9);

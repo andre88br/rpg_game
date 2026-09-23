@@ -433,6 +433,55 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
     ],
   },
+
+  /* --------------------- da Cidade do Sol --------------------- */
+  {
+    id: 'luzeiro', nome: 'Luzeiro', tipos: ['luz'],
+    base: { hp: 50, atq: 44, def: 46, esp: 64, vel: 66 },
+    taxaCaptura: 160, xpBase: 66, crescimento: 'rapido',
+    arte: 'luzeiro', categoria: 'Estrela Caída',
+    sobre: 'Pedacinho de estrela que caiu antes do amanhecer. Passa o dia escondido, esperando a noite.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'clarao' },
+      { nv: 12, golpe: 'benzecao' }, { nv: 22, golpe: 'lampejo' },
+      { nv: 34, golpe: 'afiar' },
+    ],
+    evolui: { em: 'estrelaDalva', nv: 50 },
+  },
+  {
+    id: 'estrelaDalva', nome: "Estrela-d'Alva", tipos: ['luz'],
+    base: { hp: 90, atq: 72, def: 84, esp: 118, vel: 104 },
+    taxaCaptura: 25, xpBase: 205, crescimento: 'rapido',
+    arte: 'estrelaDalva', categoria: 'Estrela Caída',
+    sobre: 'A última estrela a apagar e a primeira a acender. Quem a vê antes do galo cantar não se perde.',
+    aprende: [
+      { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'benzecao' },
+      { nv: 1, golpe: 'clarao' }, { nv: 50, golpe: 'aurora' },
+    ],
+  },
+  {
+    id: 'lamparina', nome: 'Lamparina', tipos: ['luz', 'fogo'],
+    base: { hp: 78, atq: 70, def: 76, esp: 102, vel: 78 },
+    taxaCaptura: 60, xpBase: 170, crescimento: 'medio',
+    arte: 'lamparina', categoria: 'Luz de Beira de Estrada',
+    sobre: 'Acende sozinha na janela de quem espera alguém voltar. Apaga quando a pessoa chega.',
+    aprende: [
+      { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'brasa' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 30, golpe: 'labareda' },
+      { nv: 44, golpe: 'aurora' },
+    ],
+  },
+  {
+    id: 'jaci', nome: 'Jaci', tipos: ['luz', 'sombra'],
+    base: { hp: 92, atq: 70, def: 86, esp: 126, vel: 96 },
+    taxaCaptura: 3, xpBase: 215, crescimento: 'lento',
+    arte: 'jaci', categoria: 'A Lua',
+    sobre: 'A lua, que é luz e sombra ao mesmo tempo. Desce só para quem guardou a luz do dia em cristal.',
+    aprende: [
+      { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'breu' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'sombra_fria' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =

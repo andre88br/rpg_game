@@ -48,12 +48,16 @@ export const REGIOES: readonly Regiao[] = [
   { tipo: 'sombra', nome: 'BAIRRO DA CUCA', medalha: 'breu',
     mapas: ['ruaDoBreu', 'bairroDaCuca', 'lojaCuca', 'benzimentoCuca', 'casaCartomante',
             'becoDasRondas', 'casaraoAssombrado', 'terreiroBreu'] },
+  { tipo: 'luz', nome: 'CIDADE DO SOL', medalha: 'aurora',
+    mapas: ['caminhoAurora', 'cidadeDoSol', 'lojaSol', 'benzimentoSol', 'casaOraculo',
+            'jardimEspelhos', 'picoAurora', 'terreiroAurora'] },
 ];
 
 /* a casinha de cada lugar ao ar livre: [coluna, linha] numa grade 10×7.
    A Foz desce pela costa oeste, com o mar ao lado do porto; a Mata e a
-   Serra atravessam o sul; o Campo do Saci sobe pelo meio; e da Aldeia Tupã
-   em diante as regiões se espalham para o leste. */
+   Serra atravessam o sul; o Campo do Saci sobe pelo meio; da Aldeia Tupã
+   em diante as regiões se espalham para o leste; e a Cidade do Sol fecha a
+   ponta sudeste, na última coluna. */
 export const POSICOES: Record<string, readonly [number, number]> = {
   vilaAurora: [1, 1], rotaFoz: [1, 2], portoIara: [1, 3],
   igarapeCurupira: [1, 4], mataDoCurupira: [1, 5],
@@ -61,12 +65,13 @@ export const POSICOES: Record<string, readonly [number, number]> = {
   campoAberto: [5, 4], ventaniaFunda: [5, 3], aldeiaCatavento: [5, 2], topoDoRedemoinho: [5, 1],
   campinaDosRaios: [6, 1], aldeiaTupa: [7, 1], charcoRelampejante: [8, 1], morroDoTrovao: [7, 2],
   bocaDaMina: [7, 3], arraialCaipora: [7, 4], galeriasDaMina: [8, 4], cavaFunda: [6, 4],
-  ruaDoBreu: [6, 5], bairroDaCuca: [7, 5], becoDasRondas: [8, 5],
+  ruaDoBreu: [6, 5], bairroDaCuca: [7, 5], becoDasRondas: [7, 6],
+  caminhoAurora: [8, 5], cidadeDoSol: [9, 5], picoAurora: [9, 4], jardimEspelhos: [9, 6],
 };
 /* onde há cidade (casinha no mapa); o resto é caminho, mata, caverna... */
 export const CIDADES: ReadonlySet<string> = new Set([
   'vilaAurora', 'portoIara', 'mataDoCurupira', 'vilaFornalha', 'aldeiaCatavento',
-  'aldeiaTupa', 'arraialCaipora', 'bairroDaCuca',
+  'aldeiaTupa', 'arraialCaipora', 'bairroDaCuca', 'cidadeDoSol',
 ]);
 export const COLUNAS = 10;
 export const LINHAS = 7;

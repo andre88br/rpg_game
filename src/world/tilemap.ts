@@ -14,6 +14,7 @@ import type { Cenario } from '../art/battlebg.ts';
    e importar de volta fecharia um ciclo. `import type` some na compilacao. */
 import type { Fala } from '../game/quests.ts';
 import type { DefPedra } from './pedras.ts';
+import type { DefCorrida } from '../game/corrida.ts';
 
 export const TS = 16;
 
@@ -72,6 +73,8 @@ export type TipoObjeto =
   | 'paraRaio' | 'cercaRaio' | 'pedraRachada'        // Aldeia Tupã
   | 'enterrado' | 'desvio' | 'alavanca' | 'monteTerra' // Minas da Caipora
   | 'ladrilho' | 'veu'                               // Bairro da Cuca
+  | 'espelho' | 'fonteLuz' | 'cristal' | 'lampiao'   // Cidade do Sol
+  | 'cortinaLuz'
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
@@ -118,6 +121,9 @@ export interface DefObjeto {
   /* ladrilho de memoria (tipo 'ladrilho'): o desenho gravado nele. A ordem
      certa de pisar mora em `DefMapa.sequencia` (game/sequencia.ts) */
   simbolo?: string;
+  /* espelho (tipo 'espelho'): para que lado ele está virado. Como as chaves
+     de para-raio, é um par de objetos, um por estado da flag */
+  inclinacao?: '/' | '\\';
 }
 
 /* Ronda: um vigia que anda sozinho por um caminho fechado, um tile por vez,
@@ -232,6 +238,12 @@ export interface DefMapa {
   pedrasConta?: string;
   /* os ladrilhos de memoria deste mapa (objetos 'ladrilho') */
   sequencia?: DefSequencia;
+  /* o feixe de luz: sai do objeto 'fonteLuz' (na direcao `dir` dele), bate
+     nos 'espelho' e, chegando ao 'cristal', liga `flag` (game/feixe.ts) */
+  feixe?: { flag: string };
+  /* corrida contra o relogio que comeca e termina neste mapa ou em outros
+     (game/corrida.ts); o mapa que a declara e o que mostra o relogio */
+  corrida?: DefCorrida;
 }
 
 /* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um
@@ -449,6 +461,22 @@ export class Mapa {
       /* veu de sombra: parece parede escura, some com o Dom Visao Noturna */
       case 'veu':
         sprite = T.veu(larg);
+        break;
+      case 'espelho':
+        sprite = T.espelho(o.inclinacao ?? '/');
+        break;
+      case 'fonteLuz':
+        sprite = T.fonteLuz();
+        break;
+      case 'cristal':
+        sprite = T.cristal(o.vazio !== true);
+        break;
+      case 'lampiao':
+        sprite = T.lampiao(o.vazio !== true);
+        break;
+      /* cortina de luz: parede que ofusca, some com o Dom Prisma */
+      case 'cortinaLuz':
+        sprite = T.cortinaLuz(larg);
         break;
       case 'farol':
         sprite = T.farol(larg, alt);

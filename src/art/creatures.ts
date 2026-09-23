@@ -1014,6 +1014,70 @@ export function pisadeira(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- LUZEIRO (Luz) ---------------- */
+export function luzeiro(): Buf {
+  const b = new Buf(32, 32);
+  const luz = '#ffe860', luzL = '#fffbe0', luzD = '#e8b830';
+  // estrela de cinco pontas, gordinha
+  for (const [x0, y0, x1, y1, x2, y2] of [[16, 2, 12, 14, 20, 14], [3, 12, 14, 12, 12, 20], [29, 12, 18, 12, 20, 20],
+                                          [8, 29, 13, 18, 18, 22], [24, 29, 19, 18, 14, 22]] as const) {
+    b.tri(x0, y0, x1, y1, x2, y2, luzD);
+  }
+  b.ellipse(16, 17, 8, 7, luz);
+  b.ellipse(14, 15, 4, 3, luzL);
+  olho(b, 13, 16, 2, 1); olho(b, 19, 16, 2, -1);
+  b.line(14, 21, 18, 21, luzD);
+  for (const [x, y] of [[4, 4], [28, 5], [2, 24], [30, 22]] as const) b.set(x, y, luzL);
+  return b.outline(P.ink);
+}
+
+/* ---------------- ESTRELA-D'ALVA (Luz, evolução) ---------------- */
+export function estrelaDalva(): Buf {
+  const b = new Buf(40, 40);
+  const luz = '#ffe860', luzL = '#fffbe0', luzD = '#d8a020', azul = '#8ac8f0';
+  // cauda de cometa atrás, em três riscos
+  b.tri(0, 32, 14, 22, 12, 28, azul); b.tri(2, 38, 16, 26, 14, 31, '#b8e0f8'); b.tri(6, 22, 16, 20, 14, 24, azul);
+  // estrela de oito pontas
+  for (let k = 0; k < 8; k++) {
+    const a = (k * Math.PI) / 4, r = k % 2 === 0 ? 17 : 12;
+    const x = 22 + Math.cos(a) * r, y = 18 + Math.sin(a) * r;
+    b.tri(22, 18, x + Math.cos(a + Math.PI / 2) * 3, y + Math.sin(a + Math.PI / 2) * 3, x, y, luzD);
+  }
+  b.ellipse(22, 18, 10, 10, luz);
+  b.ellipse(19, 15, 5, 4, luzL);
+  olho(b, 18, 18, 2, 1); olho(b, 26, 18, 2, -1);
+  b.line(20, 23, 24, 23, luzD);
+  return b.outline(P.ink);
+}
+
+/* ---------------- LAMPARINA (Luz/Fogo) ---------------- */
+export function lamparina(): Buf {
+  const b = new Buf(40, 40);
+  const lata = '#8a8f99', lataD = '#5c616b', chama = P.fireL, chamaD = P.fire;
+  b.ellipse(20, 34, 12, 4, lataD); b.rect(10, 22, 20, 12, lata); b.rect(10, 22, 20, 2, '#b8bcc4');   // corpo de lata
+  b.rect(28, 24, 6, 3, lataD);                                                                        // bico
+  b.line(8, 26, 4, 20, lataD); b.line(4, 20, 8, 16, lataD);                                           // alça
+  b.rect(18, 17, 4, 5, '#e8e0d0');                                                                    // pavio
+  b.tri(12, 18, 20, -1, 28, 18, chamaD); b.tri(15, 17, 20, 3, 25, 17, chama); b.ellipse(20, 14, 3, 3, '#fff6b0');
+  olho(b, 16, 28, 2, 1); olho(b, 24, 28, 2, -1);
+  return b.outline(P.ink);
+}
+
+/* ---------------- JACI (Luz/Sombra, exclusiva) ---------------- */
+export function jaci(): Buf {
+  const b = new Buf(40, 40);
+  const lua = '#f2ecd8', luaD = '#c8c0a8', noite = '#2e2440';
+  b.ellipse(20, 20, 18, 18, noite);                                                  // o céu em volta
+  for (const [x, y] of [[6, 8], [32, 6], [8, 32], [34, 30], [28, 36]] as const) b.set(x, y, '#fff6b0');
+  b.ellipse(20, 20, 13, 13, lua);                                                    // a lua cheia
+  b.ellipse(25, 18, 11, 12, '#4a3a5e');                                              // a sombra que come metade
+  for (const [x, y, r] of [[12, 14, 2], [14, 25, 3], [10, 20, 1]] as const) b.ellipse(x, y, r, r, luaD);
+  olho(b, 12, 19, 2, 1);
+  b.ellipse(26, 18, 2, 2, '#f2d23a'); b.set(26, 18, P.ink);                          // o olho do lado escuro
+  b.line(11, 25, 15, 26, luaD);
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -1026,4 +1090,5 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   faisquinha, relampo, tatuTrovao, arcoDaVelha,
   minhoquinha, minhocao, mapinguari, caipora,
   lobinho, lobisomem, corpoSeco, cuca, pisadeira,
+  luzeiro, estrelaDalva, lamparina, jaci,
 };

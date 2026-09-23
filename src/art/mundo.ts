@@ -44,6 +44,11 @@ const TERRENO: Record<string, Terreno> = {
     } },
   sombra: { chao: '#5a4a6a', chaoL: '#6e5e80',
     deco: (b, x, y) => { b.line(x, y + 2, x, y - 2, '#2e2440'); b.line(x, y - 1, x - 2, y - 3, '#2e2440'); b.line(x, y, x + 2, y - 2, '#2e2440'); } },
+  luz: { chao: '#f0d070', chaoL: '#f8e498',
+    deco: (b, x, y) => {
+      b.ellipse(x, y, 1, 1, '#e89a20');
+      b.set(x, y - 3, '#e8b030'); b.set(x, y + 3, '#e8b030'); b.set(x - 3, y, '#e8b030'); b.set(x + 3, y, '#e8b030');
+    } },
 };
 
 export interface LugarNoMapa { id: string; c: number; l: number; tipo: Tipo; cidade: boolean }
@@ -77,7 +82,7 @@ export function mapaMundo(lugares: readonly LugarNoMapa[], estradas: readonly [s
   const tipos = Object.keys(TERRENO);
   // o continente: terra sem dono por baixo de tudo, para as regiões não
   // virarem ilhas soltas — relva baixa, com a costa irregular
-  const cantos = new Set(['1,0', '9,0', '1,6', '9,6', '8,6', '2,6', '9,1']);
+  const cantos = new Set(['1,0', '9,0', '1,6', '8,6', '2,6', '9,1']);
   for (let c = 1; c <= 9; c++) {
     for (let l = 0; l <= 6; l++) {
       if (cantos.has(`${c},${l}`)) continue;

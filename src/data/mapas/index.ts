@@ -57,6 +57,14 @@ import { casaCartomante } from './casaCartomante.ts';
 import { becoDasRondas } from './becoDasRondas.ts';
 import { casaraoAssombrado } from './casaraoAssombrado.ts';
 import { terreiroBreu } from './terreiroBreu.ts';
+import { caminhoAurora } from './caminhoAurora.ts';
+import { cidadeDoSol } from './cidadeDoSol.ts';
+import { lojaSol } from './lojaSol.ts';
+import { benzimentoSol } from './benzimentoSol.ts';
+import { casaOraculo } from './casaOraculo.ts';
+import { jardimEspelhos } from './jardimEspelhos.ts';
+import { picoAurora } from './picoAurora.ts';
+import { terreiroAurora } from './terreiroAurora.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -114,6 +122,14 @@ export const MAPAS: Record<string, DefMapa> = {
   becoDasRondas,
   casaraoAssombrado,
   terreiroBreu,
+  caminhoAurora,
+  cidadeDoSol,
+  lojaSol,
+  benzimentoSol,
+  casaOraculo,
+  jardimEspelhos,
+  picoAurora,
+  terreiroAurora,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

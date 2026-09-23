@@ -1,7 +1,7 @@
-# Manual dos desafios — das sete regiões, do começo ao fim
+# Manual dos desafios — das oito regiões, do começo ao fim
 
 Guia completo de como acender todas as contas de cada terreiro, vencer cada
-mestre e pegar as sete medalhas. Tudo aqui foi conferido direto nos mapas do
+mestre e pegar as oito medalhas. Tudo aqui foi conferido direto nos mapas do
 jogo: nomes, níveis, quantidades e coordenadas são os de verdade.
 
 As coordenadas aparecem como `(coluna, linha)` contadas a partir do canto
@@ -78,6 +78,7 @@ num canto da própria região:
 | Aldeia Tupã | Campina dos Raios, canto nordeste (62,1) |
 | Minas da Caipora | Boca da Mina, canto noroeste (1,1) |
 | Bairro da Cuca | Rua do Breu, canto sudoeste (1,38) |
+| Cidade do Sol | Caminho da Aurora, canto sudeste (57,37) |
 
 **Treinador com cone de visão.** Se ele te enxerga, a batalha começa sozinha.
 Todos os treinadores obrigatórios deste manual estão plantados em cima do
@@ -1202,6 +1203,143 @@ com os retratos entregues **e** a Medalha Breu: **Pisadeira nível 40**.
 | Rua do Breu — canto nordeste | 2 Patuás de Mestre |
 | Bairro da Cuca — canto sudeste | 2 Águas Bentas |
 
+# REGIÃO 8 — CIDADE DO SOL · Terreiro da Aurora · Medalha Aurora · Dom Prisma
+
+A última. Dois tipos de tarefa novos: o **feixe de luz** (espelhos que se
+giram) e a **corrida contra o sol** (um relógio no canto da tela). Mais as
+três perguntas do Oráculo, que são charadas.
+
+```
+Bairro da Cuca ─(sul, véu: Dom Visão Noturna)→ Caminho da Aurora ─→ Cidade do Sol ─(leste)→ Jardim dos Espelhos
+                                                                    │ norte (Zeca)   │ porta
+                                                                 Pico da Aurora   Terreiro da Aurora
+```
+
+**Como entrar.** Na borda sul do Bairro da Cuca, colunas 27-28, um **véu de
+sombra** fecha a passagem: só o **Dom Visão Noturna** (Medalha Breu) desfaz.
+Espécies novas: **Luzeiro** (Luz) → **Estrela-d'Alva** no 50, **Lamparina**
+(Luz/Fogo) e, para quem faz os dois serviços, a **Jaci** (Luz/Sombra). Luz
+leva 2x de **Sombra**. Suba com o time perto de 58-60.
+
+## Ordem recomendada da região
+
+1. Caminho da Aurora: três andarilhos; o **mapa** no canto sudeste; cave o
+   primeiro **cristal solar** (a forquilha das Minas diz quente e frio).
+2. Cidade: o **Oráculo** (três perguntas) → **conta_oraculo**.
+3. Cidade: a **corrida dos lampiões** com o Acendedor → **conta_lampioes**.
+4. Jardim dos Espelhos (leste): o **feixe** no cristal → **conta_espelhos**;
+   o segundo cristal solar.
+5. Cidade: o **Zeca** pela oitava vez, na subida norte → **conta_zeca8**.
+6. Pico da Aurora: três guias, o terceiro cristal, e a **Estrela-d'Alva** no
+   cume → **conta_estrela**.
+7. Terreiro da Aurora, até o Solano.
+8. (Opcional) os três cristais para a Joalheira, e a Jaci.
+
+## Conta 1 — `conta_oraculo`: as três perguntas
+
+Na casa dele, na cidade (porta em (40,26)). Mesma regra das cartas da
+Cartomante: uma por conversa, errar apaga tudo de volta.
+
+1. *Nasce todo dia de manhã e morre toda tarde, e ninguém chora?* → **O DIA**
+2. *Entra pela janela sem quebrar o vidro?* → **A LUZ**
+3. *Nasce grande e morre pequena, e só existe quando tem luz?* → **A SOMBRA**
+   (paga **900**)
+
+## Conta 2 — `conta_lampioes`: a corrida contra o sol
+
+Fale com o **Acendedor**, na praça (30,24). Ele dá a largada e aparece
+**SOL: 26s** no canto da tela. O relógio só anda com você andando livre —
+conversa, menu e batalha param o tempo. Acenda os **cinco lampiões** (A na
+frente de cada um) antes de zerar:
+
+| # | Onde |
+|---|---|
+| 1 | canto noroeste (4,3) |
+| 2 | canto nordeste (52,3) |
+| 3 | canto sudoeste (4,38) |
+| 4 | sul, perto do canto sudeste (44,38) |
+| 5 | oeste da praça (20,24) |
+
+**Corra o tempo todo** (X ou Shift): a rota mais curta leva uns 18 s
+correndo e 32 s andando, pela ordem **5 → 3 → 1 → 2 → 4**. Se o sol se
+puser, os lampiões apagam; fale com o Acendedor outra vez.
+
+## Conta 3 — `conta_espelhos`: o feixe do Jardim
+
+Dentro da cerca viva do Jardim, um disco de pedra na cerca oeste (16,20)
+solta um feixe para a direita. **Nove espelhos**; o A gira cada um ("/" vira
+"\\" e vice-versa). O feixe precisa chegar ao **cristal** da cerca leste
+(43,15). A solução mais curta gira **quatro**:
+
+| Espelho | Onde |
+|---|---|
+| 1 | (21,20), o primeiro que o feixe encontra |
+| 2 | (21,14) |
+| 3 | (28,14) |
+| 5 | (36,24) |
+
+Os outros cinco são só para confundir — deixe-os como estão.
+
+## Conta 4 — `conta_zeca8`: o Zeca na subida do Pico
+
+Na saída norte da cidade (29,1). Lobisomem 59, Minhocão 59, Relampo 59,
+Saci 60, Estrela-d'Alva 60, Curupirá 60. Prêmio 5000, esperto, 3 Garrafadas
+Fortes + 1 Erva-Doce + 1 Água Benta.
+
+## Conta 5 — `conta_estrela`: a Estrela-d'Alva do cume
+
+O Pico sobe em três cristas, cada uma com uma passagem só (leste, oeste,
+leste), e um **Guia do Pico** em cada uma. No cume (30,4), uma
+**Estrela-d'Alva selvagem nível 60**. Vencer acende a conta; **capturar
+também vale**.
+
+## O Terreiro da Aurora — o salão do Solano
+
+No saguão, o Jardim em pequeno: a fonte na parede oeste (1,20), dois
+espelhos e um cristal (2,18). **Gire os dois espelhos** — (10,20) e (10,18)
+— e o feixe dá a volta até o cristal: a barreira da porta do meio (14,17)
+some.
+
+1. **Guarda do Orvalho** — Estrela-d'Alva 59, Lamparina 59, Arco-da-Velha 59.
+2. **Guarda do Meio-Dia** — Estrela-d'Alva 60, Mãe-do-Ouro 59, Lamparina 60,
+   Relampo 60.
+
+### Mestre: Solano
+
+**Estrela-d'Alva 60, Mãe-do-Ouro 60, Lamparina 60, Arco-da-Velha 60,
+Estrela-d'Alva 60** e um **sexto** contra o seu inicial (Iara-Mãe 60,
+Curupirá 60 ou Boitatão 60). Prêmio 9000. Esperto, com 3 Garrafadas Fortes,
+2 Ervas-Doces e 2 Águas Bentas.
+
+Vencer dá a **Medalha Aurora** e o **Dom Prisma**: as **cortinas de luz**
+se abrem.
+
+## Os dois serviços opcionais
+
+### `servico_cristais` — os três cristais solares
+
+Enterrados, como as pepitas das Minas: precisa da **forquilha**.
+
+| # | Onde |
+|---|---|
+| 1 | Caminho da Aurora (10,30) |
+| 2 | Jardim dos Espelhos (5,25), fora da cerca |
+| 3 | Pico da Aurora, no pé (50,36) |
+
+Com os três, fale com a **Joalheira** (18,28): **5000 + 3 Patuás de Mestre**.
+
+### `servico_jaci` — a Encantada exclusiva
+
+Num cercado de pedra do canto nordeste do cume (50,3), a **Jaci** só desce
+com os cristais entregues **e** a Medalha Aurora: **Jaci nível 45**.
+
+### Os bolsos do Dom Prisma
+
+| Onde | O que tem |
+|---|---|
+| Cidade do Sol — canto sudeste | 2 Águas Bentas |
+| Jardim dos Espelhos — cercado do lado leste | 2 Patuás de Mestre |
+
 ---
 
 ## Códigos secretos
@@ -1217,6 +1355,7 @@ valem em conversa, batalha, loja nem menu.
 | ← → ← → ↑ ↓ ↑ ↓ B A | Pula para a **Aldeia Tupã** (entrando pela Campina dos Raios) com as quatro medalhas, os quatro Dons e 5 Patuás Bons |
 | ↓ ↑ ↓ ↑ ← → ← → B A | Pula para as **Minas da Caipora** (entrando pela Boca da Mina) com as cinco medalhas, os cinco Dons e 5 Patuás Bons |
 | ↑ ↓ ↑ ↓ → ← → ← B A | Pula para o **Bairro da Cuca** (entrando pela Rua do Breu) com as seis medalhas, os seis Dons e 5 Patuás Bons |
+| ← ↓ → ↑ ← ↓ → ↑ B A | Pula para a **Cidade do Sol** (entrando pelo Caminho da Aurora) com as sete medalhas, os sete Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
 
@@ -1260,3 +1399,9 @@ Beco sem ser visto (esperar nos nichos) · Zeca 7 · Casarão: ladrilhos
 (lua · coruja · gato · vela) → Cuca no sótão → terreiro (três vultos ·
 2 guardas) → Morgana → **Breu + Visão Noturna** →
 (3 retratos → Velha do Bairro; retratos + medalha → Pisadeira; Visão → 2 véus).
+
+**Cidade do Sol** — véu do Bairro (Visão Noturna) · perguntas (o dia · a luz
+· a sombra) · 5 lampiões correndo (26 s) · espelhos 1, 2, 3, 5 · Zeca 8 ·
+Estrela-d'Alva no cume → terreiro (2 espelhos · 2 guardas) → Solano →
+**Aurora + Prisma** →
+(3 cristais → Joalheira; cristais + medalha → Jaci; Prisma → 2 cortinas).
