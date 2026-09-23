@@ -121,9 +121,12 @@ empurráveis e os dois serviços opcionais da Serra.
 
 A Dona Firmina entrega o **Mapa do Mundo** junto com o primeiro Encantado
 (quem já tinha passado dessa parte ganha ao carregar o save). Usado na
-mochila, ele mostra os lugares por onde você já andou, ligados pelas
-estradas e na cor da região, com o lugar atual piscando; ← → escolhem um
-lugar. O **mapa de cada região** fica escondido num canto dela mesma — com
+mochila, ele abre um pergaminho desenhado (`art/mundo.ts`): o mar a oeste,
+um continente com lagos e, em cima dele, o terreno de cada região — praia
+da Foz, mata do Curupira, montanhas da Serra, campos de vento do Saci,
+savana de raios de Tupã, bocas de mina da Caipora, árvores secas da Cuca —,
+com as estradas pontilhadas, casinha nas cidades e névoa por cima de tudo
+que você ainda não conhece. O lugar atual pisca; ← → escolhem um lugar. O **mapa de cada região** fica escondido num canto dela mesma — com
 ele, o A abre a **planta** do lugar escolhido (paredes, mato, água,
 construções e as saídas em amarelo, e você piscando se estiver ali).
 
@@ -155,7 +158,7 @@ ferramenta de linha de comando que gera os PNGs.
 src/
 ├─ core/      buf.ts (pixels, primitivas, contorno, "assar" p/ canvas)
 │             renderer.ts · input.ts · loop.ts · scene.ts
-├─ art/       palette · font (5×7 com acentuação) · tiles · people
+├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             creatures · badges · ui · battlebg
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts

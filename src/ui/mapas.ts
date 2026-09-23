@@ -1,47 +1,59 @@
 /* =========================================================================
    As duas telas do Mapa do Mundo (menu de pausa → mochila → mapa).
 
-   O MUNDO: uma casinha por lugar ao ar livre (data/mundo.ts), ligadas pelas
-   estradas, na cor do tipo da região. Lugar que o jogador ainda não
-   conhece aparece como "?", e estrada só aparece entre dois conhecidos.
+   O MUNDO: o pergaminho desenhado em art/mundo.ts — o terreno de cada
+   região, as estradas e as cidades —, com névoa por cima de todo lugar que
+   o jogador ainda não conhece, o lugar atual marcado e o escolhido cercado.
 
    A PLANTA: o chão do lugar, tile por tile, em miniatura — parede, mato,
    água, estrada, construções, as saídas em amarelo e o jogador piscando.
    Só abre com o mapa daquela região na mochila.
    ========================================================================= */
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
-import { P, TIPOS } from '../art/palette.ts';
+import { assar, type Assado } from '../core/buf.ts';
+import { P } from '../art/palette.ts';
+import { mapaMundo, nevoa, pontoMapa } from '../art/mundo.ts';
 import type { DefMapa } from '../world/tilemap.ts';
-import { POSICOES, regiaoDoMapa } from '../data/mundo.ts';
+import { CIDADES, POSICOES, regiaoDoMapa } from '../data/mundo.ts';
 
-const X0 = 18, DX = 17, Y0 = 38, DY = 12;
+/* o pergaminho fica neste canto da tela cheia do menu */
+const MX = 10, MY = 26;
+
+let base: Assado | null = null;
+let nuvem: Assado | null = null;
 
 export function pontoNoMundo(id: string): [number, number] {
   const [c, l] = POSICOES[id]!;
-  return [X0 + c * DX, Y0 + l * DY];
+  const [x, y] = pontoMapa(c, l);
+  return [MX + x, MY + y];
 }
 
 export function desenharMundo(r: Renderizador, conhecidos: ReadonlySet<string>,
                               estradas: readonly [string, string][],
                               atual: string | null, sel: string | null, piscando: boolean): void {
-  // estradas primeiro, por baixo das casinhas (todas são retas na grade)
-  for (const [a, b] of estradas) {
-    if (!conhecidos.has(a) || !conhecidos.has(b)) continue;
-    const [ax, ay] = pontoNoMundo(a), [bx, by] = pontoNoMundo(b);
-    r.retangulo(Math.min(ax, bx), Math.min(ay, by), Math.abs(ax - bx) + 1, Math.abs(ay - by) + 1, P.uiBg3!);
+  if (!base) {
+    const lugares = Object.entries(POSICOES).map(([id, [c, l]]) => ({
+      id, c, l, tipo: regiaoDoMapa(id)!.tipo, cidade: CIDADES.has(id),
+    }));
+    base = assar(mapaMundo(lugares, estradas));
+    nuvem = assar(nevoa());
   }
+  r.sprite(base, MX, MY);
+  // a névoa por cima do que ainda não se conhece
   for (const id of Object.keys(POSICOES)) {
+    if (conhecidos.has(id)) continue;
     const [x, y] = pontoNoMundo(id);
-    const reg = regiaoDoMapa(id);
-    if (id === sel) r.retangulo(x - 6, y - 6, 13, 13, P.uiAccD!);
-    r.retangulo(x - 4, y - 4, 9, 9, P.ink!);
-    if (conhecidos.has(id) && reg) {
-      r.retangulo(x - 3, y - 3, 7, 7, TIPOS[reg.tipo].cor);
-    } else {
-      r.retangulo(x - 3, y - 3, 7, 7, P.uiBg2!);
-      r.texto('?', x - 2, y - 3, P.uiBg3!);
-    }
-    if (id === atual && piscando) r.retangulo(x - 1, y - 1, 3, 3, '#ffffff');
+    r.sprite(nuvem!, x - 15, y - 12);
+  }
+  if (sel) {
+    const [x, y] = pontoNoMundo(sel);
+    r.retangulo(x - 6, y - 7, 13, 1, P.uiAccD!); r.retangulo(x - 6, y + 5, 13, 1, P.uiAccD!);
+    r.retangulo(x - 6, y - 7, 1, 13, P.uiAccD!); r.retangulo(x + 6, y - 7, 1, 13, P.uiAccD!);
+  }
+  if (atual && piscando) {
+    const [x, y] = pontoNoMundo(atual);
+    r.retangulo(x - 2, y - 9, 5, 5, P.ink!);
+    r.retangulo(x - 1, y - 8, 3, 3, '#ff3030');
   }
 }
 

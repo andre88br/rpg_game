@@ -50,17 +50,25 @@ export const REGIOES: readonly Regiao[] = [
             'becoDasRondas', 'casaraoAssombrado', 'terreiroBreu'] },
 ];
 
-/* a casinha de cada lugar ao ar livre: [coluna, linha] numa grade 13×7 */
+/* a casinha de cada lugar ao ar livre: [coluna, linha] numa grade 10×7.
+   A Foz desce pela costa oeste, com o mar ao lado do porto; a Mata e a
+   Serra atravessam o sul; o Campo do Saci sobe pelo meio; e da Aldeia Tupã
+   em diante as regiões se espalham para o leste. */
 export const POSICOES: Record<string, readonly [number, number]> = {
-  vilaAurora: [0, 0], rotaFoz: [1, 0], portoIara: [2, 0],
-  igarapeCurupira: [3, 0], mataDoCurupira: [4, 0],
-  trilhaDaBrasa: [5, 0], vilaFornalha: [6, 0], cavernaBoitata: [7, 0], cumeeiraBoitata: [8, 0],
-  campoAberto: [9, 0], ventaniaFunda: [10, 0], aldeiaCatavento: [11, 0], topoDoRedemoinho: [12, 0],
-  campinaDosRaios: [12, 2], aldeiaTupa: [12, 4], charcoRelampejante: [12, 6], morroDoTrovao: [11, 4],
-  bocaDaMina: [10, 4], arraialCaipora: [9, 4], galeriasDaMina: [9, 6], cavaFunda: [9, 2],
-  ruaDoBreu: [9, 1], bairroDaCuca: [8, 1], becoDasRondas: [7, 1],
+  vilaAurora: [1, 1], rotaFoz: [1, 2], portoIara: [1, 3],
+  igarapeCurupira: [1, 4], mataDoCurupira: [1, 5],
+  trilhaDaBrasa: [2, 5], vilaFornalha: [3, 5], cavernaBoitata: [4, 5], cumeeiraBoitata: [5, 5],
+  campoAberto: [5, 4], ventaniaFunda: [5, 3], aldeiaCatavento: [5, 2], topoDoRedemoinho: [5, 1],
+  campinaDosRaios: [6, 1], aldeiaTupa: [7, 1], charcoRelampejante: [8, 1], morroDoTrovao: [7, 2],
+  bocaDaMina: [7, 3], arraialCaipora: [7, 4], galeriasDaMina: [8, 4], cavaFunda: [6, 4],
+  ruaDoBreu: [6, 5], bairroDaCuca: [7, 5], becoDasRondas: [8, 5],
 };
-export const COLUNAS = 13;
+/* onde há cidade (casinha no mapa); o resto é caminho, mata, caverna... */
+export const CIDADES: ReadonlySet<string> = new Set([
+  'vilaAurora', 'portoIara', 'mataDoCurupira', 'vilaFornalha', 'aldeiaCatavento',
+  'aldeiaTupa', 'arraialCaipora', 'bairroDaCuca',
+]);
+export const COLUNAS = 10;
 export const LINHAS = 7;
 
 export function regiaoDoMapa(id: string): Regiao | null {
