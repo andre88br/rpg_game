@@ -128,6 +128,23 @@ export class Ator {
     this.movendo = true;
   }
 
+  /* Passo sem pedir licença ao mapa: é assim que o escoltado vai para o
+     tile que o jogador acabou de deixar. Se ainda estava no meio do passo
+     anterior, termina ele na hora; se o alvo não é vizinho (o jogador
+     atravessou uma porta), aparece lá direto. */
+  andarPara(tx: number, ty: number, correr: boolean): void {
+    if (this.movendo) { this.movendo = false; this.deX = this.tx; this.deY = this.ty; }
+    const dx = tx - this.tx, dy = ty - this.ty;
+    if (dx === 0 && dy === 0) return;
+    if (Math.abs(dx) + Math.abs(dy) !== 1) { this.teleportar(tx, ty); return; }
+    this.dir = direcaoDe(dx, dy) ?? this.dir;
+    this.deX = this.tx; this.deY = this.ty;
+    this.tx = tx; this.ty = ty;
+    this.progresso = 0;
+    this.duracao = (correr ? VEL_CORRER : VEL_ANDAR) / multiplicadorVelocidade();
+    this.movendo = true;
+  }
+
   /* devolve true no quadro em que o ator termina de entrar num tile novo */
   atualizar(dt: number): boolean {
     if (this.esperaVirada > 0) this.esperaVirada = Math.max(0, this.esperaVirada - dt);

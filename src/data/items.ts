@@ -85,6 +85,15 @@ const LISTA: readonly Item[] = [
   { id: 'pena_trovao', nome: 'Pena de Trovão', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Pena grande e escura que arrepia sozinha quando vem tempestade.' },
+  { id: 'forquilha', nome: 'Forquilha', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Forquilha de radiestesia. Use na mochila: diz se há tesouro enterrado perto.' },
+  { id: 'pepita', nome: 'Pepita de Ouro', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Pepita do tamanho de um feijão, cavada da terra da Boca da Mina.' },
+  { id: 'diamante', nome: 'Diamante Bruto', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Pedra fosca por fora. O Ourives do arraial é quem sabe o que tem dentro.' },
 ];
 
 export const ITENS: Record<string, Item> =

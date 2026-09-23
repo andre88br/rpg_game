@@ -13,6 +13,7 @@ import * as UI from '../art/ui.ts';
 import { MEDALHAS, medalha } from '../art/badges.ts';
 import { ficha, nome, type Encantado } from '../battle/encantado.ts';
 import * as L from '../ui/listas.ts';
+import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
 import { item } from '../data/items.ts';
 import { especie, ESPECIES_ORDEM } from '../data/creatures.ts';
@@ -38,6 +39,9 @@ const CADERNO_LINHAS_VISIVEIS = 10;
 
 export interface OpcoesMenu {
   estado: EstadoJogo;
+  /* a forquilha de radiestesia: a cena do mundo sabe onde o jogador está e
+     o que há enterrado no mapa; o menu só mostra o que ela responder */
+  sondar?: () => string;
 }
 
 export class MenuPausa {
@@ -209,6 +213,10 @@ export class MenuPausa {
     const id = this.itens()[this.selLista];
     if (!id) return;
     if (id === 'caderno') { this.abrirCaderno(); return; }
+    if (id === 'forquilha') {
+      this.avisar(this.op.sondar?.() ?? 'A forquilha só serve com os pés no chão.', 3);
+      return;
+    }
     if (!usavelForaDeBatalha(id)) { this.avisar('Isso não se usa fora de batalha.'); return; }
     if (this.op.estado.time.length === 0) {
       this.avisar('Você ainda não tem nenhum Encantado.');
@@ -257,9 +265,15 @@ export class MenuPausa {
     else if (this.pagina === 'slots') this.slots.desenhar(r);
     else this.desenharPagina(r);
     if (this.recado) {
-      const larg = r.larguraTexto(this.recado) + 20;
-      r.retangulo((LARGURA - larg) / 2, ALTURA - 40, larg, 16, P.ink!);
-      r.texto(this.recado, (LARGURA - r.larguraTexto(this.recado)) / 2, ALTURA - 36, P.gold!);
+      /* recado comprido (a resposta da forquilha) quebra em mais linhas,
+         crescendo para cima a partir do mesmo lugar */
+      const linhas = quebrar(this.recado, LARGURA - 36);
+      const larg = Math.max(...linhas.map((l) => r.larguraTexto(l))) + 20;
+      const alt = 6 + linhas.length * 10;
+      const y0 = ALTURA - 24 - alt;
+      r.retangulo((LARGURA - larg) / 2, y0, larg, alt, P.ink!);
+      linhas.forEach((l, i) =>
+        r.texto(l, (LARGURA - r.larguraTexto(l)) / 2, y0 + 4 + i * 10, P.gold!));
     }
   }
 

@@ -172,6 +172,9 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
               roupa: '#2f2447', roupaL: '#4a3a6b', calca: '#15101f', chapeu: 'coroa' },
   aldeao:   { cabelo: '#4a3020', roupa: '#c98f3f', roupaL: '#e8b060', calca: '#5a4a3a' },
   crianca:  { cabelo: '#2c1b14', roupa: '#d9a63f', roupaL: '#f0c45e', calca: '#3f6a4a' },
+  /* capacete amarelo de mina e roupa cor de barro — as Minas da Caipora */
+  garimpeiro: { chapeu: 'bone', chapeuCor: '#d9b23a', chapeuCorL: '#f0d06a', cabelo: '#3a2a1a',
+                roupa: '#7a5a3a', roupaL: '#9c7a52', calca: '#4a3a2a' },
 };
 
 export const ELENCO: Record<string, () => Buf> =

@@ -323,6 +323,55 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'raio_tupa' }, { nv: 1, golpe: 'aurora' },
     ],
   },
+
+  /* --------------------- das Minas da Caipora --------------------- */
+  {
+    id: 'minhoquinha', nome: 'Minhoquinha', tipos: ['terra'],
+    base: { hp: 52, atq: 55, def: 50, esp: 35, vel: 40 },
+    taxaCaptura: 180, xpBase: 62, crescimento: 'rapido',
+    arte: 'minhoquinha', categoria: 'Minhoca da Mina',
+    sobre: 'Abre túnel na terra mole mais rápido que garimpeiro com enxada. Some ao menor tremor.',
+    aprende: [
+      { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'areia' },
+      { nv: 10, golpe: 'pedrada' }, { nv: 18, golpe: 'encarada' },
+      { nv: 26, golpe: 'tremor' },
+    ],
+    evolui: { em: 'minhocao', nv: 50 },
+  },
+  {
+    id: 'minhocao', nome: 'Minhocão', tipos: ['terra'],
+    base: { hp: 104, atq: 108, def: 96, esp: 50, vel: 52 },
+    taxaCaptura: 35, xpBase: 180, crescimento: 'rapido',
+    arte: 'minhocao', categoria: 'Minhoca da Mina',
+    sobre: 'Dizem que é ele quem faz o rio mudar de curso. Quando se vira embaixo da serra, a mina treme.',
+    aprende: [
+      { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
+      { nv: 1, golpe: 'areia' }, { nv: 50, golpe: 'desmoronamento' },
+      { nv: 54, golpe: 'afiar' },
+    ],
+  },
+  {
+    id: 'mapinguari', nome: 'Mapinguari', tipos: ['terra'],
+    base: { hp: 110, atq: 118, def: 100, esp: 55, vel: 50 },
+    taxaCaptura: 25, xpBase: 200, crescimento: 'lento',
+    arte: 'mapinguari', categoria: 'Gigante da Cava',
+    sobre: 'Um olho só no meio da testa e a boca na barriga. O chão da cava funda afunda onde ele pisa.',
+    aprende: [
+      { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'rosnado' },
+      { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'desmoronamento' },
+    ],
+  },
+  {
+    id: 'caipora', nome: 'Caipora', tipos: ['terra', 'planta'],
+    base: { hp: 86, atq: 96, def: 82, esp: 88, vel: 100 },
+    taxaCaptura: 3, xpBase: 195, crescimento: 'lento',
+    arte: 'caipora', categoria: 'Dona da Mata Funda',
+    sobre: 'Monta um porco-do-mato e protege quem não caça mais que precisa. Fumo de rolo acalma ela.',
+    aprende: [
+      { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'cipo' },
+      { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'tempestade_verde' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =

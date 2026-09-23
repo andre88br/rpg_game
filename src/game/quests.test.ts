@@ -5,7 +5,7 @@ import { criar } from '../battle/encantado.ts';
 import { adicionar, consumir, quantidade, type Mochila } from '../data/items.ts';
 import {
   CONTAS, aplicarFala, contasAcesas, contasFaltando, escolherFala, ligada,
-  preencher, serve,
+  preencher, responder, serve,
   type Fala,
 } from './quests.ts';
 
@@ -183,4 +183,41 @@ test('a mesma medalha não entra duas vezes', () => {
   const segunda = aplicarFala(e, fala, bolsa(e.mochila));
   assert.deepEqual(e.medalhas, ['mare']);
   assert.equal(segunda.medalha, null, 'a segunda vez não é conquista nenhuma');
+});
+
+/* ------------------------------------------------------------- charadas */
+
+const charada: Fala = {
+  se: 'charada1_ok', liga: 'charada2_ok', paga: 100, linhas: ['Segunda charada...'],
+  pergunta: {
+    opcoes: ['o ovo', 'a pedra', 'o vento'], certa: 1,
+    acertou: ['Acertou!'],
+    errou: { linhas: ['Errou. Volta pro começo.'], desliga: 'charada1_ok' },
+  },
+};
+
+test('resposta certa devolve a fala sem a pergunta, para o efeito vir depois', () => {
+  const e = novoJogo();
+  ligar(e, 'charada1_ok');
+  const r = responder(e, charada, 1);
+  assert.equal(r.certa, true);
+  assert.deepEqual(r.linhas, ['Acertou!']);
+  assert.ok(r.fala && r.fala.pergunta === undefined);
+  assert.equal(r.fala!.liga, 'charada2_ok');
+  // responder não aplica nada sozinho: quem aplica é a cena, ao fechar
+  assert.equal(ligada(e, 'charada2_ok'), false);
+  aplicarFala(e, r.fala!, bolsa(e.mochila));
+  assert.equal(ligada(e, 'charada2_ok'), true);
+});
+
+test('resposta errada desliga o progresso e não aplica nada', () => {
+  const e = novoJogo();
+  ligar(e, 'charada1_ok');
+  const antes = e.dinheiro;
+  const r = responder(e, charada, 0);
+  assert.equal(r.certa, false);
+  assert.equal(r.fala, null);
+  assert.equal(ligada(e, 'charada1_ok'), false, 'errar devia voltar para a primeira charada');
+  assert.equal(ligada(e, 'charada2_ok'), false);
+  assert.equal(e.dinheiro, antes);
 });

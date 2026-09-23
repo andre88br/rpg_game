@@ -1,7 +1,7 @@
-# Manual dos desafios — das cinco regiões, do começo ao fim
+# Manual dos desafios — das seis regiões, do começo ao fim
 
 Guia completo de como acender todas as contas de cada terreiro, vencer cada
-mestre e pegar as cinco medalhas. Tudo aqui foi conferido direto nos mapas do
+mestre e pegar as seis medalhas. Tudo aqui foi conferido direto nos mapas do
 jogo: nomes, níveis, quantidades e coordenadas são os de verdade.
 
 As coordenadas aparecem como `(coluna, linha)` contadas a partir do canto
@@ -33,6 +33,7 @@ fica sempre bem na frente da porta do terreiro:
 | Serra Boitatá | Vila Fornalha, no pátio do Terreiro de Brasa, (13-19,11) |
 | Campo do Saci | Aldeia Catavento, no pátio do Terreiro do Rodamoinho, (13-19,11) |
 | Aldeia Tupã | Aldeia Tupã, no pátio do Terreiro do Trovão, (8-14,12) |
+| Minas da Caipora | Arraial da Caipora, no pátio do Terreiro da Pedra, (8-14,12) |
 
 **Tipos.** São só três regras, e elas decidem quase toda batalha:
 
@@ -53,7 +54,8 @@ Treinador não se captura.
 **Benzimento.** Cura de graça, e é onde a partida recomeça se seu time apagar:
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
 na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia
-Catavento), Casa de Dona Jurema na região 5 (Aldeia Tupã). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
+Catavento), Casa de Dona Jurema na região 5 (Aldeia Tupã), Casa de Dona Zefa na região
+6 (Arraial da Caipora). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
 nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
@@ -898,6 +900,169 @@ obrigatório:
 | Aldeia Tupã — canto sudeste | 1 Água Benta |
 | Morro do Trovão — 2ª faixa, lado leste | 2 Patuás de Mestre |
 
+# REGIÃO 6 — MINAS DA CAIPORA · Terreiro da Pedra · Medalha Pedra · Dom Escavar
+
+A região dos **tipos de tarefa novos**: caça ao tesouro, charadas, escolta e
+trilhos de vagonete. Mapas largos e altos como os da região 5.
+
+```
+Morro do Trovão ─(norte, Dom Faísca)→ Boca da Mina ─→ Arraial da Caipora
+                                                     │         │
+                                      Cava Funda ←───┘ (Zeca)  └──→ Galerias da Mina
+                                                     │ porta
+                                              Terreiro da Pedra
+```
+
+**Como entrar.** No alto do cume do Morro do Trovão, colunas 20-21, duas
+**pedras rachadas** fecham a estrada norte: só o **Dom Faísca** (Medalha
+Trovão) parte. Espécies novas: **Minhoquinha** (Terra) → **Minhocão** no 50,
+**Mapinguari** (Terra) e, para quem faz os dois serviços, a **Caipora**
+(Terra/Planta). Terra leva 2x de **Vento** — Saci, Matinta e Uirapuru voltam
+a brilhar. Suba com o time perto de 54-56.
+
+## Ordem recomendada da região
+
+1. Boca da Mina: fale com a **Garimpeira** (ganha a **forquilha**), cave as
+   3 pepitas → **conta_pepitas**.
+2. Arraial: casa do **Velho Garimpeiro**, as 3 charadas → **conta_charadas**.
+3. Galerias da Mina (leste): trilhos até o **sino** → **conta_trilhos**.
+4. No mesmo lugar, o **Tuco**: escolte até a **Dona Luzia**, no arraial →
+   **conta_menino**.
+5. Zeca pela sexta vez (saída oeste do arraial), e a Cava Funda até o
+   **Mapinguari** → **conta_mapinguari**.
+6. Terreiro da Pedra, até o Ubirajara.
+7. (Opcional) os três diamantes e a Caipora; os três esconderijos do Dom
+   Escavar.
+
+## Conta 1 — `conta_pepitas`: caça ao tesouro
+
+A Garimpeira, logo na entrada da Boca da Mina, dá a **FORQUILHA** (item de
+chave). **Use a forquilha na mochila**: ela responde pela distância, em
+passos, até o tesouro enterrado mais perto **neste mapa**:
+
+| Resposta | Distância |
+|---|---|
+| QUENTE | até 2 passos |
+| MORNO | 3 a 6 |
+| FRIO | 7 a 12 |
+| GELADO | mais de 12 |
+
+O tesouro **não aparece no chão**. Quando estiver QUENTE, vire para os
+tiles em volta e aperte A: de frente para o tile certo, você cava. As três
+pepitas da Boca da Mina: **(4,6)** perto dos rochedos do noroeste, **(57,12)**
+no leste depois do rochedo, **(9,31)** no sudoeste, acima do mato. Com as
+três, volte na Garimpeira: paga **900**.
+
+## Conta 2 — `conta_charadas`: as três charadas do Velho Garimpeiro
+
+Na casa dele, no arraial (sul da estrada, porta em (40,26)). Uma charada por
+conversa; a resposta se escolhe numa caixinha com ↑ ↓ e A (B desiste sem
+perder nada). **Errar a segunda ou a terceira apaga as anteriores** e manda
+recomeçar da primeira.
+
+1. *Quanto mais se tira, maior fica?* → **O BURACO**
+2. *Tem cabeça, tem dente, tem barba, não é bicho nem é gente?* → **O ALHO**
+3. *Anda com os pés na cabeça?* → **O PIOLHO** (paga **800**)
+
+## Conta 3 — `conta_trilhos`: o sino do fundo das Galerias
+
+Nove plataformas, três por três, ligadas por corredores. Os corredores de
+chão se andam nos dois sentidos; os de **trilho** levam você sozinho, **só
+num sentido**, e só se o **desvio** da entrada (a seta amarela) estiver
+apontando para a frente — senão ele te devolve à plataforma. Três
+**alavancas** trocam os desvios.
+
+```
+  NO ──── N ──── NE               ────  corredor a pé
+  ↓1      ↓2     ↑3 solta         ↓ → ↑ trilho: abre com a alavanca do
+  O ──── CENTRO ── L                     número PUXADA (ou SOLTA, se escrito)
+  │       ↑3
+  SO ──3→ S ──2 solta→ SE  (sino e o Tuco)
+  expresso SE → NO, sempre aberto
+  alavanca 1 no S · alavanca 2 no N · alavanca 3 no O
+```
+
+Entra-se na plataforma NO, pelo oeste. Solução mais curta (**seis
+alavancadas**):
+
+1. NO → N. **Puxe a alavanca 2**. Trilho N → CENTRO, depois a pé → O.
+2. Em O, **puxe a 3**. A pé O → SO, trilho SO → S.
+3. Em S, **puxe a 1**. Trilho S → CENTRO, a pé → O.
+4. Em O, **solte a 3**. A pé O → CENTRO → L, trilho L → NE, a pé NE → N.
+5. Em N, **solte a 2**. A pé N → NO, trilho NO → O.
+6. Em O, **puxe a 3**. A pé O → SO, trilho SO → S, trilho S → SE.
+7. Toque o **sino**.
+
+Se errar, nada trava: de qualquer ponto ainda dá para chegar ao sino (o
+teste do jogo prova isso a cada versão).
+
+## Conta 4 — `conta_menino`: escoltar o Tuco
+
+Com o sino tocado, fale com o **Tuco**, no SE: ele passa a **andar atrás de
+você**, em qualquer mapa. Pise no trilho abaixo do SE: o **expresso** leva
+os dois de volta à plataforma NO, e dali a saída oeste volta ao arraial.
+Leve-o até a **Dona Luzia**, na frente da casa dela (sul da estrada, lado
+oeste): paga **1200**.
+
+**Cuidado:** se o seu time apagar no caminho, o Tuco se assusta e **volta
+para o fundo da mina** — é preciso buscar de novo.
+
+## Conta 5 — `conta_mapinguari`: o fundo da Cava Funda
+
+Saída oeste do arraial, trancada pelo **Zeca** (sexta vez): Minhocão 54,
+Relampo 55, Saci 55, Cabra-Cabriola 55, Curupirá 56. Prêmio 3000.
+
+A Cava Funda é uma **espiral**: três anéis de rocha, cada um com **um vão
+só** — oeste, depois leste, depois oeste. Três garimpeiros no caminho
+(Garimpeiro 55×3, Garimpeira com Mapinguari 55, Garimpeiro com 4 de nível
+56). No fundo, o **Mapinguari selvagem nível 57**. Vencer acende a conta;
+**capturar também vale**.
+
+## O Terreiro da Pedra — o salão do Ubirajara
+
+1. **Guarda do Cascalho** (saguão) — Minhocão 55, Salamanca 55,
+   Tatu-Trovão 56. Abre a porta da plataforma A.
+2. Na plataforma A, **empurre a alavanca** antes de pisar no trilho: sem
+   ela, o desvio desce o vagonete de volta ao saguão.
+3. Na plataforma B, a **Guarda da Charada** não luta: *cai em pé e corre
+   deitado?* → **A CHUVA**. Errar só faz ela perguntar de novo.
+4. **Guarda da Rocha** — Mapinguari 56, Minhocão 57, Cabra-Cabriola 57,
+   Relampo 57.
+
+### Mestre: Ubirajara
+
+**Minhocão 57, Mapinguari 57, Cabra-Cabriola 58, Salamanca 58, Minhocão 59**
+e um **sexto** contra o seu inicial (Iara-Mãe 58 contra Boitatinha, Curupirá
+58 contra Iarinha, Boitatão 58 contra Curupinho). Prêmio 6000. Esperto, com
+3 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
+
+- Quase tudo é Terra: **Vento** bate 2x. Cabra-Cabriola e Salamanca são
+  Terra/Fogo — Água também bate 2x nelas.
+
+Vencer dá a **Medalha Pedra** e o **Dom Escavar**, que abre **monte de
+terra**.
+
+## Os dois serviços opcionais
+
+### `servico_diamantes` — os três diamantes enterrados
+
+A mesma forquilha acha. Um por mapa: **Boca da Mina (44,22)**, **Galerias,
+plataforma CENTRO (28,22)**, **fundo da Cava Funda (25,21)**. Com os três,
+fale com o **Ourives**, no arraial: **4000 + 3 Patuás de Mestre**.
+
+### `servico_caipora` — o Encantado exclusivo
+
+No fundo da Cava Funda, a **Caipora** só se entrega com os diamantes
+entregues **e** a Medalha Pedra: **Caipora nível 40**, sem batalha.
+
+### Os bolsos do Dom Escavar
+
+| Onde | O que tem |
+|---|---|
+| Boca da Mina — canto nordeste | 2 Patuás de Mestre |
+| Arraial da Caipora — canto sudeste | 1 Água Benta |
+| Cava Funda — canto sudeste da borda | 2 Patuás de Mestre |
+
 ---
 
 ## Códigos secretos
@@ -911,6 +1076,7 @@ valem em conversa, batalha, loja nem menu.
 | ↓ ↓ ↑ ↑ → ← → ← B A | Pula para a **Serra Boitatá** com as duas medalhas, os dois Dons e 5 Patuás Bons |
 | ↑ → ↓ ← ↑ → ↓ ← B A | Pula para o **Campo do Saci** com as três medalhas, os três Dons e 5 Patuás Bons |
 | ← → ← → ↑ ↓ ↑ ↓ B A | Pula para a **Aldeia Tupã** (entrando pela Campina dos Raios) com as quatro medalhas, os quatro Dons e 5 Patuás Bons |
+| ↓ ↑ ↓ ↑ ← → ← → B A | Pula para as **Minas da Caipora** (entrando pela Boca da Mina) com as cinco medalhas, os cinco Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
 
@@ -941,3 +1107,10 @@ charco, morro) · chaves do Charco (N: C · NE: A · N: C · SO: B · N: C ·
 NE: A → mestre) · Zeca 5 · Relampo do cume → terreiro (guarda · chaves 1-2-1-2
 · 2 guardas) → Guaraci → **Trovão + Faísca** →
 (3 penas → Tecelã; penas + medalha → Arco-da-Velha; Faísca → 3 esconderijos).
+
+**Minas da Caipora** — forquilha + 3 pepitas (4,6 · 57,12 · 9,31) · charadas
+(buraco · alho · piolho) · Galerias (N: puxa 2 · O: puxa 3 · S: puxa 1 ·
+O: solta 3 · N: solta 2 · O: puxa 3 → sino) · Tuco pelo expresso até a Dona
+Luzia · Zeca 6 · Mapinguari no fundo da espiral → terreiro (guarda ·
+alavanca · charada: a chuva · guarda) → Ubirajara → **Pedra + Escavar** →
+(3 diamantes → Ourives; diamantes + medalha → Caipora; Escavar → 3 bolsos).

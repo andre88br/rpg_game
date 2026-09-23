@@ -15,7 +15,7 @@ import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada, Acao } from '../core/input.ts';
 import {
-  Mapa, TS, type ContextoMapa, type DefMapa, type DefNPC, type DefSaida,
+  Mapa, TS, objetoAtivo, type ContextoMapa, type DefMapa, type DefNPC, type DefSaida,
 } from '../world/tilemap.ts';
 import type { Mundo } from '../world/mundo.ts';
 import { colunaPorta, CONTAS_NA_GUIA } from '../art/tiles.ts';
@@ -38,8 +38,10 @@ import { adicionar, consumir, quantidade } from '../data/items.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
   aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
-  terreiroDaConta, TERREIROS, type Fala,
+  responder, terreiroDaConta, TERREIROS, type Fala,
 } from '../game/quests.ts';
+import { sondarTesouro } from '../game/tesouro.ts';
+import { escoltaAtiva, derrubarEscolta } from '../game/escolta.ts';
 import { salvar } from '../game/save.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
@@ -82,6 +84,10 @@ const CODIGO_REGIAO4: readonly Acao[] =
    região que cresce para os lados. Nenhum final dele bate com os de cima. */
 const CODIGO_REGIAO5: readonly Acao[] =
   ['esq', 'dir', 'esq', 'dir', 'cima', 'baixo', 'cima', 'baixo', 'b', 'a'];
+/* o da região 6 desce e sobe antes de ir de lado — mesmo tamanho dos outros
+   e diferente de todos, então nenhum é sufixo dele nem ele de nenhum */
+const CODIGO_REGIAO6: readonly Acao[] =
+  ['baixo', 'cima', 'baixo', 'cima', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -178,6 +184,12 @@ export class CenaMundo implements Cena {
   private emPoder = false;
   /* deslizando numa poça: o passo continua sozinho até bater em alguma coisa */
   private deslizando = false;
+  /* quem está sendo escoltado anda um passo atrás do jogador (game/escolta.ts) */
+  private seguidor: Ator | null = null;
+  private seguidorId: string | null = null;
+  /* charada aberta: a pergunta já foi lida, falta escolher a resposta */
+  private pergunta: { fala: Fala; npc: NpcVivo | null; falante: string;
+                      linhas: string[]; sel: number } | null = null;
   /* folhas de sprite assadas uma vez por estilo, valem para todos os mapas */
   private folhas = new Map<string, FolhaAssada>();
   /* máscaras de escuridão, assadas uma vez por raio de luz já usado */
@@ -216,7 +228,14 @@ export class CenaMundo implements Cena {
     this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
     this.rocadas = [assarSuave(T.rocada(0)), assarSuave(T.rocada(1)), assarSuave(T.rocada(2))];
     this.ondas = [assarSuave(T.ondaNado(0)), assarSuave(T.ondaNado(1))];
-    this.menu = new MenuPausa({ estado: this.op.estado });
+    this.menu = new MenuPausa({
+      estado: this.op.estado,
+      sondar: () => {
+        const ctx = this.contexto();
+        return sondarTesouro(this.def, (o) => objetoAtivo(o, ctx),
+                             this.jogador.tx, this.jogador.ty).texto;
+      },
+    });
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
     this.telaCaixa = new TelaCaixa(this.op.estado);
@@ -256,6 +275,8 @@ export class CenaMundo implements Cena {
     this.pedras = posicoesIniciais(this.def.pedras, (f) => ligada(this.op.estado, f));
     this.recontarOcupados();
     this.montarAvisos();
+    this.seguidor = null;          // o escoltado reaparece atrás de quem chegou
+    this.sincronizarSeguidor();
 
     // faixa com o nome do lugar — dentro de casa ela só atrapalharia
     if (this.def.interior) {
@@ -287,10 +308,31 @@ export class CenaMundo implements Cena {
     this.npcs = this.npcs.filter((n) => this.condicoesValem(n.def.se, n.def.seNao));
     if (this.npcs.length !== antes) this.recontarOcupados();
 
+    this.sincronizarSeguidor();
+
     const novo = this.op.mundo.obter(this.def.id, this.contexto());
     if (novo === this.mapa) return;
     this.mapa = novo;
     this.montarAvisos();
+  }
+
+  /* A escolta é só flag: se há alguém sendo escoltado e ele ainda não está
+     na tela, aparece um passo atrás do jogador (ou no próprio tile, se atrás
+     for parede); se a escolta acabou, some. */
+  private sincronizarSeguidor(): void {
+    const d = escoltaAtiva(this.op.estado);
+    if (!d) { this.seguidor = null; this.seguidorId = null; return; }
+    if (this.seguidor && this.seguidorId === d.id) return;
+    const [dx, dy] = DELTAS[this.jogador.dir];
+    let tx = this.jogador.tx - dx, ty = this.jogador.ty - dy;
+    if (this.mapa.solido(tx, ty)) { tx = this.jogador.tx; ty = this.jogador.ty; }
+    this.seguidor = new Ator(this.folhaDe(d.estilo), tx, ty, this.jogador.dir);
+    this.seguidorId = d.id;
+  }
+
+  /* o jogador acabou de sair de (tx,ty): o escoltado vai para lá */
+  private puxarSeguidor(tx: number, ty: number, correr: boolean): void {
+    this.seguidor?.andarPara(tx, ty, correr);
   }
 
   /* "bicho:sacizinho" desenha o Encantado; qualquer outro nome é gente.
@@ -342,6 +384,12 @@ export class CenaMundo implements Cena {
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'CERCA DE RAIO', falas: diz('A cerca estala de faísca. Alguma chave de para-raio a mantém ligada.'),
+          });
+        }
+      } else if (o.tipo === 'monteTerra') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'MONTE DE TERRA', falas: diz('Terra desmoronada tapa a passagem. Só cavando.'),
           });
         }
       } else if (o.tipo === 'pedraRachada') {
@@ -428,6 +476,16 @@ export class CenaMundo implements Cena {
     const c = this.conversa;
     this.conversa = null;
     if (!c || !c.fala) { this.duelo = null; return; }
+
+    /* charada: nada acontece ainda — a última página fica na tela, e quem
+       decide o que a fala faz é a resposta escolhida */
+    if (c.fala.pergunta) {
+      // fica na tela a última frase da fala — a própria pergunta
+      const frase = c.fala.linhas[c.fala.linhas.length - 1] ?? '';
+      const ultima = quebrar(preencher(this.op.estado, frase), LARG_DIALOGO - 18).slice(-3);
+      this.pergunta = { fala: c.fala, npc: c.npc, falante: c.falante, linhas: ultima, sel: 0 };
+      return;
+    }
 
     const e = this.op.estado;
     const terreiro = this.terreiroDaFala(c.fala.liga);
@@ -718,7 +776,8 @@ export class CenaMundo implements Cena {
 
     this.bufferCodigo.push(...apertados);
     const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_REGIAO5.length, CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
+                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length,
+                           CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
 
@@ -741,6 +800,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao5();
+    } else if (this.bateCodigo(CODIGO_REGIAO6)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao6();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -848,6 +911,27 @@ export class CenaMundo implements Cena {
     this.montarMapa('campinaDosRaios');   // já grava: medalhas, Dons e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A estrada para a Aldeia Tupã se abre.']);
+  }
+
+  /* pula direto para as Minas da Caipora, pela Boca da Mina: leva as cinco
+     medalhas anteriores e os cinco Dons — o Faísca é o que abre a estrada —,
+     um time se estiver vazio e cinco patuás bons. */
+  private ativarCodigoRegiao6(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca']) e.flags[`dom_${d}`] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('bocaDaMina').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('bocaDaMina');   // já grava: medalhas, Dons e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. A estrada para as Minas da Caipora se abre.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -978,7 +1062,7 @@ export class CenaMundo implements Cena {
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
     // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)
-    if (this.cutscenePendente && !this.conversa && !this.emLoja && !this.emMenu
+    if (this.cutscenePendente && !this.conversa && !this.pergunta && !this.emLoja && !this.emMenu
         && !this.emEscolha && !this.emCaixa && !this.emPoder && !this.indo && !this.duelo) {
       this.iniciarCutscene();
       return;
@@ -1031,6 +1115,9 @@ export class CenaMundo implements Cena {
       return;
     }
 
+    // ---- charada: escolher a resposta ----
+    if (this.pergunta) { this.responderPergunta(entrada); return; }
+
     // ---- treinador vindo: o jogador assiste ----
     if (this.duelo) {
       if (this.duelo.fase !== 'lutando') this.aproximar(dt);
@@ -1048,9 +1135,14 @@ export class CenaMundo implements Cena {
     const { x, y } = entrada.direcao();
     const dir: Direcao | null = direcaoDe(x, y);
     if (dir) this.tentarEmpurrar(dir);
+    const deX = this.jogador.tx, deY = this.jogador.ty;
     this.jogador.comandar(this.mapa, dir, entrada.segurando('b'),
                           (tx, ty) => this.ocupados.has(`${tx},${ty}`)
                                     || ocupadaPorPedra(this.pedras, tx, ty));
+    if (this.jogador.tx !== deX || this.jogador.ty !== deY) {
+      this.puxarSeguidor(deX, deY, entrada.segurando('b'));
+    }
+    this.seguidor?.atualizar(dt);
     const chegou = this.jogador.atualizar(dt);
 
     if (this.carencia > 0) this.carencia -= dt;
@@ -1115,8 +1207,17 @@ export class CenaMundo implements Cena {
     /* Poça com caminho livre à frente: o chão continua levando, e nada mais
        acontece até ele parar. Poça ENCOSTADA numa parede é chão comum —
        senão quem escorrega até o canto do salão nunca mais anda. */
-    this.deslizando = this.mapa.escorrega(this.jogador.tx, this.jogador.ty)
-                   && this.temCaminhoAFrente();
+    /* Trilho de vagonete: vira o jogador para onde o trilho leva e segue
+       sozinho, pelo mesmo caminho do escorregão. Trilho que dá de cara com
+       parede é chão comum — senão o fim da linha virava armadilha. */
+    const trilho = this.mapa.trilho(this.jogador.tx, this.jogador.ty);
+    if (trilho) {
+      this.jogador.dir = trilho;
+      this.deslizando = this.temCaminhoAFrente();
+    } else {
+      this.deslizando = this.mapa.escorrega(this.jogador.tx, this.jogador.ty)
+                     && this.temCaminhoAFrente();
+    }
     if (this.deslizando) return;
 
     const saida = this.mapa.saidaEm(this.jogador.tx, this.jogador.ty);
@@ -1139,9 +1240,12 @@ export class CenaMundo implements Cena {
      direção. Quem decide se o escorregão continua é `aoPisarNoTile`. */
   private deslizar(dt: number): void {
     if (!this.jogador.movendo) {
+      const deX = this.jogador.tx, deY = this.jogador.ty;
       this.jogador.comandar(this.mapa, this.jogador.dir, true,
                             (tx, ty) => this.ocupados.has(`${tx},${ty}`));
+      if (this.jogador.tx !== deX || this.jogador.ty !== deY) this.puxarSeguidor(deX, deY, true);
     }
+    this.seguidor?.atualizar(dt);
     if (this.jogador.atualizar(dt)) this.aoPisarNoTile();
     this.centrarCamera();
   }
@@ -1184,11 +1288,15 @@ export class CenaMundo implements Cena {
     this.centrarCamera();
     this.carencia = 1;
     salvar(this.op.estado);
+    /* quem estava sendo escoltado não aguenta ver o time cair */
+    const caiu = derrubarEscolta(this.op.estado);
+    this.sincronizarSeguidor();
+    if (caiu) salvar(this.op.estado);
     const s = this.def.socorro;
     this.abrirConversa(s?.quem ?? 'ALGUÉM', [...(s?.falas ?? [
       'Você apagou no meio do mato, criança.',
       'Benzi seus Encantados e te trouxe de volta. Vá com mais juízo.',
-    ])]);
+    ]), ...(caiu ? [caiu.aoFalhar] : [])]);
   }
 
   /* ------------------------------------------------------------- desenho */
@@ -1202,7 +1310,8 @@ export class CenaMundo implements Cena {
     // atores e pedras, juntos, ordenados pela base: quem está mais abaixo
     // passa na frente — senão uma pedra numa fileira de baixo tampava
     // indevidamente quem andasse por cima dela na fileira de cima
-    const todos = [this.jogador, ...this.npcs.map((n) => n.ator)];
+    const todos = [this.jogador, ...this.npcs.map((n) => n.ator),
+                   ...(this.seguidor ? [this.seguidor] : [])];
     const itens: { py: number; desenhar: () => void }[] = todos.map((a) => ({
       py: a.py,
       desenhar: () => {
@@ -1248,6 +1357,7 @@ export class CenaMundo implements Cena {
     }
 
     if (this.conversa) this.desenharDialogo(r);
+    if (this.pergunta) this.desenharPergunta(r);
 
     if (this.indo) {
       const t = this.fade <= FADE ? this.fade / FADE : 1 - (this.fade - FADE) / FADE;
@@ -1289,6 +1399,42 @@ export class CenaMundo implements Cena {
     const cx = this.jogador.px - this.camera.x + TS / 2;
     const cy = this.jogador.py - this.camera.y + TS / 2;
     r.escuridao(mascara, cx, cy);
+  }
+
+  /* ↑↓ escolhem, A responde, B desiste sem efeito nenhum (dá para voltar e
+     perguntar de novo quando quiser) */
+  private responderPergunta(entrada: Entrada): void {
+    const p = this.pergunta!;
+    const n = p.fala.pergunta!.opcoes.length;
+    if (entrada.apertou('cima')) p.sel = (p.sel - 1 + n) % n;
+    if (entrada.apertou('baixo')) p.sel = (p.sel + 1) % n;
+    if (entrada.apertou('b')) { this.pergunta = null; this.duelo = null; return; }
+    if (!entrada.apertou('a')) return;
+    this.pergunta = null;
+    const r = responder(this.op.estado, p.fala, p.sel);
+    // certa: diz o "acertou" e só ao fechar aplica a fala (liga, paga...);
+    // errada: o progresso já foi desligado em `responder`, só resta ouvir
+    this.abrirConversa(p.falante, [...r.linhas], r.fala, p.npc);
+    if (!r.certa) this.atualizarCenario();
+  }
+
+  private desenharPergunta(r: Renderizador): void {
+    const p = this.pergunta!;
+    const y = ALTURA - this.caixaDialogo.height - 6;
+    r.sprite(this.caixaDialogo, 6, y);
+    r.sprite(this.etiqueta(p.falante), 12, y - 11);
+    p.linhas.forEach((l, i) => r.texto(l, 14, y + 8 + i * 10, P.uiInk!));
+
+    const opcoes = p.fala.pergunta!.opcoes;
+    const larg = Math.max(...opcoes.map((o) => r.larguraTexto(o))) + 26;
+    const alt = 8 + opcoes.length * 12;
+    const x = LARGURA - larg - 8, oy = y - alt - 4;
+    r.retangulo(x - 2, oy - 2, larg + 4, alt + 4, P.ink!);
+    r.retangulo(x, oy, larg, alt, P.uiBg!);
+    opcoes.forEach((o, i) => {
+      if (i === p.sel) r.texto('=', x + 5, oy + 5 + i * 12, P.uiAccD!);
+      r.texto(o, x + 15, oy + 5 + i * 12, P.uiInk!);
+    });
   }
 
   private desenharDialogo(r: Renderizador): void {

@@ -76,6 +76,18 @@ export interface Fala {
   dom?: string;             // e o Dom de Campo que vem junto com ela
   /* entrega um Encantado pronto, direto no time (ou na caixa, se não couber) */
   encantado?: { especie: string; nivel: number };
+  /* charada: depois da última página abre uma escolha. A resposta certa
+     (índice em `opcoes`) aplica o resto da fala — liga, paga, dá... — depois
+     de dizer `acertou`; a errada só desliga o que `errou.desliga` pedir e
+     diz `errou.linhas`. Ver `responder()`. */
+  pergunta?: Pergunta;
+}
+
+export interface Pergunta {
+  opcoes: readonly string[];
+  certa: number;
+  acertou?: readonly string[];
+  errou: { linhas: readonly string[]; desliga?: string | readonly string[] };
 }
 
 export function serve(e: EstadoJogo, f: Fala): boolean {
@@ -145,6 +157,28 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   efeito.escolher = f.escolher === true;
   efeito.caixa = f.caixa === true;
   return efeito;
+}
+
+/* O jogador escolheu a opção `i` de uma charada. Certa: devolve a própria
+   fala, sem a pergunta, para a cena dizer `acertou` e aplicar o resto dela
+   ao fechar — o mesmo caminho de qualquer fala. Errada: desliga o que a
+   charada manda desligar (é o "recomeça do começo") e devolve só as linhas
+   de consolo, sem efeito nenhum. */
+export interface Resposta {
+  certa: boolean;
+  linhas: readonly string[];
+  fala: Fala | null;
+}
+
+export function responder(e: EstadoJogo, f: Fala, i: number): Resposta {
+  const p = f.pergunta;
+  if (!p) return { certa: true, linhas: [], fala: f };
+  if (i === p.certa) {
+    const { pergunta: _, ...resto } = f;
+    return { certa: true, linhas: p.acertou ?? ['Isso mesmo!'], fala: resto };
+  }
+  for (const flag of lista(p.errou.desliga)) delete e.flags[flag];
+  return { certa: false, linhas: p.errou.linhas, fala: null };
 }
 
 /* ------------------------------------------------------------- recheio
@@ -223,6 +257,13 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_para_raios', servico: 'as chaves de para-raio do Charco Relampejante' },
     { flag: 'conta_trovao', servico: 'o Relampo que mora no cume do Morro do Trovão' },
   ],
+  terra: [
+    { flag: 'conta_pepitas', servico: 'as três pepitas enterradas na Boca da Mina' },
+    { flag: 'conta_charadas', servico: 'as três charadas do Velho Garimpeiro' },
+    { flag: 'conta_trilhos', servico: 'o sino do fundo das Galerias, pelos trilhos' },
+    { flag: 'conta_menino', servico: 'o Tuco, escoltado das Galerias até a mãe' },
+    { flag: 'conta_mapinguari', servico: 'o Mapinguari que mora no fundo da Cava Funda' },
+  ],
 };
 
 /* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
@@ -235,6 +276,8 @@ export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
   { flag: 'servico_uirapuru', servico: 'o Uirapuru, no moinho' },
   { flag: 'servico_penas_trovao', servico: 'as três penas de trovão, para a Tecelã da Aldeia Tupã' },
   { flag: 'servico_arco', servico: 'o Arco-da-Velha, atrás do casarão do Charco' },
+  { flag: 'servico_diamantes', servico: 'os três diamantes enterrados, para o Ourives' },
+  { flag: 'servico_caipora', servico: 'a Caipora, no fundo da Cava Funda' },
 ];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do

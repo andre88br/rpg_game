@@ -23,6 +23,7 @@ export interface DefTile {
   encontro?: boolean;     // mato alto: gera encontros com Encantados selvagens
   agua?: boolean;         // so se atravessa com o Dom "Nadar"
   escorrega?: boolean;    // quem pisa segue deslizando na mesma direcao
+  trilho?: Direcao;       // trilho de vagonete: leva quem pisa nessa direcao
 }
 
 export const TILES: Record<string, DefTile> = {
@@ -55,6 +56,13 @@ export const TILES: Record<string, DefTile> = {
   /* Campo do Saci: capim batido ao ar livre, escorrega como poça/raiz —
      mesma regra, mapa aberto (ver `escorrega()` mais abaixo) */
   'V': { desenho: T.tileCorrenteVento, escorrega: true },
+  /* Minas da Caipora: trilhos de vagonete. A letra diz para onde o trilho
+     leva — Direita, Esquerda, Cima, Baixo. Quem pisa vai sozinho nessa
+     direcao ate sair do trilho ou bater (ver `trilho()` e overworld.ts) */
+  'D': { desenho: (s) => T.tileTrilho('dir', s), trilho: 'dir' },
+  'E': { desenho: (s) => T.tileTrilho('esq', s), trilho: 'esq' },
+  'C': { desenho: (s) => T.tileTrilho('cima', s), trilho: 'cima' },
+  'B': { desenho: (s) => T.tileTrilho('baixo', s), trilho: 'baixo' },
 };
 
 export type TipoObjeto =
@@ -62,6 +70,7 @@ export type TipoObjeto =
   | 'farol'                                          // construcao sem porta
   | 'placa' | 'barreira' | 'monteFolhas' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
   | 'paraRaio' | 'cercaRaio' | 'pedraRachada'        // Aldeia Tupã
+  | 'enterrado' | 'desvio' | 'alavanca' | 'monteTerra' // Minas da Caipora
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
@@ -102,6 +111,9 @@ export interface DefObjeto {
   /* coisa do cenario que responde ao A com fala condicional, e pode entregar
      item ou ligar flag — um pote esquecido, um caixote de rede */
   falas?: readonly Fala[];
+  /* desvio de trilho (tipo 'desvio'): para onde ele manda quem passa,
+     enquanto as condicoes dele valerem — por cima da direcao do tile */
+  dir?: Direcao;
 }
 
 export interface DefSaida {
@@ -236,6 +248,9 @@ export class Mapa {
      "Nadar" tira a água da colisão, mas quem desenha ainda precisa saber
      que ali é água, para afundar o personagem até o pescoço */
   private aguas: Uint8Array;
+  /* para onde cada tile de trilho leva; null fora dos trilhos. Um desvio
+     ativo escreve por cima da direcao do tile. */
+  private trilhos: (Direcao | null)[];
   private saidas = new Map<string, DefSaida>();
   /* o cenário fica em pixels crus até alguém pedir para desenhar. Assar exige
      um <canvas>, e os testes de coerência dos mapas rodam no Node, sem DOM. */
@@ -255,6 +270,7 @@ export class Mapa {
     this.largTiles = def.chao[0]?.length ?? 0;
 
     const n = this.largTiles * this.altTiles;
+    this.trilhos = new Array<Direcao | null>(n).fill(null);
     this.solidos = new Uint8Array(n);
     this.encontros = new Uint8Array(n);
     this.escorregas = new Uint8Array(n);
@@ -275,6 +291,7 @@ export class Mapa {
         if (d.solido && !(d.agua && ctx.nadar)) this.solidos[i] = 1;
         if (d.encontro) this.encontros[i] = 1;
         if (d.escorrega) this.escorregas[i] = 1;
+        if (d.trilho) this.trilhos[i] = d.trilho;
         if (d.agua) this.aguas[i] = 1;
       }
     }
@@ -384,6 +401,21 @@ export class Mapa {
       case 'pedraRachada':
         sprite = T.pedraRachada(larg);
         break;
+      /* tesouro enterrado: invisivel ate ser cavado; cavado, vira buraco */
+      case 'enterrado':
+        sprite = o.vazio === true ? T.buraco() : null;
+        break;
+      case 'desvio':
+        sprite = T.tileTrilho(o.dir ?? 'dir', o.tx * 31 + o.ty * 17 + 3, true);
+        if (o.dir) this.trilhos[o.ty * this.largTiles + o.tx] = o.dir;
+        break;
+      case 'alavanca':
+        sprite = T.alavanca(o.vazio !== true);
+        break;
+      /* some com o Dom Escavar — molde exato da pedra rachada */
+      case 'monteTerra':
+        sprite = T.monteTerra(larg);
+        break;
       case 'farol':
         sprite = T.farol(larg, alt);
         break;
@@ -397,8 +429,10 @@ export class Mapa {
         sprite = T.entulho();
         break;
     }
+    if (sprite) buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
+    /* desvio e tesouro enterrado sao chao: nunca viram parede */
+    if (o.tipo === 'desvio' || o.tipo === 'enterrado') return;
     if (!sprite) return;
-    buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
 
     // mastro e bandeira do terreiro, acima do telhado
     if (o.tipo === 'terreiro') {
@@ -474,6 +508,12 @@ export class Mapa {
   escorrega(tx: number, ty: number): boolean {
     if (!this.dentro(tx, ty)) return false;
     return this.escorregas[ty * this.largTiles + tx] === 1;
+  }
+
+  /* trilho de vagonete: para onde este tile leva quem pisa, ou null */
+  trilho(tx: number, ty: number): Direcao | null {
+    if (!this.dentro(tx, ty)) return null;
+    return this.trilhos[ty * this.largTiles + tx] ?? null;
   }
 
   /* água de verdade, sólida ou não — quem desenha usa isto pra saber quando

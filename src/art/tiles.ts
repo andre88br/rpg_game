@@ -301,6 +301,59 @@ export function pedraRachada(larguraTiles: number, seed = 27): Buf {
   return b.outline(P.ink!);
 }
 
+/* ======================= Minas da Caipora =======================
+   Trilho de vagonete: chão de mina com dois trilhos de ferro e dormentes,
+   e uma seta clara dizendo para onde ele leva quem pisa. O desvio é o mesmo
+   trilho com a seta pintada de amarelo — é o pedaço que a alavanca troca. */
+export function tileTrilho(dir: 'cima' | 'baixo' | 'esq' | 'dir', seed = 30, desvio = false): Buf {
+  const b = tileChaoCaverna(seed);
+  const ferro = '#8a8f99', ferroD = '#4f535c', madeira = '#6b4a2e';
+  const vertical = dir === 'cima' || dir === 'baixo';
+  for (let i = 1; i < TS; i += 4) {                      // dormentes
+    if (vertical) b.rect(2, i, 12, 2, madeira); else b.rect(i, 2, 2, 12, madeira);
+  }
+  for (const k of [4, 11]) {                             // os dois trilhos
+    if (vertical) { b.rect(k, 0, 1, TS, ferro); b.rect(k + 1, 0, 1, TS, ferroD); }
+    else { b.rect(0, k, TS, 1, ferro); b.rect(0, k + 1, TS, 1, ferroD); }
+  }
+  const seta = desvio ? P.bolt! : '#e8e0d0';
+  const [ax, ay, bx, by, cx, cy] =
+      dir === 'dir' ? [6, 5, 11, 8, 6, 11] : dir === 'esq' ? [10, 5, 5, 8, 10, 11]
+    : dir === 'cima' ? [5, 10, 8, 5, 11, 10] : [5, 6, 8, 11, 11, 6];
+  b.tri(ax, ay, bx, by, cx, cy, seta);
+  return b;
+}
+
+/* alavanca de desvio: cabo de madeira numa base de ferro, pendendo para um
+   lado ou para o outro conforme o estado */
+export function alavanca(ligada: boolean): Buf {
+  const b = new Buf(TS, TS);
+  b.rect(3, 11, 10, 4, '#4f535c'); b.rect(4, 12, 8, 2, '#8a8f99');
+  if (ligada) { b.line(8, 12, 12, 3, P.trunkD!); b.line(9, 12, 13, 3, P.trunk!); b.ellipse(13, 3, 2, 2, P.hpRed!); }
+  else { b.line(8, 12, 4, 3, P.trunkD!); b.line(7, 12, 3, 3, P.trunk!); b.ellipse(3, 3, 2, 2, '#5c616b'); }
+  return b.outline(P.ink!);
+}
+
+/* buraco de onde já se cavou o tesouro */
+export function buraco(): Buf {
+  const b = new Buf(TS, TS);
+  b.ellipse(8, 10, 6, 4, '#7a5a3a');
+  b.ellipse(8, 10, 4, 2, '#3a2a1a');
+  for (const [x, y] of [[2, 6], [13, 7], [4, 14], [12, 14]] as const) b.set(x, y, '#9c7a52');
+  return b;
+}
+
+/* monte de terra: some com o Dom Escavar — a mesma trava condicional da
+   pedra rachada (`seNao: 'dom_escavar'`), cara de desmoronamento */
+export function monteTerra(larguraTiles: number, seed = 31): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, 16); const r = rng(seed);
+  b.ellipse(w / 2, 12, w / 2 - 1, 5, '#6b4a2e');
+  b.ellipse(w / 2, 10, w / 2 - 2, 5, '#8a6440');
+  for (let i = 0; i < w; i++) b.set((r() * (w - 4) + 2) | 0, 6 + ((r() * 7) | 0), r() < 0.5 ? '#a8845a' : '#5a3e24');
+  return b.outline(P.ink!);
+}
+
 /* folhas que balancam na frente dos pes quando se anda no mato alto */
 export function rocada(quadro = 0): Buf {
   const b = new Buf(16, 9);

@@ -5,7 +5,8 @@
    Três vigias ficam ao pé dos vãos. No cume, do lado leste, o Relampo que
    mora no ninho do raio é a quinta e última conta da guia: `conta_trovao`.
    Um bolso fechado por pedra rachada, no trecho do meio, só abre com o Dom
-   Faísca.
+   Faísca — e no alto do cume, duas pedras rachadas fecham a estrada norte,
+   para as Minas da Caipora.
    A gride é editável à mão, um caractere por tile de 16x16:
      #  árvore (parede)   R  rocha (crista)   .  grama   ,  mato alto
      o  pedra   c  chão chamuscado pelo raio                             */
@@ -16,7 +17,7 @@ export const morroDoTrovao: DefMapa = {
   nome: 'MORRO DO TROVÃO',
 
   chao: [
-    '##########################################################', // 0
+    '####################..####################################', // 0
     '#........................................................#', // 1
     '#.................................,,,,,,,.....R..........#', // 2
     '#.........,,,,,,,...........o.....,,,,,,,.....R..........#', // 3
@@ -63,6 +64,13 @@ export const morroDoTrovao: DefMapa = {
       placa: 'MORRO DO TROVÃO. A subida é de lado: cada crista só tem um vão.' },
     { tipo: 'placa', tx: 44, ty: 4,
       placa: 'O ninho do raio fica logo à frente. O chão em volta é todo queimado.' },
+
+    /* a estrada das Minas da Caipora, no alto do cume: duas pedras rachadas
+       que só o Dom Faísca parte — o Dom de campo abrindo a região seguinte */
+    { tipo: 'pedraRachada', tx: 20, ty: 0, larg: 1, seNao: 'dom_faisca' },
+    { tipo: 'pedraRachada', tx: 21, ty: 0, larg: 1, seNao: 'dom_faisca' },
+    { tipo: 'placa', tx: 18, ty: 1,
+      placa: 'Ao norte, as Minas da Caipora. A pedra rachada só cede ao Dom Faísca.' },
 
     /* a quinta pedra-de-raio, no canto sudeste do pé do morro */
     { tipo: 'achado', tx: 55, ty: 37, solido: false, placa: 'PEDRA-DE-RAIO',
@@ -169,6 +177,8 @@ export const morroDoTrovao: DefMapa = {
   saidas: [
     { tx: 27, ty: 39, para: 'aldeiaTupa', destino: { tx: 27, ty: 1, dir: 'baixo' } },
     { tx: 28, ty: 39, para: 'aldeiaTupa', destino: { tx: 28, ty: 1, dir: 'baixo' } },
+    { tx: 20, ty: 0,  para: 'bocaDaMina', destino: { tx: 20, ty: 38, dir: 'cima' } },
+    { tx: 21, ty: 0,  para: 'bocaDaMina', destino: { tx: 21, ty: 38, dir: 'cima' } },
   ],
 
   cenario: 'caverna',

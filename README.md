@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: cinco regiões fechadas.** A **Região da Foz**
+**Estado: seis regiões fechadas.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -54,6 +54,20 @@ pensando na ordem. O Guaraci fecha a região com a **Medalha Trovão** e o Dom
 **Faísca**, que parte pedra rachada — mais dois serviços opcionais: as três
 penas de trovão e o **Arco-da-Velha**, o Encantado exclusivo.
 
+Depois das pedras rachadas que o Dom Faísca parte no alto do Morro do Trovão
+começam as **Minas da Caipora**, tipo Terra — a região dos **tipos de tarefa
+novos**: **caça ao tesouro** (uma forquilha de radiestesia, usada na mochila,
+diz QUENTE, MORNO, FRIO ou GELADO, e o tesouro enterrado não aparece no chão
+até ser cavado), **charadas** (o Velho Garimpeiro pergunta, uma caixinha de
+opções abre ao lado do diálogo, e errar apaga o progresso), **escolta** (o
+Tuco, perdido no fundo da mina, passa a andar atrás de você por trilho e por
+porta até a mãe — e corre de volta se o time apagar) e, como mecânica de
+caminho, **trilhos de vagonete** que só andam para um lado, com desvios
+trocados por alavancas: as Galerias pedem seis alavancadas. O Ubirajara fecha
+a região com a **Medalha Pedra** e o Dom **Escavar**, que abre terra
+desmoronada — mais dois serviços opcionais: três diamantes enterrados e a
+**Caipora**, o Encantado exclusivo.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -89,6 +103,7 @@ empurráveis e os dois serviços opcionais da Serra.
 | correr / voltar | X ou Shift | botão B |
 | menu | Esc | botão MENU |
 | trocar a página da mochila | ← → | direcional ← → |
+| escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
 
 ### Códigos secretos
 
@@ -102,6 +117,7 @@ tudo de novo.
 | ↓ ↓ ↑ ↑ → ← → ← B A | pula para a **Serra Boitatá** (com as duas medalhas, os dois Dons e cinco patuás bons) |
 | ↑ → ↓ ← ↑ → ↓ ← B A | pula para o **Campo do Saci** (com as três medalhas, os três Dons e cinco patuás bons) |
 | ← → ← → ↑ ↓ ↑ ↓ B A | pula para a **Aldeia Tupã**, pela Campina dos Raios (com as quatro medalhas, os quatro Dons e cinco patuás bons) |
+| ↓ ↑ ↓ ↑ ← → ← → B A | pula para as **Minas da Caipora**, pela Boca da Mina (com as cinco medalhas, os cinco Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
 
@@ -124,6 +140,7 @@ src/
 │             pedras.ts (empurrar, e o BFS que prova que a sala tem solução)
 │             mapas.test.ts (coerência: saídas, alcance, encontros)
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
+│             tesouro.ts (a forquilha: quente/frio) · escolta.ts (quem te segue)
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
@@ -134,7 +151,9 @@ src/
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
 │             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4
 │             externos + 3 interiores + o terreiro em 1 sala; Aldeia Tupã:
-│             4 externos largos + 3 interiores + o terreiro em 1 sala)
+│             4 externos largos + 3 interiores + o terreiro em 1 sala;
+│             Minas da Caipora: 4 externos largos + 3 interiores + o
+│             terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -487,6 +506,9 @@ opcionais da região.
 Da Aldeia Tupã: **Faisquinha** (Raio) → **Relampo** · **Tatu-Trovão**
 (Raio/Terra) · **Arco-da-Velha** (Raio/Luz), exclusivo de quem faz os dois
 serviços opcionais da região.
+Das Minas da Caipora: **Minhoquinha** (Terra) → **Minhocão** · **Mapinguari**
+(Terra) · **Caipora** (Terra/Planta), exclusiva de quem faz os dois serviços
+opcionais da região.
 
 ## Fases
 
@@ -568,8 +590,28 @@ serviços opcionais da região.
         sexto Encantado contra o inicial, como o Brás. Mais a Medalha
         Trovão, o Dom "Faísca", e dois serviços opcionais (as três penas de
         trovão e o Arco-da-Velha) que não travam a guia.
-  - [ ] Minas da Caipora, Bairro da Cuca, Cidade do Sol — uma de cada vez,
-        na mesma forma.
+  - [x] **Minas da Caipora.** Tipos de tarefa novos, cada um com motor e
+        teste próprios. **Caça ao tesouro**: `TipoObjeto` `'enterrado'`
+        (não se desenha nem é parede; cavado, vira buraco) e a forquilha,
+        que o menu usa através de `OpcoesMenu.sondar` — a resposta vem de
+        `game/tesouro.ts`, puro. **Charadas**: `Fala.pergunta` (opções,
+        certa, acertou, errou/desliga); `fecharConversa()` segura a fala,
+        abre a caixinha de opções e `responder()` decide — certa aplica a
+        fala como qualquer outra, errada só apaga o progresso. **Escolta**:
+        `game/escolta.ts` (só flag) e um `Ator` seguidor que vai sempre para
+        o tile que o jogador acabou de deixar (`Ator.andarPara`), atravessa
+        porta e trilho junto e cai em `socorrer()`. **Trilhos de vagonete**:
+        tiles `D`/`E`/`C`/`B` com `DefTile.trilho`, objetos `'desvio'` que
+        sobrepõem a direção enquanto ativos e `'alavanca'` para trocá-los;
+        `aoPisarNoTile()` vira o jogador e reaproveita o `deslizando`. O
+        labirinto das Galerias saiu de busca (subida de encosta sobre 3×3
+        plataformas e 3 alavancas) e `mapas.test.ts` prova, sobre o mapa de
+        verdade, as seis alavancadas mínimas e — agora com busca reversa,
+        porque trilho não se desfaz — que nenhum estado deixa ninguém preso
+        e que do sino sempre se volta com o Tuco. O Dom Faísca da região 5
+        abre a estrada (duas pedras rachadas no alto do Morro do Trovão);
+        o Dom Escavar, conquistado aqui, abre `'monteTerra'`.
+  - [ ] Bairro da Cuca, Cidade do Sol — uma de cada vez, na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
@@ -618,3 +660,8 @@ serviços opcionais da região.
 - A Aldeia Tupã e o Morro do Trovão usam fundos de batalha que já existiam
   (`mata` e `caverna`), e o Charco usa `praia`: não há fundo de brejo nem de
   tempestade próprio.
+- A escolta anda um passo atrás do jogador, sem colisão própria: o Tuco
+  passa por onde o jogador acabou de passar, e numa porta surge atrás de
+  quem chegou (ou no mesmo tile, se atrás for parede).
+- A pergunta de uma charada mostra só a última frase da fala: uma charada
+  cujo enunciado precise de mais de três linhas corta o começo.

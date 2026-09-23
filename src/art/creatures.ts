@@ -817,6 +817,108 @@ export function arcoDaVelha(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- MINHOQUINHA (Terra) ---------------- */
+export function minhoquinha(): Buf {
+  const b = new Buf(32, 32);
+  const pele = '#c97a6a', peleL = '#e8a08e', peleD = '#9c5446', terra = '#6b4a2e';
+
+  // o montinho de terra de onde ela sai
+  b.ellipse(16, 28, 13, 4, terra);
+  b.ellipse(16, 27, 11, 3, '#8a6440');
+
+  // corpo em "S", saindo da terra, anelado
+  for (const [x, y, r] of [[10, 24, 4], [12, 19, 4], [17, 16, 4], [21, 12, 4]] as const) {
+    b.ellipse(x, y, r, r, pele);
+    b.line(x - r + 1, y, x + r - 1, y, peleD);
+  }
+  b.ellipse(12, 19, 2, 1, peleL);
+
+  // cabeça redonda com capacetinho de pedra
+  b.ellipse(22, 8, 5, 5, pele);
+  b.ellipse(22, 5, 5, 3, '#8a8f99');
+  b.ellipse(21, 4, 2, 1, '#b8bcc4');
+  olho(b, 20, 9, 2, 1); olho(b, 25, 9, 2, -1);
+  return b.outline(P.ink);
+}
+
+/* ---------------- MINHOCÃO (Terra, evolução) ---------------- */
+export function minhocao(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#a85a4a', peleL = '#d08070', peleD = '#7a3a2e', pedra = '#8a8f99';
+
+  b.ellipse(20, 36, 18, 4, '#5a3e24');
+  // corpo grosso em arco, com placas de pedra no dorso
+  for (const [x, y, r] of [[6, 30, 6], [10, 22, 7], [18, 17, 7], [27, 15, 7], [33, 20, 6]] as const) {
+    b.ellipse(x, y, r, r, pele);
+    b.line(x - r + 1, y + 1, x + r - 1, y + 1, peleD);
+    b.ellipse(x, y - r + 2, 3, 2, pedra);
+  }
+  b.ellipse(12, 22, 3, 2, peleL);
+
+  // cabeça enorme de boca aberta, cheia de dentinhos de pedra
+  b.ellipse(34, 27, 6, 7, pele);
+  b.ellipse(35, 31, 4, 3, '#3a1a14');
+  for (const x of [32, 35, 38]) b.tri(x - 1, 29, x + 1, 29, x, 31, '#e8e0d0');
+  olho(b, 32, 24, 2, 1); olho(b, 37, 24, 2, -1);
+  return b.outline(P.ink);
+}
+
+/* ---------------- MAPINGUARI (Terra) ---------------- */
+export function mapinguari(): Buf {
+  const b = new Buf(40, 40);
+  const pelo = '#5a4232', peloL = '#7a5a44', peloD = '#3a2a1e', boca = '#7a1e1a';
+
+  // pernas grossas de pé de pilão
+  b.rect(10, 30, 7, 9, peloD); b.rect(23, 30, 7, 9, peloD);
+  b.ellipse(13, 38, 5, 2, '#2a1e14'); b.ellipse(26, 38, 5, 2, '#2a1e14');
+
+  // corpo enorme e peludo
+  b.ellipse(20, 22, 15, 13, pelo);
+  for (const [x, y] of [[9, 16], [31, 16], [7, 26], [33, 26], [20, 10]] as const) b.ellipse(x, y, 3, 2, peloL);
+
+  // a boca na barriga, que é o que faz ele ser ele
+  b.ellipse(20, 25, 7, 5, boca);
+  b.ellipse(20, 26, 5, 3, '#3a0a08');
+  for (const x of [15, 18, 22, 25]) b.tri(x - 1, 21, x + 1, 21, x, 24, '#e8e0d0');
+
+  // braços com garra
+  b.ellipse(4, 22, 4, 7, pelo); b.ellipse(36, 22, 4, 7, pelo);
+  b.line(1, 28, 0, 31, '#e8e0d0'); b.line(38, 28, 39, 31, '#e8e0d0');
+
+  // um olho só, no meio da testa
+  b.ellipse(20, 11, 4, 4, '#f2f0ea');
+  b.ellipse(20, 11, 2, 2, '#c93f3f');
+  b.set(19, 10, '#ffffff');
+  return b.outline(P.ink);
+}
+
+/* ---------------- CAIPORA (Terra/Planta, exclusiva) ---------------- */
+export function caipora(): Buf {
+  const b = new Buf(40, 40);
+  const porco = '#5a4a3e', porcoL = '#7a6a5a', pele = '#a8683e', cabelo = '#e0552e', cabeloL = '#f2884a';
+
+  // o porco-do-mato que ela monta
+  b.ellipse(20, 30, 14, 7, porco);
+  b.ellipse(18, 28, 6, 2, porcoL);
+  b.ellipse(34, 30, 5, 4, porco);
+  b.ellipse(38, 31, 2, 2, '#3a2e24');                  // focinho
+  b.tri(33, 27, 35, 22, 37, 27, porco);                // orelha
+  for (const x of [10, 16, 25, 30]) b.rect(x, 35, 3, 5, '#3a2e24');
+
+  // a Caipora, pequena, de cabelo de fogo, montada
+  b.ellipse(19, 20, 5, 6, pele);
+  b.rect(12, 18, 3, 7, pele);                          // braço com o galho
+  b.line(11, 12, 13, 26, '#6b4a2e');
+  b.ellipse(11, 11, 3, 2, '#4f8a3a');                  // folhas na ponta do galho
+  b.ellipse(19, 11, 5, 5, pele);
+  for (const [x, y, r] of [[15, 7, 3], [19, 5, 4], [23, 7, 3], [25, 11, 2]] as const) {
+    b.ellipse(x, y, r, r, cabelo);
+  }
+  b.ellipse(19, 4, 2, 1, cabeloL);
+  olho(b, 17, 11, 2, 1); olho(b, 21, 11, 2, -1);
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -827,4 +929,5 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   cabritinha, cabraCabriola, mulinha, mulaSemCabeca, salamanca, maeDoOuro,
   saci, matinta, uirapuru,
   faisquinha, relampo, tatuTrovao, arcoDaVelha,
+  minhoquinha, minhocao, mapinguari, caipora,
 };
