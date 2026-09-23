@@ -42,6 +42,8 @@ import {
 } from '../game/quests.ts';
 import { sondarTesouro } from '../game/tesouro.ts';
 import { escoltaAtiva, derrubarEscolta } from '../game/escolta.ts';
+import { pisarLadrilho } from '../game/sequencia.ts';
+import { avista, proximoDaRonda } from '../game/ronda.ts';
 import { salvar } from '../game/save.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
@@ -88,6 +90,9 @@ const CODIGO_REGIAO5: readonly Acao[] =
    e diferente de todos, então nenhum é sufixo dele nem ele de nenhum */
 const CODIGO_REGIAO6: readonly Acao[] =
   ['baixo', 'cima', 'baixo', 'cima', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
+/* o da região 7 é o da 6 com cada direção trocada pela oposta */
+const CODIGO_REGIAO7: readonly Acao[] =
+  ['cima', 'baixo', 'cima', 'baixo', 'dir', 'esq', 'dir', 'esq', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -105,6 +110,9 @@ interface NpcVivo {
   ator: Ator;
   /* quantas fugas o fujão ainda aguenta nesta visita ao mapa */
   folego: number;
+  /* vigia de ronda: em que ponto do caminho está, e há quanto tempo parado */
+  rondaI: number;
+  rondaT: number;
 }
 
 /* quantas vezes um Sacizinho escapa antes de sentar e conversar */
@@ -187,6 +195,8 @@ export class CenaMundo implements Cena {
   /* quem está sendo escoltado anda um passo atrás do jogador (game/escolta.ts) */
   private seguidor: Ator | null = null;
   private seguidorId: string | null = null;
+  /* quantos ladrilhos de memória certos seguidos, neste mapa, nesta visita */
+  private progressoLadrilhos = 0;
   /* charada aberta: a pergunta já foi lida, falta escolher a resposta */
   private pergunta: { fala: Fala; npc: NpcVivo | null; falante: string;
                       linhas: string[]; sel: number } | null = null;
@@ -271,7 +281,10 @@ export class CenaMundo implements Cena {
         def: d,
         ator: new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir),
         folego: d.fujao?.folego ?? FOLEGO_PADRAO,
+        rondaI: 0,
+        rondaT: 0,
       }));
+    this.progressoLadrilhos = 0;
     this.pedras = posicoesIniciais(this.def.pedras, (f) => ligada(this.op.estado, f));
     this.recontarOcupados();
     this.montarAvisos();
@@ -384,6 +397,12 @@ export class CenaMundo implements Cena {
         for (let i = 0; i < (o.larg ?? 1); i++) {
           this.avisos.set(`${o.tx + i},${o.ty}`, {
             nome: 'CERCA DE RAIO', falas: diz('A cerca estala de faísca. Alguma chave de para-raio a mantém ligada.'),
+          });
+        }
+      } else if (o.tipo === 'veu') {
+        for (let i = 0; i < (o.larg ?? 1); i++) {
+          this.avisos.set(`${o.tx + i},${o.ty}`, {
+            nome: 'VÉU DE SOMBRA', falas: diz('Um breu grosso como pano. A mão atravessa, o corpo não.'),
           });
         }
       } else if (o.tipo === 'monteTerra') {
@@ -776,7 +795,7 @@ export class CenaMundo implements Cena {
 
     this.bufferCodigo.push(...apertados);
     const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length,
+                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length,
                            CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
@@ -804,6 +823,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao6();
+    } else if (this.bateCodigo(CODIGO_REGIAO7)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoRegiao7();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -932,6 +955,27 @@ export class CenaMundo implements Cena {
     this.montarMapa('bocaDaMina');   // já grava: medalhas, Dons e time mudaram
     this.centrarCamera();
     this.abrirConversa('???', ['Código aceito. A estrada para as Minas da Caipora se abre.']);
+  }
+
+  /* pula direto para o Bairro da Cuca, pela Rua do Breu: as seis medalhas
+     anteriores e os seis Dons (o Escavar abre a estrada), um time se estiver
+     vazio e cinco patuás bons. */
+  private ativarCodigoRegiao7(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar']) e.flags[`dom_${d}`] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('ruaDoBreu').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('ruaDoBreu');   // já grava: medalhas, Dons e time mudaram
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. A estrada para o Bairro da Cuca se abre.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -1125,7 +1169,10 @@ export class CenaMundo implements Cena {
     }
 
     // ---- deslizando numa poça: o passo segue sozinho ----
-    if (this.deslizando) { this.deslizar(dt); return; }
+    if (this.deslizando) { this.deslizar(dt); this.andarRondas(dt); return; }
+
+    // ---- vigias de ronda andam, e olham ----
+    if (this.andarRondas(dt)) return;
 
     this.verificarCodigoSecreto(entrada);
 
@@ -1223,12 +1270,82 @@ export class CenaMundo implements Cena {
     const saida = this.mapa.saidaEm(this.jogador.tx, this.jogador.ty);
     if (saida && saida.aoPisar !== false) { this.indo = saida; this.fade = 0; return; }
 
+    this.pisouLadrilho();
     this.espantarFujoes();
     this.olharTreinadores();
     if (!this.duelo && this.carencia <= 0
         && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
       this.talvezEncontro();
     }
+  }
+
+  /* ladrilho de memória: conta, zera ou completa a sequência do mapa */
+  private pisouLadrilho(): void {
+    const seq = this.def.sequencia;
+    if (!seq || ligada(this.op.estado, seq.flag)) return;
+    const o = this.def.objetos.find((x) => x.tipo === 'ladrilho'
+      && x.tx === this.jogador.tx && x.ty === this.jogador.ty);
+    if (!o) return;
+    const r = pisarLadrilho(seq.ordem, this.progressoLadrilhos, o.simbolo ?? '');
+    this.progressoLadrilhos = r.progresso;
+    if (r.completou) {
+      const e = this.op.estado;
+      e.flags[seq.flag] = true;
+      const terreiro = this.terreiroDaFala(seq.flag);
+      this.atualizarCenario();
+      if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+      salvar(e);
+      this.abrirConversa('LADRILHOS', ['Os ladrilhos acendem um depois do outro, na ordem em que você pisou.',
+                                       'Alguma coisa destrava lá na frente, com um estalo fundo.']);
+    } else if (r.errou) {
+      this.abrirConversa('LADRILHOS', ['O ladrilho afunda com um estalo seco, e os outros se apagam. A sequência recomeça.']);
+    }
+  }
+
+  /* Os vigias de ronda andam um tile por vez pelo caminho deles, com uma
+     pausa curta entre um passo e outro, e olham para onde andam. Se algum
+     enxergar o jogador, ele é mandado de volta (devolve true). */
+  private andarRondas(dt: number): boolean {
+    let mexeu = false;
+    for (const n of this.npcs) {
+      const r = n.def.ronda;
+      if (!r) continue;
+      n.ator.atualizar(dt);
+      if (n.ator.movendo) continue;
+      n.rondaT += dt;
+      if (n.rondaT < (r.passo ?? 0.45) - 0.2) continue;
+      const i = proximoDaRonda(r.caminho.length, n.rondaI);
+      const p = r.caminho[i]!;
+      if (p.tx === this.jogador.tx && p.ty === this.jogador.ty) { n.ator.olharPara(p.tx, p.ty); continue; }
+      n.rondaI = i; n.rondaT = 0;
+      n.ator.andarPara(p.tx, p.ty, false);
+      mexeu = true;
+    }
+    if (mexeu) this.recontarOcupados();
+    const viu = this.npcs.find((n) => n.def.ronda
+      && avista(n.ator, n.ator.dir, n.def.ronda.visao, this.jogador, (x, y) => this.mapa.solido(x, y)));
+    if (!viu) return false;
+    this.pego(viu);
+    return true;
+  }
+
+  /* pego pela ronda: volta ao começo do trecho vigiado, e a ronda recomeça */
+  private pego(n: NpcVivo): void {
+    const r = n.def.ronda!;
+    this.deslizando = false;
+    this.jogador.teleportar(r.volta.tx, r.volta.ty, r.volta.dir);
+    const p = this.op.estado.posicao;
+    p.tx = r.volta.tx; p.ty = r.volta.ty; p.dir = r.volta.dir;
+    for (const m of this.npcs) {
+      if (!m.def.ronda) continue;
+      m.rondaI = 0; m.rondaT = 0;
+      m.ator.teleportar(m.def.tx, m.def.ty, m.def.dir);
+    }
+    this.recontarOcupados();
+    this.seguidor = null;
+    this.sincronizarSeguidor();
+    this.centrarCamera();
+    this.abrirConversa(n.def.nome, [r.fala]);
   }
 
   private temCaminhoAFrente(): boolean {

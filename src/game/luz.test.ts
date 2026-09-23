@@ -21,3 +21,14 @@ test('o Dom Tocha vale mais que a candeia, mesmo com as duas', () => {
   e.flags['dom_tocha'] = true;
   assert.equal(raioDaLuz(e), RAIO_TOCHA);
 });
+
+test('o Dom Visão Noturna enxerga mais longe que a Tocha', async () => {
+  const { raioDaLuz, RAIO_TOCHA, RAIO_VISAO } = await import('./luz.ts');
+  const { novoJogo } = await import('./state.ts');
+  const e = novoJogo();
+  e.flags['dom_tocha'] = true;
+  assert.equal(raioDaLuz(e), RAIO_TOCHA);
+  e.flags['dom_visao'] = true;
+  assert.equal(raioDaLuz(e), RAIO_VISAO);
+  assert.ok(RAIO_VISAO > RAIO_TOCHA);
+});

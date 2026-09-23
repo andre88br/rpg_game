@@ -1,7 +1,7 @@
-# Manual dos desafios — das seis regiões, do começo ao fim
+# Manual dos desafios — das sete regiões, do começo ao fim
 
 Guia completo de como acender todas as contas de cada terreiro, vencer cada
-mestre e pegar as seis medalhas. Tudo aqui foi conferido direto nos mapas do
+mestre e pegar as sete medalhas. Tudo aqui foi conferido direto nos mapas do
 jogo: nomes, níveis, quantidades e coordenadas são os de verdade.
 
 As coordenadas aparecem como `(coluna, linha)` contadas a partir do canto
@@ -34,6 +34,7 @@ fica sempre bem na frente da porta do terreiro:
 | Campo do Saci | Aldeia Catavento, no pátio do Terreiro do Rodamoinho, (13-19,11) |
 | Aldeia Tupã | Aldeia Tupã, no pátio do Terreiro do Trovão, (8-14,12) |
 | Minas da Caipora | Arraial da Caipora, no pátio do Terreiro da Pedra, (8-14,12) |
+| Bairro da Cuca | Bairro da Cuca, no pátio do Terreiro do Breu, (8-14,12) |
 
 **Tipos.** São só três regras, e elas decidem quase toda batalha:
 
@@ -55,7 +56,7 @@ Treinador não se captura.
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
 na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia
 Catavento), Casa de Dona Jurema na região 5 (Aldeia Tupã), Casa de Dona Zefa na região
-6 (Arraial da Caipora). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
+6 (Arraial da Caipora), Casa de Dona Benta na região 7 (Bairro da Cuca). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
 nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
@@ -1064,6 +1065,129 @@ entregues **e** a Medalha Pedra: **Caipora nível 40**, sem batalha.
 | Arraial da Caipora — canto sudeste | 1 Água Benta |
 | Cava Funda — canto sudeste da borda | 2 Patuás de Mestre |
 
+# REGIÃO 7 — BAIRRO DA CUCA · Terreiro do Breu · Medalha Breu · Dom Visão Noturna
+
+Dois tipos de tarefa novos: **furtividade** (vigias de ronda) e **ladrilhos
+de memória**. Mais as cartas da Cartomante, que são charadas.
+
+```
+Cava Funda ─(oeste, Dom Escavar)→ Rua do Breu ─→ Bairro da Cuca ─(oeste, Zeca)→ Casarão Assombrado
+                                                   │ norte        │ porta
+                                             Beco das Rondas   Terreiro do Breu
+```
+
+**Como entrar.** Na borda oeste da Cava Funda, linhas 20-21, terra
+desmoronada fecha a estrada: só o **Dom Escavar** (Medalha Pedra) abre.
+Espécies novas: **Lobinho** (Sombra) → **Lobisomem** no 52, **Corpo-Seco**
+(Sombra/Terra), a **Cuca** e, para quem faz os dois serviços, a
+**Pisadeira** (Sombra/Vento). Sombra leva 2x de **Luz** — e só de Luz. Suba
+com o time perto de 57-59.
+
+## Ordem recomendada da região
+
+1. Rua do Breu: três moradores; pegue o **retrato** do canto sudeste.
+2. Bairro: a **Cartomante** (três cartas) → **conta_cartomante**.
+3. Beco das Rondas (norte): chegue ao portão do cemitério sem ser visto →
+   **conta_rondas**. Pegue o retrato do nicho do canto noroeste.
+4. Bairro: o **Zeca** pela sétima vez, na saída oeste → **conta_zeca7**.
+5. Casarão Assombrado: os **ladrilhos** → **conta_ladrilhos**; o retrato da
+   ala oeste; a **Cuca** no sótão → **conta_cuca**.
+6. Terreiro do Breu, até a Morgana.
+7. (Opcional) os três retratos para a Velha do Bairro, e a Pisadeira.
+
+## Conta 1 — `conta_rondas`: o Beco das Rondas
+
+Uma grade de becos entre quarteirões de pedra. **Sete vigias** dão a volta,
+cada um no seu quarteirão, um passo por vez, **olhando para onde andam** —
+até 5 tiles em linha reta, e a parede corta a vista. Quem é visto volta para
+a entrada, e as rondas recomeçam do começo.
+
+- Cada quarteirão tem um **nicho**: um tile de grama recortado no muro. Ali
+  dentro nenhum vigia enxerga você — espere ali até o vigia passar.
+- Vigia de costas não vê. Atravesse um cruzamento logo depois que o vigia
+  virou a esquina para longe de você.
+- O portão do cemitério fica no alto, no meio (29,0). Encostar nele acende a
+  conta, e os vigias vão embora: a volta é livre.
+
+O retrato do Beco fica no **nicho do canto noroeste** (2,3).
+
+## Conta 2 — `conta_cartomante`: as três cartas
+
+Na casa dela, no bairro (porta em (40,26)). Mesma regra das charadas do
+Velho Garimpeiro: uma por conversa, errar embaralha tudo de volta.
+
+1. *Quanto mais cresce, menos se vê?* → **A ESCURIDÃO**
+2. *Entra na água e não se molha?* → **A SOMBRA**
+3. *Tem olho, mas não enxerga?* → **A AGULHA** (paga **900**)
+
+## Conta 3 — `conta_zeca7`: o Zeca na porta do Casarão
+
+Lobisomem 57, Minhocão 57, Relampo 58, Saci 58, Curupirá 59. Prêmio 3400,
+esperto, 2 Garrafadas Fortes + 1 Erva-Doce + 1 Água Benta.
+
+## Conta 4 — `conta_ladrilhos`: os ladrilhos do Casarão
+
+O Casarão é escuro (a Tocha ajuda). Na **sala do sul** há seis ladrilhos com
+símbolos: lua, coruja, gato, vela, chave e caveira. Pise em **quatro** deles
+na ordem certa; fora de ordem, tudo se apaga e recomeça. A ordem está nos
+**quatro quadros** do salão dos retratos:
+
+1. *O que clareia a noite sem nunca queimar* → **LUA**
+2. *Quem vigia a noite inteira de olhos abertos* → **CORUJA**
+3. *Quem tem sete vidas e nenhuma pressa* → **GATO**
+4. *O que se apaga com um sopro* → **VELA**
+
+A chave e a caveira são só para confundir. Completa a sequência, a passagem
+do canto oeste da sala abre para a ala oeste (e o retrato) e o sótão.
+
+## Conta 5 — `conta_cuca`: a Cuca do sótão
+
+No sótão do Casarão, uma **Cuca selvagem nível 58**. Vencer acende a conta;
+**capturar também vale**.
+
+## O Terreiro do Breu — o salão da Morgana
+
+No escuro. O salão de entrada tem **três pilares**, e um **VULTO** dá a
+volta em cada um — a mesma ronda do Beco, mas vendo **7 tiles**. Visto,
+volta para a entrada. A porta fica no canto noroeste (4,10).
+
+1. **Guarda da Névoa** — Corpo-Seco 57, Lobisomem 57, Relampo 57.
+2. **Guarda do Luto** — Cuca 58, Lobisomem 58, Mapinguari 58, Corpo-Seco 58.
+
+### Mestre: Morgana
+
+**Lobisomem 58, Corpo-Seco 58, Cuca 59, Matinta 59, Lobisomem 60** e um
+**sexto** contra o seu inicial (Iara-Mãe 59, Curupirá 59 ou Boitatão 59).
+Prêmio 7000. Esperta, com 3 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
+Os vultos somem quando ela cai.
+
+Vencer dá a **Medalha Breu** e o **Dom Visão Noturna**: o escuro vira quase
+dia, e os **véus de sombra** caem.
+
+## Os dois serviços opcionais
+
+### `servico_retratos` — os três retratos antigos
+
+| # | Onde |
+|---|---|
+| 1 | Rua do Breu — canto sudeste (57,37) |
+| 2 | Casarão — ala oeste (5,5), depois dos ladrilhos |
+| 3 | Beco das Rondas — nicho do canto noroeste (2,3) |
+
+Com os três, fale com a **Velha do Bairro**: **4500 + 3 Patuás de Mestre**.
+
+### `servico_pisadeira` — a Encantada exclusiva
+
+No **telhado do Casarão** (canto leste do sótão), a **Pisadeira** só desce
+com os retratos entregues **e** a Medalha Breu: **Pisadeira nível 40**.
+
+### Os bolsos do Dom Visão Noturna
+
+| Onde | O que tem |
+|---|---|
+| Rua do Breu — canto nordeste | 2 Patuás de Mestre |
+| Bairro da Cuca — canto sudeste | 2 Águas Bentas |
+
 ---
 
 ## Códigos secretos
@@ -1078,6 +1202,7 @@ valem em conversa, batalha, loja nem menu.
 | ↑ → ↓ ← ↑ → ↓ ← B A | Pula para o **Campo do Saci** com as três medalhas, os três Dons e 5 Patuás Bons |
 | ← → ← → ↑ ↓ ↑ ↓ B A | Pula para a **Aldeia Tupã** (entrando pela Campina dos Raios) com as quatro medalhas, os quatro Dons e 5 Patuás Bons |
 | ↓ ↑ ↓ ↑ ← → ← → B A | Pula para as **Minas da Caipora** (entrando pela Boca da Mina) com as cinco medalhas, os cinco Dons e 5 Patuás Bons |
+| ↑ ↓ ↑ ↓ → ← → ← B A | Pula para o **Bairro da Cuca** (entrando pela Rua do Breu) com as seis medalhas, os seis Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
 
@@ -1115,3 +1240,9 @@ O: solta 3 · N: solta 2 · O: puxa 3 → sino) · Tuco pelo expresso até a Don
 Luzia · Zeca 6 · Mapinguari no fundo da espiral → terreiro (guarda ·
 alavanca · charada: a chuva · guarda) → Ubirajara → **Pedra + Escavar** →
 (3 diamantes → Ourives; diamantes + medalha → Caipora; Escavar → 3 bolsos).
+
+**Bairro da Cuca** — retrato da rua · cartas (escuridão · sombra · agulha) ·
+Beco sem ser visto (esperar nos nichos) · Zeca 7 · Casarão: ladrilhos
+(lua · coruja · gato · vela) → Cuca no sótão → terreiro (três vultos ·
+2 guardas) → Morgana → **Breu + Visão Noturna** →
+(3 retratos → Velha do Bairro; retratos + medalha → Pisadeira; Visão → 2 véus).

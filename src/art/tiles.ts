@@ -354,6 +354,43 @@ export function monteTerra(larguraTiles: number, seed = 31): Buf {
   return b.outline(P.ink!);
 }
 
+/* ======================= Bairro da Cuca =======================
+   Ladrilho de memória: pedra lisa com um símbolo gravado em claro — lua,
+   coruja, gato, vela, chave ou caveira. É chão: se pisa por cima. */
+export function ladrilho(simbolo: string): Buf {
+  const b = new Buf(TS, TS);
+  b.rect(0, 0, TS, TS, '#3a3346'); b.rect(1, 1, TS - 2, TS - 2, '#4d4560');
+  b.rect(1, 1, TS - 2, 1, '#6a6080');
+  const c = '#e8dcb8', d = '#b8a878';
+  switch (simbolo) {
+    case 'lua': b.ellipse(8, 8, 4, 4, c); b.ellipse(10, 7, 3, 3, '#4d4560'); break;
+    case 'coruja':
+      b.ellipse(8, 9, 4, 4, d); b.ellipse(6, 8, 1, 1, c); b.ellipse(10, 8, 1, 1, c);
+      b.tri(4, 5, 6, 3, 7, 6, d); b.tri(12, 5, 10, 3, 9, 6, d); break;
+    case 'gato':
+      b.ellipse(8, 9, 4, 3, c); b.tri(4, 8, 5, 3, 7, 7, c); b.tri(12, 8, 11, 3, 9, 7, c);
+      b.set(6, 9, '#3a3346'); b.set(10, 9, '#3a3346'); break;
+    case 'vela':
+      b.rect(7, 7, 3, 6, c); b.ellipse(8, 5, 1, 2, '#f0b040'); b.set(8, 3, '#fff3b0'); break;
+    case 'chave':
+      b.ellipse(5, 8, 2, 2, c); b.rect(7, 8, 6, 1, c); b.rect(11, 9, 1, 2, c); b.rect(13, 9, 1, 1, c); break;
+    default:
+      b.ellipse(8, 7, 4, 4, c); b.rect(6, 10, 5, 3, c); b.set(6, 7, '#3a3346'); b.set(10, 7, '#3a3346'); break;
+  }
+  return b;
+}
+
+/* véu de sombra: um pano de breu que parece parede. Some com o Dom Visão
+   Noturna — a mesma trava condicional do monte de terra (`seNao: 'dom_visao'`) */
+export function veu(larguraTiles: number, seed = 33): Buf {
+  const w = larguraTiles * TS;
+  const b = new Buf(w, TS); const r = rng(seed);
+  b.rect(0, 0, w, TS, '#1a1424');
+  for (let i = 0; i < w * 2; i++) b.set((r() * w) | 0, (r() * TS) | 0, r() < 0.5 ? '#2e2440' : '#120c1a');
+  for (let x = 2; x < w; x += 5) b.line(x, 0, x + 1, TS - 1, '#2a2038');
+  return b;
+}
+
 /* folhas que balancam na frente dos pes quando se anda no mato alto */
 export function rocada(quadro = 0): Buf {
   const b = new Buf(16, 9);

@@ -49,6 +49,14 @@ import { casaGarimpeiro } from './casaGarimpeiro.ts';
 import { galeriasDaMina } from './galeriasDaMina.ts';
 import { cavaFunda } from './cavaFunda.ts';
 import { terreiroPedra } from './terreiroPedra.ts';
+import { ruaDoBreu } from './ruaDoBreu.ts';
+import { bairroDaCuca } from './bairroDaCuca.ts';
+import { lojaCuca } from './lojaCuca.ts';
+import { benzimentoCuca } from './benzimentoCuca.ts';
+import { casaCartomante } from './casaCartomante.ts';
+import { becoDasRondas } from './becoDasRondas.ts';
+import { casaraoAssombrado } from './casaraoAssombrado.ts';
+import { terreiroBreu } from './terreiroBreu.ts';
 
 export const MAPAS: Record<string, DefMapa> = {
   vilaAurora,
@@ -98,6 +106,14 @@ export const MAPAS: Record<string, DefMapa> = {
   galeriasDaMina,
   cavaFunda,
   terreiroPedra,
+  ruaDoBreu,
+  bairroDaCuca,
+  lojaCuca,
+  benzimentoCuca,
+  casaCartomante,
+  becoDasRondas,
+  casaraoAssombrado,
+  terreiroBreu,
 };
 
 export const MAPA_INICIAL = 'casaTaina';

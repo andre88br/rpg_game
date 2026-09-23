@@ -94,6 +94,9 @@ const LISTA: readonly Item[] = [
   { id: 'diamante', nome: 'Diamante Bruto', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Pedra fosca por fora. O Ourives do arraial é quem sabe o que tem dentro.' },
+  { id: 'retrato', nome: 'Retrato Antigo', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'nenhum' },
+    descricao: 'Fotografia amarelada de gente do bairro. Os olhos parecem seguir quem segura.' },
 ];
 
 export const ITENS: Record<string, Item> =

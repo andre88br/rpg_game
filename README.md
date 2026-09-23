@@ -3,7 +3,7 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: seis regiões fechadas.** A **Região da Foz**
+**Estado: sete regiões fechadas.** A **Região da Foz**
 dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
@@ -68,6 +68,18 @@ a região com a **Medalha Pedra** e o Dom **Escavar**, que abre terra
 desmoronada — mais dois serviços opcionais: três diamantes enterrados e a
 **Caipora**, o Encantado exclusivo.
 
+Depois da terra desmoronada que o Dom Escavar abre na borda oeste da Cava
+Funda começa o **Bairro da Cuca**, tipo Sombra, com mais dois tipos de
+tarefa novos: **furtividade** — no Beco das Rondas, sete vigias dão a volta
+nos quarteirões olhando para onde andam, e quem é visto volta para a
+entrada; a travessia segura pede esperar nos nichos do muro — e **ladrilhos
+de memória** — no Casarão Assombrado, no escuro, pisar em quatro símbolos na
+ordem que os quadros do salão contam em forma de adivinha. A Cartomante lê
+a sorte de quem acerta as três cartas dela, e a Cuca mora no sótão. A
+Morgana fecha a região com a **Medalha Breu** e o Dom **Visão Noturna**, que
+ilumina o breu e desfaz os véus de sombra — mais dois serviços opcionais:
+três retratos antigos e a **Pisadeira**, a Encantada exclusiva.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -118,6 +130,7 @@ tudo de novo.
 | ↑ → ↓ ← ↑ → ↓ ← B A | pula para o **Campo do Saci** (com as três medalhas, os três Dons e cinco patuás bons) |
 | ← → ← → ↑ ↓ ↑ ↓ B A | pula para a **Aldeia Tupã**, pela Campina dos Raios (com as quatro medalhas, os quatro Dons e cinco patuás bons) |
 | ↓ ↑ ↓ ↑ ← → ← → B A | pula para as **Minas da Caipora**, pela Boca da Mina (com as cinco medalhas, os cinco Dons e cinco patuás bons) |
+| ↑ ↓ ↑ ↓ → ← → ← B A | pula para o **Bairro da Cuca**, pela Rua do Breu (com as seis medalhas, os seis Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
 
@@ -141,6 +154,7 @@ src/
 │             mapas.test.ts (coerência: saídas, alcance, encontros)
 ├─ game/      state.ts (time, mochila, medalhas, flags — o que atravessa cenas)
 │             tesouro.ts (a forquilha: quente/frio) · escolta.ts (quem te segue)
+│             ronda.ts (o que um vigia enxerga) · sequencia.ts (ladrilhos)
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
@@ -153,7 +167,8 @@ src/
 │             externos + 3 interiores + o terreiro em 1 sala; Aldeia Tupã:
 │             4 externos largos + 3 interiores + o terreiro em 1 sala;
 │             Minas da Caipora: 4 externos largos + 3 interiores + o
-│             terreiro em 1 sala)
+│             terreiro em 1 sala; Bairro da Cuca: 3 externos largos + o
+│             Casarão + 3 interiores + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
 ```
@@ -509,6 +524,9 @@ serviços opcionais da região.
 Das Minas da Caipora: **Minhoquinha** (Terra) → **Minhocão** · **Mapinguari**
 (Terra) · **Caipora** (Terra/Planta), exclusiva de quem faz os dois serviços
 opcionais da região.
+Do Bairro da Cuca: **Lobinho** (Sombra) → **Lobisomem** · **Corpo-Seco**
+(Sombra/Terra) · **Cuca** (Sombra) · **Pisadeira** (Sombra/Vento), exclusiva
+de quem faz os dois serviços opcionais da região.
 
 ## Fases
 
@@ -611,7 +629,22 @@ opcionais da região.
         e que do sino sempre se volta com o Tuco. O Dom Faísca da região 5
         abre a estrada (duas pedras rachadas no alto do Morro do Trovão);
         o Dom Escavar, conquistado aqui, abre `'monteTerra'`.
-  - [ ] Bairro da Cuca, Cidade do Sol — uma de cada vez, na mesma forma.
+  - [x] **Bairro da Cuca.** Mais dois tipos de tarefa novos. **Furtividade**:
+        `DefNPC.ronda` (caminho fechado de tiles vizinhos, alcance da vista,
+        para onde devolve, o que diz); a cena anda os vigias um tile por vez
+        (`Ator.andarPara`, o mesmo do escoltado) e, a cada quadro, pergunta a
+        `game/ronda.ts` se algum enxerga o jogador em linha reta — parede
+        corta a vista. Visto, volta à entrada e as rondas recomeçam. As rondas
+        do Beco saíram de simulação, e `mapas.test.ts` refaz a simulação sobre
+        o mapa de verdade: a travessia sem vigia tem 36 passos; a mais curta
+        que ninguém vê, bem mais. No Terreiro do Breu as fases dos três vultos
+        foram escolhidas por busca para obrigar a esperar. **Ladrilhos de
+        memória**: `DefMapa.sequencia` e objetos `'ladrilho'` com símbolo;
+        pisar conta, zera ou completa (`game/sequencia.ts`, puro), e a
+        sequência liga a conta da guia. O Dom Visão Noturna amplia a luz
+        (`RAIO_VISAO`) e desfaz `'veu'` (molde do monte de terra); o Dom
+        Escavar da região 6 abre a estrada na borda oeste da Cava Funda.
+  - [ ] Cidade do Sol — a última, na mesma forma.
 - [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
@@ -665,3 +698,10 @@ opcionais da região.
   quem chegou (ou no mesmo tile, se atrás for parede).
 - A pergunta de uma charada mostra só a última frase da fala: uma charada
   cujo enunciado precise de mais de três linhas corta o começo.
+- Os vigias de ronda não colidem com nada ao andar: o caminho deles é
+  conferido nos testes (tiles vizinhos, andáveis, sem saída no meio), e o
+  jogador que para na frente de um vigia é, de todo jeito, visto.
+- A simulação de furtividade dos testes anda o vigia um tile a cada dois do
+  jogador; no jogo ele leva 0,45 s por tile contra 0,2 s do jogador. O teste
+  prova que existe travessia no modelo em passos, não no tempo exato do jogo
+  — lá quem garante é poder esperar nos nichos quanto quiser.

@@ -919,6 +919,101 @@ export function caipora(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- LOBINHO (Sombra) ---------------- */
+export function lobinho(): Buf {
+  const b = new Buf(32, 32);
+  const pelo = '#4a4658', peloL = '#6e6a82', peloD = '#2e2a3a', olhoC = '#f2d23a';
+  b.tri(3, 22, 1, 13, 8, 20, peloD);                    // rabo
+  b.ellipse(15, 22, 9, 6, pelo);                        // corpo
+  b.ellipse(14, 24, 5, 3, peloL);
+  for (const x of [9, 13, 18, 21]) b.rect(x, 26, 3, 5, peloD);
+  b.ellipse(22, 13, 7, 6, pelo);                        // cabeça
+  b.tri(17, 9, 18, 2, 21, 8, pelo); b.tri(27, 9, 26, 2, 23, 8, pelo);   // orelhas
+  b.tri(19, 8, 19, 5, 20, 8, '#9c8ab0');
+  b.ellipse(27, 16, 4, 3, peloL);                       // focinho
+  b.set(30, 15, P.ink);
+  b.ellipse(20, 12, 2, 2, olhoC); b.set(20, 12, P.ink);
+  b.ellipse(25, 12, 2, 2, olhoC); b.set(25, 12, P.ink);
+  return b.outline(P.ink);
+}
+
+/* ---------------- LOBISOMEM (Sombra, evolução) ---------------- */
+export function lobisomem(): Buf {
+  const b = new Buf(40, 40);
+  const pelo = '#3a3648', peloL = '#5e5a74', peloD = '#221e2e', olhoC = '#f24a3a';
+  b.rect(12, 30, 6, 9, peloD); b.rect(23, 30, 6, 9, peloD);            // pernas em pé
+  b.ellipse(20, 22, 11, 11, pelo);                                      // tronco
+  b.ellipse(20, 24, 6, 6, peloL);
+  b.ellipse(7, 22, 4, 8, pelo); b.ellipse(33, 22, 4, 8, pelo);         // braços
+  for (const [x, d] of [[5, -1], [35, 1]] as const) {                  // garras
+    b.line(x, 29, x + d, 33, '#e8e0d0'); b.line(x + 2 * d, 29, x + 3 * d, 33, '#e8e0d0');
+  }
+  b.ellipse(20, 10, 8, 7, pelo);                                        // cabeça
+  b.tri(13, 6, 13, -1, 17, 4, pelo); b.tri(27, 6, 27, -1, 23, 4, pelo);
+  b.ellipse(20, 14, 5, 3, peloL);                                       // focinho
+  b.rect(16, 16, 9, 2, '#7a1e1a');
+  for (const x of [17, 20, 23]) b.tri(x - 1, 16, x + 1, 16, x, 18, '#e8e0d0');
+  b.ellipse(16, 9, 2, 1, olhoC); b.ellipse(24, 9, 2, 1, olhoC);
+  return b.outline(P.ink);
+}
+
+/* ---------------- CORPO-SECO (Sombra/Terra) ---------------- */
+export function corpoSeco(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#8a7a5a', peleD = '#5a4e38', trapo = '#4a4038';
+  b.ellipse(20, 38, 12, 2, '#3a2e24');
+  b.rect(15, 26, 4, 12, peleD); b.rect(22, 26, 4, 12, peleD);          // pernas finas
+  b.tri(11, 28, 20, 12, 29, 28, trapo);                                 // trapo
+  b.rect(17, 13, 7, 14, pele);                                          // tronco magro
+  for (const y of [16, 19, 22]) b.line(17, y, 23, y, peleD);            // costelas
+  b.line(17, 15, 6, 8, pele); b.line(6, 8, 3, 2, pele);                 // braço erguido, galho seco
+  b.line(3, 2, 1, 0, peleD); b.line(3, 2, 6, 0, peleD);
+  b.line(24, 15, 32, 24, pele); b.line(32, 24, 35, 30, peleD);
+  b.ellipse(20, 8, 5, 6, pele);                                         // cabeça funda
+  b.ellipse(18, 7, 2, 2, '#1a1410'); b.ellipse(23, 7, 2, 2, '#1a1410');
+  b.set(18, 7, '#c9c040'); b.set(23, 7, '#c9c040');
+  b.rect(18, 11, 5, 1, '#1a1410');
+  return b.outline(P.ink);
+}
+
+/* ---------------- CUCA (Sombra) ---------------- */
+export function cuca(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#4f8a4a', peleL = '#7ab070', peleD = '#2f5e2e', manto = '#5a2a5e', mantoL = '#7a4a82';
+  b.tri(6, 39, 20, 14, 34, 39, manto);                                  // manto de velha
+  b.tri(12, 39, 20, 20, 28, 39, mantoL);
+  b.ellipse(8, 26, 3, 5, pele); b.ellipse(32, 26, 3, 5, pele);          // mãos de garra
+  b.line(6, 30, 5, 33, '#e8e0d0'); b.line(34, 30, 35, 33, '#e8e0d0');
+  // cabeça de jacaré, focinho comprido para o lado
+  b.ellipse(18, 12, 8, 7, pele);
+  b.ellipse(29, 14, 9, 4, pele);
+  b.ellipse(29, 12, 8, 2, peleL);
+  b.line(21, 16, 37, 16, peleD);
+  for (const x of [24, 28, 32, 36]) b.tri(x - 1, 16, x + 1, 16, x, 18, '#e8e0d0');
+  for (const [x, y] of [[13, 7], [18, 5], [23, 7]] as const) b.ellipse(x, y, 2, 1, peleD);   // escamas
+  b.ellipse(19, 10, 3, 3, '#f2d23a'); b.rect(19, 8, 1, 5, P.ink);       // olho de réptil
+  // cabelo branco de velha
+  for (const [x, y] of [[10, 6], [11, 10], [12, 14], [9, 12]] as const) b.ellipse(x, y, 2, 3, '#e8e4dc');
+  return b.outline(P.ink);
+}
+
+/* ---------------- PISADEIRA (Sombra/Vento, exclusiva) ---------------- */
+export function pisadeira(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#b8b0a8', peleD = '#8a827a', vestido = '#2e2440', cabelo = '#1a1424';
+  // telhado embaixo dos pés
+  b.tri(0, 39, 20, 30, 40, 39, '#8a3a2a'); b.line(0, 39, 20, 30, '#5a2418'); b.line(20, 30, 40, 39, '#5a2418');
+  b.rect(15, 24, 2, 8, peleD); b.rect(23, 24, 2, 8, peleD);            // pernas compridas
+  b.tri(12, 26, 20, 10, 28, 26, vestido);                              // vestido magro
+  b.line(14, 13, 4, 20, pele); b.line(26, 13, 36, 20, pele);           // braços abertos
+  for (const [x, d] of [[4, -1], [36, 1]] as const) for (const k of [0, 2, 4]) b.line(x, 20, x + d * 3, 20 + k, '#e8e0d0');
+  b.ellipse(20, 7, 4, 5, pele);                                        // rosto comprido
+  b.tri(14, 4, 20, 0, 26, 4, cabelo); b.rect(15, 3, 3, 12, cabelo); b.rect(23, 3, 3, 12, cabelo);
+  b.ellipse(18, 7, 1, 1, '#c93f3f'); b.ellipse(22, 7, 1, 1, '#c93f3f');
+  b.line(18, 10, 22, 10, peleD);
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -930,4 +1025,5 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   saci, matinta, uirapuru,
   faisquinha, relampo, tatuTrovao, arcoDaVelha,
   minhoquinha, minhocao, mapinguari, caipora,
+  lobinho, lobisomem, corpoSeco, cuca, pisadeira,
 };

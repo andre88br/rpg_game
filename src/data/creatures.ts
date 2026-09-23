@@ -372,6 +372,67 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'tempestade_verde' },
     ],
   },
+
+  /* --------------------- do Bairro da Cuca --------------------- */
+  {
+    id: 'lobinho', nome: 'Lobinho', tipos: ['sombra'],
+    base: { hp: 48, atq: 62, def: 42, esp: 44, vel: 70 },
+    taxaCaptura: 170, xpBase: 64, crescimento: 'rapido',
+    arte: 'lobinho', categoria: 'Filhote da Lua',
+    sobre: 'Nasce em sétimo filho de sexta-feira. Uiva baixinho pra lua e se esconde quando ela olha de volta.',
+    aprende: [
+      { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 12, golpe: 'rosnado' }, { nv: 20, golpe: 'mau_olhado' },
+      { nv: 30, golpe: 'garra_cuca' },
+    ],
+    evolui: { em: 'lobisomem', nv: 52 },
+  },
+  {
+    id: 'lobisomem', nome: 'Lobisomem', tipos: ['sombra'],
+    base: { hp: 92, atq: 116, def: 80, esp: 70, vel: 102 },
+    taxaCaptura: 30, xpBase: 185, crescimento: 'rapido',
+    arte: 'lobisomem', categoria: 'Filhote da Lua',
+    sobre: 'Na lua cheia vira bicho e corre sete cemitérios antes do galo cantar.',
+    aprende: [
+      { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'rosnado' },
+      { nv: 1, golpe: 'sombra_fria' }, { nv: 52, golpe: 'breu' },
+      { nv: 56, golpe: 'afiar' },
+    ],
+  },
+  {
+    id: 'corpoSeco', nome: 'Corpo-Seco', tipos: ['sombra', 'terra'],
+    base: { hp: 90, atq: 98, def: 104, esp: 64, vel: 46 },
+    taxaCaptura: 55, xpBase: 170, crescimento: 'medio',
+    arte: 'corpoSeco', categoria: 'O que a Terra Não Quis',
+    sobre: 'Foi tão ruim em vida que nem a terra quis. Anda encostado nas árvores secas do bairro.',
+    aprende: [
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'pedrada' },
+      { nv: 1, golpe: 'sombra_fria' }, { nv: 30, golpe: 'tremor' },
+      { nv: 44, golpe: 'garra_cuca' },
+    ],
+  },
+  {
+    id: 'cuca', nome: 'Cuca', tipos: ['sombra'],
+    base: { hp: 104, atq: 90, def: 90, esp: 124, vel: 84 },
+    taxaCaptura: 20, xpBase: 210, crescimento: 'lento',
+    arte: 'cuca', categoria: 'A Velha do Sótão',
+    sobre: 'Cabeça de jacaré, voz de velha. Vem pegar quem não dorme, e ninguém sabe o que ela faz depois.',
+    aprende: [
+      { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'mau_olhado' },
+      { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'sombra_fria' },
+    ],
+  },
+  {
+    id: 'pisadeira', nome: 'Pisadeira', tipos: ['sombra', 'vento'],
+    base: { hp: 82, atq: 70, def: 72, esp: 120, vel: 106 },
+    taxaCaptura: 3, xpBase: 200, crescimento: 'lento',
+    arte: 'pisadeira', categoria: 'Dona do Telhado',
+    sobre: 'Magra, de unhas compridas, anda nos telhados. Pisa no peito de quem dorme de barriga cheia.',
+    aprende: [
+      { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'vendaval' },
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =

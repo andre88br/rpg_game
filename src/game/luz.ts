@@ -13,11 +13,14 @@ import type { EstadoJogo } from './state.ts';
 export const RAIO_SEM_LUZ = 20;
 export const RAIO_CANDEIA = 44;
 export const RAIO_TOCHA = 96;
+/* o Dom "Visão Noturna" (Medalha Breu): mais que a tela inteira */
+export const RAIO_VISAO = 170;
 
 /* raio de luz em volta do jogador, em pixels — cresce em dois degraus:
    a candeia do Ferreiro é o primeiro, o Dom "Tocha" (só depois da Medalha
    Brasa) é o segundo e cobre quase a tela inteira. */
 export function raioDaLuz(e: EstadoJogo): number {
+  if (ligada(e, 'dom_visao')) return RAIO_VISAO;
   if (ligada(e, 'dom_tocha')) return RAIO_TOCHA;
   if (quantidade(e.mochila, 'candeia') > 0) return RAIO_CANDEIA;
   return RAIO_SEM_LUZ;

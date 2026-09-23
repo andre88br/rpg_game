@@ -4,7 +4,8 @@
    o fundo é dar a volta inteira na cava três vezes, de ponta a ponta.
    No fundo mora o Mapinguari, a quinta conta da guia (`conta_mapinguari`),
    e, para quem entregou os três diamantes ao Ourives E tem a Medalha Pedra,
-   aparece a Caipora — o Encantado exclusivo da região.
+   aparece a Caipora — o Encantado exclusivo da região. Na borda oeste, a
+   terra desmoronada que o Dom Escavar abre é a estrada do Bairro da Cuca.
    A gride é editável à mão, um caractere por tile de 16x16:
      #  árvore   R  rocha (anel)   .  chão   ,  mato   n  capim seco
      c  chão pisado   o  pedra                                            */
@@ -35,8 +36,8 @@ export const cavaFunda: DefMapa = {
     '#...R.....R.....R...ccccccc..............R..o..R.....R...#', // 17
     '#...R.....R.....R...ccccccc..............R.....R.....R...#', // 18
     '#.........R..............................R...........R...#', // 19
-    '#.........R..............................R...........R....', // 20
-    '#...R.....R.....R.............ccccccc....R.....R.....R....', // 21
+    '..........R..............................R...........R....', // 20
+    '....R.....R.....R.............ccccccc....R.....R.....R....', // 21
     '#...R.....R..o..R.............ccccccc....R.....R.....R...#', // 22
     '#...R.....R.....R.............ccccccc....R.....R.....R...#', // 23
     '#...R.....R.....R........................R.....R..o..R...#', // 24
@@ -68,6 +69,13 @@ export const cavaFunda: DefMapa = {
       falas: [{ se: 'item:forquilha', liga: 'cavou_diamante_cava', da: { item: 'diamante' }, linhas: [
         'A forquilha puxa com força. Você cava com as mãos...',
         'No barro do fundo da cava, ainda frio: o terceiro DIAMANTE BRUTO.'] }] },
+
+    /* a estrada do Bairro da Cuca, na borda oeste: terra desmoronada que só
+       o Dom Escavar abre — o Dom de campo abrindo a região seguinte */
+    { tipo: 'monteTerra', tx: 0, ty: 20, larg: 1, seNao: 'dom_escavar' },
+    { tipo: 'monteTerra', tx: 0, ty: 21, larg: 1, seNao: 'dom_escavar' },
+    { tipo: 'placa', tx: 2, ty: 18,
+      placa: 'A oeste, a Rua do Breu. A terra desmoronada só cede ao Dom Escavar.' },
 
     /* bolso do Dom Escavar, no canto sudeste da faixa de fora */
     { tipo: 'monteTerra', tx: 49, ty: 37, larg: 1, seNao: 'dom_escavar' },
@@ -167,6 +175,8 @@ export const cavaFunda: DefMapa = {
   saidas: [
     { tx: 57, ty: 20, para: 'arraialCaipora', destino: { tx: 1, ty: 20, dir: 'dir' } },
     { tx: 57, ty: 21, para: 'arraialCaipora', destino: { tx: 1, ty: 21, dir: 'dir' } },
+    { tx: 0,  ty: 20, para: 'ruaDoBreu',      destino: { tx: 58, ty: 20, dir: 'esq' } },
+    { tx: 0,  ty: 21, para: 'ruaDoBreu',      destino: { tx: 58, ty: 21, dir: 'esq' } },
   ],
 
   cenario: 'caverna',

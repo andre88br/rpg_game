@@ -71,6 +71,7 @@ export type TipoObjeto =
   | 'placa' | 'barreira' | 'monteFolhas' | 'portao' | 'achado' | 'cova' | 'entulho' // cenario
   | 'paraRaio' | 'cercaRaio' | 'pedraRachada'        // Aldeia Tupã
   | 'enterrado' | 'desvio' | 'alavanca' | 'monteTerra' // Minas da Caipora
+  | 'ladrilho' | 'veu'                               // Bairro da Cuca
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
@@ -114,6 +115,27 @@ export interface DefObjeto {
   /* desvio de trilho (tipo 'desvio'): para onde ele manda quem passa,
      enquanto as condicoes dele valerem — por cima da direcao do tile */
   dir?: Direcao;
+  /* ladrilho de memoria (tipo 'ladrilho'): o desenho gravado nele. A ordem
+     certa de pisar mora em `DefMapa.sequencia` (game/sequencia.ts) */
+  simbolo?: string;
+}
+
+/* Ronda: um vigia que anda sozinho por um caminho fechado, um tile por vez,
+   olhando para onde anda. Se o jogador aparecer na linha de visao dele (ate
+   `visao` tiles, parando na primeira parede), o jogador e mandado de volta
+   para `volta` — o comeco do trecho vigiado. Ver game/ronda.ts. */
+export interface DefRonda {
+  caminho: readonly { tx: number; ty: number }[];   // vizinhos, e o ultimo encosta no primeiro
+  visao: number;
+  volta: { tx: number; ty: number; dir: Direcao };
+  passo?: number;        // segundos por tile (padrao 0.45)
+  fala: string;          // o que ele diz ao pegar alguem
+}
+
+/* ladrilhos de memoria: pisar nos simbolos nesta ordem liga `flag` */
+export interface DefSequencia {
+  ordem: readonly string[];
+  flag: string;
 }
 
 export interface DefSaida {
@@ -167,6 +189,8 @@ export interface DefNPC {
   /* foge de quem chega perto, ate ficar sem folego ou sem saida. So ai
      escuta o que voce tem a dizer. */
   fujao?: { folego?: number };
+  /* vigia que anda sozinho e manda de volta quem ele ve (ver DefRonda) */
+  ronda?: DefRonda;
   /* so esta no mapa quando as condicoes valem — o Sacizinho some depois de
      largar a rede, o chefe some depois de perder */
   se?: string | readonly string[];
@@ -206,6 +230,8 @@ export interface DefMapa {
   /* flag acesa quando TODAS as covas desta sala foram tapadas — geralmente
      a conta da guia que esse quebra-cabeça resolve */
   pedrasConta?: string;
+  /* os ladrilhos de memoria deste mapa (objetos 'ladrilho') */
+  sequencia?: DefSequencia;
 }
 
 /* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um
@@ -416,6 +442,14 @@ export class Mapa {
       case 'monteTerra':
         sprite = T.monteTerra(larg);
         break;
+      /* ladrilho de memoria: chao com um simbolo gravado */
+      case 'ladrilho':
+        sprite = T.ladrilho(o.simbolo ?? 'lua');
+        break;
+      /* veu de sombra: parece parede escura, some com o Dom Visao Noturna */
+      case 'veu':
+        sprite = T.veu(larg);
+        break;
       case 'farol':
         sprite = T.farol(larg, alt);
         break;
@@ -430,8 +464,8 @@ export class Mapa {
         break;
     }
     if (sprite) buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
-    /* desvio e tesouro enterrado sao chao: nunca viram parede */
-    if (o.tipo === 'desvio' || o.tipo === 'enterrado') return;
+    /* desvio, tesouro enterrado e ladrilho sao chao: nunca viram parede */
+    if (o.tipo === 'desvio' || o.tipo === 'enterrado' || o.tipo === 'ladrilho') return;
     if (!sprite) return;
 
     // mastro e bandeira do terreiro, acima do telhado

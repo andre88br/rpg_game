@@ -264,6 +264,13 @@ export const TERREIROS: Record<string, readonly Conta[]> = {
     { flag: 'conta_menino', servico: 'o Tuco, escoltado das Galerias até a mãe' },
     { flag: 'conta_mapinguari', servico: 'o Mapinguari que mora no fundo da Cava Funda' },
   ],
+  sombra: [
+    { flag: 'conta_rondas', servico: 'o Beco das Rondas, atravessado sem ser visto' },
+    { flag: 'conta_cartomante', servico: 'as cartas da Cartomante, lidas sem errar' },
+    { flag: 'conta_zeca7', servico: 'o Zeca, pela sétima vez, na porta do Casarão' },
+    { flag: 'conta_ladrilhos', servico: 'os ladrilhos do Casarão, na ordem certa' },
+    { flag: 'conta_cuca', servico: 'a Cuca que mora no sótão do Casarão' },
+  ],
 };
 
 /* os dois serviços da Serra Boitatá que NÃO seguram a guia: rendem item raro
@@ -278,6 +285,8 @@ export const SERVICOS_OPCIONAIS: readonly ServicoOpcional[] = [
   { flag: 'servico_arco', servico: 'o Arco-da-Velha, atrás do casarão do Charco' },
   { flag: 'servico_diamantes', servico: 'os três diamantes enterrados, para o Ourives' },
   { flag: 'servico_caipora', servico: 'a Caipora, no fundo da Cava Funda' },
+  { flag: 'servico_retratos', servico: 'os três retratos antigos, para a Velha do Bairro' },
+  { flag: 'servico_pisadeira', servico: 'a Pisadeira, no telhado do Casarão' },
 ];
 
 /* compatibilidade: o terreiro de água foi o primeiro, e boa parte do
