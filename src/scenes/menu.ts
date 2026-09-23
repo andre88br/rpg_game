@@ -15,7 +15,7 @@ import { ficha, nome, type Encantado } from '../battle/encantado.ts';
 import * as L from '../ui/listas.ts';
 import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
-import { item } from '../data/items.ts';
+import { item, quantidade } from '../data/items.ts';
 import { especie, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import {
@@ -23,6 +23,11 @@ import {
 } from '../game/state.ts';
 import { obterSlotAtivo, salvarEmSlot, definirSlotAtivo } from '../game/save.ts';
 import { TelaSlots } from './slots.ts';
+import { MAPAS } from '../data/mapas/index.ts';
+import {
+  POSICOES, conhecido, estradas, itemMapaDaRegiao, lugarNoMundo, regiaoDoMapa,
+} from '../data/mundo.ts';
+import { desenharMundo, desenharPlanta } from '../ui/mapas.ts';
 import {
   VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade,
 } from '../game/config.ts';
@@ -31,7 +36,7 @@ import {
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
 type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
-            | 'caderno' | 'velocidade' | 'slots' | 'sair';
+            | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'VELOCIDADE', 'SALVAR', 'SAIR'] as const;
 
@@ -60,6 +65,12 @@ export class MenuPausa {
   /* cursor e rolagem do Caderno de Bichos */
   private selCaderno = 0;
   private topoCaderno = 0;
+
+  /* o Mapa do Mundo: o lugar apontado, a planta aberta e o relógio do pisca */
+  private selMundo: string | null = null;
+  private plantaDe: string | null = null;
+  private relogio = 0;
+  private estradasMundo = estradas(MAPAS);
 
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
@@ -96,6 +107,7 @@ export class MenuPausa {
   /* ------------------------------------------------------------ entrada */
 
   atualizar(dt: number, entrada: Entrada): SaidaMenu {
+    this.relogio += dt;
     if (this.tempoRecado > 0) {
       this.tempoRecado -= dt;
       if (this.tempoRecado <= 0) this.recado = null;
@@ -188,6 +200,20 @@ export class MenuPausa {
       return 'aberto';
     }
 
+    if (this.pagina === 'mapaMundo') {
+      const lista = this.lugaresConhecidos();
+      const i = Math.max(0, lista.indexOf(this.selMundo ?? ''));
+      if (entrada.apertou('dir') || entrada.apertou('baixo')) this.selMundo = lista[(i + 1) % lista.length] ?? null;
+      if (entrada.apertou('esq') || entrada.apertou('cima')) this.selMundo = lista[(i - 1 + lista.length) % lista.length] ?? null;
+      if (entrada.apertou('a')) this.abrirPlanta();
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'mochila';
+      return 'aberto';
+    }
+    if (this.pagina === 'mapaLocal') {
+      if (entrada.apertou('b') || entrada.apertou('a') || entrada.apertou('menu')) this.pagina = 'mapaMundo';
+      return 'aberto';
+    }
+
     if (this.pagina === 'caderno') {
       this.selCaderno = this.andar(entrada, this.selCaderno, ESPECIES_ORDEM.length);
       this.ajustarJanelaCaderno();
@@ -213,6 +239,7 @@ export class MenuPausa {
     const id = this.itens()[this.selLista];
     if (!id) return;
     if (id === 'caderno') { this.abrirCaderno(); return; }
+    if (id === 'mapa' || id.startsWith('mapa_')) { this.abrirMapa(); return; }
     if (id === 'forquilha') {
       this.avisar(this.op.sondar?.() ?? 'A forquilha só serve com os pés no chão.', 3);
       return;
@@ -225,6 +252,42 @@ export class MenuPausa {
     this.itemUsando = id;
     this.selAlvo = 0;
     this.pagina = 'mochilaAlvo';
+  }
+
+  /* ------------------------------------------------------ Mapa do Mundo */
+
+  private lugarAtual(): string | null { return lugarNoMundo(this.op.estado.posicao.mapa, MAPAS); }
+
+  /* os lugares que o jogador já conhece, na ordem da grade (coluna, linha) */
+  private lugaresConhecidos(): string[] {
+    const e = this.op.estado, atual = this.lugarAtual();
+    return Object.keys(POSICOES)
+      .filter((id) => conhecido(e.flags, e.medalhas, atual, id))
+      .sort((a, b) => POSICOES[a]![0] - POSICOES[b]![0] || POSICOES[a]![1] - POSICOES[b]![1]);
+  }
+
+  private abrirMapa(): void {
+    if (quantidade(this.op.estado.mochila, 'mapa') === 0) {
+      this.avisar('Sem o Mapa do Mundo, um pedaço de mapa sozinho não diz onde fica.', 2.4);
+      return;
+    }
+    this.selMundo = this.lugarAtual();
+    this.pagina = 'mapaMundo';
+  }
+
+  /* a planta só abre com o mapa da região daquele lugar na mochila */
+  private abrirPlanta(): void {
+    const id = this.selMundo;
+    const reg = id ? regiaoDoMapa(id) : null;
+    if (!id || !reg) return;
+    if (quantidade(this.op.estado.mochila, itemMapaDaRegiao(reg)) === 0) {
+      this.avisar(`O mapa de ${reg.nome} ainda está escondido em algum canto dela.`, 2.6);
+      return;
+    }
+    // no lugar onde o jogador está, a planta é a do mapa de verdade (a casa,
+    // a loja...), com ele marcado; nos outros, a do lugar ao ar livre
+    this.plantaDe = id === this.lugarAtual() ? this.op.estado.posicao.mapa : id;
+    this.pagina = 'mapaLocal';
   }
 
   private abrirCaderno(): void {
@@ -347,6 +410,28 @@ export class MenuPausa {
       case 'caderno':
         this.desenharCaderno(r);
         break;
+      case 'mapaMundo': {
+        L.telaCheia(r, this.caixaCheia, 'MAPA DO MUNDO', 'A PLANTA   B VOLTAR   <> LUGAR');
+        const lista = this.lugaresConhecidos();
+        const piscando = Math.floor(this.relogio * 3) % 2 === 0;
+        desenharMundo(r, new Set(lista), this.estradasMundo, this.lugarAtual(), this.selMundo, piscando);
+        const id = this.selMundo;
+        const reg = id ? regiaoDoMapa(id) : null;
+        if (id && reg) {
+          r.texto(MAPAS[id]!.nome, 14, ALTURA - 42, P.uiInk!);
+          const tem = quantidade(est.mochila, itemMapaDaRegiao(reg)) > 0;
+          r.texto(tem ? reg.nome : `${reg.nome}: MAPA ESCONDIDO`, 14, ALTURA - 31, P.uiBg3!);
+        }
+        break;
+      }
+      case 'mapaLocal': {
+        const def = MAPAS[this.plantaDe ?? ''];
+        if (!def) break;
+        L.telaCheia(r, this.caixaCheia, def.nome, 'B VOLTAR   AMARELO: SAÍDAS');
+        const aqui = def.id === est.posicao.mapa ? est.posicao : null;
+        desenharPlanta(r, def, aqui, Math.floor(this.relogio * 3) % 2 === 0);
+        break;
+      }
       case 'velocidade': {
         L.telaCheia(r, this.caixaCheia, 'VELOCIDADE DO JOGO', 'A ESCOLHER   B VOLTAR');
         const atual = obterVelocidade();

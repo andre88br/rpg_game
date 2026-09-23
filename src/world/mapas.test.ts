@@ -771,7 +771,7 @@ test('a ilhota do açude só existe para quem sabe nadar', () => {
   /* é o teste do Dom: se a Medalha Maré não abrisse a água, o pote seria
      cenário inalcançável — e um prêmio que ninguém pega não é prêmio */
   const def = MAPAS['rotaFoz']!;
-  const pote = def.objetos.find((o) => o.tipo === 'achado')!;
+  const pote = def.objetos.find((o) => o.tipo === 'achado' && o.placa !== 'MAPA')!;
   const aPe = new Mapa(def, { ...ABERTO, nadar: false });
   const nadando = new Mapa(def, ABERTO);
   const alvo = `${pote.tx},${pote.ty}`;
@@ -1858,5 +1858,21 @@ test('três retratos em três mapas, e a Pisadeira só depois deles E da medalha
 test('a região 7 também é larga', () => {
   for (const id of ['ruaDoBreu', 'bairroDaCuca', 'becoDasRondas']) {
     assert.ok(MAPAS[id]!.chao[0]!.length >= 56, `${id}: estreito demais`);
+  }
+});
+
+test('o mapa de cada região está escondido nela mesma, e se acha sem Dom nenhum', async () => {
+  const { REGIOES, itemMapaDaRegiao } = await import('../data/mundo.ts');
+  for (const r of REGIOES) {
+    const item = itemMapaDaRegiao(r);
+    const onde = entradas.flatMap(([id, def]) =>
+      def.objetos.filter((o) => o.falas?.some((f) => f.da?.item === item)).map((o) => ({ id, def, o })));
+    assert.equal(onde.length, 1, `${item}: devia estar em um lugar só`);
+    const { id, def, o } = onde[0]!;
+    assert.ok(r.mapas.includes(id), `${item} está fora da própria região (${id})`);
+    assert.ok(!def.interior, `${item} devia ficar ao ar livre`);
+    const semDom = new Mapa(def, { contas: () => 5, nadar: false, ligada: (c) => !c.startsWith('dom_') });
+    assert.ok(alcance(semDom, def.inicio.tx, def.inicio.ty).has(`${o.tx},${o.ty}`),
+              `${item} em (${o.tx},${o.ty}) exige algum Dom`);
   }
 });

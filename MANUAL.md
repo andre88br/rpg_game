@@ -65,6 +65,20 @@ e na quinta ele senta e entrega o item. Encurrale contra parede ou canto — ele
 foge primeiro para longe de você, depois para os lados, e nunca por cima de
 você.
 
+**Mapas.** A Dona Firmina dá o **Mapa do Mundo** com o Encantado inicial.
+O mapa de cada região, que abre a planta dos lugares dela, está escondido
+num canto da própria região:
+
+| Região | Onde está o mapa |
+|---|---|
+| Foz | Rota da Foz, canto sudeste (28,32) |
+| Mata do Curupira | Mata do Curupira, canto leste (20,13) |
+| Serra Boitatá | Trilha da Brasa, canto sudeste (28,30) |
+| Campo do Saci | Campo Aberto, canto sudeste (32,32) |
+| Aldeia Tupã | Campina dos Raios, canto nordeste (62,1) |
+| Minas da Caipora | Boca da Mina, canto noroeste (1,1) |
+| Bairro da Cuca | Rua do Breu, canto sudoeste (1,38) |
+
 **Treinador com cone de visão.** Se ele te enxerga, a batalha começa sozinha.
 Todos os treinadores obrigatórios deste manual estão plantados em cima do
 caminho — não dá para contornar.

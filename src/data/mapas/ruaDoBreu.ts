@@ -55,6 +55,14 @@ export const ruaDoBreu: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 1, ty: 38, solido: false, placa: 'MAPA', se: 'achou_mapa_sombra', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 1, ty: 38, solido: false, placa: 'MAPA', seNao: 'achou_mapa_sombra',
+      falas: [{ liga: 'achou_mapa_sombra', da: { item: 'mapa_sombra' }, linhas: [
+        'Enrolado atrás de um lampião apagado: o MAPA DO BAIRRO.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 56, ty: 18,
       placa: 'RUA DO BREU. A oeste, o Bairro da Cuca. Ninguém anda aqui depois que escurece.' },
     { tipo: 'achado', tx: 57, ty: 37, solido: false, placa: 'RETRATO', se: 'achou_retrato_rua', vazio: true,

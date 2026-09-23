@@ -60,6 +60,14 @@ export const bocaDaMina: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 1, ty: 1, solido: false, placa: 'MAPA', se: 'achou_mapa_terra', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 1, ty: 1, solido: false, placa: 'MAPA', seNao: 'achou_mapa_terra',
+      falas: [{ liga: 'achou_mapa_terra', da: { item: 'mapa_terra' }, linhas: [
+        'Numa lata de garimpeiro esquecida no canto do vale: o MAPA DAS MINAS.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 18, ty: 37,
       placa: 'BOCA DA MINA. Ao norte, o Arraial da Caipora. O vale inteiro é chão de garimpo.' },
     { tipo: 'placa', tx: 33, ty: 1,

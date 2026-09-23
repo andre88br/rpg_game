@@ -35,6 +35,8 @@ import {
 import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
 import { adicionar, consumir, quantidade } from '../data/items.ts';
+import { MAPAS } from '../data/mapas/index.ts';
+import { lugarNoMundo } from '../data/mundo.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
   aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
@@ -272,6 +274,7 @@ export class CenaMundo implements Cena {
   private montarMapa(id: string, opt: { gravar?: boolean } = {}): void {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
+    this.marcarVisita(id);
     this.conversa = null;
     this.duelo = null;
 
@@ -327,6 +330,16 @@ export class CenaMundo implements Cena {
     if (novo === this.mapa) return;
     this.mapa = novo;
     this.montarAvisos();
+  }
+
+  /* O Mapa do Mundo só mostra onde o jogador já pisou: cada lugar ao ar livre
+     (ou o de onde se entra numa casa) ganha a flag `visitou_<id>`. E quem
+     já escolheu o inicial tem o mapa — inclusive save de antes dele existir. */
+  private marcarVisita(id: string): void {
+    const e = this.op.estado;
+    const lugar = lugarNoMundo(id, MAPAS);
+    if (lugar) e.flags[`visitou_${lugar}`] = true;
+    if (e.flags['escolheu_inicial'] && quantidade(e.mochila, 'mapa') === 0) adicionar(e.mochila, 'mapa');
   }
 
   /* A escolta é só flag: se há alguém sendo escoltado e ele ainda não está
@@ -552,9 +565,12 @@ export class CenaMundo implements Cena {
        (de antes desta flag existir) simplesmente cai no primeiro par do
        objeto `trunfo`, nunca num "!" que quebraria a luta */
     e.flags[`inicial_${id}`] = true;
+    adicionar(e.mochila, 'mapa');
     salvar(e);
     this.abrirConversa('DONA FIRMINA', [
       `${nomeDe(bicho)} é seu, ${e.nome}. Trate bem e ele trata melhor.`,
+      'E leva também este MAPA DO MUNDO. Ele vai se enchendo conforme você anda.',
+      'O mapa de cada região, com a planta dos lugares, fica escondido nela mesma. Olhe pelos cantos.',
       'Agora chegue aqui outra vez, que eu tenho um serviço para vocês dois.',
     ]);
   }

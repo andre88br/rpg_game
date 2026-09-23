@@ -55,6 +55,14 @@ export const campoAberto: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 32, ty: 32, solido: false, placa: 'MAPA', se: 'achou_mapa_vento', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 32, ty: 32, solido: false, placa: 'MAPA', seNao: 'achou_mapa_vento',
+      falas: [{ liga: 'achou_mapa_vento', da: { item: 'mapa_vento' }, linhas: [
+        'Preso num toco pra não voar, com uma pedra por cima: o MAPA DO CAMPO.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 17, ty: 1,
       placa: 'CAMPO DO SACI. O Chefe dos Catadores não deixa ninguém passar sem provar o vento.' },
     /* as três trancas: cada uma some quando o catador dela cai */

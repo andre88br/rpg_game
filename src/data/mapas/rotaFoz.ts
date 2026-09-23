@@ -46,6 +46,14 @@ export const rotaFoz: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 28, ty: 32, solido: false, placa: 'MAPA', se: 'achou_mapa_agua', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 28, ty: 32, solido: false, placa: 'MAPA', seNao: 'achou_mapa_agua',
+      falas: [{ liga: 'achou_mapa_agua', da: { item: 'mapa_agua' }, linhas: [
+        'Dobrado dentro de uma garrafa, na beira do caminho: o MAPA DA FOZ.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 15, ty: 1,
       placa: 'ROTA DA FOZ. Ao norte, Vila Aurora. Ao sul, Porto Iara.' },
     { tipo: 'placa', tx: 16, ty: 25,

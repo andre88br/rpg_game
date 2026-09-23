@@ -35,6 +35,14 @@ export const mataDoCurupira: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 20, ty: 13, solido: false, placa: 'MAPA', se: 'achou_mapa_planta', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 20, ty: 13, solido: false, placa: 'MAPA', seNao: 'achou_mapa_planta',
+      falas: [{ liga: 'achou_mapa_planta', da: { item: 'mapa_planta' }, linhas: [
+        'Preso numa forquilha de galho, enrolado em folha de bananeira: o MAPA DA MATA.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'terreiro', tx: 3,  ty: 3, larg: 6, alt: 4 },              // porta (6,6)
     { tipo: 'posto',    tx: 13, ty: 3, larg: 5, alt: 4 },              // porta (15,6)
     // a guia de cinco contas: o portão da Mata do Curupira

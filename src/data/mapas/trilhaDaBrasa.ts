@@ -48,6 +48,14 @@ export const trilhaDaBrasa: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 28, ty: 30, solido: false, placa: 'MAPA', se: 'achou_mapa_fogo', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 28, ty: 30, solido: false, placa: 'MAPA', seNao: 'achou_mapa_fogo',
+      falas: [{ liga: 'achou_mapa_fogo', da: { item: 'mapa_fogo' }, linhas: [
+        'Enfiado numa fresta da pedra, meio chamuscado: o MAPA DA SERRA.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 17, ty: 1,
       placa: 'TRILHA DA BRASA. A subida da mata para a Serra Boitatá.' },
     /* as quatro trancas: cada uma some quando o tropeiro dela cai */

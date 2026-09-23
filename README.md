@@ -117,6 +117,16 @@ empurráveis e os dois serviços opcionais da Serra.
 | trocar a página da mochila | ← → | direcional ← → |
 | escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
 
+### O Mapa do Mundo
+
+A Dona Firmina entrega o **Mapa do Mundo** junto com o primeiro Encantado
+(quem já tinha passado dessa parte ganha ao carregar o save). Usado na
+mochila, ele mostra os lugares por onde você já andou, ligados pelas
+estradas e na cor da região, com o lugar atual piscando; ← → escolhem um
+lugar. O **mapa de cada região** fica escondido num canto dela mesma — com
+ele, o A abre a **planta** do lugar escolhido (paredes, mato, água,
+construções e as saídas em amarelo, e você piscando se estiver ali).
+
 ### Códigos secretos
 
 Digitados com os próprios botões do jogo, andando livre pelo mundo — não valem
@@ -158,9 +168,10 @@ src/
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
+│             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
 ├─ scenes/    title.ts · overworld.ts · battle.ts
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
-├─ data/      creatures.ts · moves.ts · items.ts
+├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
 │             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4

@@ -60,6 +60,14 @@ export const campinaDosRaios: DefMapa = {
   ],
 
   objetos: [
+    /* o mapa desta região, escondido num canto — com ele, o Mapa do Mundo
+       mostra a planta de cada lugar da região (data/mundo.ts) */
+    { tipo: 'achado', tx: 62, ty: 1, solido: false, placa: 'MAPA', se: 'achou_mapa_raio', vazio: true,
+      falas: [{ linhas: ['Não sobrou nada aqui.'] }] },
+    { tipo: 'achado', tx: 62, ty: 1, solido: false, placa: 'MAPA', seNao: 'achou_mapa_raio',
+      falas: [{ liga: 'achou_mapa_raio', da: { item: 'mapa_raio' }, linhas: [
+        'Dentro de uma cabaça pendurada no canto da cerca: o MAPA DA ALDEIA TUPÃ.',
+        'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 3, ty: 14,
       placa: 'CAMPINA DOS RAIOS. A leste, a Aldeia Tupã. Quatro tambores tocam no caminho.' },
     /* as quatro trancas, uma por cerca: cada uma some quando o tambor dela cai */
