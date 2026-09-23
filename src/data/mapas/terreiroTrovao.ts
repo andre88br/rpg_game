@@ -110,7 +110,7 @@ export const terreiroTrovao: DefMapa = {
     },
     {
       id: 'guarda_relampago', nome: 'GUARDA DO RELÂMPAGO', estilo: 'aldeao',
-      tx: 22, ty: 5, dir: 'dir',
+      tx: 22, ty: 6, dir: 'dir',
       treinador: {
         classe: 'GUARDA DO RELÂMPAGO', visao: 3, premio: 2400,
         esperta: true, itens: { garrafada_forte: 1 },
