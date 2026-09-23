@@ -510,7 +510,9 @@ export class CenaBatalha implements Cena {
   }
 
   private navegarMochila(entrada: Entrada): void {
-    this.selItem = this.mover(entrada, this.selItem, Math.max(1, this.itensUsaveis.length), 1);
+    for (const t of ['cima', 'baixo', 'esq', 'dir'] as const) {
+      if (entrada.apertou(t)) this.selItem = L.andarNaMochila(this.selItem, this.itensUsaveis.length, t);
+    }
     if (entrada.apertou('b')) { this.tela = 'comando'; return; }
     if (!entrada.apertou('a')) return;
     const id = this.itensUsaveis[this.selItem];

@@ -176,7 +176,9 @@ export class MenuPausa {
     }
 
     if (this.pagina === 'mochila') {
-      this.selLista = this.andar(entrada, this.selLista, this.itens().length);
+      for (const t of ['cima', 'baixo', 'esq', 'dir'] as const) {
+        if (entrada.apertou(t)) this.selLista = L.andarNaMochila(this.selLista, this.itens().length, t);
+      }
       if (entrada.apertou('a')) this.tentarUsarItem();
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
       return 'aberto';

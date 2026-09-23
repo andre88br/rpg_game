@@ -66,18 +66,48 @@ export function itensDaMochila(m: Mochila, opt: { emBatalha?: boolean } = {}): s
     && (opt.emBatalha !== true || fichaItem(id).emBatalha));
 }
 
+/* A mochila vai em páginas de seis: com as penas, as pedras, as cartas e
+   os patuás de cinco regiões, a lista inteira passava por cima da descrição
+   do item e do rodapé. Cima/baixo andam item a item (e viram a página
+   sozinhos na ponta); esquerda/direita pulam uma página inteira. */
+export const ITENS_POR_PAGINA = 6;
+
+export function paginasDaMochila(total: number): number {
+  return Math.max(1, Math.ceil(total / ITENS_POR_PAGINA));
+}
+
+export function andarNaMochila(sel: number, total: number,
+                               tecla: 'cima' | 'baixo' | 'esq' | 'dir'): number {
+  if (total <= 0) return 0;
+  if (tecla === 'cima') return (sel - 1 + total) % total;
+  if (tecla === 'baixo') return (sel + 1) % total;
+  const paginas = paginasDaMochila(total);
+  if (paginas === 1) return sel;
+  const pag = Math.floor(sel / ITENS_POR_PAGINA);
+  const nova = (pag + (tecla === 'dir' ? 1 : -1) + paginas) % paginas;
+  // mesma linha na página nova; a última página pode ser mais curta
+  return Math.min(nova * ITENS_POR_PAGINA + (sel % ITENS_POR_PAGINA), total - 1);
+}
+
 export function listaMochila(r: Renderizador, m: Mochila, ids: readonly string[],
                              sel: number): void {
   if (ids.length === 0) { r.texto('NADA AQUI DENTRO...', 22, 40, P.uiInk!); return; }
-  ids.forEach((id, i) => {
+  const pag = Math.floor(Math.max(0, sel) / ITENS_POR_PAGINA);
+  const inicio = pag * ITENS_POR_PAGINA;
+  ids.slice(inicio, inicio + ITENS_POR_PAGINA).forEach((id, j) => {
     const it = fichaItem(id);
-    const y = 30 + i * 14;
-    if (y > ALTURA - 26) return;
-    if (i === sel) r.texto('=', 14, y, P.uiAccD!);
+    const y = 30 + j * 14;
+    if (inicio + j === sel) r.texto('=', 14, y, P.uiAccD!);
     r.texto(it.nome, 24, y, it.chave ? P.gold! : P.uiInk!);
-    const q = it.chave ? '--' : 'X' + (m[id] ?? 0);
+    // item de chave também tem quantidade: são cinco penas, três sinos...
+    const q = 'X' + (m[id] ?? 0);
     r.texto(q, LARGURA - 20 - r.larguraTexto(q), y, P.uiInk!);
   });
+  const paginas = paginasDaMochila(ids.length);
+  if (paginas > 1) {
+    const marca = `< ${pag + 1}/${paginas} >`;
+    r.texto(marca, LARGURA - 20 - r.larguraTexto(marca), 12, P.uiBg3!);
+  }
 }
 
 /* Texto corrido quebrado em linhas curtas, com reticências quando sobra

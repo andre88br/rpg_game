@@ -88,6 +88,7 @@ empurráveis e os dois serviços opcionais da Serra.
 | falar / confirmar | Z, Enter ou espaço | botão A |
 | correr / voltar | X ou Shift | botão B |
 | menu | Esc | botão MENU |
+| trocar a página da mochila | ← → | direcional ← → |
 
 ### Códigos secretos
 
