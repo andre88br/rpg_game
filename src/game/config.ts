@@ -1,8 +1,9 @@
 /* =========================================================================
    Preferências do dispositivo — não são a partida, não vivem em slot
-   nenhum. Hoje só a velocidade do jogo: quão rápido o texto se revela e
-   quão rápido o personagem anda. Uma preferência só, guardada à parte de
-   qualquer save, porque troca de slot não deveria trocar de velocidade.
+   nenhum. A velocidade do jogo (quão rápido o texto se revela e quão
+   rápido o personagem anda) e a visão 3D (ligada, a Região da Foz sai do
+   papel). Guardadas à parte de qualquer save, porque troca de slot não
+   deveria trocar de preferência.
    ========================================================================= */
 import type { Armazem } from './save.ts';
 
@@ -30,7 +31,9 @@ function loja(): Armazem | null {
 }
 
 /* usado pelos testes: troca o armazém por um de mentira */
-export function usarArmazemConfig(a: Armazem | null): void { armazem = a; velocidade = undefined; }
+export function usarArmazemConfig(a: Armazem | null): void {
+  armazem = a; velocidade = undefined; visao3d = undefined;
+}
 
 let velocidade: Velocidade | undefined;
 
@@ -51,3 +54,19 @@ export function definirVelocidade(v: Velocidade): void {
 }
 
 export function multiplicadorVelocidade(): number { return MULTIPLICADORES[obterVelocidade()]; }
+
+/* A visão 3D vem ligada; quem prefere o mapa plano desliga no menu. */
+const CHAVE_VISAO = 'encantados:config:visao3d:v1';
+let visao3d: boolean | undefined;
+
+export function obterVisao3D(): boolean {
+  if (visao3d !== undefined) return visao3d;
+  visao3d = true;
+  try { if (loja()?.getItem(CHAVE_VISAO) === 'nao') visao3d = false; } catch { /* fica no padrão */ }
+  return visao3d;
+}
+
+export function definirVisao3D(v: boolean): void {
+  visao3d = v;
+  try { loja()?.setItem(CHAVE_VISAO, v ? 'sim' : 'nao'); } catch { /* nada a fazer */ }
+}

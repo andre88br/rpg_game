@@ -271,6 +271,147 @@ export function contasDo(o: DefObjeto, ctx: ContextoMapa): number {
   return o.contas ?? ctx.contas(o.terreiro ?? 'agua');
 }
 
+/* O desenho de um objeto do mapa, e quantos pixels ele desce no tile. O
+   cenário 2D o carimba no chão; a vista 3D o põe de pé no mundo. */
+export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa): { sprite: Buf | null; deslocY: number } {
+  const larg = o.larg ?? 4, alt = o.alt ?? 3;
+  let sprite: Buf | null = null;
+  let deslocY = 0;
+
+  switch (o.tipo) {
+    case 'benzimento':
+      sprite = T.construcao(larg, alt, { roof: '#c25d8f', roofD: '#95406a', roofL: '#e089b4',
+                                         sign: 'BENZIMENTO', signColor: '#f0b6d2',
+                                         portaCol: o.portaCol });
+      break;
+    case 'portao':
+      sprite = T.guia(larg, contasDo(o, ctx), (o.terreiro ?? 'agua') as Tipo);
+      break;
+    case 'balcao':
+      sprite = T.balcao(larg);
+      break;
+    case 'gamela':
+      sprite = T.gamela();     // sempre 2x2 tiles
+      break;
+    case 'estante':
+      sprite = T.estante(larg);
+      break;
+    case 'mesa':
+      sprite = T.mesa(larg);
+      break;
+    case 'patuas':
+      sprite = T.patuasNaMesa(larg);
+      break;
+    case 'bau':
+      sprite = T.bau();
+      break;
+    case 'casa':
+      sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL,
+                                         portaCol: o.portaCol });
+      break;
+    case 'loja':
+      sprite = T.construcao(larg, alt, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894',
+                                         sign: 'LOJA', signColor: '#7fd9b4',
+                                         portaCol: o.portaCol });
+      break;
+    case 'posto':
+      sprite = T.construcao(larg, alt, { roof: '#8a6a3f', roofD: '#654d2e', roofL: '#a8895c',
+                                         sign: 'ENCRUZILHADA', signColor: '#e0c090',
+                                         portaCol: o.portaCol });
+      break;
+    case 'forja':
+      sprite = T.construcao(larg, alt, { roof: '#7a3a2a', roofD: '#582719', roofL: '#a0553f',
+                                         sign: 'FORJA', signColor: '#e8a870',
+                                         portaCol: o.portaCol });
+      break;
+    case 'moinho':
+      sprite = T.construcao(larg, alt, { roof: '#c9a85a', roofD: '#9c7f3e', roofL: '#e8cf8a',
+                                         sign: 'MOINHO', signColor: '#f0e4b8',
+                                         portaCol: o.portaCol });
+      break;
+    case 'terreiro':
+      sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
+                                         sign: 'TERREIRO', signColor: P.uiAcc,
+                                         portaCol: o.portaCol });
+      break;
+    case 'placa':
+      sprite = T.placa();
+      deslocY = 2;
+      break;
+    case 'barreira':
+      sprite = T.barreira(larg);
+      break;
+    case 'monteFolhas':
+      sprite = T.monteFolhas(larg);
+      break;
+    /* chave de para-raio: o mesmo par de objetos do `achado` (um por
+       estado, `se`/`seNao` na flag da chave), com `vazio` = apagada */
+    case 'paraRaio':
+      sprite = T.paraRaio(o.vazio !== true);
+      break;
+    /* portão de raio: a mesma trava condicional da barreira, cara de cerca
+       eletrificada — é o que as chaves ligam e desligam */
+    case 'cercaRaio':
+      sprite = T.cercaRaio(larg);
+      break;
+    /* some com o Dom Faísca — molde exato do monte de folhas */
+    case 'pedraRachada':
+      sprite = T.pedraRachada(larg);
+      break;
+    /* tesouro enterrado: invisivel ate ser cavado; cavado, vira buraco */
+    case 'enterrado':
+      sprite = o.vazio === true ? T.buraco() : null;
+      break;
+    case 'desvio':
+      sprite = T.tileTrilho(o.dir ?? 'dir', o.tx * 31 + o.ty * 17 + 3, true);
+      break;
+    case 'alavanca':
+      sprite = T.alavanca(o.vazio !== true);
+      break;
+    /* some com o Dom Escavar — molde exato da pedra rachada */
+    case 'monteTerra':
+      sprite = T.monteTerra(larg);
+      break;
+    /* ladrilho de memoria: chao com um simbolo gravado */
+    case 'ladrilho':
+      sprite = T.ladrilho(o.simbolo ?? 'lua');
+      break;
+    /* veu de sombra: parece parede escura, some com o Dom Visao Noturna */
+    case 'veu':
+      sprite = T.veu(larg);
+      break;
+    case 'espelho':
+      sprite = T.espelho(o.inclinacao ?? '/');
+      break;
+    case 'fonteLuz':
+      sprite = T.fonteLuz();
+      break;
+    case 'cristal':
+      sprite = T.cristal(o.vazio !== true);
+      break;
+    case 'lampiao':
+      sprite = T.lampiao(o.vazio !== true);
+      break;
+    /* cortina de luz: parede que ofusca, some com o Dom Prisma */
+    case 'cortinaLuz':
+      sprite = T.cortinaLuz(larg);
+      break;
+    case 'farol':
+      sprite = T.farol(larg, alt);
+      break;
+    case 'achado':
+      sprite = T.pote(o.vazio === true);
+      break;
+    case 'cova':
+      sprite = T.cova();
+      break;
+    case 'entulho':
+      sprite = T.entulho();
+      break;
+  }
+  return { sprite, deslocY };
+}
+
 export class Mapa {
   readonly id: string;
   readonly nome: string;
@@ -356,141 +497,8 @@ export class Mapa {
 
   private desenharObjeto(buf: Buf, o: DefObjeto): void {
     const larg = o.larg ?? 4, alt = o.alt ?? 3;
-    let sprite: Buf | null = null;
-    let deslocY = 0;
-
-    switch (o.tipo) {
-      case 'benzimento':
-        sprite = T.construcao(larg, alt, { roof: '#c25d8f', roofD: '#95406a', roofL: '#e089b4',
-                                           sign: 'BENZIMENTO', signColor: '#f0b6d2',
-                                           portaCol: o.portaCol });
-        break;
-      case 'portao':
-        sprite = T.guia(larg, contasDo(o, this.ctx), (o.terreiro ?? 'agua') as Tipo);
-        break;
-      case 'balcao':
-        sprite = T.balcao(larg);
-        break;
-      case 'gamela':
-        sprite = T.gamela();     // sempre 2x2 tiles
-        break;
-      case 'estante':
-        sprite = T.estante(larg);
-        break;
-      case 'mesa':
-        sprite = T.mesa(larg);
-        break;
-      case 'patuas':
-        sprite = T.patuasNaMesa(larg);
-        break;
-      case 'bau':
-        sprite = T.bau();
-        break;
-      case 'casa':
-        sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL,
-                                           portaCol: o.portaCol });
-        break;
-      case 'loja':
-        sprite = T.construcao(larg, alt, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894',
-                                           sign: 'LOJA', signColor: '#7fd9b4',
-                                           portaCol: o.portaCol });
-        break;
-      case 'posto':
-        sprite = T.construcao(larg, alt, { roof: '#8a6a3f', roofD: '#654d2e', roofL: '#a8895c',
-                                           sign: 'ENCRUZILHADA', signColor: '#e0c090',
-                                           portaCol: o.portaCol });
-        break;
-      case 'forja':
-        sprite = T.construcao(larg, alt, { roof: '#7a3a2a', roofD: '#582719', roofL: '#a0553f',
-                                           sign: 'FORJA', signColor: '#e8a870',
-                                           portaCol: o.portaCol });
-        break;
-      case 'moinho':
-        sprite = T.construcao(larg, alt, { roof: '#c9a85a', roofD: '#9c7f3e', roofL: '#e8cf8a',
-                                           sign: 'MOINHO', signColor: '#f0e4b8',
-                                           portaCol: o.portaCol });
-        break;
-      case 'terreiro':
-        sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
-                                           sign: 'TERREIRO', signColor: P.uiAcc,
-                                           portaCol: o.portaCol });
-        break;
-      case 'placa':
-        sprite = T.placa();
-        deslocY = 2;
-        break;
-      case 'barreira':
-        sprite = T.barreira(larg);
-        break;
-      case 'monteFolhas':
-        sprite = T.monteFolhas(larg);
-        break;
-      /* chave de para-raio: o mesmo par de objetos do `achado` (um por
-         estado, `se`/`seNao` na flag da chave), com `vazio` = apagada */
-      case 'paraRaio':
-        sprite = T.paraRaio(o.vazio !== true);
-        break;
-      /* portão de raio: a mesma trava condicional da barreira, cara de cerca
-         eletrificada — é o que as chaves ligam e desligam */
-      case 'cercaRaio':
-        sprite = T.cercaRaio(larg);
-        break;
-      /* some com o Dom Faísca — molde exato do monte de folhas */
-      case 'pedraRachada':
-        sprite = T.pedraRachada(larg);
-        break;
-      /* tesouro enterrado: invisivel ate ser cavado; cavado, vira buraco */
-      case 'enterrado':
-        sprite = o.vazio === true ? T.buraco() : null;
-        break;
-      case 'desvio':
-        sprite = T.tileTrilho(o.dir ?? 'dir', o.tx * 31 + o.ty * 17 + 3, true);
-        if (o.dir) this.trilhos[o.ty * this.largTiles + o.tx] = o.dir;
-        break;
-      case 'alavanca':
-        sprite = T.alavanca(o.vazio !== true);
-        break;
-      /* some com o Dom Escavar — molde exato da pedra rachada */
-      case 'monteTerra':
-        sprite = T.monteTerra(larg);
-        break;
-      /* ladrilho de memoria: chao com um simbolo gravado */
-      case 'ladrilho':
-        sprite = T.ladrilho(o.simbolo ?? 'lua');
-        break;
-      /* veu de sombra: parece parede escura, some com o Dom Visao Noturna */
-      case 'veu':
-        sprite = T.veu(larg);
-        break;
-      case 'espelho':
-        sprite = T.espelho(o.inclinacao ?? '/');
-        break;
-      case 'fonteLuz':
-        sprite = T.fonteLuz();
-        break;
-      case 'cristal':
-        sprite = T.cristal(o.vazio !== true);
-        break;
-      case 'lampiao':
-        sprite = T.lampiao(o.vazio !== true);
-        break;
-      /* cortina de luz: parede que ofusca, some com o Dom Prisma */
-      case 'cortinaLuz':
-        sprite = T.cortinaLuz(larg);
-        break;
-      case 'farol':
-        sprite = T.farol(larg, alt);
-        break;
-      case 'achado':
-        sprite = T.pote(o.vazio === true);
-        break;
-      case 'cova':
-        sprite = T.cova();
-        break;
-      case 'entulho':
-        sprite = T.entulho();
-        break;
-    }
+    const { sprite, deslocY } = spriteDoObjeto(o, this.ctx);
+    if (o.tipo === 'desvio' && o.dir) this.trilhos[o.ty * this.largTiles + o.tx] = o.dir;
     if (sprite) buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
     /* desvio, tesouro enterrado e ladrilho sao chao: nunca viram parede */
     if (o.tipo === 'desvio' || o.tipo === 'enterrado' || o.tipo === 'ladrilho') return;

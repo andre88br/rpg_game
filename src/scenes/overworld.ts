@@ -10,6 +10,9 @@
    O menu de pausa e a loja NÃO são cenas: são sobreposições desenhadas por
    cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
    ========================================================================= */
+import { vista3D } from '../render3d/carregar.ts';
+import { EM_3D } from '../render3d/relevo.ts';
+import { obterVisao3D } from '../game/config.ts';
 import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
@@ -848,7 +851,13 @@ export class CenaMundo implements Cena {
   private desenharCutscene(r: Renderizador): void {
     const c = this.cutscene!;
     r.limpar('#101018');
-    c.mapa.desenhar(r.ctx, c.cam.x, c.cam.y, LARGURA, ALTURA);
+    const vista = this.vistaDo(c.mapa.id);
+    if (vista) {
+      vista.desenhar(r.ctx, { mapa: c.mapa, tempo: c.t, atores: [],
+                             alvoX: (c.cam.x + LARGURA / 2) / TS, alvoY: (c.cam.y + ALTURA / 2) / TS });
+    } else {
+      c.mapa.desenhar(r.ctx, c.cam.x, c.cam.y, LARGURA, ALTURA);
+    }
 
     if (c.fase === 'mostra') {
       const larg = LARGURA - 16;
@@ -1544,6 +1553,27 @@ export class CenaMundo implements Cena {
     if (this.cutscene) { this.desenharCutscene(r); return; }
 
     r.limpar('#101018');
+    const vista = this.vistaDo(this.def.id);
+    if (vista) {
+      const atores = [this.jogador, ...this.npcs.map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
+      vista.desenhar(r.ctx, {
+        mapa: this.mapa, tempo: this.tempoAnim,
+        alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
+        atores: atores.map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
+      });
+    } else {
+      this.desenharMundoPlano(r);
+    }
+    this.desenharPorCima(r);
+  }
+
+  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
+  private vistaDo(id: string) {
+    if (!obterVisao3D() || !EM_3D.has(id)) return null;
+    return vista3D();
+  }
+
+  private desenharMundoPlano(r: Renderizador): void {
     this.mapa.desenhar(r.ctx, this.camera.x, this.camera.y, LARGURA, ALTURA);
 
     // o feixe de luz, por cima do chão e por baixo de quem anda
@@ -1589,7 +1619,10 @@ export class CenaMundo implements Cena {
     }
     itens.sort((a, b) => a.py - b.py);
     for (const it of itens) it.desenhar();
+  }
 
+  /* o que fica por cima do mundo, seja ele plano ou 3D */
+  private desenharPorCima(r: Renderizador): void {
     if (this.duelo?.fase === 'susto') this.desenharSusto(r);
 
     if (this.def.escuro) this.desenharEscuridao(r);
@@ -1623,8 +1656,14 @@ export class CenaMundo implements Cena {
   /* o balão de espanto acima do treinador que acabou de te ver */
   private desenharSusto(r: Renderizador): void {
     const a = this.duelo!.npc.ator;
-    const x = a.px - this.camera.x + 4;
-    const y = a.py - this.camera.y - 14;
+    let x = a.px - this.camera.x + 4;
+    let y = a.py - this.camera.y - 14;
+    const vista = this.vistaDo(this.def.id);
+    if (vista) {
+      // no 3D, o balão vai acima da cabeça, onde quer que ela caia na tela
+      const p = vista.projetar(a.px / TS + 0.5, a.py / TS + 0.6, 1.5);
+      x = Math.round(p.x) - 4; y = Math.round(p.y) - 16;
+    }
     r.retangulo(x - 2, y - 2, 12, 16, P.ink!);
     r.retangulo(x - 1, y - 1, 10, 14, P.uiBg!);
     r.retangulo(x + 3, y + 1, 2, 7, P.hpRed!);

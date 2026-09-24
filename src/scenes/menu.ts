@@ -29,7 +29,7 @@ import {
 } from '../data/mundo.ts';
 import { desenharMundo, desenharPlanta } from '../ui/mapas.ts';
 import {
-  VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade,
+  VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade, obterVisao3D, definirVisao3D,
 } from '../game/config.ts';
 
 /* o que a sobreposição devolve a cada quadro */
@@ -38,7 +38,7 @@ export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
             | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal';
 
-const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'VELOCIDADE', 'SALVAR', 'SAIR'] as const;
+const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'OPÇÕES', 'SALVAR', 'SAIR'] as const;
 
 const CADERNO_LINHAS_VISIVEIS = 10;
 
@@ -133,7 +133,7 @@ export class MenuPausa {
       case 'MOCHILA': this.pagina = 'mochila'; this.selLista = 0; break;
       case 'MEDALHAS': this.pagina = 'medalhas'; break;
       case 'GUIA': this.pagina = 'guia'; break;
-      case 'VELOCIDADE':
+      case 'OPÇÕES':
         this.pagina = 'velocidade';
         this.velSel = VELOCIDADES.indexOf(obterVelocidade());
         break;
@@ -172,10 +172,17 @@ export class MenuPausa {
     }
 
     if (this.pagina === 'velocidade') {
-      this.velSel = this.andar(entrada, this.velSel, VELOCIDADES.length);
+      // as três velocidades e, embaixo, a visão: 3D ou plana
+      this.velSel = this.andar(entrada, this.velSel, VELOCIDADES.length + 2);
       if (entrada.apertou('a')) {
-        definirVelocidade(VELOCIDADES[this.velSel]!);
-        this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[VELOCIDADES[this.velSel]!]}.`);
+        if (this.velSel < VELOCIDADES.length) {
+          definirVelocidade(VELOCIDADES[this.velSel]!);
+          this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[VELOCIDADES[this.velSel]!]}.`);
+        } else {
+          const em3d = this.velSel === VELOCIDADES.length;
+          definirVisao3D(em3d);
+          this.avisar(em3d ? 'VISÃO 3D: A FOZ SAI DO PAPEL.' : 'VISÃO PLANA.');
+        }
       }
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
       return 'aberto';
@@ -433,13 +440,23 @@ export class MenuPausa {
         break;
       }
       case 'velocidade': {
-        L.telaCheia(r, this.caixaCheia, 'VELOCIDADE DO JOGO', 'A ESCOLHER   B VOLTAR');
+        L.telaCheia(r, this.caixaCheia, 'OPÇÕES', 'A ESCOLHER   B VOLTAR');
         const atual = obterVelocidade();
+        r.texto('VELOCIDADE', 16, 26, P.uiBg3!);
         VELOCIDADES.forEach((v, i) => {
-          const y = 32 + i * 16;
+          const y = 38 + i * 12;
           if (i === this.velSel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(NOME_VELOCIDADE[v], 28, y, v === atual ? P.uiAccD! : P.uiInk!);
           if (v === atual) r.texto('(ATUAL)', 100, y, P.uiBg3!);
+        });
+        r.texto('VISÃO', 16, 78, P.uiBg3!);
+        const em3d = obterVisao3D();
+        (['3D NA FOZ', 'PLANA'] as const).forEach((nome, j) => {
+          const i = VELOCIDADES.length + j, y = 90 + j * 12;
+          const ativa = (j === 0) === em3d;
+          if (i === this.velSel) r.texto('=', 16, y, P.uiAccD!);
+          r.texto(nome, 28, y, ativa ? P.uiAccD! : P.uiInk!);
+          if (ativa) r.texto('(ATUAL)', 100, y, P.uiBg3!);
         });
         break;
       }

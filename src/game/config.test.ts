@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  definirVelocidade, multiplicadorVelocidade, obterVelocidade, usarArmazemConfig,
+  definirVelocidade, definirVisao3D, multiplicadorVelocidade, obterVelocidade, obterVisao3D,
+  usarArmazemConfig,
 } from './config.ts';
 import type { Armazem } from './save.ts';
 
@@ -44,4 +45,14 @@ test('sem armazém nenhum, a velocidade ainda funciona em memória', () => {
   assert.equal(obterVelocidade(), 'turbo');
   usarArmazemConfig(null);
   definirVelocidade('normal');
+});
+
+test('a visão 3D vem ligada, e desligar vale para a próxima sessão', () => {
+  const ls = memoria();
+  usarArmazemConfig(ls);
+  assert.equal(obterVisao3D(), true);
+  definirVisao3D(false);
+  usarArmazemConfig(ls);
+  assert.equal(obterVisao3D(), false);
+  assert.equal(obterVelocidade(), 'normal', 'a visão não mexe na velocidade');
 });

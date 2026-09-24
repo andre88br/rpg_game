@@ -94,6 +94,12 @@ Aurora** e o Dom **Prisma**, que atravessa as cortinas de luz — mais dois
 serviços opcionais: três cristais solares enterrados e a **Jaci**, a
 Encantada exclusiva.
 
+A **Região da Foz** também se joga em **3D**: Vila Aurora, Rota da Foz,
+Porto Iara e as casas saem do papel, com relevo, árvores, casas de telhado,
+mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
+desenho do mundo muda; conversa, batalha, menu e save são os de sempre. Vem
+ligado; quem prefere o mapa plano troca em **menu → OPÇÕES → VISÃO**.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -165,8 +171,9 @@ tudo de novo.
 ## Como está construído
 
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
-o que mantém o pacote pequeno (≈35 KB comprimidos) e elimina qualquer questão
-de licenciamento. A mesma fonte em TypeScript serve o navegador (via Vite) e a
+o que mantém o pacote pequeno e elimina qualquer questão de licenciamento. A
+única biblioteca é o **three.js**, e só para a vista 3D: ela vem num arquivo à
+parte, baixado na primeira vez que alguém entra na Foz com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
 ```
@@ -186,6 +193,9 @@ src/
 │             feixe.ts (o raio que dobra nos espelhos) · corrida.ts (o relógio)
 │             quests.ts (falas condicionais e as cinco contas) · save.ts
 │             luz.ts (o raio que se enxerga no breu) + *.test.ts (puros)
+├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
+│             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
+│             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no plano)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
 ├─ scenes/    title.ts · overworld.ts · battle.ts

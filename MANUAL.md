@@ -16,6 +16,10 @@ não para contar passos.
 confirmar; X ou Shift para correr e voltar; Esc para o menu. No celular: o
 direcional e os botões A, B e MENU na tela.
 
+**Visão 3D.** A Região da Foz aparece em 3D. Para voltar ao mapa plano:
+menu → **OPÇÕES** → **VISÃO** → **PLANA** (a velocidade do jogo mora na
+mesma página). Nada muda nas contas, nos caminhos nem nas coordenadas.
+
 **A guia de contas.** Cada terreiro tem uma guia com **cinco contas**. A porta
 do terreiro só abre com as cinco acesas. Uma conta acende sozinha assim que
 você cumpre o serviço — não precisa voltar para "entregar" em lugar nenhum,
