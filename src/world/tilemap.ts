@@ -15,6 +15,8 @@ import type { Cenario } from '../art/battlebg.ts';
 import type { Fala } from '../game/quests.ts';
 import type { DefPedra } from './pedras.ts';
 import type { DefCorrida } from '../game/corrida.ts';
+import { casaDaRegiao, terreiroDaRegiao, SOBRA } from '../art/predios.ts';
+import { regiaoDoMapa } from '../data/mundo.ts';
 
 export const TS = 16;
 
@@ -273,7 +275,9 @@ export function contasDo(o: DefObjeto, ctx: ContextoMapa): number {
 
 /* O desenho de um objeto do mapa, e quantos pixels ele desce no tile. O
    cenário 2D o carimba no chão; a vista 3D o põe de pé no mundo. */
-export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa): { sprite: Buf | null; deslocY: number } {
+/* `regiao`: o tipo da região do mapa. Casa e terreiro ganham a cara dela
+   (art/predios.ts); sem região, ficam na casinha de sempre. */
+export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa, regiao?: Tipo): { sprite: Buf | null; deslocY: number } {
   const larg = o.larg ?? 4, alt = o.alt ?? 3;
   let sprite: Buf | null = null;
   let deslocY = 0;
@@ -306,6 +310,7 @@ export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa): { sprite: Buf |
       sprite = T.bau();
       break;
     case 'casa':
+      if (regiao) { sprite = casaDaRegiao(regiao, larg, alt, o.portaCol); deslocY = -SOBRA; break; }
       sprite = T.construcao(larg, alt, { roof: P.roof, roofD: P.roofD, roofL: P.roofL,
                                          portaCol: o.portaCol });
       break;
@@ -330,6 +335,7 @@ export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa): { sprite: Buf |
                                          portaCol: o.portaCol });
       break;
     case 'terreiro':
+      if (regiao) { sprite = terreiroDaRegiao(regiao, larg, alt, o.portaCol); deslocY = -SOBRA; break; }
       sprite = T.construcao(larg, alt, { roof: P.gymRoof, roofD: P.gymRoofD, roofL: P.gymRoofL,
                                          sign: 'TERREIRO', signColor: P.uiAcc,
                                          portaCol: o.portaCol });
@@ -437,10 +443,13 @@ export class Mapa {
   private imagem: Assado | null = null;
 
   readonly ctx: ContextoMapa;
+  /* o tipo da região do mapa: dá a cara das casas e do terreiro */
+  private readonly regiao: Tipo | undefined;
 
   constructor(def: DefMapa, ctx: ContextoMapa = CTX_VAZIO) {
     this.def = def;
     this.ctx = ctx;
+    this.regiao = regiaoDoMapa(def.id)?.tipo;
     this.id = def.id;
     this.nome = def.nome;
     for (const s of def.saidas ?? []) this.saidas.set(`${s.tx},${s.ty}`, s);
@@ -497,15 +506,15 @@ export class Mapa {
 
   private desenharObjeto(buf: Buf, o: DefObjeto): void {
     const larg = o.larg ?? 4, alt = o.alt ?? 3;
-    const { sprite, deslocY } = spriteDoObjeto(o, this.ctx);
+    const { sprite, deslocY } = spriteDoObjeto(o, this.ctx, this.regiao);
     if (o.tipo === 'desvio' && o.dir) this.trilhos[o.ty * this.largTiles + o.tx] = o.dir;
     if (sprite) buf.blit(sprite, o.tx * TS, o.ty * TS + deslocY);
     /* desvio, tesouro enterrado e ladrilho sao chao: nunca viram parede */
     if (o.tipo === 'desvio' || o.tipo === 'enterrado' || o.tipo === 'ladrilho') return;
     if (!sprite) return;
 
-    // mastro e bandeira do terreiro, acima do telhado
-    if (o.tipo === 'terreiro') {
+    // mastro e bandeira do terreiro de sempre (o da região já tem o seu enfeite)
+    if (o.tipo === 'terreiro' && !this.regiao) {
       const gx = o.tx * TS + 14, gy = o.ty * TS;
       buf.rect(gx, gy - 20, 1, 22, P.ink!);
       buf.tri(gx + 1, gy - 20, gx + 15, gy - 15, gx + 1, gy - 10, P.water!);

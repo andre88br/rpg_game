@@ -94,6 +94,12 @@ Aurora** e o Dom **Prisma**, que atravessa as cortinas de luz — mais dois
 serviços opcionais: três cristais solares enterrados e a **Jaci**, a
 Encantada exclusiva.
 
+Cada região tem **casas e terreiro com a cara dela**: vila de pescador na
+Foz, taipa e palha na Mata, pedra e brasa na Serra, a gameleira de raízes
+ao vento no Campo do Saci, as ocas e o totem da ave do trovão em Tupã, adobe
+e o templo esculpido no penhasco vermelho nas Minas, o sobrado torto e o
+casarão de lua no Bairro da Cuca, e cal e ouro na Cidade do Sol.
+
 A **Região da Foz** também se joga em **3D**: Vila Aurora, Rota da Foz,
 Porto Iara e as casas saem do papel, com relevo, árvores, casas de telhado,
 mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
@@ -181,6 +187,7 @@ src/
 ├─ core/      buf.ts (pixels, primitivas, contorno, "assar" p/ canvas)
 │             renderer.ts · input.ts · loop.ts · scene.ts
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
+│             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
