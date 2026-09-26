@@ -504,3 +504,83 @@ export function terreiroDaRegiao(tipo: Tipo, wT: number, hT: number, portaCol?: 
   TERREIROS[tipo](m);
   return m.b;
 }
+
+/* ------------------------------------------------------------ Círculo Dourado */
+
+const OURO: C3 = { l: '#fff3c4', m: '#f2c43d', d: '#b8891c' };
+const PEDRA_CLARA: C3 = { l: '#fbf1de', m: '#e8dcc0', d: '#c8b894' };
+const CORES_DOS_TIPOS = [P.water!, P.tree!, P.fire!, P.windD!, P.bolt!, '#b07840', P.dark!, P.lightD!];
+
+/* A arena do torneio: um estádio redondo visto de frente, dois andares de
+   arcos, bandeira dos oito tipos no alto e o portão dourado no meio. */
+export function arenaDourada(wT: number, hT: number, portaCol?: number): Buf {
+  const m = molde(wT, hT, portaCol);
+  const { b, W, H, y, base, cx } = m, pt = m.porta;
+  // o corpo, com a borda de cima abaulada
+  for (let x = 0; x < W; x++) {
+    const u = (x - W / 2) / (W / 2), topo = y + 6 + Math.round(u * u * 10);
+    b.rect(x, topo, 1, base - topo, PEDRA_CLARA.m);
+    b.set(x, topo, OURO.d); b.set(x, topo + 1, OURO.m); b.set(x, topo + 2, OURO.l);
+  }
+  b.rect(0, base - 6, W, 6, PEDRA_CLARA.d); b.rect(0, base - 6, W, 1, PEDRA_CLARA.l);
+  // dois andares de arcos
+  const andar = (y0: number, alt: number, passo: number) => {
+    for (let x = 6; x + passo - 4 < W - 4; x += passo) {
+      if (Math.abs(x + passo / 2 - (pt + TS / 2)) < TS + 2) continue;   // o portão fica livre
+      const w = passo - 4;
+      b.ellipse(x + w / 2 - 0.5, y0 + w / 2, w / 2, w / 2, '#6a5020');
+      b.rect(x, y0 + w / 2, w, alt - w / 2, '#6a5020');
+      b.ellipse(x + w / 2 - 0.5, y0 + w / 2 + 1, w / 2 - 1, w / 2 - 1, '#3a2c14');
+      b.rect(x + 1, y0 + w / 2 + 1, w - 2, alt - w / 2 - 1, '#3a2c14');
+      b.rect(x - 2, y0 + alt, w + 4, 2, OURO.d);
+    }
+  };
+  andar(y + Math.round(H * 0.3), Math.round(H * 0.22), 14);
+  andar(y + Math.round(H * 0.58), Math.round(H * 0.3), 16);
+  b.rect(0, y + Math.round(H * 0.55), W, 2, OURO.m);
+  // bandeiras dos oito tipos no alto
+  for (let k = 0; k < 8; k++) {
+    const x = Math.round(12 + (k / 7) * (W - 24)), u = (x - W / 2) / (W / 2), topo = y + 6 + Math.round(u * u * 10);
+    b.rect(x, topo - 14, 1, 14, INK);
+    b.tri(x + 1, topo - 14, x + 8, topo - 11, x + 1, topo - 8, CORES_DOS_TIPOS[k]!);
+  }
+  // o portão: arco grande dourado, com o sol por cima
+  const gw = 20, gx = pt + TS / 2 - gw / 2, gh = Math.round(H * 0.45);
+  b.ellipse(gx + gw / 2 - 0.5, base - gh, gw / 2 + 3, gw / 2 + 3, OURO.d);
+  b.rect(gx - 3, base - gh, gw + 6, gh, OURO.d);
+  b.ellipse(gx + gw / 2 - 0.5, base - gh, gw / 2 + 1, gw / 2 + 1, OURO.m);
+  b.rect(gx - 1, base - gh, gw + 2, gh, OURO.m);
+  porta(b, pt + 1, base, 14, gh - 2, { d: '#6a5020', m: '#b8891c', l: '#f2c43d' }, true, '#ffffff');
+  const sy = y + 12;
+  b.circle(cx, sy, 7, OURO.d); b.circle(cx, sy, 6, OURO.m); b.circle(cx, sy, 3, OURO.l);
+  for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
+    b.line(cx + Math.cos(a) * 8, sy + Math.sin(a) * 8, cx + Math.cos(a) * 11, sy + Math.sin(a) * 11, OURO.d);
+  }
+  placa(b, 'CÍRCULO DOURADO', cx, base - gh - 26, OURO.l);
+  return b;
+}
+
+/* O balão que liga a Cidade do Sol ao Círculo Dourado: o cesto ocupa a
+   construção; o pano listrado sobe pela sobra de cima. */
+export function balao(wT: number, hT: number): Buf {
+  const m = molde(wT, hT);
+  const { b, W, H, base, cx } = m;
+  const cy = Math.round(base - H * 0.55 - 14), rx = Math.min(W / 2 - 1, 22), ry = Math.round(rx * 1.15);
+  for (let yy = -ry; yy <= ry; yy++) {
+    const meia = Math.round(rx * Math.sqrt(Math.max(0, 1 - (yy * yy) / (ry * ry))) * (yy > ry * 0.4 ? 1 - (yy - ry * 0.4) / (ry * 1.1) : 1));
+    for (let x = -meia; x <= meia; x++) {
+      const faixa = Math.floor(((x / (meia + 0.5)) + 1) * 3) % 2;
+      b.set(cx + x, cy + yy, Math.abs(x) === meia ? '#7a2a1a' : faixa ? P.gold! : '#c2493f');
+    }
+  }
+  b.ellipse(cx - rx * 0.4, cy - ry * 0.5, 3, 5, '#fff3c4');
+  // cordas, chama e cesto
+  const cesto = base - 12;
+  for (const dx of [-7, 7]) b.line(cx + dx * 1.2, cy + ry * 0.8, cx + dx, cesto, '#6d4726');
+  b.tri(cx - 2, cesto - 3, cx, cesto - 9, cx + 2, cesto - 3, P.fireL!);
+  b.rect(cx - 8, cesto, 16, 12, '#8a6038');
+  for (let yy = cesto + 2; yy < base; yy += 3) b.rect(cx - 8, yy, 16, 1, '#6d4726');
+  for (let xx = cx - 6; xx < cx + 8; xx += 4) b.rect(xx, cesto, 1, 12, '#a07848');
+  b.rect(cx - 9, cesto, 18, 2, '#5a3a1e');
+  return b;
+}

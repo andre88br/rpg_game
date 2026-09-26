@@ -72,6 +72,9 @@ export const cidadeDoSol: DefMapa = {
   },
 
   objetos: [
+    /* o balão do Círculo Dourado: só sobe para quem tem as oito medalhas */
+    { tipo: 'balao', tx: 4, ty: 22, larg: 3, alt: 3, placa: 'BALÃO',
+      falas: [{ linhas: ['Um balão listrado, preso por quatro cordas. Quem pilota é o Baloeiro, ali do lado.'] }] },
     { tipo: 'terreiro',    tx: 8,  ty: 4,  larg: 7, alt: 5 },              // porta (11,8)
     { tipo: 'portao',      tx: 8,  ty: 12, larg: 7, terreiro: 'luz' },
     { tipo: 'loja',        tx: 38, ty: 5,  larg: 5, alt: 4 },              // porta (40,8)
@@ -134,6 +137,18 @@ export const cidadeDoSol: DefMapa = {
   ],
 
   npcs: [
+    {
+      id: 'baloeiro_sol', nome: 'BALOEIRO', estilo: 'aldeao',
+      tx: 8, ty: 24, dir: 'esq',
+      falas: [
+        { se: 'medalha:aurora', leva: { mapa: 'circuloDourado', tx: 9, ty: 27, dir: 'cima' }, linhas: [
+          'Oito medalhas! Então o balão é seu: vamos ao Círculo Dourado, no meio do mundo.',
+          'Segura no cesto. Lá de cima dá pra ver as oito regiões de uma vez.'] },
+        { linhas: [
+          'Este balão vai até o Círculo Dourado, o torneio do meio do mundo.',
+          'Só levo quem tem as oito medalhas. Você tem {medalhas}.'] },
+      ],
+    },
     {
       id: 'acendedor', nome: 'ACENDEDOR', estilo: 'aldeao',
       tx: 30, ty: 24, dir: 'baixo',

@@ -45,13 +45,15 @@ export const aldeiaCatavento: DefMapa = {
     '#................................#',
     '#................................#',
     '#.......o................o.......#',
-    '#................................#',
-    '#................................#',
+    '.................................#',
+    '.................................#',
     '#................................#',
     '################..################',
   ],
 
   objetos: [
+    { tipo: 'placa', tx: 2, ty: 29,
+      placa: 'OESTE: ESTRADA DOURADA e o Círculo Dourado. Só com as oito medalhas.' },
     { tipo: 'terreiro',    tx: 13, ty: 3,  larg: 7, alt: 5 },              // porta (16,7)
     { tipo: 'portao',      tx: 13, ty: 11, larg: 7, terreiro: 'vento' },
     { tipo: 'loja',        tx: 3,  ty: 18, larg: 5, alt: 4 },              // porta (5,21)
@@ -135,6 +137,8 @@ export const aldeiaCatavento: DefMapa = {
   inicio: { tx: 16, ty: 1, dir: 'baixo' },
 
   saidas: [
+    { tx: 0,  ty: 30, para: 'estradaDourada',     destino: { tx: 46, ty: 11, dir: 'esq' } },
+    { tx: 0,  ty: 31, para: 'estradaDourada',     destino: { tx: 46, ty: 12, dir: 'esq' } },
     { tx: 16, ty: 0,  para: 'ventaniaFunda',      destino: { tx: 9,  ty: 41, dir: 'cima' } },
     { tx: 17, ty: 0,  para: 'ventaniaFunda',      destino: { tx: 10, ty: 41, dir: 'cima' } },
     { tx: 16, ty: 33, para: 'topoDoRedemoinho',   destino: { tx: 16, ty: 1,  dir: 'baixo' } },

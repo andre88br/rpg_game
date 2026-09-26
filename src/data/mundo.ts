@@ -50,7 +50,9 @@ export const REGIOES: readonly Regiao[] = [
             'becoDasRondas', 'casaraoAssombrado', 'terreiroBreu'] },
   { tipo: 'luz', nome: 'CIDADE DO SOL', medalha: 'aurora',
     mapas: ['caminhoAurora', 'cidadeDoSol', 'lojaSol', 'benzimentoSol', 'casaOraculo',
-            'jardimEspelhos', 'picoAurora', 'terreiroAurora'] },
+            'jardimEspelhos', 'picoAurora', 'terreiroAurora',
+            // o Círculo Dourado: o torneio das oito medalhas, no meio do mundo
+            'estradaDourada', 'circuloDourado', 'lojaCirculo', 'benzimentoCirculo', 'arenaDourada'] },
 ];
 
 /* a casinha de cada lugar ao ar livre: [coluna, linha] numa grade 10×7.
@@ -67,11 +69,12 @@ export const POSICOES: Record<string, readonly [number, number]> = {
   bocaDaMina: [7, 3], arraialCaipora: [7, 4], galeriasDaMina: [8, 4], cavaFunda: [6, 4],
   ruaDoBreu: [6, 5], bairroDaCuca: [7, 5], becoDasRondas: [7, 6],
   caminhoAurora: [8, 5], cidadeDoSol: [9, 5], picoAurora: [9, 4], jardimEspelhos: [9, 6],
+  estradaDourada: [4, 2], circuloDourado: [3, 2],
 };
 /* onde há cidade (casinha no mapa); o resto é caminho, mata, caverna... */
 export const CIDADES: ReadonlySet<string> = new Set([
   'vilaAurora', 'portoIara', 'mataDoCurupira', 'vilaFornalha', 'aldeiaCatavento',
-  'aldeiaTupa', 'arraialCaipora', 'bairroDaCuca', 'cidadeDoSol',
+  'aldeiaTupa', 'arraialCaipora', 'bairroDaCuca', 'cidadeDoSol', 'circuloDourado',
 ]);
 export const COLUNAS = 10;
 export const LINHAS = 7;

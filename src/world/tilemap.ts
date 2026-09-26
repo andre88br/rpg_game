@@ -15,7 +15,7 @@ import type { Cenario } from '../art/battlebg.ts';
 import type { Fala } from '../game/quests.ts';
 import type { DefPedra } from './pedras.ts';
 import type { DefCorrida } from '../game/corrida.ts';
-import { casaDaRegiao, terreiroDaRegiao, SOBRA } from '../art/predios.ts';
+import { casaDaRegiao, terreiroDaRegiao, arenaDourada, balao, SOBRA } from '../art/predios.ts';
 import { regiaoDoMapa } from '../data/mundo.ts';
 
 export const TS = 16;
@@ -77,14 +77,15 @@ export type TipoObjeto =
   | 'ladrilho' | 'veu'                               // Bairro da Cuca
   | 'espelho' | 'fonteLuz' | 'cristal' | 'lampiao'   // Cidade do Sol
   | 'cortinaLuz'
+  | 'arena' | 'balao'                                // o Círculo Dourado
   | 'balcao' | 'gamela' | 'estante' | 'mesa' | 'patuas' | 'bau'; // moveis de interior
 
 /* construcoes tem porta: o tile da porta NAO e solido, e e nele que a saida
    do mapa costuma ficar */
-const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja', 'moinho'];
+const COM_PORTA: readonly TipoObjeto[] = ['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja', 'moinho', 'arena'];
 
 /* construcao inteira vira parede; movel e cenario ocupam so o que desenham */
-const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol'];
+const BLOCO: readonly TipoObjeto[] = [...COM_PORTA, 'farol', 'balao'];
 
 /* Movel que da para conversar POR CIMA. Balcao de loja, mesa de cozinha: o
    corpo e parede, mas quem esta do outro lado escuta — e e assim que se fala
@@ -183,6 +184,8 @@ export interface DefTreinador {
      acesa (save de antes dela existir), cai no primeiro par do objeto —
      nunca falha, nunca lança. */
   trunfo?: Record<string, { especie: string; nivel: number }>;
+  /* vencer este é o fim da trilha: depois da fala de derrota, os créditos */
+  creditos?: boolean;
 }
 
 export interface DefNPC {
@@ -246,6 +249,9 @@ export interface DefMapa {
   /* corrida contra o relogio que comeca e termina neste mapa ou em outros
      (game/corrida.ts); o mapa que a declara e o que mostra o relogio */
   corrida?: DefCorrida;
+  /* flags apagadas toda vez que se entra no mapa vindo de outro — o torneio
+     recomeça do primeiro adversário, e sair para se curar não vale */
+  zeraAoEntrar?: readonly string[];
 }
 
 /* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um
@@ -333,6 +339,12 @@ export function spriteDoObjeto(o: DefObjeto, ctx: ContextoMapa, regiao?: Tipo): 
       sprite = T.construcao(larg, alt, { roof: '#c9a85a', roofD: '#9c7f3e', roofL: '#e8cf8a',
                                          sign: 'MOINHO', signColor: '#f0e4b8',
                                          portaCol: o.portaCol });
+      break;
+    case 'arena':
+      sprite = arenaDourada(larg, alt, o.portaCol); deslocY = -SOBRA;
+      break;
+    case 'balao':
+      sprite = balao(larg, alt); deslocY = -SOBRA;
       break;
     case 'terreiro':
       if (regiao) { sprite = terreiroDaRegiao(regiao, larg, alt, o.portaCol); deslocY = -SOBRA; break; }

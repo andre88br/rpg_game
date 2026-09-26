@@ -106,6 +106,9 @@ const CODIGO_REGIAO7: readonly Acao[] =
 /* o da região 8 gira a bússola ao contrário da 4, duas voltas */
 const CODIGO_REGIAO8: readonly Acao[] =
   ['esq', 'baixo', 'dir', 'cima', 'esq', 'baixo', 'dir', 'cima', 'b', 'a'];
+/* o do Círculo Dourado é o da região 5 com cada direção trocada pela oposta */
+const CODIGO_TORNEIO: readonly Acao[] =
+  ['dir', 'esq', 'dir', 'esq', 'baixo', 'cima', 'baixo', 'cima', 'b', 'a'];
 /* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
 const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
 const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
@@ -163,6 +166,8 @@ export interface OpcoesCenaMundo {
   aoBatalhar: (p: PedidoBatalha) => void;
   /* o menu de pausa pode desistir da partida e voltar ao título */
   aoSair?: () => void;
+  /* o campeão do Círculo Dourado vê os créditos; depois o mundo continua */
+  aoCreditos?: () => void;
 }
 
 export class CenaMundo implements Cena {
@@ -190,6 +195,8 @@ export class CenaMundo implements Cena {
   private carencia = 0;
   /* troca de mapa em andamento: some, troca, volta */
   private indo: DefSaida | null = null;
+  /* venceu o campeão: os créditos esperam a fala de derrota fechar */
+  private creditosPendentes = false;
   private fade = 0;
 
   private duelo: Duelo | null = null;
@@ -275,7 +282,8 @@ export class CenaMundo implements Cena {
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(this.folhaDe(this.op.estado.personagem), pos.tx, pos.ty, pos.dir);
     this.montarMapa(pos.mapa, { gravar: false });
-    this.jogador.teleportar(pos.tx, pos.ty, pos.dir);
+    // quem gravou dentro da arena já foi mandado para a entrada dela
+    if (!this.def.zeraAoEntrar) this.jogador.teleportar(pos.tx, pos.ty, pos.dir);
     this.centrarCamera();
   }
 
@@ -291,6 +299,18 @@ export class CenaMundo implements Cena {
 
   /* troca o cenário, os NPCs e os avisos; o jogador continua sendo o mesmo */
   private montarMapa(id: string, opt: { gravar?: boolean } = {}): void {
+    /* o torneio recomeça toda vez que se entra na arena vindo de fora: as
+       flags dele se apagam ANTES de montar o mapa, para as trancas fecharem.
+       Quem carrega um save gravado lá dentro volta para a entrada. */
+    const vindoDe = (this.def as DefMapa | undefined)?.id;
+    const zera = this.op.mundo.def(id).zeraAoEntrar;
+    if (zera && vindoDe !== id) {
+      for (const f of zera) delete this.op.estado.flags[f];
+      if (vindoDe === undefined) {
+        const i = this.op.mundo.def(id).inicio;
+        this.jogador.teleportar(i.tx, i.ty, i.dir);
+      }
+    }
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     this.marcarVisita(id);
@@ -618,6 +638,12 @@ export class CenaMundo implements Cena {
       return;
     }
     this.duelo = null;
+    // o balão: a tela escurece aqui e clareia no outro mapa, como numa porta
+    if (c.fala.leva) {
+      const l = c.fala.leva;
+      this.indo = { tx: this.jogador.tx, ty: this.jogador.ty, para: l.mapa, destino: { tx: l.tx, ty: l.ty, dir: l.dir } };
+      this.fade = 0;
+    }
     if (efeito.loja) { this.emLoja = true; this.loja!.abrir(); }
     if (efeito.escolher) {
       this.emEscolha = true;
@@ -780,6 +806,7 @@ export class CenaMundo implements Cena {
                  : typeof t.liga === 'string' ? [t.liga] : t.liga;
     for (const f of extras) e.flags[f] = true;
     if (t.premio) e.dinheiro += t.premio;
+    if (t.creditos) this.creditosPendentes = true;
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
@@ -898,7 +925,7 @@ export class CenaMundo implements Cena {
 
     this.bufferCodigo.push(...apertados);
     const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length, CODIGO_REGIAO8.length,
+                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length, CODIGO_REGIAO8.length, CODIGO_TORNEIO.length,
                            CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
     const excesso = this.bufferCodigo.length - maior;
     if (excesso > 0) this.bufferCodigo.splice(0, excesso);
@@ -934,6 +961,10 @@ export class CenaMundo implements Cena {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
       this.ativarCodigoRegiao8();
+    } else if (this.bateCodigo(CODIGO_TORNEIO)) {
+      this.bufferCodigo = [];
+      entrada.apertou('a'); entrada.apertou('b');
+      this.ativarCodigoTorneio();
     } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
       this.bufferCodigo = [];
       entrada.apertou('a'); entrada.apertou('b');
@@ -1105,6 +1136,26 @@ export class CenaMundo implements Cena {
     this.abrirConversa('???', ['Código aceito. O véu se abre, e o caminho da Cidade do Sol aparece.']);
   }
 
+  /* pula direto para a praça do Círculo Dourado: as oito medalhas e os oito
+     Dons. O time não muda — para chegar forte, o código de poder existe. */
+  private ativarCodigoTorneio(): void {
+    const e = this.op.estado;
+    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra', 'breu', 'aurora']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
+    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar', 'visao', 'prisma']) e.flags[`dom_${d}`] = true;
+    e.flags['escolheu_inicial'] = true;
+    if (e.time.length === 0) {
+      guardar(e, criar('curupinho', NIVEL_INICIAL));
+      e.flags['inicial_curupinho'] = true;
+    }
+    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
+
+    const alvo = this.op.mundo.def('circuloDourado').inicio;
+    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+    this.montarMapa('circuloDourado');
+    this.centrarCamera();
+    this.abrirConversa('???', ['Código aceito. O Círculo Dourado espera, no meio do mundo.']);
+  }
+
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
      não importa o nível — é o código secreto, não a régua do jogo */
   private ativarCodigoEvoluir(): void {
@@ -1230,6 +1281,13 @@ export class CenaMundo implements Cena {
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
 
     if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
+
+    // o campeão caiu: os créditos entram assim que a fala dele fecha
+    if (this.creditosPendentes && !this.conversa && !this.pergunta && !this.indo && !this.duelo) {
+      this.creditosPendentes = false;
+      this.op.aoCreditos?.();
+      return;
+    }
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
     // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)

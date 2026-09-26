@@ -9,6 +9,7 @@ import { CenaIntro } from './scenes/intro.ts';
 import { CenaPersonagem } from './scenes/personagem.ts';
 import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
 import { CenaBatalha } from './scenes/battle.ts';
+import { CenaCreditos } from './scenes/creditos.ts';
 import { MAPAS } from './data/mapas/index.ts';
 import { Mundo } from './world/mundo.ts';
 import { novoJogo, type EstadoJogo } from './game/state.ts';
@@ -84,6 +85,8 @@ function iniciarMundo(): void {
     estado: estado!,
     aoBatalhar: lutar,
     aoSair: aoTitulo,
+    // os créditos, e depois a partida segue de onde estava
+    aoCreditos: () => { const cena = mundo!; cenas.trocar(new CenaCreditos(estado!, () => cenas.trocar(cena))); },
   });
   cenas.trocar(mundo);
 }

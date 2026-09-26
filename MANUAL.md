@@ -1344,6 +1344,48 @@ com os cristais entregues **e** a Medalha Aurora: **Jaci nível 45**.
 | Cidade do Sol — canto sudeste | 2 Águas Bentas |
 | Jardim dos Espelhos — cercado do lado leste | 2 Patuás de Mestre |
 
+# O CÍRCULO DOURADO — o torneio das oito medalhas
+
+Fica no meio do continente, no espaço vazio entre a Mata, a Serra e o
+Campo do Saci. Dois jeitos de chegar:
+
+- **Balão:** na Cidade do Sol, o **Baloeiro** fica ao lado do balão
+  listrado, a oeste da praça (8,24). Com as oito medalhas, ele leva direto
+  para a praça do Círculo; o de lá traz de volta.
+- **A pé:** pela borda oeste da **Aldeia Catavento** (linhas 30-31), a
+  **Estrada Dourada**. No meio dela, o portão do Guarda do Círculo só abre
+  com a Medalha Aurora. Quatro aspirantes e veteranos treinam na estrada
+  (níveis 57-60).
+
+Na praça: benzimento, loja e a arena. **Leve garrafadas**: lá dentro
+ninguém benze ninguém.
+
+## A arena: seis lutas seguidas
+
+Seis câmaras, uma em cima da outra. Cada adversário vigia o carpete do
+meio: passar por ele é lutar. A porta da câmara seguinte só abre com a
+vitória. **Sair ou cair recomeça do primeiro Guardião.**
+
+| # | Quem | Tipos | Time |
+|---|---|---|---|
+| 1 | **Iracema** | Água/Planta | Iara-Mãe 58, Curupirá 58, Caipora 59, Iara-Mãe 59, Curupirá 60 |
+| 2 | **Itaberá** | Fogo/Terra | Salamanca 59, Cabra-Cabriola 59, Mula-sem-Cabeça 59, Mapinguari 59, Boitatão 60 |
+| 3 | **Ybytu** | Vento/Raio | Saci 59, Relampo 59, Uirapuru 60, Tatu-Trovão 59, Arco-da-Velha 60 |
+| 4 | **Jacira** | Sombra/Luz | Lobisomem 60, Estrela-d'Alva 60, Cuca 60, Pisadeira 60, Jaci 60 |
+| 5 | **Zeca**, a última vez | — | Lobisomem, Relampo, Saci, Minhocão, Estrela-d'Alva, todos 60, e o inicial de vantagem contra o seu |
+| 6 | **Anhangá**, o campeão | — | Cuca, Mapinguari, Uirapuru, Arco-da-Velha, Jaci, Caipora, todos 60, e o inicial de vantagem contra o seu |
+
+Todos são espertos: trocam de Encantado e usam garrafada, erva-doce e
+água benta. Vencer o Anhangá dá **15.000**, o título de campeão e os
+**créditos**.
+
+## Depois de campeão
+
+- A arena continua aberta, e os seis voltam com **times mais fortes**
+  (seis Encantados cada, todos no 60).
+- Na praça aparecem os **oito donos de terreiro**, cada um com seis
+  Encantados no 60, para uma **revanche**.
+
 ---
 
 ## Códigos secretos
@@ -1359,6 +1401,7 @@ valem em conversa, batalha, loja nem menu.
 | ← → ← → ↑ ↓ ↑ ↓ B A | Pula para a **Aldeia Tupã** (entrando pela Campina dos Raios) com as quatro medalhas, os quatro Dons e 5 Patuás Bons |
 | ↓ ↑ ↓ ↑ ← → ← → B A | Pula para as **Minas da Caipora** (entrando pela Boca da Mina) com as cinco medalhas, os cinco Dons e 5 Patuás Bons |
 | ↑ ↓ ↑ ↓ → ← → ← B A | Pula para o **Bairro da Cuca** (entrando pela Rua do Breu) com as seis medalhas, os seis Dons e 5 Patuás Bons |
+| → ← → ← ↓ ↑ ↓ ↑ B A | Pula para o **Círculo Dourado** com as oito medalhas e os oito Dons (o time não muda; use o código de poder) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | Pula para a **Cidade do Sol** (entrando pelo Caminho da Aurora) com as sete medalhas, os sete Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
@@ -1409,3 +1452,7 @@ Beco sem ser visto (esperar nos nichos) · Zeca 7 · Casarão: ladrilhos
 Estrela-d'Alva no cume → terreiro (2 espelhos · 2 guardas) → Solano →
 **Aurora + Prisma** →
 (3 cristais → Joalheira; cristais + medalha → Jaci; Prisma → 2 cortinas).
+
+**Círculo Dourado** — balão da Cidade do Sol (ou a Estrada Dourada, a oeste
+da Aldeia Catavento) → garrafadas na loja → Iracema · Itaberá · Ybytu ·
+Jacira · Zeca · **Anhangá** sem sair da arena → créditos → revanches.

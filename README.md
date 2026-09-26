@@ -170,6 +170,7 @@ tudo de novo.
 | ← → ← → ↑ ↓ ↑ ↓ B A | pula para a **Aldeia Tupã**, pela Campina dos Raios (com as quatro medalhas, os quatro Dons e cinco patuás bons) |
 | ↓ ↑ ↓ ↑ ← → ← → B A | pula para as **Minas da Caipora**, pela Boca da Mina (com as cinco medalhas, os cinco Dons e cinco patuás bons) |
 | ↑ ↓ ↑ ↓ → ← → ← B A | pula para o **Bairro da Cuca**, pela Rua do Breu (com as seis medalhas, os seis Dons e cinco patuás bons) |
+| → ← → ← ↓ ↑ ↓ ↑ B A | pula para o **Círculo Dourado** (com as oito medalhas e os oito Dons; o time não muda) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | pula para a **Cidade do Sol**, pelo Caminho da Aurora (com as sete medalhas, os sete Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
 | A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
@@ -207,6 +208,7 @@ src/
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
 ├─ scenes/    title.ts · overworld.ts · battle.ts
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
+│             creditos.ts (o fim do Círculo Dourado)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
@@ -542,7 +544,9 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
   **Dom de Campo**, que remove o obstáculo da estrada para a região seguinte.
 - **Uma região por vez.** Cada região sai completa e jogável antes de a seguinte
   começar. A primeira é a **Região da Foz**: Vila Aurora → Rota da Foz → Porto Iara.
-- **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas.
+- **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas:
+  quatro Guardiões de dois tipos cada, o Zeca e o campeão Anhangá. Fica no meio
+  do continente; depois dele, créditos e revanches.
 - **8 tipos:** Fogo → Planta → Água → Fogo · Terra → Raio → Vento → Terra · Luz ↔ Sombra.
 
 | # | Cidade | Tipo | Quem manda no terreiro | Medalha | Dom de Campo |
@@ -709,7 +713,17 @@ opcionais da região.
         lampiões e confere que ela cabe no tempo correndo, mas não andando.
         O Dom Prisma desfaz `'cortinaLuz'`; o Dom Visão Noturna da região 7
         desfaz o véu da saída sul do Bairro da Cuca.
-- [ ] **5 — Torneio.** Círculo Dourado e balanceamento.
+- [x] **5 — Torneio.** O **Círculo Dourado**, no meio do continente: a
+      Estrada Dourada sai da borda oeste da Aldeia Catavento, com um portão
+      que só abre com as oito medalhas, e um **balão** liga a Cidade do Sol à
+      praça (`Fala.leva`). Na arena, seis câmaras uma em cima da outra:
+      Iracema (Água/Planta), Itaberá (Fogo/Terra), Ybytu (Vento/Raio),
+      Jacira (Sombra/Luz), o Zeca pela última vez e o **Anhangá**. Não há
+      benzimento lá dentro, e `DefMapa.zeraAoEntrar` apaga as vitórias toda
+      vez que se entra vindo de fora: quem sai para se curar, ou cai, recomeça
+      do primeiro Guardião. Vencer o Anhangá liga `campeao` e toca os
+      **créditos** (`scenes/creditos.ts`); depois, os seis voltam com times
+      mais fortes e os oito donos de terreiro esperam revanche na praça.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
 
 ### Pontas soltas conhecidas

@@ -81,6 +81,9 @@ export interface Fala {
      de dizer `acertou`; a errada só desliga o que `errou.desliga` pedir e
      diz `errou.linhas`. Ver `responder()`. */
   pergunta?: Pergunta;
+  /* leva o jogador para outro mapa ao fechar a conversa — o balão do
+     Círculo Dourado. Ninguém anda: a tela escurece e clareia lá. */
+  leva?: { mapa: string; tx: number; ty: number; dir: 'cima' | 'baixo' | 'esq' | 'dir' };
 }
 
 export interface Pergunta {
@@ -208,6 +211,7 @@ export function preencher(e: EstadoJogo, linha: string): string {
       /* concordância de gênero: quem escolheu Bento não quer ouvir "menina" */
       case 'crianca': return pronomeDe(e) === 'ele' ? 'menino' : 'menina';
       case 'caida': return pronomeDe(e) === 'ele' ? 'caído' : 'caída';
+      case 'campea': return pronomeDe(e) === 'ele' ? 'campeão' : 'campeã';
       default: return inteiro;
     }
   });
