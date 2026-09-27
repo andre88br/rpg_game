@@ -84,6 +84,11 @@ export class Entrada {
     return { x, y };
   }
 
+  /* o que alguma cena de fato USOU neste quadro (via apertou) — é daqui
+     que sai o clique de interface: tecla apertada que ninguém usou, como o
+     A andando pelo mapa sem nada na frente, fica muda */
+  usadasNoQuadro(): ReadonlySet<Acao> { return this.consumidas; }
+
   /* chamado no fim de cada quadro */
   virarQuadro(): void {
     this.novas.clear();

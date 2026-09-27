@@ -24,6 +24,7 @@ import type { EstadoJogo } from '../game/state.ts';
 import {
   LARG_LEGENDA, textoDe, type Ator, type Efeito, type Figura, type Roteiro, type Tomada,
 } from '../data/cutscenes.ts';
+import * as Som from '../audio/som.ts';
 
 const CHARS_POR_SEG = 38;
 const FADE = 0.45;                 // o preto entre uma tomada e outra
@@ -123,6 +124,7 @@ export class CenaCutscene implements Cena {
               private readonly estado: EstadoJogo | null = null) {}
 
   entrar(): void {
+    Som.musica('historia');
     this.faisca = assar(fagulha());
     this.indice = 0;
     this.terminou = false;

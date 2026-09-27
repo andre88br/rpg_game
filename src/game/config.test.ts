@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   definirVelocidade, definirVisao3D, multiplicadorVelocidade, obterVelocidade, obterVisao3D,
-  usarArmazemConfig,
+  usarArmazemConfig, obterVolume, definirVolume, proximoVolume,
 } from './config.ts';
 import type { Armazem } from './save.ts';
 
@@ -55,4 +55,22 @@ test('a visão 3D vem ligada, e desligar vale para a próxima sessão', () => {
   usarArmazemConfig(ls);
   assert.equal(obterVisao3D(), false);
   assert.equal(obterVelocidade(), 'normal', 'a visão não mexe na velocidade');
+});
+
+test('volumes: MÉDIO por padrão, cada canal por si, e persistem', () => {
+  const ls = memoria();
+  usarArmazemConfig(ls);
+  assert.equal(obterVolume('musica'), 2);
+  assert.equal(obterVolume('efeitos'), 2);
+  definirVolume('musica', 0);
+  assert.equal(obterVolume('musica'), 0);
+  assert.equal(obterVolume('efeitos'), 2);
+  usarArmazemConfig(ls);                 // relê do armazém
+  assert.equal(obterVolume('musica'), 0);
+});
+
+test('proximoVolume dá a volta nos dois sentidos', () => {
+  assert.equal(proximoVolume(3), 0);
+  assert.equal(proximoVolume(0, -1), 3);
+  assert.equal(proximoVolume(1), 2);
 });

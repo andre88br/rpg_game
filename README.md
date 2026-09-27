@@ -111,6 +111,13 @@ mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
 desenho do mundo muda; conversa, batalha, menu e save são os de sempre. Vem
 ligado; quem prefere o mapa plano troca em **menu → OPÇÕES → VISÃO**.
 
+O jogo tem **som**: cada região tem a sua música (um baião de beira-mar na
+Foz, forró no Campo do Saci, galope na Serra...), a batalha tem a dela — uma
+para bicho selvagem, outra para treinador, outra para mestre de terreiro —, e
+golpe, dano, patuá, porta e menu fazem barulho. Como a arte, **o som também é
+feito por código**, sem nenhum arquivo de áudio. Música e efeitos têm volume
+separado em **menu → OPÇÕES → MÚSICA / EFEITOS**.
+
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
 ## Rodar
@@ -210,6 +217,11 @@ src/
 ├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
 │             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no plano)
+├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
+│             notas; baixo, bateria e arpejo saem dos acordes) + teste
+│             musicas.ts (cada música, e qual toca em cada mapa)
+│             motor.ts (o sintetizador WebAudio: pulso, triângulo, ruído)
+│             som.ts (o que as cenas chamam: música, vinheta, efeito)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
 ├─ scenes/    title.ts · overworld.ts · battle.ts
@@ -245,6 +257,48 @@ Três decisões que sustentam o desempenho e a nitidez:
   desperdiçaria mais de 10% da largura, preenchemos a tela — com 3 pixels
   físicos por pixel do jogo a diferença não é perceptível, e o jogo deixa de
   ficar minúsculo no celular.
+
+## Som feito por código
+
+Nenhum arquivo de áudio: `src/audio/motor.ts` é um sintetizador pequeno em
+WebAudio, no espírito de um console portátil — onda de pulso (12,5%, 25% e
+50%) para melodia e arpejo, triângulo para o baixo, ruído filtrado para a
+bateria e para os efeitos.
+
+**A música é texto.** Cada música em `audio/musicas.ts` é só a melodia e os
+acordes:
+
+```ts
+agua: {
+  bpm: 96, baixo: 'baiao', bateria: 'baiao', arpejo: 'colcheia',
+  acordes: ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D'],
+  melodia: `a4 d5 f#5:3 e5:1 d5 a4 b4:4 | g4 b4 d5:4 c#5 b4 g4:4 | ...`,
+},
+```
+
+Nota é `c5`, `f#4`, `bb4`; `:4` é a duração em semicolcheias (sem ela, uma
+colcheia); `-` é pausa; `|` fecha o compasso — e compasso que não soma 16 é
+erro, pego pelo teste. O baixo, a bateria e o arpejo **saem dos acordes**, por
+estilo (`baiao`, `galope`, `marcha`, `passeio`...), então compor uma música
+nova é escrever a melodia e a harmonia. A música é agendada ~150 ms à frente
+no relógio do áudio, para o ritmo não tremer quando um quadro atrasa.
+
+**O que toca onde** (`musicaDoMapa`): terreiro e arena têm a música de
+desafio; benzimento, a calma; loja e casa, a de dentro de casa; o resto, a da
+região. Entrar e sair de casa na mesma região não reinicia a melodia. Batalha:
+selvagem, treinador, ou mestre (dono de terreiro, torneio e bicho-chefe);
+vencer toca a de vitória. Cura, medalha, item, subir de nível e captura são
+**vinhetas**: interrompem a música, tocam uma vez, e ela volta.
+
+**O clique de interface** não está espalhado pelas telas: `Entrada` sabe o
+que cada cena de fato *usou* no quadro (`usadasNoQuadro`), e o laço toca um
+som só — A confirma, B volta, MENU abre, seta move o cursor. Tecla que
+ninguém usou fica muda: o A andando pelo mapa sem nada na frente não clica.
+
+O navegador só libera áudio depois de um toque ou tecla; o primeiro destrava
+o motor, e a música pedida antes disso começa ali. Aba escondida suspende o
+áudio. Volumes (desligado, baixo, médio, alto) moram em `game/config.ts`,
+fora de qualquer save.
 
 ## Assar suave: o mundo sem escadinha
 

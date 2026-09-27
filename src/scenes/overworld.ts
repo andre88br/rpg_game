@@ -56,6 +56,8 @@ import { avaliarCorrida, encerrar, type DefCorrida } from '../game/corrida.ts';
 /* todas as corridas contra o sol do jogo, de qualquer mapa */
 const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
 import { salvar } from '../game/save.ts';
+import * as Som from '../audio/som.ts';
+import { musicaDoMapa, type IdMusica } from '../audio/musicas.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
@@ -164,6 +166,8 @@ export interface PedidoBatalha {
   cenario?: Cenario;
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
+  /* a música da luta; sem ela, selvagem ou treinador comum */
+  musica?: IdMusica;
 }
 
 export interface OpcoesCenaMundo {
@@ -201,6 +205,7 @@ export class CenaMundo implements Cena {
   /* carência depois de uma batalha: sem isso o jogador volta ao mato e cai
      direto em outra luta, no mesmo passo */
   private carencia = 0;
+  private tumPausa = 0;
   /* troca de mapa em andamento: some, troca, volta */
   private indo: DefSaida | null = null;
   /* venceu o campeão: os créditos esperam a fala de derrota fechar */
@@ -264,6 +269,7 @@ export class CenaMundo implements Cena {
 
   entrar(): void {
     if (this.montado) {
+      Som.musica(musicaDoMapa(this.def.id));
       this.tempoFaixa = 0;
       this.conversa = null;
       this.carencia = 0.6;
@@ -329,6 +335,7 @@ export class CenaMundo implements Cena {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     this.marcarVisita(id);
+    Som.musica(musicaDoMapa(id));
     this.conversa = null;
     this.duelo = null;
 
@@ -699,6 +706,10 @@ export class CenaMundo implements Cena {
       salvar(e);
     }
     if (efeito.medalha) this.atualizarCenario();   // o Dom muda o mapa
+
+    if (efeito.medalha) Som.vinheta('medalha');
+    else if (efeito.curou) Som.vinheta('cura');
+    else if (efeito.deu || efeito.encantado) Som.vinheta('item');
   }
 
   /* o patuá escolhido na mesa da Dona Firmina vira o primeiro do time */
@@ -810,6 +821,8 @@ export class CenaMundo implements Cena {
       },
       itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
+      // bicho-chefe e dono de terreiro (ou o torneio) lutam com a música de mestre
+      musica: t.selvagem || musicaDoMapa(this.def.id) === 'terreiro' ? 'mestre' : undefined,
     });
   }
 
@@ -1477,9 +1490,12 @@ export class CenaMundo implements Cena {
     const dir: Direcao | null = direcaoDe(x, y);
     if (dir) this.tentarEmpurrar(dir);
     const deX = this.jogador.tx, deY = this.jogador.ty;
-    this.jogador.comandar(this.mapa, dir, entrada.segurando('b'),
+    const bateu = this.jogador.comandar(this.mapa, dir, entrada.segurando('b'),
                           (tx, ty) => this.ocupados.has(`${tx},${ty}`)
                                     || ocupadaPorPedra(this.pedras, tx, ty));
+    // encostado na parede, o "tum" se repete num compasso, não a cada quadro
+    this.tumPausa = Math.max(0, this.tumPausa - dt);
+    if (bateu && this.tumPausa === 0) { Som.efeito('parede'); this.tumPausa = 0.3; }
     if (this.jogador.tx !== deX || this.jogador.ty !== deY) {
       this.puxarSeguidor(deX, deY, entrada.segurando('b'));
     }
@@ -1490,7 +1506,8 @@ export class CenaMundo implements Cena {
 
     if (chegou) this.aoPisarNoTile();
 
-    if (!this.duelo && !this.deslizando && entrada.apertou('a')) this.interagir();
+    // espia o A em vez de usá-lo: sem nada na frente, o A fica mudo
+    if (!this.duelo && !this.deslizando && entrada.apertouAgora('a')) this.interagir();
 
     this.centrarCamera();
   }
@@ -1665,6 +1682,7 @@ export class CenaMundo implements Cena {
   /* a passagem inteira: escurece, troca o mapa na metade, clareia */
   private atravessar(dt: number): void {
     const antes = this.fade;
+    if (antes === 0) Som.efeito('porta');
     this.fade += dt;
     if (antes < FADE && this.fade >= FADE) {
       const s = this.indo!;

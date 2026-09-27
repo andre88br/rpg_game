@@ -15,6 +15,7 @@ import { MAPAS } from './data/mapas/index.ts';
 import { Mundo } from './world/mundo.ts';
 import { novoJogo, type EstadoJogo } from './game/state.ts';
 import { carregarDeSlot, definirSlotAtivo, migrarSaveAntigo } from './game/save.ts';
+import * as Som from './audio/som.ts';
 
 // quem jogava antes dos seis slots tinha um save só: essa migração acontece
 // uma vez, aqui, antes de qualquer tela olhar para os slots
@@ -31,6 +32,23 @@ const cenas = new GerenciadorCenas();
 /* ---- botões de toque ---- */
 for (const el of document.querySelectorAll<HTMLElement>('[data-acao]')) {
   entrada.ligarBotao(el, el.dataset['acao'] as Acao);
+}
+
+/* ---- som ----
+   O navegador só libera o áudio dentro de um gesto de quem joga: todo
+   toque e toda tecla tentam destravar (depois da primeira, é de graça). */
+for (const ev of ['keydown', 'pointerdown', 'touchend'] as const) {
+  window.addEventListener(ev, () => Som.destravar(), { capture: true });
+}
+
+/* o clique de interface: um por quadro, pelo que a cena de fato usou */
+function somDeInterface(): void {
+  const usadas = entrada.usadasNoQuadro();
+  if (usadas.size === 0) return;
+  if (usadas.has('a')) Som.efeito('confirmar');
+  else if (usadas.has('b')) Som.efeito('voltar');
+  else if (usadas.has('menu')) Som.efeito('menu');
+  else Som.efeito('cursor');
 }
 
 /* ---- ampliação: sempre por fator inteiro ---- */
@@ -56,6 +74,7 @@ let mundo: CenaMundo | null = null;
 function lutar(p: PedidoBatalha): void {
   const est = estado!;
   const cena = mundo!;
+  Som.efeito('encontro');
   cenas.trocar(new CenaBatalha({
     estado: est,
     oponentes: p.oponentes,
@@ -120,6 +139,7 @@ cenas.definir(new CenaTitulo(comecar));
 /* ---- laço ---- */
 const laco = new Laco((dt) => {
   cenas.atualizar(dt, entrada);
+  somDeInterface();
   cenas.desenhar(r);
   entrada.virarQuadro();
 });

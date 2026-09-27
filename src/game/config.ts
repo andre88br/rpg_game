@@ -32,7 +32,7 @@ function loja(): Armazem | null {
 
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazemConfig(a: Armazem | null): void {
-  armazem = a; velocidade = undefined; visao3d = undefined;
+  armazem = a; velocidade = undefined; visao3d = undefined; volumes = {};
 }
 
 let velocidade: Velocidade | undefined;
@@ -69,4 +69,39 @@ export function obterVisao3D(): boolean {
 export function definirVisao3D(v: boolean): void {
   visao3d = v;
   try { loja()?.setItem(CHAVE_VISAO, v ? 'sim' : 'nao'); } catch { /* nada a fazer */ }
+}
+
+/* Som: a música e os efeitos têm volumes separados, de DESLIGADO a ALTO —
+   tem quem jogue com a música baixa e os efeitos altos, e quem jogue no
+   ônibus sem som nenhum. Os dois vêm no MÉDIO. */
+export type Canal = 'musica' | 'efeitos';
+export type Volume = 0 | 1 | 2 | 3;
+
+export const NOME_VOLUME: Record<Volume, string> = { 0: 'DESLIGADO', 1: 'BAIXO', 2: 'MÉDIO', 3: 'ALTO' };
+
+const CHAVE_VOLUME: Record<Canal, string> = {
+  musica: 'encantados:config:musica:v1', efeitos: 'encantados:config:efeitos:v1',
+};
+let volumes: Partial<Record<Canal, Volume>> = {};
+
+export function obterVolume(c: Canal): Volume {
+  const v = volumes[c];
+  if (v !== undefined) return v;
+  let lido: Volume = 2;
+  try {
+    const n = Number(loja()?.getItem(CHAVE_VOLUME[c]) ?? NaN);
+    if (n === 0 || n === 1 || n === 2 || n === 3) lido = n;
+  } catch { /* fica no padrão */ }
+  volumes[c] = lido;
+  return lido;
+}
+
+export function definirVolume(c: Canal, v: Volume): void {
+  volumes[c] = v;
+  try { loja()?.setItem(CHAVE_VOLUME[c], String(v)); } catch { /* nada a fazer */ }
+}
+
+/* o próximo volume, dando a volta: ALTO → DESLIGADO */
+export function proximoVolume(v: Volume, passo: 1 | -1 = 1): Volume {
+  return (((v + passo) % 4 + 4) % 4) as Volume;
 }

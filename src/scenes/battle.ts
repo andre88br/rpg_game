@@ -28,6 +28,8 @@ import {
 import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import * as L from '../ui/listas.ts';
+import * as Som from '../audio/som.ts';
+import type { IdMusica } from '../audio/musicas.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 
@@ -81,6 +83,8 @@ export interface OpcoesCenaBatalha {
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
   cenario?: Cenario;
+  /* a música da luta; sem ela, a de selvagem ou a de treinador */
+  musica?: IdMusica;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -151,6 +155,7 @@ export class CenaBatalha implements Cena {
       mochila: est.mochila,
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
+    Som.musica(this.op.musica ?? (this.op.treinador ? 'treinador' : 'selvagem'));
 
     this.fundo = assarSuave(fundoBatalha(this.op.cenario ?? 'praia'));
     this.caixaMsg = assar(UI.caixa(LARGURA, 50));
@@ -283,27 +288,40 @@ export class CenaBatalha implements Cena {
         this.avanco[e.lado] = 0.26;
         this.espera = 0.22;
         this.projetil = { tipo: fichaGolpe(e.golpe).tipo, origem: e.lado, t: 0, dur: 0.22 };
+        Som.golpe(fichaGolpe(e.golpe).tipo);
         break;
-      case 'errou': this.espera = 0.12; break;
+      case 'errou': this.espera = 0.12; Som.efeito('errou'); break;
 
       case 'dano':
         this.vis[e.lado].alvoHp = e.para;
-        if (e.para < e.de) this.tremor[e.lado] = 0.3;
+        if (e.para < e.de) {
+          this.tremor[e.lado] = 0.3;
+          Som.efeito(e.critico ? 'critico' : e.eficacia > 1 ? 'superEficaz'
+                     : e.eficacia < 1 ? 'poucoEficaz' : 'dano');
+        }
         this.espera = 0.1;
         break;
       case 'cura':
         this.vis[e.lado].alvoHp = e.para;
+        if (e.para > e.de) Som.efeito('curar');
         this.espera = 0.1;
         break;
 
-      case 'status': this.vis[e.lado].status = e.status; this.espera = 0.12; break;
-      case 'quebranto': this.vis[e.lado].quebranto = e.ativo; this.espera = 0.12; break;
-      case 'estagio': this.espera = 0.08; break;
+      case 'status':
+        this.vis[e.lado].status = e.status; this.espera = 0.12;
+        if (e.status) Som.efeito('status');
+        break;
+      case 'quebranto':
+        this.vis[e.lado].quebranto = e.ativo; this.espera = 0.12;
+        if (e.ativo) Som.efeito('status');
+        break;
+      case 'estagio': this.espera = 0.08; Som.efeito(e.passos > 0 ? 'subir' : 'descer'); break;
 
       case 'desmaio':
         this.vis[e.lado].caido = true;
         this.queda[e.lado] = 0.7;
         this.espera = 0.75;
+        Som.efeito('desmaio');
         break;
       case 'sair': this.entradaSprite[e.lado] = 0; this.espera = 0.2; break;
       case 'entrar':
@@ -311,12 +329,14 @@ export class CenaBatalha implements Cena {
         this.queda[e.lado] = 0;
         this.entradaSprite[e.lado] = 0;
         this.espera = 0.35;
+        Som.efeito('entrar');
         break;
 
       case 'patua':
         this.patuaAnim = 0;
         this.patuaBalancos = e.balancos;
         this.espera = 0.45 + 0.35 * e.balancos;
+        this.somPatua(e.balancos, e.capturado);
         break;
 
       case 'xp':
@@ -336,6 +356,7 @@ export class CenaBatalha implements Cena {
         v.xp = 0;
         v.alvoXp = this.haNivelAdiante() ? 1 : progressoXP(this.b.aliado.enc);
         this.espera = 0.3;
+        Som.vinheta('nivel');
         break;
       }
       case 'evoluir': {
@@ -350,11 +371,28 @@ export class CenaBatalha implements Cena {
         v.nome = nome(enc);
         this.brilho = 1.1;
         this.espera = 1.15;
+        Som.efeito('evoluir');
         break;
       }
-      case 'aprender': case 'esquecer': case 'trocarForcado': case 'fim':
+      case 'fim':
+        this.espera = 0.05;
+        if (e.resultado === 'vitoria' || e.resultado === 'captura') Som.musica('vitoria');
+        else if (e.resultado === 'fuga') Som.efeito('fuga');
+        else { Som.musica(null); Som.vinheta('derrota'); }
+        break;
+      case 'aprender': case 'esquecer': case 'trocarForcado':
         this.espera = 0.05; break;
     }
+  }
+
+  /* o patuá: sobe assobiando, balança uma vez por balanço, e no fim ou
+     prende (a vinheta) ou o bicho escapa */
+  private somPatua(balancos: number, capturado: boolean): void {
+    Som.efeito('patuaJogar');
+    const ms = (s: number) => s * 1000;
+    for (let i = 0; i < balancos; i++) setTimeout(() => Som.efeito('patuaBalanco'), ms(0.45 + 0.35 * i + 0.1));
+    setTimeout(() => (capturado ? Som.vinheta('captura') : Som.efeito('patuaSolta')),
+               ms(0.45 + 0.35 * balancos + 0.1));
   }
 
   /* chamado quando a fila esvazia: decide o que pedir ao jogador */

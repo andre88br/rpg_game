@@ -105,27 +105,30 @@ export class Ator {
 
   /* Tenta dar um passo. Se o ator ainda nao esta virado para la, primeiro
      vira no lugar — tocar de leve numa direcao so gira, como no genero. */
+  /* devolve true quando o passo deu de cara com parede ou gente — é o
+     "tum" de quem empurra o que não anda */
   comandar(mapa: Mapa, dir: Direcao | null, correr: boolean,
-           bloqueado?: (tx: number, ty: number) => boolean): void {
-    if (this.movendo || dir === null) return;
+           bloqueado?: (tx: number, ty: number) => boolean): boolean {
+    if (this.movendo || dir === null) return false;
 
     if (this.dir !== dir) {
       this.dir = dir;
       this.esperaVirada = ESPERA_VIRADA;
-      return;
+      return false;
     }
-    if (this.esperaVirada > 0) return;
+    if (this.esperaVirada > 0) return false;
 
     const [dx, dy] = DELTAS[dir];
     const ntx = this.tx + dx, nty = this.ty + dy;
-    if (mapa.solido(ntx, nty)) return;
-    if (bloqueado?.(ntx, nty)) return;
+    if (mapa.solido(ntx, nty)) return true;
+    if (bloqueado?.(ntx, nty)) return true;
 
     this.deX = this.tx; this.deY = this.ty;
     this.tx = ntx; this.ty = nty;
     this.progresso = 0;
     this.duracao = (correr ? VEL_CORRER : VEL_ANDAR) / multiplicadorVelocidade();
     this.movendo = true;
+    return false;
   }
 
   /* Passo sem pedir licença ao mapa: é assim que o escoltado vai para o

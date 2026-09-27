@@ -30,7 +30,13 @@ import {
 import { desenharMundo, desenharPlanta } from '../ui/mapas.ts';
 import {
   VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade, obterVisao3D, definirVisao3D,
+  NOME_VOLUME, obterVolume, definirVolume, proximoVolume,
 } from '../game/config.ts';
+import * as Som from '../audio/som.ts';
+
+/* as linhas da página de OPÇÕES: cada uma troca de valor com A ou com as
+   setas para os lados */
+const OPCOES = ['VELOCIDADE', 'VISÃO', 'MÚSICA', 'EFEITOS'] as const;
 
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
@@ -135,13 +141,13 @@ export class MenuPausa {
       case 'GUIA': this.pagina = 'guia'; break;
       case 'OPÇÕES':
         this.pagina = 'velocidade';
-        this.velSel = VELOCIDADES.indexOf(obterVelocidade());
+        this.velSel = 0;
         break;
       case 'SALVAR':
         this.pagina = 'slots';
         this.slots.abrir('salvar', (slot) => {
           const ok = salvarEmSlot(this.op.estado, slot);
-          if (ok) definirSlotAtivo(slot);
+          if (ok) { definirSlotAtivo(slot); Som.efeito('salvar'); }
           this.avisar(ok
             ? `PARTIDA GRAVADA NO SLOT ${slot + 1}.`
             : 'ESTE NAVEGADOR NÃO DEIXA GRAVAR.', 2.2);
@@ -151,6 +157,30 @@ export class MenuPausa {
       case 'SAIR': this.pagina = 'sair'; this.sel = 1; break;
     }
     return 'aberto';
+  }
+
+  private mudarOpcao(qual: (typeof OPCOES)[number], passo: 1 | -1): void {
+    switch (qual) {
+      case 'VELOCIDADE': {
+        const n = VELOCIDADES.length;
+        const v = VELOCIDADES[(VELOCIDADES.indexOf(obterVelocidade()) + passo + n) % n]!;
+        definirVelocidade(v);
+        this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[v]}.`);
+        break;
+      }
+      case 'VISÃO': {
+        const em3d = !obterVisao3D();
+        definirVisao3D(em3d);
+        this.avisar(em3d ? 'VISÃO 3D: A FOZ SAI DO PAPEL.' : 'VISÃO PLANA.');
+        break;
+      }
+      case 'MÚSICA': case 'EFEITOS': {
+        const canal = qual === 'MÚSICA' ? 'musica' : 'efeitos';
+        definirVolume(canal, proximoVolume(obterVolume(canal), passo));
+        Som.aplicarVolumes();
+        break;
+      }
+    }
   }
 
   private naPagina(entrada: Entrada): SaidaMenu {
@@ -172,18 +202,10 @@ export class MenuPausa {
     }
 
     if (this.pagina === 'velocidade') {
-      // as três velocidades e, embaixo, a visão: 3D ou plana
-      this.velSel = this.andar(entrada, this.velSel, VELOCIDADES.length + 2);
-      if (entrada.apertou('a')) {
-        if (this.velSel < VELOCIDADES.length) {
-          definirVelocidade(VELOCIDADES[this.velSel]!);
-          this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[VELOCIDADES[this.velSel]!]}.`);
-        } else {
-          const em3d = this.velSel === VELOCIDADES.length;
-          definirVisao3D(em3d);
-          this.avisar(em3d ? 'VISÃO 3D: A FOZ SAI DO PAPEL.' : 'VISÃO PLANA.');
-        }
-      }
+      this.velSel = this.andar(entrada, this.velSel, OPCOES.length);
+      const passo = entrada.apertou('esq') ? -1
+                  : entrada.apertou('dir') || entrada.apertou('a') ? 1 : 0;
+      if (passo !== 0) this.mudarOpcao(OPCOES[this.velSel]!, passo);
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
       return 'aberto';
     }
@@ -440,23 +462,20 @@ export class MenuPausa {
         break;
       }
       case 'velocidade': {
-        L.telaCheia(r, this.caixaCheia, 'OPÇÕES', 'A ESCOLHER   B VOLTAR');
-        const atual = obterVelocidade();
-        r.texto('VELOCIDADE', 16, 26, P.uiBg3!);
-        VELOCIDADES.forEach((v, i) => {
-          const y = 38 + i * 12;
-          if (i === this.velSel) r.texto('=', 16, y, P.uiAccD!);
-          r.texto(NOME_VELOCIDADE[v], 28, y, v === atual ? P.uiAccD! : P.uiInk!);
-          if (v === atual) r.texto('(ATUAL)', 100, y, P.uiBg3!);
-        });
-        r.texto('VISÃO', 16, 78, P.uiBg3!);
-        const em3d = obterVisao3D();
-        (['3D NA FOZ', 'PLANA'] as const).forEach((nome, j) => {
-          const i = VELOCIDADES.length + j, y = 90 + j * 12;
-          const ativa = (j === 0) === em3d;
-          if (i === this.velSel) r.texto('=', 16, y, P.uiAccD!);
-          r.texto(nome, 28, y, ativa ? P.uiAccD! : P.uiInk!);
-          if (ativa) r.texto('(ATUAL)', 100, y, P.uiBg3!);
+        L.telaCheia(r, this.caixaCheia, 'OPÇÕES', 'A OU < > MUDA   B VOLTAR');
+        const valores: Record<(typeof OPCOES)[number], string> = {
+          VELOCIDADE: NOME_VELOCIDADE[obterVelocidade()],
+          VISÃO: obterVisao3D() ? '3D NA FOZ' : 'PLANA',
+          MÚSICA: NOME_VOLUME[obterVolume('musica')],
+          EFEITOS: NOME_VOLUME[obterVolume('efeitos')],
+        };
+        OPCOES.forEach((op, i) => {
+          const y = 34 + i * 18;
+          const sel = i === this.velSel;
+          if (sel) r.texto('=', 16, y, P.uiAccD!);
+          r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);
+          const v = valores[op];
+          r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiBg3!);
         });
         break;
       }
