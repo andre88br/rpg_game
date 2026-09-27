@@ -186,6 +186,9 @@ export interface DefTreinador {
   trunfo?: Record<string, { especie: string; nivel: number }>;
   /* vencer este é o fim da trilha: depois da fala de derrota, os créditos */
   creditos?: boolean;
+  /* vencer este toca uma cutscene da história (id em data/cutscenes.ts),
+     depois da fala de derrota — uma vez só por partida */
+  cutscene?: string;
 }
 
 export interface DefNPC {

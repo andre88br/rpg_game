@@ -1,0 +1,286 @@
+/* =========================================================================
+   O tocador de cutscenes: pega um roteiro (data/cutscenes.ts) e toca tomada
+   por tomada — fundo, câmera, quem anda por cima, partículas e a legenda
+   escrita letra a letra, como a fala de qualquer NPC.
+
+   A revela a página inteira; com ela inteira, A passa para a próxima página
+   ou, na última, para a próxima tomada (com um fade preto entre elas).
+   B pula a cutscene inteira — quem já viu não deveria ter que ver de novo.
+   ========================================================================= */
+import { Buf, assar, assarSuave, type Assado } from '../core/buf.ts';
+import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
+import type { Cena } from '../core/scene.ts';
+import type { Entrada } from '../core/input.ts';
+import { P } from '../art/palette.ts';
+import { quebrar } from '../art/font.ts';
+import { spritePessoa, ESTILOS, type Quadro } from '../art/people.ts';
+import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { medalha } from '../art/badges.ts';
+import { fogueira, trator, fagulha } from '../art/cenas.ts';
+import { multiplicadorVelocidade } from '../game/config.ts';
+import {
+  LARG_LEGENDA, type Ator, type Figura, type Roteiro, type Tomada,
+} from '../data/cutscenes.ts';
+
+const CHARS_POR_SEG = 38;
+const FADE = 0.45;                 // o preto entre uma tomada e outra
+const FADE_ATOR = 0.6;             // quanto um ator leva para surgir ou sumir
+const Y_LEGENDA = 122;             // de onde a faixa da legenda começa
+const TEMPO_TITULO = 1.6;          // o letreiro acende nesse tempo
+
+/* os quadros de animação de uma figura, e quantos por segundo */
+interface Quadros { imgs: Assado[]; fps: number; soAndando: boolean }
+
+function quadrosDe(f: Figura): Quadros {
+  if ('pessoa' in f) {
+    const op = ESTILOS[f.pessoa] ?? {};
+    const d = f.dir ?? 'baixo';
+    const q = (n: Quadro) => assar(spritePessoa(op, d, n));
+    const parado = q(0);
+    return { imgs: [parado, q(1), parado, q(2)], fps: 7, soAndando: true };
+  }
+  if ('criatura' in f) {
+    const arte = ARTE_CRIATURAS[f.criatura]?.();
+    if (!arte) return { imgs: [], fps: 0, soAndando: false };
+    const b = f.flip ? new Buf(arte.w, arte.h).blit(arte, 0, 0, { flipX: true }) : arte;
+    return { imgs: [assarSuave(b)], fps: 0, soAndando: false };
+  }
+  if ('medalha' in f) return { imgs: [assar(medalha(f.medalha, f.tam ?? 16))], fps: 0, soAndando: false };
+  if (f.peca === 'fogueira') return { imgs: [0, 1, 2].map((i) => assar(fogueira(i))), fps: 8, soAndando: false };
+  return { imgs: [0, 1].map((i) => assar(trator(i))), fps: 8, soAndando: true };
+}
+
+const suave = (t: number) => t * t * (3 - 2 * t);
+const limitar = (v: number, a = 0, z = 1) => Math.max(a, Math.min(z, v));
+
+/* onde o ator está no tempo t, e se está andando nesse instante */
+function posicao(a: Ator, t: number): { x: number; y: number; andando: boolean } {
+  let x = a.x, y = a.y, andando = false;
+  if (a.ate) {
+    const de = a.ate.de ?? 0;
+    let p = (t - de) / a.ate.por;
+    if (a.ate.vaiVolta && p > 0) {
+      const ciclo = p % 2;
+      p = ciclo > 1 ? 2 - ciclo : ciclo;
+      andando = true;
+    } else {
+      andando = p > 0 && p < 1;
+      p = limitar(p);
+    }
+    const k = a.ate.vaiVolta ? suave(p) : p;
+    x = a.x + (a.ate.x - a.x) * k;
+    y = a.y + (a.ate.y - a.y) * k;
+  }
+  if (a.balanco) {
+    const s = Math.sin(((t / a.balanco.periodo) * Math.PI * 2) + (a.balanco.fase ?? 0));
+    y -= a.balanco.salto ? Math.abs(s) * a.balanco.amp : s * a.balanco.amp;
+  }
+  return { x, y, andando };
+}
+
+function opacidade(a: Ator, t: number): number {
+  let al = a.alfa ?? 1;
+  if (a.aparece !== undefined) al *= limitar((t - a.aparece) / FADE_ATOR);
+  if (a.some !== undefined) al *= 1 - limitar((t - a.some) / FADE_ATOR);
+  return al;
+}
+
+/* o que é preciso de uma tomada já pronto para desenhar */
+interface Preparada {
+  tomada: Tomada;
+  fundo: Assado;
+  depois: Assado | null;
+  atores: { ator: Ator; q: Quadros }[];
+  paginas: string[][];          // cada legenda já quebrada em linhas
+}
+
+export class CenaCutscene implements Cena {
+  private prep: Preparada | null = null;
+  private indice = 0;
+  private t = 0;                // tempo da tomada (anima fundo e atores)
+  private fase: 'entra' | 'mostra' | 'sai' = 'entra';
+  private tf = 0;               // tempo dentro do fade
+  private pagina = 0;
+  private revelados = 0;
+  private faisca!: Assado;
+  private terminou = false;
+
+  constructor(private readonly roteiro: Roteiro, private readonly aoTerminar: () => void) {}
+
+  entrar(): void {
+    this.faisca = assar(fagulha());
+    this.indice = 0;
+    this.terminou = false;
+    this.preparar();
+  }
+
+  private preparar(): void {
+    const tomada = this.roteiro[this.indice];
+    if (!tomada) { this.fim(); return; }
+    this.prep = {
+      tomada,
+      fundo: assarSuave(tomada.fundo()),
+      depois: tomada.depois ? assarSuave(tomada.depois.fundo()) : null,
+      atores: (tomada.atores ?? []).map((ator) => ({ ator, q: quadrosDe(ator.figura) })),
+      paginas: tomada.legendas.map((s) => quebrar(s, LARG_LEGENDA)),
+    };
+    this.t = 0;
+    this.tf = 0;
+    this.fase = 'entra';
+    this.pagina = 0;
+    this.revelados = 0;
+  }
+
+  private fim(): void {
+    if (this.terminou) return;
+    this.terminou = true;
+    this.aoTerminar();
+  }
+
+  private get linhas(): string[] { return this.prep?.paginas[this.pagina] ?? []; }
+  private get totalChars(): number {
+    const l = this.linhas;
+    return l.length ? l.reduce((n, s) => n + s.length, 0) + l.length - 1 : 0;
+  }
+  /* a página está inteira na tela (ou a tomada é só letreiro e ele já acendeu) */
+  private get pronta(): boolean {
+    if (!this.prep) return false;
+    if (this.prep.paginas.length === 0) return this.t >= TEMPO_TITULO;
+    return this.revelados >= this.totalChars;
+  }
+
+  atualizar(dt: number, entrada: Entrada): void {
+    if (this.terminou || !this.prep) return;
+    const passo = dt * multiplicadorVelocidade();
+    this.t += passo;
+
+    if (entrada.apertou('b')) { this.fim(); return; }     // pula a cutscene inteira
+
+    if (this.fase === 'entra') {
+      this.tf += dt;
+      if (this.tf >= FADE) { this.fase = 'mostra'; this.tf = 0; }
+      return;
+    }
+    if (this.fase === 'sai') {
+      this.tf += dt;
+      if (this.tf >= FADE) { this.indice++; this.preparar(); }
+      return;
+    }
+
+    this.revelados = Math.min(this.totalChars, this.revelados + CHARS_POR_SEG * passo);
+    if (!entrada.apertou('a')) return;
+    if (!this.pronta) {
+      // A no meio: revela a página inteira (ou acende o letreiro de vez)
+      this.revelados = this.totalChars;
+      if (this.prep.paginas.length === 0) this.t = Math.max(this.t, TEMPO_TITULO);
+      return;
+    }
+    if (this.pagina < this.prep.paginas.length - 1) {
+      this.pagina++;
+      this.revelados = 0;
+      return;
+    }
+    if (this.indice >= this.roteiro.length - 1) { this.fim(); return; }
+    this.fase = 'sai';
+    this.tf = 0;
+  }
+
+  desenhar(r: Renderizador): void {
+    r.limpar('#0d0912');
+    const p = this.prep;
+    if (!p) return;
+    const tom = p.tomada;
+    const ctx = r.ctx;
+
+    // câmera: só anda se o fundo for mais largo que a tela
+    let camX = 0;
+    if (tom.camera) {
+      const k = suave(limitar((this.t - (tom.camera.inicio ?? 0)) / tom.camera.por));
+      camX = Math.round(tom.camera.de + (tom.camera.ate - tom.camera.de) * k);
+    }
+    r.recorte(p.fundo, camX, 0, LARGURA, ALTURA, 0, 0);
+    if (p.depois && tom.depois) {
+      const al = limitar((this.t - tom.depois.de) / tom.depois.por);
+      if (al > 0) {
+        ctx.globalAlpha = al;
+        r.recorte(p.depois, camX, 0, LARGURA, ALTURA, 0, 0);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // quem está por cima do fundo, de trás (y menor) para a frente
+    const vivos = p.atores
+      .map(({ ator, q }) => ({ q, al: opacidade(ator, this.t), ...posicao(ator, this.t) }))
+      .filter((v) => v.al > 0 && v.q.imgs.length > 0)
+      .sort((a, b) => a.y - b.y);
+    for (const v of vivos) {
+      const anima = v.q.fps > 0 && (!v.q.soAndando || v.andando);
+      const img = v.q.imgs[anima ? Math.floor(this.t * v.q.fps) % v.q.imgs.length : 0]!;
+      ctx.globalAlpha = v.al;
+      r.sprite(img, v.x - camX, v.y);
+    }
+    ctx.globalAlpha = 1;
+
+    for (const e of tom.efeitos ?? []) this.desenharEfeito(r, e.tipo, e.x - camX, e.y, this.t - (e.aparece ?? 0));
+
+    if (tom.titulo) this.desenharTitulo(r, tom.titulo);
+    if (p.paginas.length) this.desenharLegenda(r);
+
+    if (this.pronta && this.fase === 'mostra' && Math.floor(this.t * 2.5) % 2 === 0) {
+      r.texto('A', LARGURA - 14, ALTURA - 13, P.uiAcc!, { sombra: P.ink! });
+    }
+    r.texto('B PULAR', LARGURA - 50, 5, '#b0a8c8', { sombra: P.ink! });
+
+    const escuro = this.fase === 'entra' ? 1 - this.tf / FADE : this.fase === 'sai' ? this.tf / FADE : 0;
+    r.cortina(escuro);
+  }
+
+  /* partículas sem estado: cada uma é só uma fase que dá a volta no tempo */
+  private desenharEfeito(r: Renderizador, tipo: 'fagulhas' | 'fumaca', x: number, y: number, t: number): void {
+    if (t <= 0) return;
+    const ctx = r.ctx;
+    const entrada = limitar(t / FADE_ATOR);
+    if (tipo === 'fagulhas') {
+      for (let i = 0; i < 10; i++) {
+        const f = (t * 0.55 + i / 10) % 1;
+        const dx = Math.sin(i * 7.3 + f * 6) * (3 + f * 6);
+        ctx.globalAlpha = (1 - f) * entrada;
+        r.sprite(this.faisca, x + dx, y - f * 44);
+      }
+    } else {
+      for (let i = 0; i < 7; i++) {
+        const f = (t * 0.18 + i / 7) % 1;
+        const tam = Math.round(4 + f * 10);
+        ctx.globalAlpha = 0.45 * (1 - f) * entrada;
+        r.retangulo(x + Math.sin(i * 3.1 + f * 4) * 6 + f * 14 - tam / 2, y - f * 50 - tam / 2, tam, tam, '#5a4a44');
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  private desenharTitulo(r: Renderizador, linhas: readonly string[]): void {
+    const al = limitar((this.t - 0.3) / (TEMPO_TITULO - 0.3));
+    if (al <= 0) return;
+    r.ctx.globalAlpha = al;
+    linhas.forEach((s, i) => {
+      const y = 44 + i * 16;
+      r.texto(s, (LARGURA - r.larguraTexto(s)) / 2, y, i === 0 ? P.gold! : P.lightD!, { sombra: P.ink! });
+    });
+    r.ctx.globalAlpha = 1;
+  }
+
+  private desenharLegenda(r: Renderizador): void {
+    r.ctx.globalAlpha = 0.78;
+    r.retangulo(0, Y_LEGENDA, LARGURA, ALTURA - Y_LEGENDA, P.black!);
+    r.ctx.globalAlpha = 1;
+    r.retangulo(0, Y_LEGENDA, LARGURA, 1, P.uiAccD!);
+    if (this.fase !== 'mostra') return;
+
+    let restantes = Math.floor(this.revelados);
+    this.linhas.forEach((linha, i) => {
+      if (restantes <= 0) return;
+      r.texto(linha.slice(0, restantes), 10, Y_LEGENDA + 5 + i * 11, P.uiBg!, { sombra: P.ink! });
+      restantes -= linha.length + 1;
+    });
+  }
+}

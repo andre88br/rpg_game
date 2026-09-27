@@ -168,6 +168,8 @@ export interface OpcoesCenaMundo {
   aoSair?: () => void;
   /* o campeão do Círculo Dourado vê os créditos; depois o mundo continua */
   aoCreditos?: () => void;
+  /* uma cutscene da história (id em data/cutscenes.ts); depois o mundo continua */
+  aoCutscene?: (id: string) => void;
 }
 
 export class CenaMundo implements Cena {
@@ -197,6 +199,8 @@ export class CenaMundo implements Cena {
   private indo: DefSaida | null = null;
   /* venceu o campeão: os créditos esperam a fala de derrota fechar */
   private creditosPendentes = false;
+  /* uma cutscene da história esperando a vez, como os créditos */
+  private historiaPendente: string | null = null;
   private fade = 0;
 
   private duelo: Duelo | null = null;
@@ -628,6 +632,7 @@ export class CenaMundo implements Cena {
     });
     this.atualizarCenario();
     if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+    this.pedirHistoria(c.fala.cutscene);
 
     if (efeito.batalha && c.npc?.def.treinador) {
       if (temTimeEmPe(e)) { this.lutarCom(c.npc); return; }
@@ -807,6 +812,7 @@ export class CenaMundo implements Cena {
     for (const f of extras) e.flags[f] = true;
     if (t.premio) e.dinheiro += t.premio;
     if (t.creditos) this.creditosPendentes = true;
+    this.pedirHistoria(t.cutscene);
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
@@ -814,6 +820,17 @@ export class CenaMundo implements Cena {
     if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
     salvar(e);
     if (t.falaDerrota && r !== 'captura') this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
+  }
+
+  /* guarda a cutscene da história para tocar assim que nada estiver na tela.
+     A flag é ligada já aqui, e é gravada junto com o resto do progresso:
+     cada cutscene toca uma vez só por partida. */
+  private pedirHistoria(id: string | undefined): void {
+    if (!id || !this.op.aoCutscene) return;
+    const e = this.op.estado;
+    if (e.flags[`viu_cut_${id}`]) return;
+    e.flags[`viu_cut_${id}`] = true;
+    this.historiaPendente = id;
   }
 
   /* ------------------------------------------------------- corte de câmera
@@ -1281,6 +1298,16 @@ export class CenaMundo implements Cena {
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
 
     if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
+
+    // uma cutscene da história: entra assim que a conversa que a pediu fecha
+    if (this.historiaPendente && !this.conversa && !this.pergunta && !this.indo && !this.duelo
+        && !this.emLoja && !this.emMenu && !this.emEscolha && !this.emCaixa && !this.emPoder) {
+      const id = this.historiaPendente;
+      this.historiaPendente = null;
+      salvar(this.op.estado);
+      this.op.aoCutscene?.(id);
+      return;
+    }
 
     // o campeão caiu: os créditos entram assim que a fala dele fecha
     if (this.creditosPendentes && !this.conversa && !this.pergunta && !this.indo && !this.duelo) {

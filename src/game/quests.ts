@@ -84,6 +84,9 @@ export interface Fala {
   /* leva o jogador para outro mapa ao fechar a conversa — o balão do
      Círculo Dourado. Ninguém anda: a tela escurece e clareia lá. */
   leva?: { mapa: string; tx: number; ty: number; dir: 'cima' | 'baixo' | 'esq' | 'dir' };
+  /* toca uma cutscene da história (id em data/cutscenes.ts) quando a
+     conversa fecha — uma vez só por partida */
+  cutscene?: string;
 }
 
 export interface Pergunta {

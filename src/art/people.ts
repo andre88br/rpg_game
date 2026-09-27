@@ -172,6 +172,13 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
               roupa: '#2f2447', roupaL: '#4a3a6b', calca: '#15101f', chapeu: 'coroa' },
   aldeao:   { cabelo: '#4a3020', roupa: '#c98f3f', roupaL: '#e8b060', calca: '#5a4a3a' },
   crianca:  { cabelo: '#2c1b14', roupa: '#d9a63f', roupaL: '#f0c45e', calca: '#3f6a4a' },
+  /* a avó que conta a história na abertura: cabelo branco comprido e xale */
+  avo:      { cabelo: '#e8e4dc', cabeloL: '#ffffff', cabeloLongo: true,
+              pele: P.skin2, peleEsc: P.skin2D,
+              roupa: '#8f4f6a', roupaL: '#b06a88', calca: '#5a3a4a' },
+  /* o capataz da Companhia Mata-Seca: boné cinza e roupa de firma */
+  capataz:  { chapeu: 'bone', chapeuCor: '#4a4a4a', chapeuCorL: '#6a6a6a', cabelo: '#2c1b14',
+              roupa: '#6a6a6a', roupaL: '#8a8a8a', calca: '#2a2a2a' },
   /* capacete amarelo de mina e roupa cor de barro — as Minas da Caipora */
   garimpeiro: { chapeu: 'bone', chapeuCor: '#d9b23a', chapeuCorL: '#f0d06a', cabelo: '#3a2a1a',
                 roupa: '#7a5a3a', roupaL: '#9c7a52', calca: '#4a3a2a' },

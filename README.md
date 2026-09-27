@@ -190,6 +190,7 @@ src/
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
+│             cenas (fundos e peças das cutscenes: fogueira, trator...)
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
@@ -209,7 +210,9 @@ src/
 ├─ scenes/    title.ts · overworld.ts · battle.ts
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
 │             creditos.ts (o fim do Círculo Dourado)
+│             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
+│             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
 │             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4
@@ -464,9 +467,18 @@ confirmação de graça, sem reescrever nada. Quem jogava antes dos seis slots
 tinha um save só, numa chave sem número; `migrarSaveAntigo()` o move para o
 slot 1 na primeira vez que o jogo carrega, e nunca mais toca naquela chave.
 
-Um jogo NOVO — nunca um CONTINUAR — passa primeiro por `scenes/intro.ts`:
-quatro páginas de texto sobre um céu escuro, lidas como qualquer conversa (A
-revela e avança, B pula a introdução inteira). Depois vem `scenes/
+Um jogo NOVO — nunca um CONTINUAR — passa primeiro pela **cutscene de
+abertura**: seis tomadas animadas (a avó contando a história na beira da
+fogueira, o rio, a mata e a serra com os Encantados que moram neles, a vila
+de hoje em que ninguém mais os vê, o trator da **Companhia Mata-Seca**
+transformando a mata em toco, a trilha ao amanhecer com as oito medalhas no
+céu, e o letreiro). A legenda se lê como qualquer conversa (A revela e
+avança), B pula a abertura inteira. Quem toca é `scenes/cutscene.ts:
+CenaCutscene`, a partir de um roteiro em `data/cutscenes.ts` — fundos e
+peças desenhados em `art/cenas.ts`. Outras cutscenes da história entram do
+mesmo jeito: basta um roteiro novo e `cutscene: '<id>'` numa fala ou num
+treinador; ela toca quando a conversa fecha, uma vez só por partida (flag
+`viu_cut_<id>`), e o mundo continua de onde estava. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,
