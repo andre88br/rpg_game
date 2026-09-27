@@ -96,10 +96,11 @@ export const portoIara: DefMapa = {
       id: 'pescador', nome: 'MESTRE DO PORTO', estilo: 'pescador',
       tx: 17, ty: 29, dir: 'cima',
       falas: [
-        { se: 'item:carta', pede: { item: 'carta' }, liga: 'conta_recado', paga: 800, linhas: [
+        /* a carta da Firmina: ele paga, acende a conta, e conta a história do
+           porto na cutscene (as redes e o farol vêm dela) */
+        { se: 'item:carta', pede: { item: 'carta' }, liga: 'conta_recado', paga: 800, cutscene: 'mestre', linhas: [
           'Carta da Dona Firmina? Passa pra cá, {crianca}.',
-          'Chegou seca, apesar da maré. Toma aqui pelo incômodo — e mandei acender sua primeira conta.',
-          'Agora o meu problema: sumiram três redes minhas. Dizem que foi bicho, não gente.'] },
+          'Chegou seca, apesar da maré. Toma aqui pelo incômodo.'] },
         { se: 'item:rede>=3', pede: { item: 'rede', n: 3 }, liga: 'conta_redes',
           paga: 700, linhas: [
           'As TRÊS! Eu sabia que era bicho, e ninguém acreditava em mim.',

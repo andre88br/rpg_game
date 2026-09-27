@@ -459,3 +459,83 @@ export function redemoinhoLembranca(): Buf {
   }
   return b;
 }
+
+/* ------------------------------------------------ o Mestre do Porto */
+
+/* o cais de Porto Iara de dia: tábua, mar, o farol listrado e um barquinho */
+export function caisIara(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 60, [[0x5a, 0xa8, 0xe8], [0x9c, 0xd4, 0xf4], [0xe0, 0xf2, 0xf8]]);
+  b.rect(0, 60, W, 44, P.water!);
+  const r = rng(61);
+  for (let i = 0; i < 50; i++) b.rect((r() * W) | 0, 62 + ((r() * 40) | 0), 5, 1, P.waterL!);
+  for (let x = 0; x < W; x += 2) b.set(x, 60, P.foam!);
+  // o farol lá longe, na ponta
+  b.rect(196, 22, 10, 40, '#ecdcc2');
+  for (const y of [30, 42, 54]) b.rect(196, y, 10, 4, '#c2493f');
+  b.rect(194, 16, 14, 6, '#3a3a3a'); b.rect(198, 17, 6, 4, P.fireL!);
+  b.rect(190, 60, 22, 4, P.rockD!);
+  // um barquinho de pesca amarrado
+  b.tri(30, 74, 70, 74, 64, 82, '#8a5a30'); b.rect(30, 72, 40, 3, '#b07a48');
+  b.rect(48, 52, 2, 20, '#6d4726'); b.tri(50, 54, 50, 70, 62, 70, '#f4f0e0');
+  // o cais de tábua, na frente
+  for (let y = 104; y < H; y += 6) { b.rect(0, y, W, 6, y % 12 ? '#9c6b3c' : '#8a5a30'); b.rect(0, y, W, 1, '#6d4726'); }
+  for (let x = 0; x < W; x += 30) b.rect(x, 104, 4, H - 104, '#5a3a1e');
+  // uma rede enrolada e um cesto
+  b.ellipse(212, 112, 12, 5, '#8a8078'); for (let x = 202; x < 222; x += 3) b.set(x, 110, '#5a524c');
+  b.rect(12, 106, 14, 10, '#b08a58'); b.rect(12, 106, 14, 2, '#8a6a3f');
+  return b;
+}
+
+/* o porto de antigamente, na lembrança do Mestre: noite de neblina e uma
+   fileira de barcos com lanterna, voltando para casa */
+export function portoAntigo(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 70, [[0x1a, 0x24, 0x40], [0x3a, 0x4a, 0x6a], [0x6a, 0x7a, 0x90]]);
+  estrelas(b, 67, 20, 40);
+  b.circle(40, 24, 9, '#e8e4d0'); b.circle(43, 22, 8, '#3a4a6a');
+  b.rect(0, 70, W, H - 70, '#2a4a6a');
+  const r = rng(71);
+  for (let i = 0; i < 60; i++) b.rect((r() * W) | 0, 72 + ((r() * 86) | 0), 6, 1, '#4a6a8a');
+  // a fileira de barcos, cada um com a lanterna acesa
+  for (let k = 0; k < 7; k++) {
+    const x = 14 + k * 32, y = 84 + (k % 2) * 10;
+    b.tri(x, y, x + 24, y, x + 20, y + 6, '#1a1410'); b.rect(x + 10, y - 16, 1, 16, '#1a1410');
+    b.tri(x + 11, y - 14, x + 11, y - 3, x + 19, y - 3, '#8a8a9a');
+    b.rect(x + 2, y - 4, 3, 3, P.fireL!);
+    b.set(x + 3, y + 3, '#f8d880'); b.set(x + 3, y + 6, '#c8a860');
+  }
+  // neblina baixa, em faixas
+  for (let y = 96; y < 130; y += 3) for (let x = (y * 7) % 11; x < W; x += 9) b.rect(x, y, 5, 1, '#8a9ab0');
+  // moldura de lembrança
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = Math.min(x, y, W - 1 - x, H - 1 - y);
+    if (d < 6 && (x + y) % (d + 2) === 0) b.set(x, y, '#0a0e18');
+  }
+  return b;
+}
+
+/* a praia de noite, com os varais de rede do Mestre — onde as redes somem */
+export function varalRedes(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 64, [[0x10, 0x14, 0x2a], [0x22, 0x2a, 0x4a]]);
+  estrelas(b, 83, 30, 60);
+  b.circle(200, 22, 10, '#f0ecd8'); b.circle(197, 20, 3, '#d8d4c0');
+  b.rect(0, 58, W, 22, P.waterD!);
+  for (let x = 0; x < W; x += 3) b.set(x, 58, '#6a8ab0');
+  b.rect(0, 80, W, H - 80, '#b8a878');
+  const r = rng(89);
+  for (let i = 0; i < 90; i++) b.set((r() * W) | 0, 82 + ((r() * 76) | 0), '#9c8c60');
+  // três varais: dois com rede, um vazio
+  for (const [x, cheio] of [[40, true], [110, false], [180, true]] as const) {
+    b.rect(x, 62, 3, 30, '#5a3a1e'); b.rect(x + 40, 62, 3, 30, '#5a3a1e');
+    b.rect(x, 62, 43, 2, '#6d4726');
+    if (cheio) {
+      for (let yy = 64; yy < 86; yy += 3) b.rect(x + 3, yy, 37, 1, '#7a7a78');
+      for (let xx = x + 4; xx < x + 40; xx += 4) b.rect(xx, 64, 1, 22, '#7a7a78');
+    } else {
+      b.rect(x + 18, 64, 2, 4, '#7a7a78');   // só um fiapo de rede
+    }
+  }
+  return b;
+}

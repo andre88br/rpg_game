@@ -297,8 +297,74 @@ const ZECA: Roteiro = [
   },
 ];
 
+/* ------------------------------------------ o Mestre do Porto, com a carta
+
+   Toca quando o Mestre recebe a carta da Dona Firmina: a história do porto,
+   a Companhia querendo comprar tudo, e os dois serviços que ele deixa — as
+   redes sumidas e o bicho do farol. */
+const MESTRE: Roteiro = [
+  { // o cais: ele lê a carta
+    fundo: C.caisIara,
+    atores: [
+      { figura: { pessoa: 'pescador', dir: 'esq' }, x: 150, y: 88 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 88 },
+      { figura: { inicial: true }, x: 62, y: 78, balanco: { amp: 1, periodo: 1.8 } },
+    ],
+    legendas: [
+      'O Mestre do Porto leu a carta duas vezes, devagar, como quem conta rede.',
+      { quem: 'MESTRE DO PORTO', texto: 'A Firmina escreve pouco e diz muito. Diz que você é de confiança.' },
+    ],
+  },
+  { // o porto de antigamente: trinta barcos e a Iara-Mãe guiando na neblina
+    fundo: C.portoAntigo,
+    atores: [
+      { figura: { criatura: 'iaraMae' }, x: 96, y: 58, alfa: 0.55, aparece: 0.8,
+        ate: { x: 136, y: 56, de: 0.8, por: 6 }, balanco: { amp: 2, periodo: 2.4 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'No tempo do meu pai, a Foz tinha trinta barcos.' },
+      { quem: 'MESTRE DO PORTO', texto: 'E quando a neblina baixava, a Iara-Mãe trazia um por um de volta pra casa.' },
+    ],
+  },
+  { // a Companhia com o papel carimbado
+    fundo: C.fozEstacas,
+    atores: [
+      { figura: { pessoa: 'pescador', dir: 'dir' }, x: 100, y: 94 },
+      { figura: { pessoa: 'capataz', dir: 'esq' }, x: 150, y: 94, ate: { x: 122, y: 94, de: 0.3, por: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'Agora a Companhia quer comprar o porto inteiro. Mandaram papel dizendo que o rio tem dono.' },
+      { quem: 'MESTRE DO PORTO', texto: 'Eu disse que o rio é da Iara. Riram de mim.' },
+    ],
+  },
+  { // as redes sumindo de noite
+    fundo: C.varalRedes,
+    atores: [
+      { figura: { criatura: 'sacizinho' }, x: 120, y: 84, ate: { x: 250, y: 90, de: 0.5, por: 3.5 }, balanco: { amp: 4, periodo: 0.5 } },
+      { figura: { criatura: 'sacizinho', flip: true }, x: 110, y: 100, ate: { x: -40, y: 104, de: 1.2, por: 3.5 }, balanco: { amp: 4, periodo: 0.5, fase: 1 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'E pra piorar, sumiram três redes minhas. Dizem que foi bicho, não gente.' },
+      { quem: 'MESTRE DO PORTO', texto: 'Sem rede não tem peixe. E sem peixe, eu acabo vendendo o barco pra eles.' },
+    ],
+  },
+  { // de volta ao cais, com o farol ao fundo
+    fundo: C.caisIara,
+    atores: [
+      { figura: { pessoa: 'pescador', dir: 'esq' }, x: 150, y: 88 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 88 },
+      { figura: { inicial: true }, x: 62, y: 78, balanco: { amp: 1, periodo: 1.8 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'Essa primeira conta é sua, pela carta. Traz as três redes e eu acendo outra.' },
+      { quem: 'MESTRE DO PORTO', texto: 'E repara no farol: de noite ele acende sozinho. Tem bicho morando lá, {crianca}.' },
+    ],
+  },
+];
+
 export const CUTSCENES: Record<string, Roteiro> = {
   intro: INTRO,
   firmina: FIRMINA,
   zeca: ZECA,
+  mestre: MESTRE,
 };

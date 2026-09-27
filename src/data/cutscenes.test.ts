@@ -84,3 +84,11 @@ test('o primeiro Zeca, na Rota da Foz, é apresentado antes da luta', () => {
   const roteiro = CUTSCENES['zeca']!;
   assert.ok(roteiro.some((t) => t.titulo?.includes('ZECA')), 'falta o letreiro do rival');
 });
+
+test('o Mestre do Porto conta a história do porto quando recebe a carta', () => {
+  const mestre = MAPAS['portoIara']!.npcs.find((n) => n.id === 'pescador')!;
+  const carta = mestre.falas.find((f) => f.pede?.item === 'carta')!;
+  assert.equal(carta.cutscene, 'mestre');
+  assert.equal(carta.liga, 'conta_recado');
+  assert.ok((carta.paga ?? 0) > 0);
+});

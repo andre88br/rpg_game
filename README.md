@@ -494,7 +494,11 @@ Foz: o letreiro "ZECA, O REDEMOINHO", a lembrança dele pulando num
 redemoinho atrás de um Sacizinho (daí o apelido) e o pai dele, que foi
 trabalhar para a Companhia Mata-Seca. Ela toca ENTRE a fala de desafio e a
 batalha: o treinador leva `apresentacao: '<id>'`, e a luta espera a cutscene
-acabar. Depois vem `scenes/
+acabar. A quarta é a do **Mestre do Porto**, quando ele recebe a carta da
+Firmina em Porto Iara: o porto de antigamente com trinta barcos e a Iara-Mãe
+guiando na neblina, o capataz da Companhia com o papel de compra, as redes
+sumindo de noite nas mãos dos Sacizinhos e, no fim, o aviso do farol. Ela
+toca antes do corte da guia que acende a conta. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,
