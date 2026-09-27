@@ -18,8 +18,11 @@ import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { medalha } from '../art/badges.ts';
 import { fogueira, trator, fagulha } from '../art/cenas.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
+import { preencher } from '../game/quests.ts';
+import { nome as nomeDe } from '../battle/encantado.ts';
+import type { EstadoJogo } from '../game/state.ts';
 import {
-  LARG_LEGENDA, type Ator, type Figura, type Roteiro, type Tomada,
+  LARG_LEGENDA, textoDe, type Ator, type Figura, type Roteiro, type Tomada,
 } from '../data/cutscenes.ts';
 
 const CHARS_POR_SEG = 38;
@@ -31,7 +34,13 @@ const TEMPO_TITULO = 1.6;          // o letreiro acende nesse tempo
 /* os quadros de animação de uma figura, e quantos por segundo */
 interface Quadros { imgs: Assado[]; fps: number; soAndando: boolean }
 
-function quadrosDe(f: Figura): Quadros {
+/* sem partida (a abertura, antes de existir alguém), valem estes */
+const JOGADOR_PADRAO = 'taina';
+const INICIAL_PADRAO = 'iarinha';
+
+function quadrosDe(f: Figura, e: EstadoJogo | null): Quadros {
+  if ('jogador' in f) return quadrosDe({ pessoa: e?.personagem ?? JOGADOR_PADRAO, dir: f.dir }, e);
+  if ('inicial' in f) return quadrosDe({ criatura: e?.time[0]?.especie ?? INICIAL_PADRAO, flip: f.flip }, e);
   if ('pessoa' in f) {
     const op = ESTILOS[f.pessoa] ?? {};
     const d = f.dir ?? 'baixo';
@@ -91,7 +100,7 @@ interface Preparada {
   fundo: Assado;
   depois: Assado | null;
   atores: { ator: Ator; q: Quadros }[];
-  paginas: string[][];          // cada legenda já quebrada em linhas
+  paginas: { quem: string | null; linhas: string[] }[];   // cada legenda já quebrada
 }
 
 export class CenaCutscene implements Cena {
@@ -105,7 +114,10 @@ export class CenaCutscene implements Cena {
   private faisca!: Assado;
   private terminou = false;
 
-  constructor(private readonly roteiro: Roteiro, private readonly aoTerminar: () => void) {}
+  /* `estado`: a partida, para as figuras e legendas que dependem de quem
+     está jogando. A abertura toca antes de haver partida, e passa null. */
+  constructor(private readonly roteiro: Roteiro, private readonly aoTerminar: () => void,
+              private readonly estado: EstadoJogo | null = null) {}
 
   entrar(): void {
     this.faisca = assar(fagulha());
@@ -121,8 +133,11 @@ export class CenaCutscene implements Cena {
       tomada,
       fundo: assarSuave(tomada.fundo()),
       depois: tomada.depois ? assarSuave(tomada.depois.fundo()) : null,
-      atores: (tomada.atores ?? []).map((ator) => ({ ator, q: quadrosDe(ator.figura) })),
-      paginas: tomada.legendas.map((s) => quebrar(s, LARG_LEGENDA)),
+      atores: (tomada.atores ?? []).map((ator) => ({ ator, q: quadrosDe(ator.figura, this.estado) })),
+      paginas: tomada.legendas.map((l) => ({
+        quem: typeof l === 'string' ? null : l.quem,
+        linhas: quebrar(this.recheio(textoDe(l)), LARG_LEGENDA),
+      })),
     };
     this.t = 0;
     this.tf = 0;
@@ -131,13 +146,20 @@ export class CenaCutscene implements Cena {
     this.revelados = 0;
   }
 
+  private recheio(s: string): string {
+    const e = this.estado;
+    if (!e) return s;
+    const bicho = e.time[0];
+    return preencher(e, bicho ? s.replaceAll('{inicial}', nomeDe(bicho)) : s);
+  }
+
   private fim(): void {
     if (this.terminou) return;
     this.terminou = true;
     this.aoTerminar();
   }
 
-  private get linhas(): string[] { return this.prep?.paginas[this.pagina] ?? []; }
+  private get linhas(): string[] { return this.prep?.paginas[this.pagina]?.linhas ?? []; }
   private get totalChars(): number {
     const l = this.linhas;
     return l.length ? l.reduce((n, s) => n + s.length, 0) + l.length - 1 : 0;
@@ -275,6 +297,15 @@ export class CenaCutscene implements Cena {
     r.ctx.globalAlpha = 1;
     r.retangulo(0, Y_LEGENDA, LARGURA, 1, P.uiAccD!);
     if (this.fase !== 'mostra') return;
+
+    // quem fala: uma etiqueta encostada em cima da faixa
+    const quem = this.prep?.paginas[this.pagina]?.quem;
+    if (quem) {
+      const w = r.larguraTexto(quem) + 8;
+      r.retangulo(6, Y_LEGENDA - 11, w, 11, P.uiAccD!);
+      r.retangulo(7, Y_LEGENDA - 10, w - 2, 10, P.ink!);
+      r.texto(quem, 10, Y_LEGENDA - 8, P.gold!);
+    }
 
     let restantes = Math.floor(this.revelados);
     this.linhas.forEach((linha, i) => {

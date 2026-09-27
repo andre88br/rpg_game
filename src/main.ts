@@ -92,7 +92,7 @@ function iniciarMundo(): void {
     aoCutscene: (id) => {
       const cena = mundo!;
       const roteiro = CUTSCENES[id];
-      if (roteiro) cenas.trocar(new CenaCutscene(roteiro, () => cenas.trocar(cena)));
+      if (roteiro) cenas.trocar(new CenaCutscene(roteiro, () => cenas.trocar(cena), estado));
     },
   });
   cenas.trocar(mundo);

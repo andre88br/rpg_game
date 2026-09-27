@@ -19,6 +19,10 @@ import * as C from '../art/cenas.ts';
 
 export type Figura =
   | { pessoa: string; dir?: Direcao }
+  /* quem está jogando (Tainá ou Bento) e o primeiro Encantado do time —
+     resolvidos na hora, a partir da partida */
+  | { jogador: true; dir?: Direcao }
+  | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
   | { peca: 'fogueira' | 'trator' };
@@ -54,11 +58,19 @@ export interface Tomada {
   camera?: { de: number; ate: number; inicio?: number; por: number };
   atores?: readonly Ator[];
   efeitos?: readonly Efeito[];
-  /* páginas de legenda, cada uma no máximo LINHAS_LEGENDA linhas */
-  legendas: readonly string[];
+  /* páginas de legenda, cada uma no máximo LINHAS_LEGENDA linhas. Aceitam
+     o recheio das falas ({nome}, {crianca}...) e {inicial}, o nome do
+     primeiro Encantado do time */
+  legendas: readonly Legenda[];
   /* letreiro grande no meio da tela (a tomada final da abertura) */
   titulo?: readonly string[];
 }
+
+/* uma página de legenda: narração solta, ou a fala de alguém (o nome vai
+   numa etiqueta em cima da faixa) */
+export type Legenda = string | { quem: string; texto: string };
+
+export const textoDe = (l: Legenda): string => typeof l === 'string' ? l : l.texto;
 
 export type Roteiro = readonly Tomada[];
 
@@ -158,6 +170,65 @@ const INTRO: Roteiro = [
   },
 ];
 
+/* ------------------------------------------ o primeiro patuá, na casa da Firmina
+
+   Toca quando fecha a conversa da escolha do inicial. É onde a Companhia
+   Mata-Seca deixa de ser história de avó e chega à Foz. */
+const FIRMINA: Roteiro = [
+  { // os três na sala: o patuá escolhido em cima da mesa
+    fundo: C.salaFirmina,
+    atores: [
+      { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
+      { figura: { inicial: true }, x: 104, y: 56, aparece: 0.3, balanco: { amp: 2, periodo: 2.4 } },
+      { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84 },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 149, y: 74, aparece: 0.4 }],
+    legendas: [
+      '{inicial} ficou em cima da mesa, olhando de um para o outro, como quem já sabia o caminho.',
+      { quem: 'DONA FIRMINA', texto: 'Patuá escolhido é laço feito, {crianca}. E eu não te chamei aqui à toa.' },
+    ],
+  },
+  { // a Companhia desce na praia da Foz
+    fundo: C.fozEstacas,
+    atores: [
+      { figura: { pessoa: 'capataz', dir: 'dir' }, x: 30, y: 92 },
+      { figura: { pessoa: 'capataz', dir: 'dir' }, x: 70, y: 100, ate: { x: 120, y: 100, de: 0.6, por: 4 } },
+      { figura: { pessoa: 'pescador', dir: 'esq' }, x: 196, y: 96, aparece: 2.2 },
+    ],
+    legendas: [
+      { quem: 'DONA FIRMINA', texto: 'Semana passada desceu na Foz uma lancha da Companhia Mata-Seca. Gente de boné, estaca e papel carimbado.' },
+      { quem: 'DONA FIRMINA', texto: 'Mediram a praia, contaram as redes e disseram ao Mestre do Porto que o rio agora tem dono.' },
+    ],
+  },
+  { // a comporta, e quem morava no rio indo embora
+    fundo: C.rioCalado,
+    atores: [
+      { figura: { criatura: 'iaraMae' }, x: 60, y: 54, alfa: 0.9, some: 6.5,
+        ate: { x: 10, y: 50, de: 4, por: 3.5 }, balanco: { amp: 2, periodo: 2.2 } },
+      { figura: { criatura: 'piragua', flip: true }, x: 86, y: 76, some: 5,
+        balanco: { amp: 10, periodo: 1.3, salto: true } },
+    ],
+    legendas: [
+      { quem: 'DONA FIRMINA', texto: 'Rio calado não fica calado por muito tempo. Quem mora nele vai embora... ou fica bravo.' },
+      { quem: 'DONA FIRMINA', texto: 'E quando os Encantados ficam bravos, quem paga é a vila inteira.' },
+    ],
+  },
+  { // de volta à sala
+    fundo: C.salaFirmina,
+    atores: [
+      { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
+      { figura: { inicial: true }, x: 104, y: 56, balanco: { amp: 2, periodo: 2.4 } },
+      { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84, ate: { x: 150, y: 84, de: 0.5, por: 1.2 } },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 149, y: 74 }],
+    legendas: [
+      { quem: 'DONA FIRMINA', texto: 'Os terreiros ainda seguram esta terra. Cada medalha é um mestre dizendo: aqui tem quem responda.' },
+      { quem: 'DONA FIRMINA', texto: 'Mas começa pequeno. Chegue aqui outra vez, que eu tenho um serviço para vocês dois.' },
+    ],
+  },
+];
+
 export const CUTSCENES: Record<string, Roteiro> = {
   intro: INTRO,
+  firmina: FIRMINA,
 };

@@ -281,3 +281,111 @@ export function ceuTitulo(): Buf {
   morros(b, 138, 6, 0.035, 0.8, '#15101f');
   return b;
 }
+
+/* ============================================ a Dona Firmina e o primeiro patuá */
+
+/* a sala da Dona Firmina à noite: tábua, estante, janela e a mesa comprida
+   com a lamparina acesa no meio */
+export function salaFirmina(): Buf {
+  const b = new Buf(W, H);
+  // parede de tábua
+  for (let x = 0; x < W; x += 12) {
+    b.rect(x, 0, 12, 74, x % 24 ? '#6d4726' : '#7a5230');
+    b.rect(x, 0, 1, 74, '#482e18');
+  }
+  b.rect(0, 70, W, 4, '#482e18');
+  // janela com a noite lá fora
+  b.rect(20, 14, 34, 28, '#3a2410');
+  b.rect(22, 16, 30, 24, '#1c1430');
+  b.rect(36, 16, 2, 24, '#3a2410'); b.rect(22, 27, 30, 2, '#3a2410');
+  b.set(27, 20, P.white!); b.set(45, 22, '#a89bd0'); b.set(30, 33, '#a89bd0');
+  // estante com potes e ervas
+  b.rect(176, 10, 50, 50, '#482e18');
+  for (const y of [24, 40, 56]) b.rect(176, y, 50, 3, '#6d4726');
+  const potes = ['#5f8f4f', '#c2493f', '#e8e0d0', '#3f6fa8', '#c9a227', '#8f4f6a'];
+  for (let i = 0; i < 12; i++) {
+    const x = 180 + (i % 4) * 11, y = [15, 31, 47][Math.floor(i / 4)]!;
+    b.rect(x, y, 7, 9, potes[i % potes.length]!);
+    b.rect(x + 1, y - 1, 5, 1, '#3a2a20');
+  }
+  // raminhos pendurados
+  for (const x of [72, 84, 96]) { b.line(x, 0, x, 10, '#3a2a20'); b.ellipse(x, 13, 3, 4, P.treeL!); }
+  // assoalho
+  for (let y = 74; y < H; y += 6) {
+    b.rect(0, y, W, 6, y % 12 ? '#a3804f' : '#9a764a');
+    b.rect(0, y, W, 1, '#7c5a36');
+  }
+  // o clarão da lamparina, quente, no chão e na parede
+  b.ellipse(120, 96, 90, 22, '#b08c58');
+  // a mesa comprida, de frente
+  b.rect(80, 86, 80, 6, '#6d4726');
+  b.rect(80, 86, 80, 1, '#9c6b3c');
+  b.rect(84, 92, 4, 16, '#482e18'); b.rect(152, 92, 4, 16, '#482e18');
+  // a lamparina
+  b.rect(146, 79, 7, 7, '#c9a227');
+  b.rect(148, 76, 3, 3, P.fireL!);
+  b.set(149, 75, P.light!);
+  return b;
+}
+
+/* a praia da Foz ao fim da tarde, com as estacas de fita vermelha da
+   Companhia fincadas na areia e a lancha dela no mar */
+export function fozEstacas(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 58, [[0x6a, 0x4a, 0x7a], [0xe0, 0x8a, 0x5a], [0xf8, 0xc8, 0x80]]);
+  // o mar
+  b.rect(0, 58, W, 30, P.waterD!);
+  const r = rng(29);
+  for (let i = 0; i < 40; i++) b.rect((r() * W) | 0, 60 + ((r() * 26) | 0), 6, 1, P.water!);
+  for (let x = 0; x < W; x += 2) b.set(x, 58, '#f8c880');
+  // o farol na ponta
+  b.rect(206, 20, 10, 48, '#ecdcc2');
+  for (const y of [28, 40, 52]) b.rect(206, y, 10, 4, '#c2493f');
+  b.rect(204, 14, 14, 6, '#3a3a3a');
+  b.rect(208, 15, 6, 4, P.fireL!);
+  b.rect(200, 66, 22, 4, P.rockD!);
+  // a lancha da Companhia
+  b.tri(40, 72, 90, 72, 84, 80, '#6a6a6a');
+  b.rect(46, 72, 38, 3, '#8a8a8a');
+  b.rect(56, 64, 16, 8, '#e0d6c0');
+  b.rect(56, 64, 16, 2, '#b03020');
+  // areia
+  b.rect(0, 88, W, H - 88, P.sand!);
+  for (let x = 0; x < W; x += 3) b.set(x, 88, P.foam!);
+  for (let i = 0; i < 90; i++) b.set((r() * W) | 0, 90 + ((r() * 34) | 0), P.sandD!);
+  // barcos de pescador puxados na areia
+  b.tri(170, 104, 206, 104, 200, 112, '#7c4c29');
+  b.rect(172, 102, 32, 2, '#9c6b3c');
+  // as estacas, com fita vermelha
+  for (const [x, y] of [[20, 96], [52, 100], [104, 98], [136, 102], [226, 100]] as const) {
+    b.rect(x, y, 2, 14, '#8a6a44');
+    b.rect(x + 2, y + 1, 5, 2, '#d03020');
+  }
+  return b;
+}
+
+/* a boca do rio com a comporta da Companhia: de um lado a água presa, do
+   outro o leito quase seco */
+export function rioCalado(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 50, [[0x9a, 0x9a, 0xa8], [0xc8, 0xc0, 0xb0]]);
+  morros(b, 46, 4, 0.05, 0.4, '#6a8a6a');
+  b.rect(0, 50, W, H - 50, P.grassD!);
+  const r = rng(31);
+  for (let i = 0; i < 120; i++) b.set((r() * W) | 0, 50 + ((r() * 74) | 0), P.grass!);
+  // rio, de lado a lado: cheio antes da comporta, rachado depois
+  b.rect(0, 72, 120, 36, P.water!);
+  for (let i = 0; i < 20; i++) b.rect((r() * 110) | 0, 76 + ((r() * 28) | 0), 6, 1, P.waterL!);
+  b.rect(132, 72, W - 132, 36, '#8a6a44');
+  for (let x = 134; x < W; x += 8) b.line(x, 73, x + 5, 106, '#6d5234');
+  b.rect(132, 88, W - 132, 2, P.waterD!);
+  // a comporta de concreto com a faixa da Companhia
+  b.rect(118, 62, 16, 52, '#9a9a98');
+  b.rect(118, 62, 16, 3, '#c0c0bc');
+  b.rect(118, 80, 16, 4, '#b03020');
+  b.rect(114, 60, 24, 3, '#6a6a68');
+  // árvores sobrando, poucas
+  for (const x of [14, 50, 88]) arvore(b, x, 66, 26, P.tree!, P.treeD!, P.treeL!);
+  for (const x of [160, 200]) { b.rect(x - 2, 58, 5, 8, P.trunkD!); b.rect(x - 2, 58, 5, 1, '#c9a06a'); }
+  return b;
+}

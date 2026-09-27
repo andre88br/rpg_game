@@ -51,6 +51,8 @@ const G: Record<string, readonly string[]> = {
   ':': ['.....', '.##..', '.##..', '.....', '.##..', '.##..', '.....'],
   '/': ['....#', '....#', '...#.', '..#..', '.#...', '#....', '#....'],
   '-': ['.....', '.....', '.....', '#####', '.....', '.....', '.....'],
+  /* travessão: seis de largura, emenda no respiro e fica mais comprido que o hífen */
+  '—': ['......', '......', '......', '######', '......', '......', '......'],
   '(': ['...#.', '..#..', '.#...', '.#...', '.#...', '..#..', '...#.'],
   ')': ['.#...', '..#..', '...#.', '...#.', '...#.', '..#..', '.#...'],
   '+': ['.....', '..#..', '..#..', '#####', '..#..', '..#..', '.....'],
@@ -87,6 +89,12 @@ const ACENTOS: Record<string, [string, string]> = {
 
 export const CHAR_W = 6;   // 5px de glifo + 1px de espaco
 export const LINE_H = 11;  // 7px de glifo + 2px de acento + 2px de respiro
+
+/* o texto só tem caracteres que a fonte sabe desenhar (espaço conta) */
+export function desenhavel(s: string): boolean {
+  for (const ch of String(s).toUpperCase()) if (ch !== ' ' && !G[ch] && !ACENTOS[ch]) return false;
+  return true;
+}
 
 /* largura em pixels de um texto */
 export function larguraTexto(s: string): number { return s.length * CHAR_W - 1; }

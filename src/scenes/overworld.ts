@@ -683,8 +683,11 @@ export class CenaMundo implements Cena {
       `${nomeDe(bicho)} é seu, ${e.nome}. Trate bem e ele trata melhor.`,
       'E leva também este MAPA DO MUNDO. Ele vai se enchendo conforme você anda.',
       'O mapa de cada região, com a planta dos lugares, fica escondido nela mesma. Olhe pelos cantos.',
-      'Agora chegue aqui outra vez, que eu tenho um serviço para vocês dois.',
+      'Agora sente um pouco. Tem uma coisa que você precisa saber antes de sair por aí.',
     ]);
+    /* a cutscene da Companhia chegando à Foz entra quando essa conversa
+       fecha — e é ela que termina chamando para o serviço da carta */
+    this.pedirHistoria('firmina');
   }
 
   /* abre o menu de pausa direto na página do time, com o recém-chegado

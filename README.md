@@ -478,7 +478,13 @@ CenaCutscene`, a partir de um roteiro em `data/cutscenes.ts` — fundos e
 peças desenhados em `art/cenas.ts`. Outras cutscenes da história entram do
 mesmo jeito: basta um roteiro novo e `cutscene: '<id>'` numa fala ou num
 treinador; ela toca quando a conversa fecha, uma vez só por partida (flag
-`viu_cut_<id>`), e o mundo continua de onde estava. Depois vem `scenes/
+`viu_cut_<id>`), e o mundo continua de onde estava. A segunda cutscene é a
+da **Dona Firmina**, logo depois de escolher o primeiro Encantado: ele em
+cima da mesa, e a Firmina contando como a Companhia desceu na Foz com
+estaca e papel carimbado e fechou o rio com uma comporta. Ela usa o
+personagem e o Encantado de quem está jogando (`{ jogador: true }`,
+`{ inicial: true }` e `{inicial}` na legenda), e as páginas de fala levam
+o nome de quem fala numa etiqueta. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

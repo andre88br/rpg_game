@@ -6,12 +6,12 @@
    ========================================================================= */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CUTSCENES, LARG_LEGENDA, LINHAS_LEGENDA } from './cutscenes.ts';
+import { CUTSCENES, LARG_LEGENDA, LINHAS_LEGENDA, textoDe } from './cutscenes.ts';
 import { MAPAS } from './mapas/index.ts';
 import { ESTILOS } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { MEDALHAS } from '../art/badges.ts';
-import { quebrar } from '../art/font.ts';
+import { quebrar, desenhavel } from '../art/font.ts';
 import type { Fala } from '../game/quests.ts';
 
 test('a abertura existe e tem tomadas', () => {
@@ -50,9 +50,15 @@ for (const [id, roteiro] of Object.entries(CUTSCENES)) {
   test(`cutscene "${id}": toda legenda cabe na faixa`, () => {
     for (const [i, t] of roteiro.entries()) {
       assert.ok(t.legendas.length > 0 || t.titulo, `tomada ${i}: nem legenda nem letreiro`);
-      for (const s of t.legendas) {
-        const n = quebrar(s, LARG_LEGENDA).length;
+      for (const l of t.legendas) {
+        const s = textoDe(l);
+        /* o recheio ({nome}, {inicial}...) pode esticar a frase: mede com
+           um nome de dez letras, o máximo que a tela de nome deixa digitar */
+        const cheio = s.replace(/\{[\w:]+\}/g, 'MMMMMMMMMM');
+        const n = quebrar(cheio, LARG_LEGENDA).length;
         assert.ok(n <= LINHAS_LEGENDA, `tomada ${i}: "${s}" dá ${n} linhas`);
+        assert.ok(desenhavel(s.replace(/\{[\w:]+\}/g, '')), `tomada ${i}: "${s}" tem letra que a fonte não desenha`);
+        if (typeof l !== 'string') assert.ok(desenhavel(l.quem), `tomada ${i}: nome "${l.quem}"`);
       }
     }
   });
