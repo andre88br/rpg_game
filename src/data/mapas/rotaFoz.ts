@@ -112,10 +112,15 @@ export const rotaFoz: DefMapa = {
     {
       id: 'saci_mato', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
       tx: 21, ty: 22, dir: 'baixo', seNao: 'rede_mato', fujao: {},
+      treinador: {
+        classe: 'LADRÃO DE REDE', selvagem: true, liga: 'rede_mato', da: { item: 'rede' },
+        time: [{ especie: 'sacizinho', nivel: 6 }],
+        falaInicio: 'O Sacizinho enrola a rede no braço e vem de cabeça!',
+        falaDerrota: 'Vencido, ele larga a REDE DE PESCA e some numa ventania que deixa o capim deitado.',
+      },
       falas: [
-        { liga: 'rede_mato', da: { item: 'rede' }, linhas: [
-          'Sem saída no meio do mato, o Sacizinho para de rir e entrega a rede.',
-          'Depois some numa ventania que deixa o capim deitado.'] },
+        { batalha: true, linhas: [
+          'Sem saída no meio do mato, o Sacizinho encara você com a rede enrolada no braço.'] },
       ],
     },
     {

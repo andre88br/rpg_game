@@ -843,10 +843,26 @@ test('quem foge tem o que entregar quando for encurralado', () => {
     for (const n of def.npcs) {
       if (!n.fujao) continue;
       const solta = n.falas.find((f) => f.se === undefined && f.seNao === undefined);
-      assert.ok(solta?.da || solta?.liga,
+      // ou entrega na conversa, ou briga e larga o que carregava ao perder
+      const briga = solta?.batalha && n.treinador?.da && n.treinador.liga === n.seNao;
+      assert.ok(solta?.da || solta?.liga || briga,
                 `${id}: ${n.id} foge e, quando pego, não entrega nada`);
       assert.ok(n.seNao, `${id}: ${n.id} continuaria no mapa depois de entregar`);
     }
+  }
+});
+
+test('as três redes do Mestre do Porto se tomam na briga com os Sacizinhos', () => {
+  const sacis = entradas.flatMap(([, def]) => def.npcs)
+    .filter((n) => n.treinador?.da?.item === 'rede');
+  assert.equal(sacis.length, 3);
+  for (const n of sacis) {
+    const t = n.treinador!;
+    assert.ok(n.fujao, `${n.id} tem que fugir antes de brigar`);
+    assert.ok(t.selvagem, `${n.id} é bicho: dá para prender no patuá`);
+    assert.ok(!t.visao, `${n.id} não pode desafiar de longe, só encurralado`);
+    assert.equal(t.time[0]!.especie, 'sacizinho');
+    assert.equal(t.liga, n.seNao, `${n.id} tem que sumir depois de largar a rede`);
   }
 });
 

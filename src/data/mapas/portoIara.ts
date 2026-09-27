@@ -151,19 +151,30 @@ export const portoIara: DefMapa = {
     {
       id: 'saci_cais', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
       tx: 17, ty: 30, dir: 'baixo', seNao: 'rede_cais', fujao: {},
+      /* encurralado, ele não entrega: briga pela rede */
+      treinador: {
+        classe: 'LADRÃO DE REDE', selvagem: true, liga: 'rede_cais', da: { item: 'rede' },
+        time: [{ especie: 'sacizinho', nivel: 7 }],
+        falaInicio: 'O Sacizinho amarra a rede no pé e parte pra cima!',
+        falaDerrota: 'Sem fôlego, ele larga a REDE DE PESCA no tabuado e some num redemoinho de poeira.',
+      },
       falas: [
-        { liga: 'rede_cais', da: { item: 'rede' }, linhas: [
-          'O Sacizinho senta no tabuado, sem fôlego, e larga a rede enrolada no pé.',
-          'Some num redemoinho de poeira antes de você agradecer.'] },
+        { batalha: true, linhas: [
+          'Encurralado, o Sacizinho aperta a rede contra o peito e mostra os dentes.'] },
       ],
     },
     {
       id: 'saci_praia', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
       tx: 25, ty: 28, dir: 'esq', seNao: 'rede_praia', fujao: {},
+      treinador: {
+        classe: 'LADRÃO DE REDE', selvagem: true, liga: 'rede_praia', da: { item: 'rede' },
+        time: [{ especie: 'sacizinho', nivel: 8 }],
+        falaInicio: 'O Sacizinho gira a rede por cima da cabeça feito laço!',
+        falaDerrota: 'Derrotado, ele joga a REDE DE PESCA na sua cara, ri e vira vento praia acima.',
+      },
       falas: [
-        { liga: 'rede_praia', da: { item: 'rede' }, linhas: [
-          'Encurralado na areia, o Sacizinho joga a rede na sua cara e ri.',
-          'Depois vira vento e sobe a praia.'] },
+        { batalha: true, linhas: [
+          'Encurralado na areia, o Sacizinho para de rir. Rede, só se tomar dele.'] },
       ],
     },
     {

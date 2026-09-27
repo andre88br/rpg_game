@@ -70,7 +70,9 @@ nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
 você chega perto. Cada um aguenta **quatro fugas**: encoste nele quatro vezes
-e na quinta ele senta e entrega o item. Encurrale contra parede ou canto — ele
+e na quinta ele para de fugir. As Caiporinhas entregam o item; os
+**Sacizinhos das redes brigam por ela** — vença (ou prenda no patuá) e a
+rede é sua. Encurrale contra parede ou canto — ele
 foge primeiro para longe de você, depois para os lados, e nunca por cima de
 você.
 
@@ -141,7 +143,9 @@ São três **Redes de Pesca**, todas na mão de Sacizinhos que fogem:
 2. **Porto Iara, no cais**, perto de (17,30).
 3. **Porto Iara, na praia**, perto de (25,28).
 
-Quatro encostões em cada um. Com as três na mochila, volte no **Mestre do
+Quatro encostões em cada um; encurralado, ele briga pela rede — luta
+selvagem, dá para prender no patuá. Níveis: **Sacizinho 6** (mato),
+**7** (cais) e **8** (praia). Com as três na mochila, volte no **Mestre do
 Porto**, (17,29): paga **700**.
 
 ## Conta 5 — `conta_farol`: o bicho do farol

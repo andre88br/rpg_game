@@ -172,6 +172,9 @@ export interface DefTreinador {
   /* flags acesas pela vitoria, alem de `venceu_<id>` — e assim que vencer
      o Zeca acende a conta da estrada sem precisar falar com ele de novo */
   liga?: string | readonly string[];
+  /* o que ele larga quando perde (ou é preso no patuá) — a rede que o
+     Sacizinho roubou do Mestre do Porto vai para a mochila */
+  da?: { item: string; n?: number };
   /* o bolso do PRÓPRIO treinador — nunca a mochila do jogador. Sem isto a
      IA nunca usa item, o que mantem toda batalha de hoje exatamente igual */
   itens?: Record<string, number>;

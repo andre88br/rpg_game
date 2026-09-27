@@ -386,8 +386,10 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
   chegue nele **com caminho a pé** desde a porta.
 - **Quem foge, foge.** Um NPC com `fujao` pula para longe de quem chega perto,
   enquanto tiver fôlego e para onde ir. Os três Sacizinhos que levaram as redes
-  do Mestre do Porto só sentam para conversar depois de encurralados — e sair do
-  mapa devolve o fôlego deles, para a caçada nunca ficar impossível nem eterna.
+  do Mestre do Porto, encurralados, brigam pela rede: são treinadores
+  selvagens (`selvagem`, sem `visao`) com `da: { item: 'rede' }`, e vencer —
+  ou prender no patuá — larga a rede na mochila. Sair do mapa devolve o fôlego
+  deles, para a caçada nunca ficar impossível nem eterna.
 
 **O salão da Dona Mariana não foi desenhado no olho.** Um salão de gelo erra
 fácil de dois jeitos: ou vira corredor, ou vira armadilha — você chega num canto

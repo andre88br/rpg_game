@@ -38,7 +38,7 @@ import {
 } from '../battle/encantado.ts';
 import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
-import { adicionar, consumir, quantidade } from '../data/items.ts';
+import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo } from '../data/mundo.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
@@ -835,6 +835,7 @@ export class CenaMundo implements Cena {
                  : typeof t.liga === 'string' ? [t.liga] : t.liga;
     for (const f of extras) e.flags[f] = true;
     if (t.premio) e.dinheiro += t.premio;
+    if (t.da) adicionar(e.mochila, t.da.item, t.da.n ?? 1);
     if (t.creditos) this.creditosPendentes = true;
     this.pedirHistoria(t.cutscene);
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
@@ -844,6 +845,11 @@ export class CenaMundo implements Cena {
     if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
     salvar(e);
     if (t.falaDerrota && r !== 'captura') this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
+    // preso no patuá, o bicho não fala: o que ele carregava fica no chão
+    else if (t.da && r === 'captura') {
+      const nome = ITENS[t.da.item]?.nome.toUpperCase() ?? t.da.item;
+      this.abrirConversa(d.npc.def.nome, [`Ficou no chão o que ele carregava: ${nome}. Guardado na mochila.`]);
+    }
   }
 
   /* guarda a cutscene da história para tocar assim que nada estiver na tela.
