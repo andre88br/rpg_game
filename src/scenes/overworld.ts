@@ -137,6 +137,8 @@ interface NpcVivo {
 
 /* quantas vezes um Sacizinho escapa antes de sentar e conversar */
 const FOLEGO_PADRAO = 4;
+/* a quantos passos a cutscene de encontro de um NPC dispara */
+const DISTANCIA_ENCONTRO = 3;
 
 interface Conversa {
   falante: string;
@@ -837,7 +839,8 @@ export class CenaMundo implements Cena {
     if (t.premio) e.dinheiro += t.premio;
     if (t.da) adicionar(e.mochila, t.da.item, t.da.n ?? 1);
     if (t.creditos) this.creditosPendentes = true;
-    this.pedirHistoria(t.cutscene);
+    // preso no patuá, ninguém larga nada e sai correndo: sem a cutscene
+    if (r !== 'captura') this.pedirHistoria(t.cutscene);
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
@@ -1313,6 +1316,21 @@ export class CenaMundo implements Cena {
     return false;                                 // encurralado
   }
 
+  /* chegou perto de quem tem cutscene de encontro: ela toca uma vez só, e
+     o mundo fica parado enquanto isso — a caçada começa quando ela acaba */
+  private avistarEncontros(): void {
+    for (const npc of this.npcs) {
+      const id = npc.def.encontro;
+      if (!id || this.op.estado.flags[`viu_cut_${id}`]) continue;
+      const perto = Math.abs(npc.ator.tx - this.jogador.tx)
+                  + Math.abs(npc.ator.ty - this.jogador.ty);
+      if (perto > DISTANCIA_ENCONTRO) continue;
+      npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
+      this.pedirHistoria(id);
+      return;
+    }
+  }
+
   /* chamado quando o jogador termina um passo: quem estiver do lado, foge */
   private espantarFujoes(): void {
     for (const npc of this.npcs) {
@@ -1528,6 +1546,7 @@ export class CenaMundo implements Cena {
     if (saida && saida.aoPisar !== false) { this.indo = saida; this.fade = 0; return; }
 
     this.pisouLadrilho();
+    this.avistarEncontros();
     this.espantarFujoes();
     this.olharTreinadores();
     if (!this.duelo && this.carencia <= 0

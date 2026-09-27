@@ -26,7 +26,7 @@ export type Figura =
   | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
-  | { peca: 'fogueira' | 'trator' };
+  | { peca: 'fogueira' | 'trator' | 'rede' };
 
 export interface Ator {
   figura: Figura;
@@ -46,9 +46,10 @@ export interface Ator {
 
 /* partículas desenhadas na hora, sem estado: saem de (x, y) e sobem */
 export interface Efeito {
-  tipo: 'fagulhas' | 'fumaca';
+  tipo: 'fagulhas' | 'fumaca' | 'poeira';
   x: number; y: number;
   aparece?: number;
+  some?: number;
 }
 
 export interface Tomada {
@@ -362,9 +363,116 @@ const MESTRE: Roteiro = [
   },
 ];
 
+/* ------------------------------------------- os Sacizinhos das três redes
+
+   Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
+   jogador chega perto pela primeira vez (`encontro` do NPC) e a de quando
+   perde a briga, larga a rede e vira vento (`cutscene` do treinador). As
+   duas saem do mesmo molde, mudando só o lugar. */
+interface Esconderijo {
+  fundo: () => Buf;
+  saci: { x: number; y: number };
+  rede: { x: number; y: number };
+  /* por onde o jogador chega, e onde para */
+  de: { x: number; y: number };
+  ate: { x: number; y: number };
+  dir: Direcao;
+  onde: string;        // a primeira página: o lugar
+  chao: string;        // "no capim", "na areia"...
+}
+
+function sacizinhoAchado(e: Esconderijo): Roteiro {
+  return [
+    { // lá está ele, brincando com a rede
+      fundo: e.fundo,
+      atores: [
+        { figura: { peca: 'rede' }, x: e.rede.x, y: e.rede.y },
+        { figura: { criatura: 'sacizinho' }, x: e.saci.x, y: e.saci.y, balanco: { amp: 2, periodo: 0.9 } },
+        { figura: { jogador: true, dir: e.dir }, x: e.de.x, y: e.de.y, ate: { ...e.ate, de: 0.4, por: 2.4 } },
+      ],
+      legendas: [
+        e.onde,
+        'É um Sacizinho, dando nó e mais nó na rede do Mestre do Porto.',
+      ],
+    },
+    { // ele te vê, agarra a rede e se prepara pra correr
+      fundo: e.fundo,
+      atores: [
+        { figura: { criatura: 'sacizinho' }, x: e.saci.x, y: e.saci.y, balanco: { amp: 6, periodo: 0.4, salto: true } },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      legendas: [
+        { quem: 'SACIZINHO', texto: 'Hi-hi-hi! Achou, é? A rede é minha agora. Quer? Vem pegar!' },
+        'Sacizinho foge de quem chega perto. Encurrale ele num canto, sem ter pra onde pular.',
+      ],
+    },
+  ];
+}
+
+function sacizinhoVencido(e: Esconderijo): Roteiro {
+  return [
+    { // tonto da briga, ele afrouxa o pé e a rede cai
+      fundo: e.fundo,
+      atores: [
+        { figura: { criatura: 'sacizinho' }, x: e.saci.x, y: e.saci.y, balanco: { amp: 2, periodo: 1.6 } },
+        { figura: { peca: 'rede' }, x: e.rede.x, y: e.rede.y, aparece: 1 },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      legendas: [
+        'Tonto da briga, o Sacizinho cambaleia numa perna só e afrouxa o pé...',
+        `...e a rede do Mestre cai ${e.chao}.`,
+      ],
+    },
+    { // num assobio, ele vira redemoinho e some
+      fundo: e.fundo,
+      atores: [
+        { figura: { peca: 'rede' }, x: e.rede.x, y: e.rede.y },
+        { figura: { criatura: 'sacizinho' }, x: e.saci.x, y: e.saci.y, some: 1.4,
+          ate: { x: e.saci.x + 8, y: e.saci.y - 36, de: 0.5, por: 1 } },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      efeitos: [{ tipo: 'poeira', x: e.saci.x + 16, y: e.saci.y + 34, aparece: 0.2, some: 2.8 }],
+      legendas: [
+        'Num assobio, ele vira redemoinho e some no vento, rindo até o fim.',
+        'A REDE DE PESCA é sua. O Mestre do Porto vai gostar de ver.',
+      ],
+    },
+  ];
+}
+
+/* atrás das pedras do paredão, na Rota da Foz */
+const NO_PAREDAO: Esconderijo = {
+  fundo: C.cantoParedao, saci: { x: 150, y: 72 }, rede: { x: 118, y: 96 },
+  de: { x: -20, y: 86 }, ate: { x: 70, y: 86 }, dir: 'dir',
+  onde: 'Atrás das pedras do paredão, no capim alto, alguém ri baixinho.',
+  chao: 'no capim',
+};
+
+/* na nesga de areia atrás do farol, em Porto Iara */
+const ATRAS_DO_FAROL: Esconderijo = {
+  fundo: C.atrasFarol, saci: { x: 112, y: 74 }, rede: { x: 80, y: 100 },
+  de: { x: -20, y: 88 }, ate: { x: 40, y: 88 }, dir: 'dir',
+  onde: 'Na nesga de areia atrás do farol, onde ninguém do porto passa, um gorro vermelho.',
+  chao: 'na areia',
+};
+
+/* no beco entre a venda e a casa do pescador, em Porto Iara */
+const NO_BECO: Esconderijo = {
+  fundo: C.becoPorto, saci: { x: 112, y: 62 }, rede: { x: 112, y: 98 },
+  de: { x: 148, y: 150 }, ate: { x: 148, y: 92 }, dir: 'cima',
+  onde: 'No beco entre a venda e a casa do pescador, um assobio vem da sombra.',
+  chao: 'no chão do beco',
+};
+
 export const CUTSCENES: Record<string, Roteiro> = {
   intro: INTRO,
   firmina: FIRMINA,
   zeca: ZECA,
   mestre: MESTRE,
+  saci_mato: sacizinhoAchado(NO_PAREDAO),
+  saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
+  saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),
+  saci_cais_rede: sacizinhoVencido(ATRAS_DO_FAROL),
+  saci_praia: sacizinhoAchado(NO_BECO),
+  saci_praia_rede: sacizinhoVencido(NO_BECO),
 };

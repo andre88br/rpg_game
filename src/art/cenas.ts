@@ -539,3 +539,111 @@ export function varalRedes(): Buf {
   }
   return b;
 }
+
+/* ------------------------------------------------ os Sacizinhos das redes */
+
+/* o canto do paredão na Rota da Foz, atrás das pedras: capim alto, sombra
+   e ninguém passando — o esconderijo do Sacizinho do mato */
+export function cantoParedao(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 40, [[0x6a, 0xb0, 0xe8], [0xb8, 0xdc, 0xf0]]);
+  // o paredão ocupa o fundo inteiro e dobra à esquerda, fechando o canto
+  b.rect(0, 20, W, 70, P.rockD!);
+  for (let y = 20; y < 90; y += 7) {
+    for (let x = -((y / 7) % 2) * 6; x < W; x += 12) {
+      b.rect(Math.max(0, x + 1), y + 1, 10, 5, P.rock!);
+      b.rect(Math.max(0, x + 1), y + 1, 10, 1, '#b8aca0');
+    }
+  }
+  b.rect(0, 18, W, 3, '#5a524c');
+  for (let x = 0; x < W; x += 5) b.rect(x, 15 + ((x * 7) % 3), 3, 3, P.grassD!);
+  b.rect(0, 20, 34, H - 20, '#6a6258');
+  for (let y = 24; y < H; y += 9) b.rect(4, y, 26, 6, P.rockD!);
+  // sombra do paredão sobre a grama
+  b.rect(34, 90, W - 34, H - 90, P.grass!);
+  b.rect(34, 90, W - 34, 10, P.grassD!);
+  const r = rng(97);
+  for (let i = 0; i < 140; i++) b.set(34 + ((r() * (W - 34)) | 0), 92 + ((r() * 66) | 0), i % 2 ? P.grassD! : P.grassL!);
+  // capim alto em touceiras, escondendo o canto
+  for (const [x, y] of [[40, 108], [70, 118], [150, 104], [196, 116], [226, 100], [110, 124]] as const) {
+    for (let k = -8; k <= 8; k += 3) {
+      const alt = 14 - Math.abs(k);
+      b.rect(x + k, y - alt, 2, alt, k % 2 ? P.grassD! : '#5a9a4a');
+      b.set(x + k, y - alt - 1, P.grassL!);
+    }
+  }
+  // umas pedras soltas que caíram do paredão
+  b.ellipse(200, 94, 9, 5, P.rockD!); b.ellipse(199, 92, 7, 3, P.rock!);
+  b.ellipse(58, 96, 6, 3, P.rockD!);
+  return b;
+}
+
+/* atrás do farol de Porto Iara: a parede listrada tapa metade da tela, e
+   entre ela e o mar só sobra uma nesga de areia com pedra e alga */
+export function atrasFarol(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 56, [[0x5a, 0xa8, 0xe8], [0xa8, 0xd8, 0xf4], [0xe0, 0xf2, 0xf8]]);
+  b.rect(0, 56, W, 34, P.water!);
+  const r = rng(103);
+  for (let i = 0; i < 40; i++) b.rect((r() * 150) | 0, 58 + ((r() * 30) | 0), 5, 1, P.waterL!);
+  for (let x = 0; x < W; x += 2) b.set(x, 56, P.foam!);
+  b.rect(0, 90, W, H - 90, P.sand!);
+  for (let i = 0; i < 110; i++) b.set((r() * W) | 0, 92 + ((r() * 66) | 0), P.sandD!);
+  for (let x = 0; x < 160; x += 3) b.set(x, 90 + (x % 2), P.foam!);
+  // a parede do farol, bem de perto, curvando para a direita
+  b.rect(160, 0, 80, H, '#ecdcc2');
+  for (const y of [0, 36, 72, 108]) b.rect(160, y, 80, 18, '#c2493f');
+  b.rect(160, 0, 6, H, '#c8b8a0');
+  for (const y of [0, 36, 72, 108]) b.rect(160, y, 6, 18, '#9c3a32');
+  b.rect(160, 138, 80, 22, '#8a7a68');
+  for (let x = 160; x < W; x += 10) b.rect(x, 138, 1, 22, '#6a5a4a');
+  // pedras e alga na areia
+  for (const [x, y, rx] of [[12, 112, 10], [120, 114, 7], [150, 98, 6]] as const) {
+    b.ellipse(x, y, rx, rx / 2 + 1, P.rockD!); b.ellipse(x - 1, y - 2, rx - 2, rx / 2, P.rock!);
+  }
+  for (let x = 20; x < 60; x += 4) b.rect(x, 110 + ((x * 3) % 4), 3, 1, '#4a7a4a');
+  return b;
+}
+
+/* o beco estreito entre a venda e a casa do pescador: duas paredes de
+   tábua, um caixote, um varal esquecido e uma nesga de mar lá no fundo */
+export function becoPorto(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 30, [[0x7a, 0xb8, 0xe8], [0xc0, 0xe0, 0xf4]]);
+  b.rect(0, 30, W, H - 30, P.path!);
+  const r = rng(109);
+  for (let i = 0; i < 120; i++) b.set((r() * W) | 0, 32 + ((r() * 126) | 0), P.pathD!);
+  // as duas paredes, em perspectiva: fecham tudo menos o fundo do beco
+  const parede = (x0: number, x1: number, cor: string, corD: string) => {
+    b.rect(x0, 0, x1 - x0, H, cor);
+    for (let x = x0; x < x1; x += 8) b.rect(x, 0, 1, H, corD);
+  };
+  parede(0, 70, '#b08a58', '#8a6a3f');
+  parede(170, W, '#a8b8c8', '#7a8a9a');
+  b.rect(70, 0, 6, H, '#6a4a2a');          // quina da venda, na sombra
+  b.rect(164, 0, 6, H, '#5a6a7a');
+  // uma janelinha fechada em cada parede
+  b.rect(18, 40, 30, 22, '#6d4726'); b.rect(20, 42, 26, 18, '#8a5a30'); b.rect(32, 42, 1, 18, '#6d4726');
+  b.rect(190, 50, 28, 20, '#4a5a6a'); b.rect(192, 52, 24, 16, '#6a7a8a');
+  // lá no fundo, uma nesga de mar
+  b.rect(76, 30, 88, 8, P.water!);
+  for (let x = 78; x < 162; x += 5) b.set(x, 31, P.foam!);
+  // o varal de corda atravessado, com um pano velho
+  b.rect(76, 46, 88, 1, '#5a4a3a');
+  b.rect(96, 47, 12, 14, '#c8b890'); b.rect(130, 47, 10, 10, '#8aa0b8');
+  // um caixote encostado na venda
+  b.rect(80, 92, 26, 22, '#9c6b3c'); b.rect(80, 92, 26, 2, '#b07a48');
+  b.rect(80, 102, 26, 1, '#6d4726'); b.rect(92, 92, 1, 22, '#6d4726');
+  return b;
+}
+
+/* a rede do Mestre, embolada: o que o Sacizinho larga quando perde */
+export function redeEnrolada(): Buf {
+  const b = new Buf(28, 14);
+  b.ellipse(14, 8, 13, 5, '#8a8078');
+  b.ellipse(13, 7, 11, 4, '#a09890');
+  for (let x = 4; x < 26; x += 3) { b.rect(x, 4, 1, 8, '#5a524c'); }
+  for (let y = 5; y < 12; y += 3) b.rect(2, y, 24, 1, '#5a524c');
+  b.circle(22, 6, 2, '#e07a2a'); b.set(21, 5, '#f8b060');   // a boia de cortiça
+  return b;
+}

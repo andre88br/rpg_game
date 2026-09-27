@@ -111,16 +111,19 @@ export const rotaFoz: DefMapa = {
     },
     {
       id: 'saci_mato', nome: 'SACIZINHO', estilo: 'bicho:sacizinho',
-      tx: 21, ty: 22, dir: 'baixo', seNao: 'rede_mato', fujao: {},
+      /* no canto atrás do paredão, depois da tranca do Zeca. Só aparece
+         depois da carta: é o Mestre do Porto quem conta das redes */
+      tx: 1, ty: 27, dir: 'baixo', se: 'conta_recado', seNao: 'rede_mato', fujao: {},
+      encontro: 'saci_mato',
       treinador: {
         classe: 'LADRÃO DE REDE', selvagem: true, liga: 'rede_mato', da: { item: 'rede' },
         time: [{ especie: 'sacizinho', nivel: 6 }],
         falaInicio: 'O Sacizinho enrola a rede no braço e vem de cabeça!',
-        falaDerrota: 'Vencido, ele larga a REDE DE PESCA e some numa ventania que deixa o capim deitado.',
+        cutscene: 'saci_mato_rede',
       },
       falas: [
         { batalha: true, linhas: [
-          'Sem saída no meio do mato, o Sacizinho encara você com a rede enrolada no braço.'] },
+          'Sem saída atrás do paredão, o Sacizinho encara você com a rede enrolada no braço.'] },
       ],
     },
     {

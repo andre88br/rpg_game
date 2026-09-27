@@ -388,8 +388,14 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
   enquanto tiver fôlego e para onde ir. Os três Sacizinhos que levaram as redes
   do Mestre do Porto, encurralados, brigam pela rede: são treinadores
   selvagens (`selvagem`, sem `visao`) com `da: { item: 'rede' }`, e vencer —
-  ou prender no patuá — larga a rede na mochila. Sair do mapa devolve o fôlego
-  deles, para a caçada nunca ficar impossível nem eterna.
+  ou prender no patuá — larga a rede na mochila. Eles só existem depois da
+  carta (`se: 'conta_recado'`: é o Mestre quem conta das redes) e ficam em
+  esconderijos: atrás das pedras do paredão, atrás do farol e no beco entre a
+  venda e a casa do pescador. Sair do mapa devolve o fôlego deles, para a
+  caçada nunca ficar impossível nem eterna.
+- **Encontro.** Um NPC com `encontro: '<cutscene>'` toca essa cutscene a
+  primeira vez que o jogador chega a 3 passos dele — é o Sacizinho achado no
+  esconderijo, antes da caçada.
 
 **O salão da Dona Mariana não foi desenhado no olho.** Um salão de gelo erra
 fácil de dois jeitos: ou vira corredor, ou vira armadilha — você chega num canto
@@ -500,7 +506,11 @@ acabar. A quarta é a do **Mestre do Porto**, quando ele recebe a carta da
 Firmina em Porto Iara: o porto de antigamente com trinta barcos e a Iara-Mãe
 guiando na neblina, o capataz da Companhia com o papel de compra, as redes
 sumindo de noite nas mãos dos Sacizinhos e, no fim, o aviso do farol. Ela
-toca antes do corte da guia que acende a conta. Depois vem `scenes/
+toca antes do corte da guia que acende a conta. Os três **Sacizinhos das
+redes** têm duas cada, do mesmo molde com o esconderijo trocado: a de quando
+são achados (brincando de dar nó na rede, o aviso de encurralar) e a de
+quando perdem a briga — a rede cai e ele vira redemoinho (`peca: 'rede'` e o
+efeito `poeira`). A de derrota não toca se ele foi preso no patuá. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

@@ -137,15 +137,21 @@ fácil. Volte no Contador: paga **500**.
 
 ## Conta 4 — `conta_redes`: as três redes
 
-São três **Redes de Pesca**, todas na mão de Sacizinhos que fogem:
+São três **Redes de Pesca**, todas na mão de Sacizinhos que fogem. Eles só
+aparecem **depois que você entrega a carta ao Mestre do Porto** — é ele quem
+conta das redes — e ficam escondidos:
 
-1. **Rota da Foz** — o Sacizinho do mato.
-2. **Porto Iara, no cais**, perto de (17,30).
-3. **Porto Iara, na praia**, perto de (25,28).
+1. **Rota da Foz, atrás do paredão** — no canto oeste logo depois da tranca
+   do Zeca, (1,27).
+2. **Porto Iara, atrás do farol** — na nesga de areia a oeste do farol, (12,29).
+3. **Porto Iara, no beco** — entre a venda e a casa do canto nordeste, (27,6).
+
+Chegando perto de cada um, uma cutscene mostra o Sacizinho brincando com a
+rede; vencendo a briga, outra mostra ele largando a rede e virando vento.
 
 Quatro encostões em cada um; encurralado, ele briga pela rede — luta
-selvagem, dá para prender no patuá. Níveis: **Sacizinho 6** (mato),
-**7** (cais) e **8** (praia). Com as três na mochila, volte no **Mestre do
+selvagem, dá para prender no patuá. Níveis: **Sacizinho 6** (paredão),
+**7** (farol) e **8** (beco). Com as três na mochila, volte no **Mestre do
 Porto**, (17,29): paga **700**.
 
 ## Conta 5 — `conta_farol`: o bicho do farol

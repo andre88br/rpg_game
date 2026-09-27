@@ -73,6 +73,7 @@ test('toda cutscene pedida por fala ou treinador existe', () => {
       for (const f of n.falas) daFala(f);
       if (n.treinador?.cutscene) pedidas.push(n.treinador.cutscene);
       if (n.treinador?.apresentacao) pedidas.push(n.treinador.apresentacao);
+      if (n.encontro) pedidas.push(n.encontro);
     }
   }
   for (const id of pedidas) assert.ok(CUTSCENES[id], `cutscene "${id}" não existe`);

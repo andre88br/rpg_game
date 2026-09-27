@@ -28,10 +28,13 @@ export class GerenciadorCenas {
   }
 
   trocar(c: Cena): void {
-    if (this.fase !== 'estavel') return;
+    if (this.fase === 'saindo') return;
+    /* no meio de uma entrada (a volta da batalha pedindo a cutscene de quem
+       perdeu), a troca vale: escurece de novo a partir de onde a cortina
+       está, em vez de ser engolida */
+    this.t = this.fase === 'entrando' ? this.duracao - this.t : 0;
     this.proxima = c;
     this.fase = 'saindo';
-    this.t = 0;
   }
 
   atualizar(dt: number, entrada: Entrada): void {

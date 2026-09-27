@@ -16,13 +16,13 @@ import { quebrar } from '../art/font.ts';
 import { spritePessoa, ESTILOS, type Quadro } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { medalha } from '../art/badges.ts';
-import { fogueira, trator, fagulha } from '../art/cenas.ts';
+import { fogueira, trator, fagulha, redeEnrolada } from '../art/cenas.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 import { preencher } from '../game/quests.ts';
 import { nome as nomeDe } from '../battle/encantado.ts';
 import type { EstadoJogo } from '../game/state.ts';
 import {
-  LARG_LEGENDA, textoDe, type Ator, type Figura, type Roteiro, type Tomada,
+  LARG_LEGENDA, textoDe, type Ator, type Efeito, type Figura, type Roteiro, type Tomada,
 } from '../data/cutscenes.ts';
 
 const CHARS_POR_SEG = 38;
@@ -55,6 +55,7 @@ function quadrosDe(f: Figura, e: EstadoJogo | null): Quadros {
     return { imgs: [assarSuave(b)], fps: 0, soAndando: false };
   }
   if ('medalha' in f) return { imgs: [assar(medalha(f.medalha, f.tam ?? 16))], fps: 0, soAndando: false };
+  if (f.peca === 'rede') return { imgs: [assar(redeEnrolada())], fps: 0, soAndando: false };
   if (f.peca === 'fogueira') return { imgs: [0, 1, 2].map((i) => assar(fogueira(i))), fps: 8, soAndando: false };
   return { imgs: [0, 1].map((i) => assar(trator(i))), fps: 8, soAndando: true };
 }
@@ -243,7 +244,11 @@ export class CenaCutscene implements Cena {
     }
     ctx.globalAlpha = 1;
 
-    for (const e of tom.efeitos ?? []) this.desenharEfeito(r, e.tipo, e.x - camX, e.y, this.t - (e.aparece ?? 0));
+    for (const e of tom.efeitos ?? []) {
+      // um efeito com `some` vai apagando nos últimos instantes
+      const resta = e.some === undefined ? 1 : limitar((e.some - this.t) / FADE_ATOR);
+      if (resta > 0) this.desenharEfeito(r, e.tipo, e.x - camX, e.y, this.t - (e.aparece ?? 0), resta);
+    }
 
     if (tom.titulo) this.desenharTitulo(r, tom.titulo);
     if (p.paginas.length) this.desenharLegenda(r);
@@ -258,10 +263,22 @@ export class CenaCutscene implements Cena {
   }
 
   /* partículas sem estado: cada uma é só uma fase que dá a volta no tempo */
-  private desenharEfeito(r: Renderizador, tipo: 'fagulhas' | 'fumaca', x: number, y: number, t: number): void {
+  private desenharEfeito(r: Renderizador, tipo: Efeito['tipo'], x: number, y: number, t: number, resta = 1): void {
     if (t <= 0) return;
     const ctx = r.ctx;
-    const entrada = limitar(t / FADE_ATOR);
+    const entrada = limitar(t / FADE_ATOR) * resta;
+    if (tipo === 'poeira') {
+      /* o redemoinho do Sacizinho: grãos girando num funil que abre para cima */
+      for (let i = 0; i < 30; i++) {
+        const f = (t * 0.8 + i / 30) % 1;
+        const ang = t * 10 + i * 2.4;
+        const raio = 4 + f * 18;
+        ctx.globalAlpha = 0.8 * (1 - f * 0.6) * entrada;
+        r.retangulo(x + Math.cos(ang) * raio - 1, y - f * 50, 3, 3, i % 3 ? '#d8c8a0' : '#a89878');
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
     if (tipo === 'fagulhas') {
       for (let i = 0; i < 10; i++) {
         const f = (t * 0.55 + i / 10) % 1;

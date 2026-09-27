@@ -210,6 +210,10 @@ export interface DefNPC {
   /* foge de quem chega perto, ate ficar sem folego ou sem saida. So ai
      escuta o que voce tem a dizer. */
   fujao?: { folego?: number };
+  /* uma cutscene (id em data/cutscenes.ts) que toca a primeira vez que o
+     jogador chega a DISTANCIA_ENCONTRO passos dele — o Sacizinho achado no
+     esconderijo, antes da caçada começar */
+  encontro?: string;
   /* vigia que anda sozinho e manda de volta quem ele ve (ver DefRonda) */
   ronda?: DefRonda;
   /* so esta no mapa quando as condicoes valem — o Sacizinho some depois de

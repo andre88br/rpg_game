@@ -863,7 +863,15 @@ test('as três redes do Mestre do Porto se tomam na briga com os Sacizinhos', ()
     assert.ok(!t.visao, `${n.id} não pode desafiar de longe, só encurralado`);
     assert.equal(t.time[0]!.especie, 'sacizinho');
     assert.equal(t.liga, n.seNao, `${n.id} tem que sumir depois de largar a rede`);
+    // só depois da carta: é o Mestre do Porto quem conta das redes
+    assert.equal(n.se, 'conta_recado', `${n.id} apareceria antes do Mestre pedir as redes`);
+    assert.ok(n.encontro, `${n.id} sem cutscene de quando é achado`);
+    assert.ok(t.cutscene, `${n.id} sem cutscene de quando larga a rede`);
+    assert.ok(!t.falaDerrota, `${n.id}: a cutscene já conta a derrota`);
   }
+  // cada um num esconderijo diferente, e cada um com as suas cutscenes
+  assert.equal(new Set(sacis.map((n) => n.encontro)).size, 3);
+  assert.equal(new Set(sacis.map((n) => n.treinador!.cutscene)).size, 3);
 });
 
 /* ------------------------------------------------- dá para falar com eles?
