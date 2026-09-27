@@ -11,6 +11,7 @@
    cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
    ========================================================================= */
 import { vista3D } from '../render3d/carregar.ts';
+import { empaginar } from '../ui/paginas.ts';
 import { EM_3D } from '../render3d/relevo.ts';
 import { obterVisao3D } from '../game/config.ts';
 import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
@@ -43,7 +44,7 @@ import { lugarNoMundo } from '../data/mundo.ts';
 import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
 import {
   aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
-  responder, terreiroDaConta, TERREIROS, type Fala,
+  responder, serve, terreiroDaConta, TERREIROS, type Fala,
 } from '../game/quests.ts';
 import { sondarTesouro } from '../game/tesouro.ts';
 import { escoltaAtiva, derrubarEscolta } from '../game/escolta.ts';
@@ -338,6 +339,10 @@ export class CenaMundo implements Cena {
     this.sincronizarSeguidor();
     this.acenderFeixe();
 
+    // quem chega pode ser recebido com uma conversa (as boas-vindas em casa)
+    const chegada = this.def.aoChegar;
+    if (chegada && serve(this.op.estado, chegada)) this.abrirConversa(chegada.quem, chegada.linhas, chegada);
+
     // faixa com o nome do lugar — dentro de casa ela só atrapalharia
     if (this.def.interior) {
       this.faixaNome = null;
@@ -593,11 +598,10 @@ export class CenaMundo implements Cena {
 
   private abrirConversa(falante: string, falas: readonly string[],
                         fala: Fala | null = null, npc: NpcVivo | null = null): void {
-    const linhas: string[] = [];
-    for (const f of falas) {
-      const cheia = preencher(this.op.estado, f);
-      linhas.push(...quebrar(cheia, LARG_DIALOGO - 18).join('\n').split('\n'));
-    }
+    // cada frase quebrada em linhas; a que não cabe no resto da página vai
+    // inteira para a seguinte (ui/paginas.ts)
+    const frases = falas.map((f) => quebrar(preencher(this.op.estado, f), LARG_DIALOGO - 18).join('\n').split('\n'));
+    const linhas = empaginar(frases);
     this.conversa = { falante, linhas, indice: 0, revelados: 0, fala, npc };
   }
 

@@ -46,6 +46,8 @@ export const vilaAurora: DefMapa = {
     { tipo: 'casa', tx: 21, ty: 3, larg: 4, alt: 3, trancada: true },    // ninguém em casa
     { tipo: 'placa', tx: 12, ty: 23,
       placa: 'VILA AURORA. Ao sul, a Rota da Foz leva a Porto Iara.' },
+    { tipo: 'placa', tx: 17, ty: 5,
+      placa: 'CASA DA DONA FIRMINA. Quem quer o primeiro patuá, pode entrar.' },
     { tipo: 'placa', tx: 10, ty: 10,
       placa: 'Mato alto: é onde os Encantados se escondem. Ande devagar.' },
   ],
@@ -58,7 +60,8 @@ export const vilaAurora: DefMapa = {
         { se: 'medalha:mare', linhas: [
           'Vou contar isso até morrer: {crianca} da Vila Aurora com a Medalha Maré!'] },
         { se: 'item:carta', linhas: [
-          'Carta na mão e cara de pressa. Desce a estrada, {crianca}, que o porto não anda até aqui.'] },
+          'Carta na mão e cara de pressa. Desce a estrada, {crianca}, que o porto não anda até aqui.',
+          'A saída da vila é lá embaixo, no fim da estrada do meio. Depois é só seguir a Rota da Foz até o mar.'] },
         { se: 'escolheu_inicial', linhas: [
           'Já pegou o patuá, então. Agora é só não voltar antes de valer a pena.'] },
         { linhas: [

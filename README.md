@@ -94,6 +94,11 @@ Aurora** e o Dom **Prisma**, que atravessa as cortinas de luz — mais dois
 serviços opcionais: três cristais solares enterrados e a **Jaci**, a
 Encantada exclusiva.
 
+O começo explica o jogo: ao acordar em casa, a mãe mostra os controles e
+aponta a casa da Dona Firmina; ao entregar a primeira carta, a Firmina
+explica a trilha (guia de cinco contas, mestre, medalha e Dom, patuá). Na
+caixa de diálogo, uma frase nunca fica cortada entre duas páginas.
+
 Cada região tem **casas e terreiro com a cara dela**: vila de pescador na
 Foz, taipa e palha na Mata, pedra e brasa na Serra, a gameleira de raízes
 ao vento no Campo do Saci, as ocas e o totem da ave do trovão em Tupã, adobe

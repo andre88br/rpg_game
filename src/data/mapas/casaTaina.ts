@@ -24,6 +24,19 @@ export const casaTaina: DefMapa = {
     'WWWWWWWWWWW',
   ],
 
+  /* as boas-vindas: a primeira coisa do jogo, logo depois da abertura —
+     controles e para onde ir. Save antigo (que já escolheu o inicial) pula. */
+  aoChegar: {
+    quem: 'MÃE', seNao: ['viu_boas_vindas', 'escolheu_inicial'], liga: 'viu_boas_vindas',
+    linhas: [
+      'Acordou, enfim, {nome}! A Dona Firmina mandou te chamar logo cedo.',
+      'Pra andar, use as setas. No celular, o direcional.',
+      'Pra falar com alguém ou ler uma placa, chegue de frente e aperte A. No teclado, o A é o Z.',
+      'Segure B pra correr. No teclado, o B é o X.',
+      'O MENU mostra seu time, a mochila, a guia de contas e o mapa. No teclado, é o Esc.',
+      'A casa da Dona Firmina é a de telhado grande, logo à direita da nossa. Vai lá, criança.'],
+  },
+
   objetos: [
     { tipo: 'estante', tx: 1, ty: 1, larg: 3 },
     { tipo: 'mesa',    tx: 6, ty: 1, larg: 3 },
@@ -46,11 +59,14 @@ export const casaTaina: DefMapa = {
           'Come alguma coisa antes de descer pro porto de novo, {nome}.'] },
         { se: 'venceu_zeca', linhas: [
           'Soube que o Zeca levou uma lição na estrada. A mãe dele que não fique sabendo por mim.'] },
+        { se: 'item:carta', linhas: [
+          'Carta pro Mestre do Porto? Porto Iara fica ao sul, na beira do mar.',
+          'Sai da vila pela estrada de baixo e segue a Rota da Foz até o fim. O Mestre fica no cais.'] },
         { se: 'escolheu_inicial', linhas: [
           'Deixa eu ver o bicho! ...é bonito. Trate bem dele, que ele trata de você.',
           'Se apagar no mato, alguém te traz de volta. Mas dói o orgulho.'] },
         { linhas: [
-          'Acordou, enfim! A Dona Firmina mandou chamar você.',
+          'A Dona Firmina mandou chamar você. A casa dela é a de telhado grande, logo à direita da nossa.',
           'Vai lá, criança. E leva juízo junto com o patuá.'] },
       ],
     },

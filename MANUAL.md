@@ -16,6 +16,11 @@ não para contar passos.
 confirmar; X ou Shift para correr e voltar; Esc para o menu. No celular: o
 direcional e os botões A, B e MENU na tela.
 
+**O começo.** Num jogo novo, a mãe explica os controles assim que você
+acorda e diz onde mora a Dona Firmina (a casa de telhado grande, à direita
+da sua, com placa na porta). Depois de escolher o patuá, a Firmina explica
+como a trilha funciona e entrega a primeira carta.
+
 **Visão 3D.** A Região da Foz aparece em 3D. Para voltar ao mapa plano:
 menu → **OPÇÕES** → **VISÃO** → **PLANA** (a velocidade do jogo mora na
 mesma página). Nada muda nas contas, nos caminhos nem nas coordenadas.

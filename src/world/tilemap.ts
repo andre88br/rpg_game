@@ -255,6 +255,10 @@ export interface DefMapa {
   /* flags apagadas toda vez que se entra no mapa vindo de outro — o torneio
      recomeça do primeiro adversário, e sair para se curar não vale */
   zeraAoEntrar?: readonly string[];
+  /* uma conversa que abre sozinha ao chegar no mapa, se a fala servir — as
+     boas-vindas de quem acorda em casa. Toca uma vez: a fala liga a flag
+     que ela mesma cobra no `seNao`. */
+  aoChegar?: Fala & { quem: string };
 }
 
 /* O que o mundo sabe do jogador na hora de montar um mapa. E so isto: um

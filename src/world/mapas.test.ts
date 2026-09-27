@@ -2087,3 +2087,23 @@ test('todo balão leva a um mapa que existe, e desce em chão livre', () => {
   const ida = MAPAS['cidadeDoSol']!.npcs.find((n) => n.id === 'baloeiro_sol')!.falas.find((f) => f.leva)!;
   assert.ok([ida.se].flat().includes('medalha:aurora'), 'o balão sobe sem as oito medalhas');
 });
+
+/* ---------------------------------------------------- o começo do jogo */
+
+test('quem acorda em casa é recebido com os controles e o caminho da Firmina', () => {
+  assert.equal(MAPA_INICIAL, 'casaTaina');
+  const c = MAPAS['casaTaina']!.aoChegar!;
+  assert.ok(c, 'a casa não tem boas-vindas');
+  assert.deepEqual([c.seNao].flat().sort(), ['escolheu_inicial', 'viu_boas_vindas'], 'save antigo veria de novo');
+  assert.deepEqual([c.liga].flat(), ['viu_boas_vindas'], 'as boas-vindas tocariam toda vez');
+  const texto = c.linhas.join(' ');
+  for (const palavra of ['A ', 'B ', 'MENU', 'Firmina']) assert.ok(texto.includes(palavra), `faltou falar de "${palavra.trim()}"`);
+});
+
+test('a Dona Firmina explica a trilha quando entrega a primeira carta', () => {
+  const f = MAPAS['casaFirmina']!.npcs.find((n) => n.id === 'firmina')!.falas.find((x) => x.da?.item === 'carta')!;
+  const texto = f.linhas.join(' ');
+  for (const palavra of ['guia de cinco contas', 'medalha', 'Dom', 'patuá', 'Porto Iara']) {
+    assert.ok(texto.includes(palavra), `a explicação não fala de "${palavra}"`);
+  }
+});
