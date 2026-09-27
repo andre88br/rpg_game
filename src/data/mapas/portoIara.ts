@@ -131,9 +131,10 @@ export const portoIara: DefMapa = {
         { se: 'tem_caderno', linhas: [
           'Ainda faltam bichos no caderno. Você anotou {vistos} de quatro.',
           'Anda pelo mato alto, {crianca}. Bicho não vem até a praça.'] },
-        { liga: 'tem_caderno', da: { item: 'caderno' }, linhas: [
-          'Eu anoto num caderno todo Encantado que aparece por aqui. São quatro na região.',
-          'Toma o caderno. Encontre os quatro e eu mesmo acendo uma conta pra você.'] },
+        /* o primeiro encontro: ele dá o caderno, e a cutscene conta quem ele
+           é e o que o caderno pede */
+        { liga: 'tem_caderno', da: { item: 'caderno' }, cutscene: 'contador', linhas: [
+          'Ei, {crianca}! Chega aqui na sombra. Quer ver uma coisa?'] },
       ],
     },
     {

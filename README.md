@@ -522,7 +522,11 @@ de longe, o barco dele saindo pela barra ao amanhecer, e a conta acesa. E a do
 **Boitatá** (`boitata`), quando o jogador chega na ponta do cais: o mar
 ferve, a cobra de fogo desenrola de trás do farol (a peça `farol` tem
 `frente: true`, desenhada por cima do bicho) e o letreiro "BOITATÁ, O BICHO
-DO FAROL". Depois vem `scenes/
+DO FAROL". E a do **Contador de Bichos** (`contador`), na primeira conversa,
+quando ele dá o caderno: a mesinha debaixo da amendoeira, o caderno aberto
+com Piraguá, Caiporinha, Sacizinho e o inicial de quem joga nos quadros, a
+mata cortada pela Companhia ("o que ninguém conta, some sem ninguém saber")
+e o pedido dos quatro bichos. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

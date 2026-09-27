@@ -129,8 +129,8 @@ já acende a conta.
 
 ## Conta 3 — `conta_caderno`: o caderno do Contador de Bichos
 
-O **Contador de Bichos** está em Porto Iara, (24,21). Fale com ele: ele entrega
-o **Caderno de Bichos**. Depois é só **ver 4 espécies diferentes** — basta
+O **Contador de Bichos** está em Porto Iara, (24,21). Fale com ele: uma cutscene
+conta a história dele, e ele entrega o **Caderno de Bichos**. Depois é só **ver 4 espécies diferentes** — basta
 entrar em batalha com elas, não precisa capturar. Caiporinha, Piraguá e
 Sacizinho aparecem no mato da Rota da Foz; com o seu inicial já são quatro
 fácil. Volte no Contador: paga **500**.

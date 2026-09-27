@@ -112,3 +112,10 @@ test('o Boitatá do farol só aparece depois das redes, de emboscada', () => {
   assert.ok(CUTSCENES['boitata']!.some((t) => t.atores?.some((a) => a.frente)),
             'o farol tem que passar na frente do bicho');
 });
+
+test('o Contador de Bichos se apresenta quando dá o caderno', () => {
+  const contador = MAPAS['portoIara']!.npcs.find((n) => n.id === 'contador')!;
+  const caderno = contador.falas.find((f) => f.da?.item === 'caderno')!;
+  assert.equal(caderno.cutscene, 'contador');
+  assert.equal(caderno.liga, 'tem_caderno');
+});

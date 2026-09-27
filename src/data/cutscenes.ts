@@ -465,6 +465,58 @@ const BOITATA: Roteiro = [
   },
 ];
 
+/* --------------------------------------------- o Contador de Bichos
+
+   Toca na primeira conversa com ele, quando dá o caderno: quarenta anos de
+   bicho anotado, o caderno emagrecendo onde a Companhia passa, e o serviço
+   de anotar os quatro da região. */
+const CONTADOR: Roteiro = [
+  { // debaixo da amendoeira, a mesinha dos cadernos
+    fundo: C.mesaContador,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 166, y: 72 },
+      { figura: { jogador: true, dir: 'dir' }, x: -20, y: 78, ate: { x: 70, y: 78, por: 2.4 } },
+      { figura: { inicial: true }, x: -56, y: 68, ate: { x: 34, y: 68, por: 2.4 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      'Na sombra da amendoeira da praça, um senhor anota tudo num caderno surrado, sem pressa nenhuma.',
+      { quem: 'CONTADOR DE BICHOS', texto: 'Opa! Encantado de patuá! Deixa eu ver... {inicial}, é? Esse eu tenho anotado.' },
+    ],
+  },
+  { // o caderno aberto: os bichos da Foz, um em cada quadro
+    fundo: C.cadernoAberto,
+    atores: [
+      { figura: { criatura: 'piragua' }, x: 22, y: 18, aparece: 0.3 },
+      { figura: { criatura: 'caiporinha' }, x: 22, y: 72, aparece: 1.1 },
+      { figura: { criatura: 'sacizinho' }, x: 134, y: 18, aparece: 1.9 },
+      { figura: { inicial: true }, x: 134, y: 72, aparece: 2.7 },
+    ],
+    legendas: [
+      { quem: 'CONTADOR DE BICHOS', texto: 'Faz quarenta anos que eu anoto todo Encantado que passa pela Foz. Desenho, dia e lugar.' },
+      { quem: 'CONTADOR DE BICHOS', texto: 'Piraguá no rio, Caiporinha no mato fundo, Sacizinho na estrada... e o seu, que dá quatro.' },
+    ],
+  },
+  { // onde a Companhia passa, o caderno emagrece
+    fundo: C.mataDepois,
+    legendas: [
+      { quem: 'CONTADOR DE BICHOS', texto: 'Mas a cada ano o caderno fica mais magro. Onde a Companhia finca estaca, bicho não volta.' },
+      { quem: 'CONTADOR DE BICHOS', texto: 'E o que ninguém conta, some sem ninguém saber.' },
+    ],
+  },
+  { // o caderno novo, para quem vai andar a trilha
+    fundo: C.mesaContador,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 166, y: 72 },
+      { figura: { jogador: true, dir: 'dir' }, x: 70, y: 78 },
+      { figura: { inicial: true }, x: 34, y: 68, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'CONTADOR DE BICHOS', texto: 'Toma um caderno novo. Anda pelo mato alto e anota os quatro bichos da região.' },
+      { quem: 'CONTADOR DE BICHOS', texto: 'Voltando com os quatro, eu mesmo acendo uma conta da sua guia. Palavra de contador.' },
+    ],
+  },
+];
+
 /* ------------------------------------------- os Sacizinhos das três redes
 
    Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
@@ -573,6 +625,7 @@ export const CUTSCENES: Record<string, Roteiro> = {
   mestre: MESTRE,
   mestre_redes: MESTRE_REDES,
   boitata: BOITATA,
+  contador: CONTADOR,
   saci_mato: sacizinhoAchado(NO_PAREDAO),
   saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
   saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),

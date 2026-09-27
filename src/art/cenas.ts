@@ -724,3 +724,62 @@ export function farolGrande(): Buf {
   b.tri(10, 6, 42, 6, 26, 0, '#5a2a24');
   return b;
 }
+
+/* ------------------------------------------------ o Contador de Bichos */
+
+/* a praça de Porto Iara, na sombra da amendoeira: a mesinha do Contador,
+   com a pilha de cadernos, a lupa e o tinteiro */
+export function mesaContador(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 56, [[0x5a, 0xa8, 0xe8], [0xa8, 0xd8, 0xf4], [0xe0, 0xf2, 0xf8]]);
+  morros(b, 52, 4, 0.05, 0.4, '#8ab87a', 60);
+  b.rect(0, 58, W, H - 58, P.path!);
+  const r = rng(137);
+  for (let i = 0; i < 140; i++) b.set((r() * W) | 0, 60 + ((r() * 98) | 0), P.pathD!);
+  // a amendoeira: tronco grosso e a copa larga fazendo sombra
+  b.ellipse(150, 100, 70, 14, P.pathD!);
+  b.rect(176, 30, 14, 64, P.trunk!); b.rect(176, 30, 4, 64, P.trunkD!);
+  for (const [x, y, rr] of [[150, 18, 30], [196, 14, 28], [226, 30, 22], [120, 30, 20], [180, 36, 24]] as const) {
+    b.circle(x, y, rr, P.treeD!); b.circle(x - 3, y - 3, rr - 5, P.tree!); b.circle(x - 8, y - 8, (rr / 3) | 0, P.treeL!);
+  }
+  // a mesinha e o banco
+  b.rect(96, 78, 64, 5, '#8a5a30'); b.rect(96, 78, 64, 1, '#b07a48');
+  b.rect(100, 83, 4, 22, '#6d4726'); b.rect(152, 83, 4, 22, '#6d4726');
+  // a pilha de cadernos, cada um de uma cor, e um aberto por cima
+  const cores = ['#6a4a8a', '#3a6a5a', '#8a3a3a', '#8a7a3a', '#3a4a7a'];
+  cores.forEach((c, i) => { b.rect(102 + (i % 2) * 2, 72 - i * 3, 22, 3, c); b.rect(102 + (i % 2) * 2, 72 - i * 3, 22, 1, '#f0e8d0'); });
+  b.rect(128, 72, 24, 6, '#f4ecd8'); b.rect(139, 72, 1, 6, '#c8b890');
+  for (let y = 73; y < 77; y += 2) { b.rect(130, y, 7, 1, '#8a8078'); b.rect(142, y, 8, 1, '#8a8078'); }
+  // a lupa e o tinteiro com a pena
+  b.circle(154, 75, 2, '#5a4a3a'); b.set(154, 75, '#bfe0f0'); b.rect(156, 76, 3, 1, '#5a4a3a');
+  b.rect(98, 72, 4, 5, '#2a2a3a'); b.line(100, 71, 97, 64, '#f4f0e0');
+  return b;
+}
+
+/* o caderno do Contador aberto, bem de perto: duas páginas, quatro
+   quadros para desenho (os bichos entram por cima, como atores) e as
+   anotações rabiscadas do lado de cada um */
+export function cadernoAberto(): Buf {
+  const b = new Buf(W, H);
+  b.rect(0, 0, W, H, '#5a3a24');
+  const r = rng(139);
+  for (let i = 0; i < 200; i++) b.set((r() * W) | 0, (r() * H) | 0, '#4a2e1c');
+  // capa e as duas páginas
+  b.rect(6, 4, 228, 120, '#3a4a6a');
+  for (const x0 of [10, 122]) {
+    b.rect(x0, 6, 108, 116, '#f4ecd8');
+    for (let y = 14; y < 120; y += 7) b.rect(x0 + 2, y, 104, 1, '#d8d0b8');
+  }
+  b.rect(118, 6, 4, 116, '#c8b890');
+  // os quatro quadros e os rabiscos ao lado
+  for (const [x, y] of [[16, 12], [16, 66], [128, 12], [128, 66]] as const) {
+    b.rect(x, y, 44, 44, '#8a8078'); b.rect(x + 1, y + 1, 42, 42, '#faf4e4');
+    for (let k = 0; k < 5; k++) {
+      const larg = 30 + ((k * 13 + x) % 16);
+      for (let xx = x + 50; xx < x + 50 + larg; xx += 2) b.set(xx, y + 6 + k * 7 + ((xx >> 1) % 2), '#4a4a6a');
+    }
+  }
+  // uma folha seca guardada entre as páginas
+  b.ellipse(112, 112, 7, 3, '#a8803a'); b.line(106, 112, 118, 112, '#7a5a2a');
+  return b;
+}
