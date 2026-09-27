@@ -130,3 +130,16 @@ test('o Terreiro de Água tem cutscene ao entrar e ao vencer a Dona Mariana', ()
   // a medalha continua vindo da fala dela, depois da cutscene
   assert.ok(mariana.falas.some((f) => f.medalha === 'mare'));
 });
+
+test('saindo do terreiro com a medalha, o Mestre chama de volta à Firmina, que entrega a carta', () => {
+  const chegada = MAPAS['portoIara']!.aoChegar!;
+  assert.equal(chegada.cutscene, 'firmina_chama');
+  assert.equal(chegada.se, 'medalha:mare');
+  const nao = [chegada.seNao ?? []].flat();
+  assert.ok(nao.includes('viu_cut_firmina_chama'), 'a chamada tocaria toda vez');
+  assert.ok(nao.includes('deu_carta_tie'), 'a chamada tocaria com a carta já pega');
+  const firmina = MAPAS['casaFirmina']!.npcs.find((n) => n.id === 'firmina')!;
+  const carta = firmina.falas.find((f) => f.da?.item === 'carta_tie')!;
+  assert.equal(carta.cutscene, 'firmina_carta');
+  assert.equal(carta.liga, 'deu_carta_tie');
+});

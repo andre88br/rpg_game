@@ -838,3 +838,66 @@ function salao(agitada: boolean): Buf {
   }
   return b;
 }
+
+/* ------------------------------------------------ a carta para a Tiê */
+
+/* a porta do Terreiro de Água vista de fora, no fim da tarde: a fachada de
+   pedra com o pano azul na verga, as velas dos dois lados e o largo de terra
+   batida na frente, com o mar lá atrás */
+export function portaTerreiro(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 64, [[0x4a, 0x3a, 0x7a], [0xd0, 0x7a, 0x6a], [0xf8, 0xc0, 0x80]]);
+  // o mar lá atrás, pegando o sol
+  b.rect(0, 52, W, 14, '#4a6a9a');
+  for (let x = 0; x < W; x += 9) b.rect(x, 55 + (x % 4), 5, 1, '#f4c880');
+  // a areia da praia, entre o mar e o largo
+  b.rect(0, 66, W, 24, P.sand!);
+  for (let x = 0; x < W; x += 3) b.set(x, 66, P.foam!);
+  // a fachada de pedra
+  b.rect(52, 14, 136, 76, '#5a6a7a');
+  for (let y = 14; y < 90; y += 8) {
+    for (let x = 52 - ((y / 8) % 2) * 8; x < 188; x += 16) {
+      const x0 = Math.max(52, x + 1), x1 = Math.min(188, x + 15);
+      if (x1 > x0) { b.rect(x0, y + 1, x1 - x0, 6, '#6a7a8c'); b.rect(x0, y + 1, x1 - x0, 1, '#7a8a9e'); }
+    }
+  }
+  b.tri(46, 16, 194, 16, 120, 0, '#3a4a5a');                      // o telhado de pedra
+  b.rect(46, 14, 148, 3, '#2a3a4a');
+  // a porta, com o pano azul na verga e o salão escuro lá dentro
+  b.rect(102, 48, 36, 42, '#22303c');
+  b.rect(106, 52, 28, 38, '#1a2a3a');
+  for (let y = 60; y < 90; y += 6) b.rect(110, y, 20, 1, '#2a4a6a');   // a água do salão, lá dentro
+  b.rect(98, 42, 44, 6, '#2a5a8a'); b.rect(98, 42, 44, 1, '#4a8aba');
+  // as velas dos dois lados da porta
+  for (const x of [88, 150]) {
+    b.rect(x - 3, 70, 8, 20, '#4a5a6a');
+    b.rect(x, 62, 2, 8, '#f4f0e0'); b.rect(x, 59, 2, 3, P.fireL!); b.set(x, 58, P.light!);
+  }
+  // o largo de terra batida
+  b.rect(0, 90, W, H - 90, P.path!);
+  const r = rng(157);
+  for (let i = 0; i < 120; i++) b.set((r() * W) | 0, 92 + ((r() * 66) | 0), P.pathD!);
+  b.ellipse(120, 94, 26, 4, P.pathD!);                            // o gasto na frente da porta
+  return b;
+}
+
+/* a sala da Firmina na lembrança do Mestre: a mesma sala, com a moldura
+   pontilhada das lembranças */
+export function salaFirminaLembranca(): Buf {
+  const b = salaFirmina();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = Math.min(x, y, W - 1 - x, H - 1 - y);
+    if (d < 6 && (x + y) % (d + 2) === 0) b.set(x, y, '#1a1008');
+  }
+  return b;
+}
+
+/* a carta dobrada em quatro, com o lacre de cera vermelha */
+export function cartaLacrada(): Buf {
+  const b = new Buf(14, 10);
+  b.rect(0, 0, 14, 10, '#8a7a5a');
+  b.rect(1, 1, 12, 8, '#f4ecd8');
+  b.line(1, 1, 6, 5, '#c8b890'); b.line(12, 1, 7, 5, '#c8b890');
+  b.circle(7, 6, 2, '#b0302a'); b.set(6, 5, '#e05a4a');
+  return b;
+}

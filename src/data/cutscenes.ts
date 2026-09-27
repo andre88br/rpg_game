@@ -26,7 +26,7 @@ export type Figura =
   | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
-  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' };
+  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' | 'carta' };
 
 export interface Ator {
   figura: Figura;
@@ -602,6 +602,90 @@ const MARIANA_VENCE: Roteiro = [
   },
 ];
 
+/* ------------------------------------------- a carta para a Tiê
+
+   Duas cutscenes para o fim da Região da Foz. A primeira toca quando o
+   jogador sai do terreiro com a Medalha Maré (o `aoChegar` de Porto Iara):
+   o Mestre do Porto traz o recado da Firmina. A segunda, na casa dela,
+   quando ela entrega a carta (a fala é que põe a carta na mochila). */
+const FIRMINA_CHAMA: Roteiro = [
+  { // na porta do terreiro, o Mestre chegando esbaforido
+    fundo: C.portaTerreiro,
+    atores: [
+      { figura: { jogador: true, dir: 'baixo' }, x: 112, y: 74, ate: { x: 112, y: 92, por: 1.2 } },
+      { figura: { inicial: true }, x: 150, y: 82, aparece: 0.4, ate: { x: 150, y: 96, de: 0.4, por: 1.2 }, balanco: { amp: 1, periodo: 1.6 } },
+      { figura: { pessoa: 'pescador', dir: 'dir' }, x: -20, y: 96, ate: { x: 70, y: 96, de: 1, por: 2 } },
+    ],
+    legendas: [
+      'Lá fora, o sol já vai caindo no mar. E alguém vem correndo pelo largo.',
+      { quem: 'MESTRE DO PORTO', texto: 'A Medalha Maré! Eu sabia. A Foz inteira vai saber antes do sol cair.' },
+    ],
+  },
+  { // a lembrança: a Firmina escrevendo, a carta em cima da mesa
+    fundo: C.salaFirminaLembranca,
+    atores: [
+      { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84 },
+      { figura: { peca: 'carta' }, x: 112, y: 80, aparece: 0.6 },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'Chegou recado da Firmina no barco da manhã. Ela quer te ver antes de você atravessar a água.' },
+      { quem: 'MESTRE DO PORTO', texto: 'Disse que tem uma carta pra você. E carta dela nunca é à toa.' },
+    ],
+  },
+  { // o caminho de volta, subindo a Rota da Foz
+    fundo: C.trilhaAurora,
+    atores: [
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 124, ate: { x: 116, y: 88, por: 3.5 } },
+      { figura: { inicial: true }, x: 146, y: 126, ate: { x: 136, y: 88, por: 3.5 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'Sobe a Rota da Foz até a Vila Aurora, {crianca}. A casa de telhado grande, você sabe.' },
+      'A Dona Firmina está esperando em VILA AURORA.',
+    ],
+  },
+];
+
+const FIRMINA_CARTA: Roteiro = [
+  { // a sala, e a carta lacrada em cima da mesa
+    fundo: C.salaFirmina,
+    atores: [
+      { figura: { peca: 'carta' }, x: 112, y: 80 },
+      { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
+      { figura: { inicial: true }, x: 24, y: 74, balanco: { amp: 1, periodo: 1.8 } },
+      { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84 },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 149, y: 74 }],
+    legendas: [
+      'Em cima da mesa comprida, uma carta dobrada em quatro, com lacre de cera vermelha.',
+      { quem: 'DONA FIRMINA', texto: 'A Medalha Maré no peito. A Dona Mariana não dá aquilo pra qualquer um, {crianca}.' },
+    ],
+  },
+  { // do outro lado da água, a mata, e a Tiê
+    fundo: C.mataAntes,
+    atores: [
+      { figura: { pessoa: 'tie', dir: 'baixo' }, x: 150, y: 76, aparece: 0.5 },
+    ],
+    legendas: [
+      { quem: 'DONA FIRMINA', texto: 'Do outro lado da água tem mata, e na mata tem a Tiê. É ela quem cuida do Terreiro de Raiz.' },
+      { quem: 'DONA FIRMINA', texto: 'Amiga minha de muito tempo. E a Companhia já anda rondando por lá também.' },
+    ],
+  },
+  { // a carta passa para as mãos da criança
+    fundo: C.salaFirmina,
+    atores: [
+      { figura: { peca: 'carta' }, x: 112, y: 80, ate: { x: 66, y: 86, de: 0.6, por: 1.4 }, some: 2.4 },
+      { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
+      { figura: { inicial: true }, x: 24, y: 74, balanco: { amp: 1, periodo: 1.8 } },
+      { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84, ate: { x: 150, y: 84, por: 0.8 } },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 149, y: 74 }],
+    legendas: [
+      { quem: 'DONA FIRMINA', texto: 'Leve esta carta a ela. E com o Dom de Nadar, a água não é mais parede pra você.' },
+    ],
+    titulo: ['A MATA DO CURUPIRA', 'DO OUTRO LADO DA ÁGUA'],
+  },
+];
+
 /* ------------------------------------------- os Sacizinhos das três redes
 
    Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
@@ -713,6 +797,8 @@ export const CUTSCENES: Record<string, Roteiro> = {
   contador: CONTADOR,
   terreiro_agua: TERREIRO_AGUA,
   mariana_vence: MARIANA_VENCE,
+  firmina_chama: FIRMINA_CHAMA,
+  firmina_carta: FIRMINA_CARTA,
   saci_mato: sacizinhoAchado(NO_PAREDAO),
   saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
   saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),

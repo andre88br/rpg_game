@@ -531,7 +531,14 @@ primeira entrada (`terreiro_agua`, pelo `aoChegar` do mapa, que liga
 `viu_cut_terreiro_agua` e não toca de novo) — o salão alagado, a Iara-Mãe na
 lembrança e o letreiro da Dona Mariana — e a da vitória (`mariana_vence`,
 `cutscene` do treinador): a água assentando (`depois` com `salaoAguaCalmo`),
-a comporta e a Medalha Maré, que a fala dela entrega em seguida. Depois vem `scenes/
+a comporta e a Medalha Maré, que a fala dela entrega em seguida. E a
+carta para a Tiê fecha a região com duas: saindo do terreiro com a medalha,
+o `aoChegar` de Porto Iara (`se: 'medalha:mare'`, `seNao` com
+`viu_cut_firmina_chama` e `deu_carta_tie`) põe o Mestre do Porto na porta
+com o recado da Firmina (`firmina_chama`: a porta do terreiro ao pôr do sol,
+a Firmina na lembrança e a trilha de volta); e na casa dela, a fala que dá
+`carta_tie` toca `firmina_carta` — a carta lacrada na mesa (peça `carta`), a
+Tiê do outro lado da água e o letreiro da Mata do Curupira. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

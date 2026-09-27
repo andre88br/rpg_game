@@ -229,6 +229,14 @@ export const portoIara: DefMapa = {
   ],
 
   cenario: 'praia',
+  /* saindo do terreiro com a Medalha Maré, o Mestre do Porto traz o recado
+     da Firmina. A medalha só se ganha lá dentro, então a primeira chegada
+     depois dela é a saída pela porta; quem já pegou a carta não ouve mais */
+  aoChegar: {
+    quem: 'MESTRE DO PORTO', se: 'medalha:mare',
+    seNao: ['viu_cut_firmina_chama', 'deu_carta_tie'], cutscene: 'firmina_chama',
+    linhas: ['Ô, {crianca}! Espera aí, que eu tô te procurando desde cedo!'],
+  },
   passosPorEncontro: 8,
   /* O mato de Porto Iara é beira de rio: Piraguá é o que mais aparece, o
      Sacizinho passa correndo de vez em quando e a Caiporinha vem do mato

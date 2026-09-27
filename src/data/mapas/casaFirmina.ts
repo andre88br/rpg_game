@@ -46,12 +46,11 @@ export const casaFirmina: DefMapa = {
         { se: ['medalha:mare', 'item:carta_tie'], linhas: [
           'Essa carta ainda está na sua mochila, {crianca}? A Tiê deve estar esperando.',
           'Atravesse a água a nado e não pare no meio do caminho.'] },
+        /* a cutscene conta da Tiê e da mata; a fala só chama e entrega */
         { se: 'medalha:mare', seNao: 'deu_carta_tie', liga: 'deu_carta_tie',
-          da: { item: 'carta_tie' }, linhas: [
-          'A Medalha Maré no peito e a Dona Mariana falando bem de você por aí.',
-          'Mas a Região da Foz é só o começo, {crianca}. Do outro lado da água tem mata, e na mata tem gente.',
-          'Uma amiga minha, a Tiê, cuida do Terreiro de Raiz por lá. Leve esta carta a ela.',
-          'Agora vá: com o Dom de Nadar, a água não é mais parede nenhuma para você.'] },
+          da: { item: 'carta_tie' }, cutscene: 'firmina_carta', linhas: [
+          'Chegou depressa! O Mestre do Porto deu o recado, então.',
+          'A Região da Foz é só o começo, {crianca}. Senta aqui, que eu tenho uma carta pra você.'] },
         { se: 'medalha:mare', linhas: [
           'A Foz inteira é sua conhecida agora, {nome}. Vá em frente, que a mata está esperando.'] },
         { se: 'contas>=5', linhas: [

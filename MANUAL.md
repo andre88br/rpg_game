@@ -197,7 +197,9 @@ depois **fale com ela de novo** para receber a **Medalha Maré** e o **Dom Nadar
 funda de Porto Iara em (24,36)/(25,36) e segue para o Igarapé do Curupira.
 
 Antes de subir: volte na **Dona Firmina** — agora ela entrega a **Carta para a
-Tiê**, que é a primeira conta da região 2. **Não pule esse passo**, ou a
+Tiê**, que é a primeira conta da região 2. Ao sair do terreiro com a medalha,
+o **Mestre do Porto** te encontra na porta com o recado dela (uma cutscene,
+uma vez só), e a entrega da carta na casa da Firmina também tem cutscene. **Não pule esse passo**, ou a
 primeira conta da Mata fica impossível de acender.
 
 ---
