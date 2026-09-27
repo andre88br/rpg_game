@@ -79,6 +79,9 @@ const SUSTO = 0.7;
    e quanto tempo o recado fica na tela se ninguém apertar nada */
 const CUT_FADE = 0.35;
 const CUT_ESPERA = 3.2;
+/* depois de uma cutscene de apresentação, a luta espera a troca de cena de
+   volta terminar (o gerenciador ignora outra troca no meio de uma) */
+const ESPERA_LUTA = 0.4;
 
 /* códigos secretos: digitados com os próprios botões do jogo, andando livre
    pelo mundo (não contam em conversa, batalha, loja ou qualquer menu). Cada
@@ -202,6 +205,10 @@ export class CenaMundo implements Cena {
   private creditosPendentes = false;
   /* uma cutscene da história esperando a vez, como os créditos */
   private historiaPendente: string | null = null;
+  /* a luta que espera a cutscene de apresentação acabar, e quanto falta
+     para soltar (a troca de cena de volta precisa terminar antes) */
+  private lutaDepois: NpcVivo | null = null;
+  private esperaLuta = 0;
   private fade = 0;
 
   private duelo: Duelo | null = null;
@@ -258,6 +265,7 @@ export class CenaMundo implements Cena {
       this.tempoFaixa = 0;
       this.conversa = null;
       this.carencia = 0.6;
+      if (this.lutaDepois) this.esperaLuta = ESPERA_LUTA;
       this.resolverBatalha();
       return;
     }
@@ -639,6 +647,15 @@ export class CenaMundo implements Cena {
     this.pedirHistoria(c.fala.cutscene);
 
     if (efeito.batalha && c.npc?.def.treinador) {
+      /* primeiro encontro: a cutscene que apresenta o treinador vem antes */
+      const apres = c.npc.def.treinador.apresentacao;
+      if (apres && !e.flags[`viu_cut_${apres}`] && this.op.aoCutscene && temTimeEmPe(e)) {
+        this.duelo = null;
+        this.pedirHistoria(apres);
+        this.lutaDepois = c.npc;
+        this.esperaLuta = ESPERA_LUTA;
+        return;
+      }
       if (temTimeEmPe(e)) { this.lutarCom(c.npc); return; }
       // sem ninguém de pé não há luta: seria derrota automática
       this.duelo = null;
@@ -1313,6 +1330,17 @@ export class CenaMundo implements Cena {
       this.historiaPendente = null;
       salvar(this.op.estado);
       this.op.aoCutscene?.(id);
+      return;
+    }
+
+    // voltou da cutscene de apresentação: agora sim, a luta
+    if (this.lutaDepois && !this.historiaPendente) {
+      this.esperaLuta -= dt;
+      if (this.esperaLuta <= 0) {
+        const npc = this.lutaDepois;
+        this.lutaDepois = null;
+        this.lutarCom(npc);
+      }
       return;
     }
 

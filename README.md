@@ -489,7 +489,12 @@ cima da mesa, e a Firmina contando como a Companhia desceu na Foz com
 estaca e papel carimbado e fechou o rio com uma comporta. Ela usa o
 personagem e o Encantado de quem está jogando (`{ jogador: true }`,
 `{ inicial: true }` e `{inicial}` na legenda), e as páginas de fala levam
-o nome de quem fala numa etiqueta. Depois vem `scenes/
+o nome de quem fala numa etiqueta. A terceira é a do **Zeca**, no primeiro encontro no paredão da Rota da
+Foz: o letreiro "ZECA, O REDEMOINHO", a lembrança dele pulando num
+redemoinho atrás de um Sacizinho (daí o apelido) e o pai dele, que foi
+trabalhar para a Companhia Mata-Seca. Ela toca ENTRE a fala de desafio e a
+batalha: o treinador leva `apresentacao: '<id>'`, e a luta espera a cutscene
+acabar. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

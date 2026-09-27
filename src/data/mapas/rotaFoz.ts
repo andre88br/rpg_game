@@ -80,6 +80,8 @@ export const rotaFoz: DefMapa = {
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 600,
         liga: 'conta_estrada',
+        // no primeiro encontro, a cutscene que apresenta o Zeca vem antes da luta
+        apresentacao: 'zeca',
         time: [{ especie: 'curupinho', nivel: 6 }, { especie: 'sacizinho', nivel: 7 }],
         falaInicio: 'Parou! Ninguém passa o paredão sem me enfrentar primeiro.',
         falaDerrota: 'Aaah! Tudo bem, tudo bem. Tira essa tranca daí e vai embora.',

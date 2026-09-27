@@ -179,6 +179,9 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
   /* o capataz da Companhia Mata-Seca: boné cinza e roupa de firma */
   capataz:  { chapeu: 'bone', chapeuCor: '#4a4a4a', chapeuCorL: '#6a6a6a', cabelo: '#2c1b14',
               roupa: '#6a6a6a', roupaL: '#8a8a8a', calca: '#2a2a2a' },
+  /* o pai do Zeca, no uniforme da Companhia: boné cinza, cabelo do filho */
+  paiZeca:  { chapeu: 'bone', chapeuCor: '#6a6a6a', chapeuCorL: '#8a8a8a', cabelo: '#6b4a1f', cabeloL: '#8f6a30',
+              roupa: '#7a7a6a', roupaL: '#9a9a88', calca: '#3a3a3a' },
   /* capacete amarelo de mina e roupa cor de barro — as Minas da Caipora */
   garimpeiro: { chapeu: 'bone', chapeuCor: '#d9b23a', chapeuCorL: '#f0d06a', cabelo: '#3a2a1a',
                 roupa: '#7a5a3a', roupaL: '#9c7a52', calca: '#4a3a2a' },

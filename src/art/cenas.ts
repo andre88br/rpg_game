@@ -389,3 +389,73 @@ export function rioCalado(): Buf {
   for (const x of [160, 200]) { b.rect(x - 2, 58, 5, 8, P.trunkD!); b.rect(x - 2, 58, 5, 1, '#c9a06a'); }
   return b;
 }
+
+/* ------------------------------------------------ o Zeca, no paredão */
+
+/* a Rota da Foz no paredão de pedra: a estrada passa pelo vão, e o Zeca
+   atravessou uma tranca de pau com fitas bem no meio dele */
+export function paredaoRota(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 62, [[0x6a, 0xb0, 0xe8], [0xa8, 0xd8, 0xf4], [0xe8, 0xf4, 0xf0]]);
+  morros(b, 58, 6, 0.03, 1.2, '#7aa86a', 70);
+  // o chão de grama
+  b.rect(0, 62, W, H - 62, P.grass!);
+  const r = rng(41);
+  for (let i = 0; i < 160; i++) b.set((r() * W) | 0, 62 + ((r() * 98) | 0), i % 2 ? P.grassD! : P.grassL!);
+  // o paredão de pedra, com o vão por onde passa a estrada
+  for (const [x0, x1] of [[0, 96], [144, W]] as const) {
+    b.rect(x0, 30, x1 - x0, 56, P.rockD!);
+    for (let y = 30; y < 86; y += 7) {
+      for (let x = x0 - ((y / 7) % 2) * 6; x < x1; x += 12) {
+        const a = Math.max(x0, x + 1), z = Math.min(x1, x + 11);
+        if (z > a) { b.rect(a, y + 1, z - a, 5, P.rock!); b.rect(a, y + 1, z - a, 1, '#b8aca0'); }
+      }
+    }
+    b.rect(x0, 28, x1 - x0, 3, '#5a524c');
+    for (let x = x0; x < x1; x += 5) b.rect(x, 26 + ((x * 7) % 3), 3, 3, P.grassD!);
+  }
+  // a estrada de terra, subindo pelo vão
+  for (let y = 62; y < H; y++) {
+    const meia = Math.round(18 + (y - 62) * 0.35);
+    b.rect(120 - meia, y, meia * 2, 1, P.path!);
+  }
+  b.rect(96, 30, 48, 32, P.path!);
+  for (let i = 0; i < 80; i++) b.set(90 + ((r() * 60) | 0), 30 + ((r() * 130) | 0), P.pathD!);
+  // a tranca: dois mourões e uma vara atravessada, com fitas
+  for (const x of [98, 140]) { b.rect(x, 74, 4, 22, '#6d4726'); b.rect(x, 74, 4, 2, '#946a40'); }
+  b.rect(96, 80, 50, 4, '#8a5a30'); b.rect(96, 80, 50, 1, '#b07a48');
+  for (const [x, c] of [[106, '#c2493f'], [118, '#f2d24b'], [130, '#c2493f']] as const) {
+    b.rect(x, 84, 2, 8, c); b.set(x + 2, 91, c);
+  }
+  // moitas nos pés do paredão
+  for (const x of [20, 60, 170, 212]) { b.circle(x, 88, 7, P.treeD!); b.circle(x - 1, 86, 6, P.tree!); b.circle(x - 2, 84, 3, P.treeL!); }
+  return b;
+}
+
+/* a lembrança: um campo em tom de foto antiga e o funil de poeira em que o
+   Zeca pequeno pulou atrás de um Sacizinho */
+export function redemoinhoLembranca(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 70, [[0xe8, 0xd8, 0xb0], [0xd8, 0xbc, 0x8c]]);
+  morros(b, 66, 5, 0.04, 0.4, '#c0a070', 80);
+  b.rect(0, 78, W, H - 78, '#b8966a');
+  const r = rng(53);
+  for (let i = 0; i < 120; i++) { const x = (r() * W) | 0, y = 80 + ((r() * 78) | 0); b.rect(x, y, 1, 3, '#9c7a52'); }
+  // o funil: faixas que alargam para cima, girando
+  const cx = 160, topo = 18, fundo = 118;
+  for (let y = topo; y < fundo; y++) {
+    const t = (fundo - y) / (fundo - topo);
+    const meia = Math.round(5 + t * 30), x0 = cx + Math.round(Math.sin(t * 5) * 6 * t);
+    for (let x = -meia; x < meia; x++) {
+      const faixa = Math.floor((y / 3) + (x / (meia + 1)) * 4) % 3;
+      b.set(x0 + x, y, faixa === 0 ? '#a08058' : faixa === 1 ? '#c8aa7c' : '#e0c898');
+    }
+  }
+  for (let k = 0; k < 16; k++) { const a = k * 0.8, x = cx + Math.cos(a) * (20 + k * 2), y = 110 - k * 5; b.rect(Math.round(x), Math.round(y), 2, 1, '#8a6a42'); }
+  // moldura escura de lembrança
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = Math.min(x, y, W - 1 - x, H - 1 - y);
+    if (d < 6 && (x + y) % (d + 2) === 0) b.set(x, y, '#6a5030');
+  }
+  return b;
+}

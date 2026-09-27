@@ -11,7 +11,8 @@
 
    Para tocar uma cutscene a partir do mundo, uma fala ou um treinador
    vencido leva `cutscene: '<id daqui>'` — e ela toca uma vez só (a flag
-   `viu_cut_<id>`).
+   `viu_cut_<id>`). Um treinador com `apresentacao: '<id>'` toca a dele
+   ANTES da primeira luta, logo depois da fala de desafio.
    ========================================================================= */
 import type { Buf } from '../core/buf.ts';
 import type { Direcao } from '../art/people.ts';
@@ -228,7 +229,76 @@ const FIRMINA: Roteiro = [
   },
 ];
 
+
+/* ------------------------------------------ o Zeca, no paredão da Rota da Foz
+
+   Toca no primeiro encontro, entre a fala de desafio e a batalha
+   (`apresentacao` do treinador). Apresenta o rival e a história dele: o
+   redemoinho que deu o apelido, e o pai que foi trabalhar para a Companhia. */
+const ZECA: Roteiro = [
+  { // a tranca atravessada na estrada, e o Zeca esperando
+    fundo: C.paredaoRota,
+    atores: [
+      { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58 },
+      { figura: { jogador: true, dir: 'dir' }, x: -20, y: 90, ate: { x: 78, y: 90, por: 3 } },
+      { figura: { inicial: true }, x: -56, y: 78, ate: { x: 42, y: 78, por: 3 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      'No paredão da Rota da Foz, alguém atravessou uma tranca de pau no meio da estrada.',
+      { quem: 'ZECA', texto: 'Demorou, hein? Tô te esperando desde que a Dona Firmina mandou te chamar.' },
+    ],
+  },
+  { // o letreiro do rival
+    fundo: C.paredaoRota,
+    atores: [
+      { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 104 },
+      { figura: { criatura: 'sacizinho' }, x: 130, y: 86, aparece: 0.6, balanco: { amp: 4, periodo: 0.8 } },
+    ],
+    legendas: [],
+    titulo: ['ZECA', 'O REDEMOINHO'],
+  },
+  { // a lembrança: o Zeca pequeno pulando no redemoinho atrás do Sacizinho
+    fundo: C.redemoinhoLembranca,
+    atores: [
+      { figura: { criatura: 'sacizinho' }, x: 146, y: 60, balanco: { amp: 5, periodo: 0.45 } },
+      { figura: { pessoa: 'zeca', dir: 'dir' }, x: 10, y: 96, ate: { x: 142, y: 96, de: 0.6, por: 4 } },
+    ],
+    efeitos: [{ tipo: 'fumaca', x: 160, y: 112, aparece: 0.5 }],
+    legendas: [
+      'O Zeca mora na casa da frente. Um ano mais velho, dois palmos mais alto e o dobro de falante.',
+      'Um dia ele pulou dentro de um redemoinho atrás de um Sacizinho.',
+      'E saiu lá de dentro com o gorro vermelho do bicho na mão.',
+      'Desde então, a vila inteira chama ele de Zeca Redemoinho.',
+    ],
+  },
+  { // o pai dele, de uniforme da Companhia, na praia das estacas
+    fundo: C.fozEstacas,
+    atores: [
+      { figura: { pessoa: 'paiZeca', dir: 'esq' }, x: 132, y: 94 },
+      { figura: { pessoa: 'capataz', dir: 'esq' }, x: 166, y: 96 },
+      { figura: { pessoa: 'zeca', dir: 'dir' }, x: 40, y: 84, aparece: 0.8 },
+    ],
+    legendas: [
+      { quem: 'ZECA', texto: 'Meu pai foi trabalhar pra Companhia Mata-Seca. Diz que agora tem salário todo mês.' },
+      { quem: 'ZECA', texto: 'E diz que Encantado é história de avó. Eu já nem sei mais em quem acreditar.' },
+    ],
+  },
+  { // de volta ao paredão, frente a frente
+    fundo: C.paredaoRota,
+    atores: [
+      { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58, ate: { x: 112, y: 70, de: 0.4, por: 1 } },
+      { figura: { jogador: true, dir: 'dir' }, x: 78, y: 90 },
+      { figura: { criatura: 'sacizinho' }, x: 136, y: 46, balanco: { amp: 3, periodo: 1 } },
+    ],
+    legendas: [
+      { quem: 'ZECA', texto: 'E a Dona Firmina deu patuá foi pra você. O meu, eu peguei sozinho, no mato.' },
+      { quem: 'ZECA', texto: 'Então vamos ver quem merece andar a trilha. Quer passar? Passa por cima de mim!' },
+    ],
+  },
+];
+
 export const CUTSCENES: Record<string, Roteiro> = {
   intro: INTRO,
   firmina: FIRMINA,
+  zeca: ZECA,
 };

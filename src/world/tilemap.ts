@@ -189,6 +189,10 @@ export interface DefTreinador {
   /* vencer este toca uma cutscene da história (id em data/cutscenes.ts),
      depois da fala de derrota — uma vez só por partida */
   cutscene?: string;
+  /* uma cutscene que APRESENTA o treinador: toca entre a fala de desafio e a
+     batalha, uma vez só (a flag `viu_cut_<id>`) — o primeiro encontro com o
+     Zeca */
+  apresentacao?: string;
 }
 
 export interface DefNPC {

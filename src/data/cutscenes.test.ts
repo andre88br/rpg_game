@@ -72,7 +72,15 @@ test('toda cutscene pedida por fala ou treinador existe', () => {
     for (const n of def.npcs) {
       for (const f of n.falas) daFala(f);
       if (n.treinador?.cutscene) pedidas.push(n.treinador.cutscene);
+      if (n.treinador?.apresentacao) pedidas.push(n.treinador.apresentacao);
     }
   }
   for (const id of pedidas) assert.ok(CUTSCENES[id], `cutscene "${id}" não existe`);
+});
+
+test('o primeiro Zeca, na Rota da Foz, é apresentado antes da luta', () => {
+  const zeca = MAPAS['rotaFoz']!.npcs.find((n) => n.id === 'zeca')!;
+  assert.equal(zeca.treinador?.apresentacao, 'zeca');
+  const roteiro = CUTSCENES['zeca']!;
+  assert.ok(roteiro.some((t) => t.titulo?.includes('ZECA')), 'falta o letreiro do rival');
 });
