@@ -783,3 +783,58 @@ export function cadernoAberto(): Buf {
   b.ellipse(112, 112, 7, 3, '#a8803a'); b.line(106, 112, 118, 112, '#7a5a2a');
   return b;
 }
+
+/* ------------------------------------------------ o Terreiro de Água */
+
+/* o salão alagado da Dona Mariana: parede de pedra, o altar lá no alto, o
+   chão de água entre as duas colunas e as gamelas com vela na beira */
+export function salaoAgua(): Buf { return salao(true); }
+
+/* o mesmo salão depois da luta: a água assentou e espelha as velas */
+export function salaoAguaCalmo(): Buf { return salao(false); }
+
+function salao(agitada: boolean): Buf {
+  const b = new Buf(W, H);
+  // a parede do fundo, de pedra, com nichos de vela
+  b.rect(0, 0, W, 52, '#3a4a5a');
+  for (let y = 0; y < 52; y += 8) {
+    for (let x = -((y / 8) % 2) * 8; x < W; x += 16) {
+      b.rect(Math.max(0, x + 1), y + 1, 14, 6, '#4a5a6c');
+      b.rect(Math.max(0, x + 1), y + 1, 14, 1, '#5a6a7e');
+    }
+  }
+  for (const x of [30, 206]) { b.rect(x - 6, 14, 12, 14, '#22303c'); b.rect(x - 1, 18, 2, 6, '#f4f0e0'); b.rect(x - 1, 15, 2, 3, P.fireL!); }
+  // o altar da Dona Mariana, com a escada descendo até a água
+  b.rect(88, 20, 64, 18, '#6a7a8a'); b.rect(88, 20, 64, 2, '#8a9aaa');
+  b.rect(100, 12, 40, 8, '#2a5a8a'); b.rect(100, 12, 40, 1, '#4a8aba');   // o pano azul
+  for (let k = 0; k < 3; k++) b.rect(96 + k * 4, 38 + k * 5, 48 - k * 8, 5, k % 2 ? '#5a6a7a' : '#6a7a8a');
+  // o chão de água
+  const agua = agitada ? '#2a6aa8' : '#2a5a8a';
+  b.rect(0, 52, W, 64, agua);
+  const r = rng(agitada ? 149 : 151);
+  if (agitada) {
+    for (let i = 0; i < 70; i++) {
+      const x = (r() * W) | 0, y = 54 + ((r() * 60) | 0);
+      b.rect(x, y, 6 + ((r() * 6) | 0), 1, i % 3 ? '#4a8ac8' : P.foam!);
+    }
+  } else {
+    for (let i = 0; i < 18; i++) b.rect((r() * W) | 0, 56 + ((r() * 56) | 0), 10, 1, '#3a6a9a');
+    // o reflexo das velas e do pano, parado
+    for (const x of [30, 206]) b.rect(x - 1, 60, 2, 10, '#c8a860');
+    b.rect(104, 56, 32, 3, '#3a7ab0');
+  }
+  // as duas colunas de pedra, os únicos freios do salão
+  for (const x of [56, 172]) {
+    b.rect(x, 50, 14, 50, P.rockD!); b.rect(x, 50, 4, 50, P.rock!);
+    b.rect(x - 2, 48, 18, 4, '#8a8078'); b.rect(x - 2, 98, 18, 3, '#5a524c');
+    if (agitada) for (let k = 0; k < 3; k++) b.rect(x - 4 + k * 8, 101, 5, 1, P.foam!);
+  }
+  // a beira de pedra da entrada e as gamelas com vela
+  b.rect(0, 116, W, H - 116, '#6a6a72');
+  for (let x = 0; x < W; x += 16) b.rect(x, 116, 15, 1, '#8a8a92');
+  for (const x of [22, 218]) {
+    b.ellipse(x, 116, 14, 5, '#8a5a30'); b.ellipse(x, 114, 12, 3, '#3a6a9a');
+    b.rect(x - 1, 104, 2, 8, '#f4f0e0'); b.rect(x - 1, 101, 2, 3, P.fireL!);
+  }
+  return b;
+}

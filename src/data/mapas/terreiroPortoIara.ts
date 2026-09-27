@@ -55,14 +55,15 @@ export const terreiroPortoIara: DefMapa = {
         time: [{ especie: 'piragua', nivel: 13 }, { especie: 'iarinha', nivel: 15 }],
         falaInicio: 'A água já viu você chegar. Agora deixa ela ver o que você sabe.',
         falaDerrota: 'Pois é. A maré virou para o seu lado, criança.',
+        /* a água assenta, a comporta, e o chamado para a medalha */
+        cutscene: 'mariana_vence',
       },
       falas: [
         { se: 'medalha:mare', linhas: [
           'A Foz inteira é sua conhecida agora, {nome}.',
           'O que vem depois da água é assunto de outra região. Um dia você atravessa.'] },
         { se: 'venceu_mariana', medalha: 'mare', dom: 'nadar', linhas: [
-          'Tome a MEDALHA MARÉ. Ela não é enfeite: é aviso de que a água te conhece.',
-          'E com ela vem o Dom de NADAR. De hoje em diante rio e mar não te barram mais.',
+          'Tome a MEDALHA MARÉ. E com ela vem o Dom de NADAR: rio e mar não te barram mais.',
           'Vá ver o que tem do outro lado, criança. É para isso que serve saber nadar.'] },
         { seNao: 'contas>=5', linhas: [
           'A guia ainda não se abriu, criança. Não foi você que entrou: foi o vento.',
@@ -76,6 +77,13 @@ export const terreiroPortoIara: DefMapa = {
 
   inicio: { tx: 8, ty: 12, dir: 'cima' },
   cenario: 'praia',
+
+  /* a primeira entrada no salão: uma linha, e a cutscene da Dona Mariana
+     (a flag viu_cut_ liga quando ela é pedida, e aí não toca mais) */
+  aoChegar: {
+    quem: 'TERREIRO DE ÁGUA', seNao: 'viu_cut_terreiro_agua', cutscene: 'terreiro_agua',
+    linhas: ['Do lado de dentro, o ar cheira a rio e a vela acesa.'],
+  },
 
   saidas: [
     { tx: 8, ty: 13, para: 'portoIara', destino: { tx: 16, ty: 18, dir: 'baixo' } },

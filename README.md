@@ -526,7 +526,12 @@ DO FAROL". E a do **Contador de Bichos** (`contador`), na primeira conversa,
 quando ele dá o caderno: a mesinha debaixo da amendoeira, o caderno aberto
 com Piraguá, Caiporinha, Sacizinho e o inicial de quem joga nos quadros, a
 mata cortada pela Companhia ("o que ninguém conta, some sem ninguém saber")
-e o pedido dos quatro bichos. Depois vem `scenes/
+e o pedido dos quatro bichos. O **Terreiro de Água** tem duas: a da
+primeira entrada (`terreiro_agua`, pelo `aoChegar` do mapa, que liga
+`viu_cut_terreiro_agua` e não toca de novo) — o salão alagado, a Iara-Mãe na
+lembrança e o letreiro da Dona Mariana — e a da vitória (`mariana_vence`,
+`cutscene` do treinador): a água assentando (`depois` com `salaoAguaCalmo`),
+a comporta e a Medalha Maré, que a fala dela entrega em seguida. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

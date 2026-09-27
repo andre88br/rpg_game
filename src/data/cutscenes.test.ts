@@ -68,6 +68,7 @@ test('toda cutscene pedida por fala ou treinador existe', () => {
   const pedidas: string[] = [];
   const daFala = (f: Fala) => { if (f.cutscene) pedidas.push(f.cutscene); };
   for (const def of Object.values(MAPAS)) {
+    if (def.aoChegar) daFala(def.aoChegar);
     for (const o of def.objetos) for (const f of o.falas ?? []) daFala(f);
     for (const n of def.npcs) {
       for (const f of n.falas) daFala(f);
@@ -118,4 +119,14 @@ test('o Contador de Bichos se apresenta quando dá o caderno', () => {
   const caderno = contador.falas.find((f) => f.da?.item === 'caderno')!;
   assert.equal(caderno.cutscene, 'contador');
   assert.equal(caderno.liga, 'tem_caderno');
+});
+
+test('o Terreiro de Água tem cutscene ao entrar e ao vencer a Dona Mariana', () => {
+  const t = MAPAS['terreiroPortoIara']!;
+  assert.equal(t.aoChegar?.cutscene, 'terreiro_agua');
+  assert.equal(t.aoChegar?.seNao, 'viu_cut_terreiro_agua', 'a entrada tocaria toda vez');
+  const mariana = t.npcs.find((n) => n.id === 'mariana')!;
+  assert.equal(mariana.treinador?.cutscene, 'mariana_vence');
+  // a medalha continua vindo da fala dela, depois da cutscene
+  assert.ok(mariana.falas.some((f) => f.medalha === 'mare'));
 });

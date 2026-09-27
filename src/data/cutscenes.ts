@@ -517,6 +517,91 @@ const CONTADOR: Roteiro = [
   },
 ];
 
+/* ----------------------------------------------- o Terreiro de Água
+
+   Duas cutscenes da Dona Mariana: a da primeira entrada no salão (o
+   `aoChegar` do terreiro) e a da vitória (`cutscene` do treinador), que
+   termina chamando para a medalha — a fala dela é que entrega. */
+const NO_SALAO = [
+  { figura: { pessoa: 'mariana', dir: 'baixo' }, x: 112, y: 12 },
+] as const;
+
+const TERREIRO_AGUA: Roteiro = [
+  { // o salão alagado, e ela lá no alto
+    fundo: C.salaoAgua,
+    atores: [
+      ...NO_SALAO,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 150, ate: { x: 112, y: 94, por: 2.4 } },
+      { figura: { inicial: true }, x: 70, y: 150, ate: { x: 70, y: 84, por: 2.4 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      'O Terreiro de Água é um salão alagado. A água do chão não para quieta nem um instante.',
+      'Lá no alto, entre as velas, alguém espera sem pressa nenhuma.',
+    ],
+  },
+  { // a lembrança: a Iara-Mãe no salão, no tempo da maré
+    fundo: C.salaoAgua,
+    atores: [
+      { figura: { criatura: 'iaraMae' }, x: 96, y: 50, alfa: 0.5, aparece: 0.4, balanco: { amp: 2, periodo: 2.4 } },
+    ],
+    legendas: [
+      { quem: 'DONA MARIANA', texto: 'Este terreiro é da Iara-Mãe. Antes da comporta, a água entrava aqui sozinha, com a maré.' },
+      { quem: 'DONA MARIANA', texto: 'Hoje eu é que cuido dela. E ela não deixa ninguém atravessar de qualquer jeito.' },
+    ],
+  },
+  { // ela, e o letreiro
+    fundo: C.salaoAgua,
+    atores: [
+      ...NO_SALAO,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+      { figura: { inicial: true }, x: 70, y: 84, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'DONA MARIANA', texto: 'Cinco contas acesas. A Foz inteira falou bem de você, {crianca}.' },
+      { quem: 'DONA MARIANA', texto: 'Mas água não se atravessa em linha reta: pisou nela, só para quando bater em pedra.' },
+    ],
+    titulo: ['DONA MARIANA', 'A DONA DO TERREIRO'],
+  },
+];
+
+const MARIANA_VENCE: Roteiro = [
+  { // a água do salão assenta
+    fundo: C.salaoAgua,
+    depois: { fundo: C.salaoAguaCalmo, de: 0.6, por: 3 },
+    atores: [
+      ...NO_SALAO,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+      { figura: { inicial: true }, x: 70, y: 84, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      'Quando a luta acaba, a água do salão assenta pela primeira vez, lisa feito espelho.',
+      { quem: 'DONA MARIANA', texto: 'A maré virou pro seu lado. E eu fico contente de ter perdido, viu?' },
+    ],
+  },
+  { // a comporta, e a Iara-Mãe dormindo
+    fundo: C.rioCalado,
+    atores: [
+      { figura: { criatura: 'iaraMae' }, x: 60, y: 54, alfa: 0.4, balanco: { amp: 1, periodo: 3 } },
+    ],
+    legendas: [
+      { quem: 'DONA MARIANA', texto: 'Enquanto a comporta da Companhia fechar o rio, a Iara-Mãe dorme.' },
+      { quem: 'DONA MARIANA', texto: 'Quem vai abrir aquilo não sou eu, {crianca}. É quem anda a trilha inteira.' },
+    ],
+  },
+  { // a medalha
+    fundo: C.salaoAguaCalmo,
+    atores: [
+      ...NO_SALAO,
+      { figura: { medalha: 'mare', tam: 20 }, x: 110, y: 60, aparece: 0.8, balanco: { amp: 2, periodo: 1.6 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+      { figura: { inicial: true }, x: 70, y: 84, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'DONA MARIANA', texto: 'A MEDALHA MARÉ é sua. Chega aqui do meu lado, que eu mesma te entrego.' },
+    ],
+  },
+];
+
 /* ------------------------------------------- os Sacizinhos das três redes
 
    Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
@@ -626,6 +711,8 @@ export const CUTSCENES: Record<string, Roteiro> = {
   mestre_redes: MESTRE_REDES,
   boitata: BOITATA,
   contador: CONTADOR,
+  terreiro_agua: TERREIRO_AGUA,
+  mariana_vence: MARIANA_VENCE,
   saci_mato: sacizinhoAchado(NO_PAREDAO),
   saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
   saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),

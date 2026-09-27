@@ -169,7 +169,8 @@ um Boitatão.
 
 ## O Terreiro de Água — o salão alagado
 
-Porta em Porto Iara, (16,17). Só abre com as cinco contas acesas.
+Porta em Porto Iara, (16,17). Só abre com as cinco contas acesas. Na primeira
+entrada, uma cutscene apresenta a Dona Mariana e o salão da Iara-Mãe.
 
 O chão é água: **quem pisa não para de andar até bater em alguma coisa.** Duas
 colunas de pedra são os únicos freios. Entra-se pelo vão de baixo, em (8,8), e
@@ -191,7 +192,8 @@ Time todo de Água — leve **Planta**. Um Curupinho/Curupirá de nível 15+
 atropela. Se o seu inicial for Iarinha, capture uma Caiporinha na Rota da Foz
 antes.
 
-Vencer dá a **Medalha Maré** e o **Dom Nadar**. Com ele você atravessa a água
+Vencer toca uma cutscene (a água do salão assenta, a comporta, a medalha);
+depois **fale com ela de novo** para receber a **Medalha Maré** e o **Dom Nadar**. Com ele você atravessa a água
 funda de Porto Iara em (24,36)/(25,36) e segue para o Igarapé do Curupira.
 
 Antes de subir: volte na **Dona Firmina** — agora ela entrega a **Carta para a
