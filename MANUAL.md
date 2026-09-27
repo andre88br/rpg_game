@@ -152,7 +152,8 @@ rede; vencendo a briga, outra mostra ele largando a rede e virando vento.
 Quatro encostões em cada um; encurralado, ele briga pela rede — luta
 selvagem, dá para prender no patuá. Níveis: **Sacizinho 6** (paredão),
 **7** (farol) e **8** (beco). Com as três na mochila, volte no **Mestre do
-Porto**, (17,29): paga **700**.
+Porto**, (17,29): paga **700**, e uma cutscene mostra as redes de volta no
+varal e o barco dele saindo pro mar.
 
 ## Conta 5 — `conta_farol`: o bicho do farol
 

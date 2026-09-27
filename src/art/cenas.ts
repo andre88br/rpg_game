@@ -516,7 +516,12 @@ export function portoAntigo(): Buf {
 }
 
 /* a praia de noite, com os varais de rede do Mestre — onde as redes somem */
-export function varalRedes(): Buf {
+export function varalRedes(): Buf { return varal(false); }
+
+/* a mesma praia, com as três redes de volta no varal */
+export function varalCheio(): Buf { return varal(true); }
+
+function varal(todas: boolean): Buf {
   const b = new Buf(W, H);
   degrade(b, 0, 64, [[0x10, 0x14, 0x2a], [0x22, 0x2a, 0x4a]]);
   estrelas(b, 83, 30, 60);
@@ -527,7 +532,7 @@ export function varalRedes(): Buf {
   const r = rng(89);
   for (let i = 0; i < 90; i++) b.set((r() * W) | 0, 82 + ((r() * 76) | 0), '#9c8c60');
   // três varais: dois com rede, um vazio
-  for (const [x, cheio] of [[40, true], [110, false], [180, true]] as const) {
+  for (const [x, cheio] of [[40, true], [110, todas], [180, true]] as const) {
     b.rect(x, 62, 3, 30, '#5a3a1e'); b.rect(x + 40, 62, 3, 30, '#5a3a1e');
     b.rect(x, 62, 43, 2, '#6d4726');
     if (cheio) {
@@ -645,5 +650,34 @@ export function redeEnrolada(): Buf {
   for (let x = 4; x < 26; x += 3) { b.rect(x, 4, 1, 8, '#5a524c'); }
   for (let y = 5; y < 12; y += 3) b.rect(2, y, 24, 1, '#5a524c');
   b.circle(22, 6, 2, '#e07a2a'); b.set(21, 5, '#f8b060');   // a boia de cortiça
+  return b;
+}
+
+/* o barco do Mestre saindo pela barra ao amanhecer, rede no bico */
+export function barcoAmanhecer(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 70, [[0x3a, 0x3a, 0x6a], [0xc8, 0x6a, 0x6a], [0xf4, 0xb0, 0x6a], [0xf8, 0xe0, 0x9a]]);
+  b.circle(150, 70, 16, '#f8d880'); b.circle(150, 70, 12, '#fcecb0');
+  b.rect(0, 70, W, H - 70, '#3a5a8a');
+  const r = rng(113);
+  for (let i = 0; i < 70; i++) b.rect((r() * W) | 0, 72 + ((r() * 86) | 0), 6, 1, '#5a7aa8');
+  // o reflexo do sol na água
+  for (let y = 72; y < 120; y += 3) b.rect(150 - (18 - (y - 72) / 4), y, 36 - (y - 72) / 2, 1, '#f4c880');
+  // o farol lá atrás, na ponta
+  b.rect(214, 40, 8, 32, '#ecdcc2'); for (const y of [46, 58]) b.rect(214, y, 8, 4, '#c2493f');
+  b.rect(212, 35, 12, 5, '#3a3a3a'); b.rect(215, 36, 6, 3, P.fireL!);
+  // o barco, de contraluz, com o Mestre de pé e a rede pendurada no bico
+  b.tri(70, 96, 130, 96, 122, 106, '#2a1a10'); b.rect(70, 94, 60, 3, '#3a2a1a');
+  b.rect(98, 60, 2, 34, '#2a1a10'); b.tri(100, 62, 100, 92, 124, 92, '#e8d8c0');
+  const sombra = '#2a1a10';
+  b.rect(81, 74, 13, 2, sombra); b.rect(84, 70, 7, 4, sombra);      // o chapéu de palha
+  b.circle(87, 78, 2, sombra);                                      // a cabeça
+  b.rect(85, 80, 5, 8, sombra);                                     // o corpo
+  b.rect(85, 88, 2, 6, sombra); b.rect(88, 88, 2, 6, sombra);       // as pernas
+  b.rect(90, 81, 8, 2, sombra);                                     // o braço no mastro
+  for (let x = 118; x < 130; x += 2) b.rect(x, 97, 1, 7, '#8a8078');
+  b.rect(117, 97, 13, 1, '#8a8078');
+  // a esteira do barco
+  for (let k = 0; k < 5; k++) b.rect(40 - k * 8, 102 + k, 24 - k * 3, 1, '#d3ebff');
   return b;
 }

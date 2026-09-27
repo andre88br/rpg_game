@@ -101,11 +101,12 @@ export const portoIara: DefMapa = {
         { se: 'item:carta', pede: { item: 'carta' }, liga: 'conta_recado', paga: 800, cutscene: 'mestre', linhas: [
           'Carta da Dona Firmina? Passa pra cá, {crianca}.',
           'Chegou seca, apesar da maré. Toma aqui pelo incômodo.'] },
+        /* as três redes: ele paga, acende a conta, e a cutscene mostra as
+           redes de volta no varal e o barco saindo pela barra */
         { se: 'item:rede>=3', pede: { item: 'rede', n: 3 }, liga: 'conta_redes',
-          paga: 700, linhas: [
+          paga: 700, cutscene: 'mestre_redes', linhas: [
           'As TRÊS! Eu sabia que era bicho, e ninguém acreditava em mim.',
-          'Sacizinho gosta de nó, e rede é nó que não acaba. Agora entendo o sumiço.',
-          'Outra conta acesa por sua conta, {crianca}. E toma pelo trabalho.'] },
+          'Sacizinho gosta de nó, e rede é nó que não acaba. Toma aqui pelo trabalho.'] },
         { se: 'conta_redes', seNao: 'conta_farol', linhas: [
           'Com as redes de volta eu pesco. Sair da barra é que não dá.',
           'Tem bicho morando no farol, e de noite o mar ali ferve. Isso ninguém resolve.'] },

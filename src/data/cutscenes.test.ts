@@ -93,3 +93,12 @@ test('o Mestre do Porto conta a história do porto quando recebe a carta', () =>
   assert.equal(carta.liga, 'conta_recado');
   assert.ok((carta.paga ?? 0) > 0);
 });
+
+test('o Mestre do Porto recebe as três redes com cutscene', () => {
+  const mestre = MAPAS['portoIara']!.npcs.find((n) => n.id === 'pescador')!;
+  const redes = mestre.falas.find((f) => f.pede?.item === 'rede')!;
+  assert.equal(redes.cutscene, 'mestre_redes');
+  assert.equal(redes.pede?.n, 3);
+  assert.equal(redes.liga, 'conta_redes');
+  assert.ok(CUTSCENES['mestre_redes']);
+});

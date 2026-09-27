@@ -510,7 +510,10 @@ toca antes do corte da guia que acende a conta. Os três **Sacizinhos das
 redes** têm duas cada, do mesmo molde com o esconderijo trocado: a de quando
 são achados (brincando de dar nó na rede, o aviso de encurralar) e a de
 quando perdem a briga — a rede cai e ele vira redemoinho (`peca: 'rede'` e o
-efeito `poeira`). A de derrota não toca se ele foi preso no patuá. Depois vem `scenes/
+efeito `poeira`). A de derrota não toca se ele foi preso no patuá. E quando as
+três redes chegam no Mestre, mais uma (`mestre_redes`): os nós de Saci
+desfeitos no cais, as redes de volta no varal com um gorro vermelho espiando
+de longe, o barco dele saindo pela barra ao amanhecer, e a conta acesa. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

@@ -363,6 +363,59 @@ const MESTRE: Roteiro = [
   },
 ];
 
+/* ---------------------------------------- as redes de volta, no Mestre
+
+   Toca quando o Mestre do Porto recebe as três redes: ele desembola os nós
+   de Saci, as redes voltam pro varal de noite (com um gorro vermelho
+   espiando de longe) e, de manhã, o barco dele sai pela barra. */
+const MESTRE_REDES: Roteiro = [
+  { // no cais: as três redes no tabuado
+    fundo: C.caisIara,
+    atores: [
+      { figura: { peca: 'rede' }, x: 100, y: 102 },
+      { figura: { peca: 'rede' }, x: 128, y: 104 },
+      { figura: { peca: 'rede' }, x: 114, y: 96 },
+      { figura: { pessoa: 'pescador', dir: 'esq' }, x: 160, y: 88 },
+      { figura: { jogador: true, dir: 'dir' }, x: 80, y: 88 },
+      { figura: { inicial: true }, x: 46, y: 78, balanco: { amp: 1, periodo: 1.8 } },
+    ],
+    legendas: [
+      'O Mestre do Porto espalha as três redes no tabuado e desfaz os nós um por um.',
+      { quem: 'MESTRE DO PORTO', texto: 'Nó de Saci não tem fim, mas rede boa aguenta. Estão inteiras, {crianca}.' },
+    ],
+  },
+  { // de noite, as redes de volta no varal, e um gorro espiando
+    fundo: C.varalCheio,
+    atores: [
+      { figura: { criatura: 'sacizinho', flip: true }, x: 212, y: 56, alfa: 0.7, aparece: 1.2, some: 4.2,
+        balanco: { amp: 2, periodo: 0.8 } },
+    ],
+    legendas: [
+      'Naquela noite, as três redes voltaram pro varal do Mestre.',
+      'Lá do fim da praia, um gorro vermelho espiou... e foi embora rindo, sem levar nada.',
+    ],
+  },
+  { // de manhã cedo, o barco sai pela barra
+    fundo: C.barcoAmanhecer,
+    legendas: [
+      'E no clarear do dia, pela primeira vez em muito tempo, um barco saiu pela barra.',
+      { quem: 'MESTRE DO PORTO', texto: 'A Companhia que espere sentada. Enquanto tiver peixe, o barco é meu.' },
+    ],
+  },
+  { // de volta ao cais, a conta
+    fundo: C.caisIara,
+    atores: [
+      { figura: { pessoa: 'pescador', dir: 'esq' }, x: 150, y: 88 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 88 },
+      { figura: { inicial: true }, x: 62, y: 78, balanco: { amp: 1, periodo: 1.8 } },
+    ],
+    legendas: [
+      { quem: 'MESTRE DO PORTO', texto: 'Promessa é promessa: outra conta da guia acesa por sua conta.' },
+      { quem: 'MESTRE DO PORTO', texto: 'O rio ainda é da Iara, {crianca}. Enquanto tiver gente pescando nele.' },
+    ],
+  },
+];
+
 /* ------------------------------------------- os Sacizinhos das três redes
 
    Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
@@ -469,6 +522,7 @@ export const CUTSCENES: Record<string, Roteiro> = {
   firmina: FIRMINA,
   zeca: ZECA,
   mestre: MESTRE,
+  mestre_redes: MESTRE_REDES,
   saci_mato: sacizinhoAchado(NO_PAREDAO),
   saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
   saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),
