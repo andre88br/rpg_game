@@ -16,7 +16,7 @@ import { quebrar } from '../art/font.ts';
 import { spritePessoa, ESTILOS, type Quadro } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { medalha } from '../art/badges.ts';
-import { fogueira, trator, fagulha, redeEnrolada } from '../art/cenas.ts';
+import { fogueira, trator, fagulha, redeEnrolada, farolGrande } from '../art/cenas.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 import { preencher } from '../game/quests.ts';
 import { nome as nomeDe } from '../battle/encantado.ts';
@@ -56,6 +56,7 @@ function quadrosDe(f: Figura, e: EstadoJogo | null): Quadros {
   }
   if ('medalha' in f) return { imgs: [assar(medalha(f.medalha, f.tam ?? 16))], fps: 0, soAndando: false };
   if (f.peca === 'rede') return { imgs: [assar(redeEnrolada())], fps: 0, soAndando: false };
+  if (f.peca === 'farol') return { imgs: [assar(farolGrande())], fps: 0, soAndando: false };
   if (f.peca === 'fogueira') return { imgs: [0, 1, 2].map((i) => assar(fogueira(i))), fps: 8, soAndando: false };
   return { imgs: [0, 1].map((i) => assar(trator(i))), fps: 8, soAndando: true };
 }
@@ -233,9 +234,10 @@ export class CenaCutscene implements Cena {
 
     // quem está por cima do fundo, de trás (y menor) para a frente
     const vivos = p.atores
-      .map(({ ator, q }) => ({ q, al: opacidade(ator, this.t), ...posicao(ator, this.t) }))
+      .map(({ ator, q }) => ({ q, al: opacidade(ator, this.t), frente: ator.frente === true, ...posicao(ator, this.t) }))
       .filter((v) => v.al > 0 && v.q.imgs.length > 0)
-      .sort((a, b) => a.y - b.y);
+      // quem tem `frente` passa na frente de todo mundo (o farol tapa o bicho)
+      .sort((a, b) => Number(a.frente) - Number(b.frente) || a.y - b.y);
     for (const v of vivos) {
       const anima = v.q.fps > 0 && (!v.q.soAndando || v.andando);
       const img = v.q.imgs[anima ? Math.floor(this.t * v.q.fps) % v.q.imgs.length : 0]!;

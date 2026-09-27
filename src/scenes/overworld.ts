@@ -490,6 +490,17 @@ export class CenaMundo implements Cena {
     return f;
   }
 
+  /* quem está de emboscada fica fora da tela (e da conversa, e da vista)
+     até a cutscene dele tocar — mas o tile continua ocupado */
+  private oculto(n: NpcVivo): boolean {
+    if (n.def.emboscada !== true || n.def.encontro === undefined) return false;
+    // a flag liga ao PEDIR a cutscene: até ela entrar de fato, segue escondido
+    return !this.op.estado.flags[`viu_cut_${n.def.encontro}`]
+        || this.historiaPendente === n.def.encontro;
+  }
+
+  private visiveis(): NpcVivo[] { return this.npcs.filter((n) => !this.oculto(n)); }
+
   private recontarOcupados(): void {
     this.ocupados = new Set(this.npcs.map((n) => `${n.ator.tx},${n.ator.ty}`));
   }
@@ -730,9 +741,11 @@ export class CenaMundo implements Cena {
   /* quem está de olho na estrada vê o jogador passar */
   private olharTreinadores(): void {
     if (this.duelo || this.conversa || this.indo) return;
+    // uma cutscene de encontro vem primeiro — e a emboscada já marcou a luta
+    if (this.historiaPendente || this.lutaDepois) return;
     // sem ninguém de pé, ser avistado seria derrota na hora
     if (!temTimeEmPe(this.op.estado)) return;
-    for (const n of this.npcs) {
+    for (const n of this.visiveis()) {
       const t = n.def.treinador;
       if (!t?.visao || this.venceu(n)) continue;
       const [dx, dy] = DELTAS[n.ator.dir];
@@ -1244,11 +1257,11 @@ export class CenaMundo implements Cena {
        enfeite — foi o que aconteceu com a Dona Firmina e com o lojista. */
     if (this.mapa.balcao(tx, ty)) {
       const [dx, dy] = DELTAS[this.jogador.dir];
-      const atras = this.npcs.find((n) => n.ator.tx === tx + dx && n.ator.ty === ty + dy);
+      const atras = this.visiveis().find((n) => n.ator.tx === tx + dx && n.ator.ty === ty + dy);
       if (atras) { tx += dx; ty += dy; }
     }
 
-    const npc = this.npcs.find((n) => n.ator.tx === tx && n.ator.ty === ty);
+    const npc = this.visiveis().find((n) => n.ator.tx === tx && n.ator.ty === ty);
     if (npc) {
       // quem foge não conversa: só depois de encurralado ou sem fôlego
       if (npc.def.fujao && this.tentarFugir(npc)) {
@@ -1325,8 +1338,14 @@ export class CenaMundo implements Cena {
       const perto = Math.abs(npc.ator.tx - this.jogador.tx)
                   + Math.abs(npc.ator.ty - this.jogador.ty);
       if (perto > DISTANCIA_ENCONTRO) continue;
+      // emboscada sem ninguém de pé seria derrota na hora: espera a benzedura
+      if (npc.def.emboscada && !temTimeEmPe(this.op.estado)) continue;
       npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
       this.pedirHistoria(id);
+      if (npc.def.emboscada && npc.def.treinador && !this.venceu(npc)) {
+        this.lutaDepois = npc;
+        this.esperaLuta = ESPERA_LUTA;
+      }
       return;
     }
   }
@@ -1700,7 +1719,7 @@ export class CenaMundo implements Cena {
     r.limpar('#101018');
     const vista = this.vistaDo(this.def.id);
     if (vista) {
-      const atores = [this.jogador, ...this.npcs.map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
+      const atores = [this.jogador, ...this.visiveis().map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
       vista.desenhar(r.ctx, {
         mapa: this.mapa, tempo: this.tempoAnim,
         alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
@@ -1731,7 +1750,7 @@ export class CenaMundo implements Cena {
     // atores e pedras, juntos, ordenados pela base: quem está mais abaixo
     // passa na frente — senão uma pedra numa fileira de baixo tampava
     // indevidamente quem andasse por cima dela na fileira de cima
-    const todos = [this.jogador, ...this.npcs.map((n) => n.ator),
+    const todos = [this.jogador, ...this.visiveis().map((n) => n.ator),
                    ...(this.seguidor ? [this.seguidor] : [])];
     const itens: { py: number; desenhar: () => void }[] = todos.map((a) => ({
       py: a.py,

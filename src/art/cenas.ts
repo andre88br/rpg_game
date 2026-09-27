@@ -681,3 +681,46 @@ export function barcoAmanhecer(): Buf {
   for (let k = 0; k < 5; k++) b.rect(40 - k * 8, 102 + k, 24 - k * 3, 1, '#d3ebff');
   return b;
 }
+
+/* ------------------------------------------------ o Boitatá do farol */
+
+/* a ponta do cais de noite: mar escuro, o tabuado chegando no pé do farol.
+   O farol mesmo é peça à parte (farolGrande), desenhada por cima do bicho —
+   é de trás dela que ele desenrola */
+export function caisDoFarol(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 70, [[0x0e, 0x12, 0x2a], [0x2a, 0x2a, 0x4a], [0x5a, 0x3a, 0x4a]]);
+  estrelas(b, 127, 26, 60);
+  b.rect(0, 70, W, H - 70, '#1a2a4a');
+  const r = rng(131);
+  for (let i = 0; i < 60; i++) b.rect((r() * W) | 0, 72 + ((r() * 86) | 0), 6, 1, '#2a4a6a');
+  // o brilho alaranjado na água em volta do pé do farol
+  for (let y = 84; y < 120; y += 2) {
+    const meia = 30 - Math.abs(y - 102);
+    if (meia > 0) b.rect(172 - meia * 2, y, meia * 4, 1, y % 4 ? '#4a3040' : '#6a3a34');
+  }
+  // as pedras do pé do farol
+  for (const [x, y, rx] of [[150, 104, 12], [196, 106, 14], [174, 110, 10]] as const) {
+    b.ellipse(x, y, rx, 5, '#3a3430'); b.ellipse(x - 1, y - 2, rx - 3, 3, '#5a524c');
+  }
+  // o cais de tábua, vindo da esquerda até as pedras
+  b.rect(0, 100, 150, 20, '#6d4726');
+  for (let x = 0; x < 150; x += 8) { b.rect(x, 100, 7, 20, '#8a5a30'); b.rect(x, 100, 7, 1, '#a0703c'); }
+  for (const x of [10, 60, 110]) b.rect(x, 120, 4, 14, '#4a2e18');
+  return b;
+}
+
+/* o farol da barra, de perto e de noite, com a lanterna acesa */
+export function farolGrande(): Buf {
+  const b = new Buf(52, 112);
+  b.rect(8, 22, 36, 88, '#ecdcc2');
+  for (const y of [34, 58, 82]) b.rect(8, y, 36, 12, '#c2493f');
+  b.rect(8, 22, 5, 88, '#c8b8a0');
+  for (const y of [34, 58, 82]) b.rect(8, y, 5, 12, '#9c3a32');
+  b.rect(4, 104, 44, 8, '#5a524c');
+  b.rect(20, 90, 12, 16, '#5a3a1e'); b.rect(21, 91, 10, 14, '#6d4726');   // a porta emperrada
+  b.rect(4, 18, 44, 5, '#3a3a3a');
+  b.rect(12, 6, 28, 12, '#3a3a3a'); b.rect(15, 8, 22, 9, P.fireL!); b.rect(19, 9, 14, 6, '#fff4c0');
+  b.tri(10, 6, 42, 6, 26, 0, '#5a2a24');
+  return b;
+}

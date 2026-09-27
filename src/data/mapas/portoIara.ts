@@ -186,7 +186,11 @@ export const portoIara: DefMapa = {
     },
     {
       id: 'boitata', nome: 'BOITATÁ', estilo: 'bicho:boitatao',
-      tx: 17, ty: 35, dir: 'cima', seNao: 'conta_farol',
+      /* só depois das redes, e de emboscada: escondido atrás do farol até o
+         jogador chegar perto — aí a cutscene mostra ele desenrolando, e a
+         luta começa */
+      tx: 16, ty: 34, dir: 'cima', se: 'conta_redes', seNao: 'conta_farol',
+      encontro: 'boitata', emboscada: true,
       treinador: {
         classe: 'BICHO DO FAROL', selvagem: true, visao: 4, liga: 'conta_farol',
         time: [{ especie: 'boitatao', nivel: 10 }],

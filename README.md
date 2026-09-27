@@ -396,6 +396,11 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
 - **Encontro.** Um NPC com `encontro: '<cutscene>'` toca essa cutscene a
   primeira vez que o jogador chega a 3 passos dele — é o Sacizinho achado no
   esconderijo, antes da caçada.
+- **Emboscada.** Com `emboscada: true`, o NPC do `encontro` nem aparece
+  (nem enxerga, nem conversa) antes da cutscene dele, e a luta começa assim
+  que ela acaba — o Boitatá do farol, que só existe depois das redes
+  (`se: 'conta_redes'`). Enquanto uma cutscene de encontro está pedida,
+  nenhum treinador desafia ninguém.
 
 **O salão da Dona Mariana não foi desenhado no olho.** Um salão de gelo erra
 fácil de dois jeitos: ou vira corredor, ou vira armadilha — você chega num canto
@@ -513,7 +518,11 @@ quando perdem a briga — a rede cai e ele vira redemoinho (`peca: 'rede'` e o
 efeito `poeira`). A de derrota não toca se ele foi preso no patuá. E quando as
 três redes chegam no Mestre, mais uma (`mestre_redes`): os nós de Saci
 desfeitos no cais, as redes de volta no varal com um gorro vermelho espiando
-de longe, o barco dele saindo pela barra ao amanhecer, e a conta acesa. Depois vem `scenes/
+de longe, o barco dele saindo pela barra ao amanhecer, e a conta acesa. E a do
+**Boitatá** (`boitata`), quando o jogador chega na ponta do cais: o mar
+ferve, a cobra de fogo desenrola de trás do farol (a peça `farol` tem
+`frente: true`, desenhada por cima do bicho) e o letreiro "BOITATÁ, O BICHO
+DO FAROL". Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

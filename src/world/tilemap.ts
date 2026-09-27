@@ -214,6 +214,10 @@ export interface DefNPC {
      jogador chega a DISTANCIA_ENCONTRO passos dele — o Sacizinho achado no
      esconderijo, antes da caçada começar */
   encontro?: string;
+  /* emboscada: nem aparece antes da cutscene de `encontro` — ela mostra o
+     bicho saindo do esconderijo, e a luta começa assim que ela acaba (o
+     Boitatá desenrolando de trás do farol) */
+  emboscada?: boolean;
   /* vigia que anda sozinho e manda de volta quem ele ve (ver DefRonda) */
   ronda?: DefRonda;
   /* so esta no mapa quando as condicoes valem — o Sacizinho some depois de

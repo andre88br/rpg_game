@@ -102,3 +102,13 @@ test('o Mestre do Porto recebe as três redes com cutscene', () => {
   assert.equal(redes.liga, 'conta_redes');
   assert.ok(CUTSCENES['mestre_redes']);
 });
+
+test('o Boitatá do farol só aparece depois das redes, de emboscada', () => {
+  const boitata = MAPAS['portoIara']!.npcs.find((n) => n.id === 'boitata')!;
+  assert.equal(boitata.se, 'conta_redes');
+  assert.equal(boitata.encontro, 'boitata');
+  assert.ok(boitata.emboscada);
+  assert.equal(boitata.treinador?.liga, 'conta_farol');
+  assert.ok(CUTSCENES['boitata']!.some((t) => t.atores?.some((a) => a.frente)),
+            'o farol tem que passar na frente do bicho');
+});

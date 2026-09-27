@@ -157,8 +157,10 @@ varal e o barco dele saindo pro mar.
 
 ## Conta 5 — `conta_farol`: o bicho do farol
 
-Desça até a base do **Farol da Barra**, em Porto Iara, por volta de (17,35).
-O **Boitatá** (selvagem, visão 4) ataca sozinho: **Boitatão nível 18**.
+Só depois de **entregar as três redes** ao Mestre do Porto. Desça o cais até
+a base do **Farol da Barra**, em Porto Iara: chegando perto da ponta, o mar
+ferve e uma cutscene mostra o **Boitatá** desenrolando de trás do farol — e a
+luta começa na hora (selvagem; se perder, ele fica na ponta do cais, visão 4): **Boitatão nível 18**.
 
 É o maior salto de nível da região — chegue com o time por volta de 16-18.
 Água resolve rápido (Boitatão é Fogo puro): uma Iarinha/Piraguá bem treinada

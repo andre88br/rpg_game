@@ -26,7 +26,7 @@ export type Figura =
   | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
-  | { peca: 'fogueira' | 'trator' | 'rede' };
+  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' };
 
 export interface Ator {
   figura: Figura;
@@ -40,6 +40,9 @@ export interface Ator {
   some?: number;
   /* opacidade máxima: os Encantados que ninguém mais vê ficam meio apagados */
   alfa?: number;
+  /* desenhado por cima de todos os outros, fora da ordem por altura: o
+     farol que esconde o Boitatá */
+  frente?: boolean;
   /* flutua (seno) ou pula (só para cima) no lugar */
   balanco?: { amp: number; periodo: number; salto?: boolean; fase?: number };
 }
@@ -416,6 +419,52 @@ const MESTRE_REDES: Roteiro = [
   },
 ];
 
+/* ---------------------------------------------------- o Boitatá do farol
+
+   Toca quando o jogador chega perto da ponta do cais, depois das redes: o
+   mar ferve, e o Boitatá desenrola de trás do farol. A luta começa assim
+   que ela acaba (o NPC é `emboscada`). */
+const BOITATA: Roteiro = [
+  { // a ponta do cais, e o mar começando a ferver
+    fundo: C.caisDoFarol,
+    atores: [
+      { figura: { peca: 'farol' }, x: 150, y: 2, frente: true },
+      { figura: { jogador: true, dir: 'dir' }, x: -20, y: 80, ate: { x: 64, y: 80, por: 2.6 } },
+      { figura: { inicial: true }, x: -56, y: 70, ate: { x: 28, y: 70, por: 2.6 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    efeitos: [{ tipo: 'fumaca', x: 140, y: 100, aparece: 1.6 }],
+    legendas: [
+      'A ponta do cais, no pé do Farol da Barra. A porta está emperrada há anos.',
+      'De repente a água em volta começa a ferver, e a tábua esquenta debaixo do pé.',
+    ],
+  },
+  { // de trás do farol, a cobra de fogo
+    fundo: C.caisDoFarol,
+    atores: [
+      { figura: { peca: 'farol' }, x: 150, y: 2, frente: true },
+      { figura: { criatura: 'boitatao', flip: true }, x: 166, y: 62,
+        ate: { x: 102, y: 62, de: 0.6, por: 2.4 }, balanco: { amp: 2, periodo: 1.2 } },
+      { figura: { jogador: true, dir: 'dir' }, x: 64, y: 80 },
+      { figura: { inicial: true }, x: 28, y: 70, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 150, y: 104, aparece: 0.8 }],
+    legendas: [
+      'De trás do farol desenrola uma cobra de fogo, com dois olhos acesos feito lanterna.',
+      'É ela quem acende o farol toda noite. E ela não gosta de visita.',
+    ],
+  },
+  { // o letreiro do bicho
+    fundo: C.caisDoFarol,
+    atores: [
+      { figura: { peca: 'farol' }, x: 150, y: 2, frente: true },
+      { figura: { criatura: 'boitatao', flip: true }, x: 100, y: 74, balanco: { amp: 3, periodo: 0.9 } },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 120, y: 110 }],
+    legendas: [],
+    titulo: ['BOITATÁ', 'O BICHO DO FAROL'],
+  },
+];
+
 /* ------------------------------------------- os Sacizinhos das três redes
 
    Cada Sacizinho tem o seu esconderijo e duas cutscenes: a de quando o
@@ -523,6 +572,7 @@ export const CUTSCENES: Record<string, Roteiro> = {
   zeca: ZECA,
   mestre: MESTRE,
   mestre_redes: MESTRE_REDES,
+  boitata: BOITATA,
   saci_mato: sacizinhoAchado(NO_PAREDAO),
   saci_mato_rede: sacizinhoVencido(NO_PAREDAO),
   saci_cais: sacizinhoAchado(ATRAS_DO_FAROL),
