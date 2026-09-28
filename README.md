@@ -307,7 +307,11 @@ pular a cutscene, a música some. Os temas saem do roteiro:
 | `saci` | travessura cromática | os três Sacizinhos |
 | `contador` | curiosidade miúda | o Contador de Bichos |
 | `terreiro_agua` | solene, devagar | o Terreiro de Água e a Dona Mariana |
-| `viagem` | partida, horizonte | a carta para a Tiê, "do outro lado da água" |
+| `viagem` | partida, horizonte | a carta para a Tiê; a touceira que abre para a Serra |
+| `mata` | baião manso, lá dórico | o Seu Elias, o viveiro, a clareira |
+| `caipora` | trote miúdo e cromático | as três Caiporinhas das mudas |
+| `curupira` | mistério, ré dórico, assobio no alto | a grota funda e a pegada de pé virado |
+| `terreiro_raiz` | devagar, como raiz que cresce | o Terreiro de Raiz e a Tiê |
 
 Cutscene nova de outra região reaproveita um tema ou ganha o seu. Cura,
 medalha, item, subir de nível, captura e derrota são **vinhetas**: tocam uma
@@ -615,7 +619,27 @@ o `aoChegar` de Porto Iara (`se: 'medalha:mare'`, `seNao` com
 com o recado da Firmina (`firmina_chama`: a porta do terreiro ao pôr do sol,
 a Firmina na lembrança e a trilha de volta); e na casa dela, a fala que dá
 `carta_tie` toca `firmina_carta` — a carta lacrada na mesa (peça `carta`), a
-Tiê do outro lado da água e o letreiro da Mata do Curupira. Depois vem `scenes/
+Tiê do outro lado da água e o letreiro da Mata do Curupira.
+
+A **Mata do Curupira** segue o mesmo desenho. O **Seu Elias** recebe a carta
+(`elias`): a clareira, a mata de antigamente com o Curupira trazendo de volta
+quem se perdia, a picada da Companhia com X vermelho nos troncos (peça
+`tinta`), o viveiro com três covas vazias, o caderno de pegadas e o aviso da
+grota. O **Zeca** volta no igarapé (`zeca_mata`, `apresentacao`): atravessou
+o rio a nado, viu o pai pintando árvore para a Companhia, e o letreiro "ZECA,
+DE NOVO NO CAMINHO". As três **Caiporinhas** das mudas saem do mesmo molde dos
+Sacizinhos (`caiporinhaAchada`/`caiporinhaVencida`, com a peça `muda`): na
+beira do igarapé, entre as touceiras e em cima do tronco caído — e, como eles,
+só aparecem depois da carta e brigam pela muda quando encurraladas. As mudas
+de volta (`elias_mudas`): o viveiro replantado, uma Caiporinha que volta de
+noite para regar, e uma muda em cada toco da picada. O caderno cheio
+(`elias_pegadas`): os bichos nos quadros e a pegada de pé virado. O
+**Curupira** da grota vem de emboscada depois da carta (`curupira`), com o
+letreiro "CURUPIRA, O GUARDIÃO DA GROTA". O **Terreiro de Raiz** tem a entrada
+(`terreiro_raiz`: o salão de raiz viva, a sumaúma de mil anos e o letreiro da
+Tiê) e a vitória (`tie_vence`: as raízes dão flor, a mata marcada, a Medalha
+Raiz). E saindo com a medalha, o `aoChegar` da Mata (`elias_serra`) mostra a
+fumaça da Serra Boitatá e a touceira que o Dom de Cortar Cipó abre. Depois vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

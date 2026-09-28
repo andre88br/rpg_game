@@ -53,6 +53,8 @@ export const terreiroCurupira: DefMapa = {
                { especie: 'curupira', nivel: 25 }],
         falaInicio: 'A mata inteira escuta esse terreiro, sabia? Vamos ver o que você aprendeu com ela.',
         falaDerrota: 'Pois é. Até o Curupira que anda comigo respeita quem chega até aqui.',
+        /* as raízes florescem, a picada marcada, e o chamado para a medalha */
+        cutscene: 'tie_vence',
       },
       falas: [
         { se: 'medalha:raiz', linhas: [
@@ -74,6 +76,11 @@ export const terreiroCurupira: DefMapa = {
 
   inicio: { tx: 6, ty: 12, dir: 'cima' },
   cenario: 'mata',
+  /* a primeira entrada no salão: uma linha, e a cutscene da Tiê */
+  aoChegar: {
+    quem: 'TERREIRO DE RAIZ', seNao: 'viu_cut_terreiro_raiz', cutscene: 'terreiro_raiz',
+    linhas: ['Do lado de dentro, o ar cheira a terra molhada e a raiz cortada.'],
+  },
 
   saidas: [
     { tx: 6, ty: 13, para: 'mataDoCurupira', destino: { tx: 6, ty: 7, dir: 'baixo' } },

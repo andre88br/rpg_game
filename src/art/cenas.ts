@@ -901,3 +901,392 @@ export function cartaLacrada(): Buf {
   b.circle(7, 6, 2, '#b0302a'); b.set(6, 5, '#e05a4a');
   return b;
 }
+
+/* =========================================================================
+   REGIÃO 2 — a Mata do Curupira
+   ========================================================================= */
+
+/* a moldura pontilhada que marca uma lembrança */
+function lembranca(b: Buf, cor = '#0a120a'): Buf {
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = Math.min(x, y, W - 1 - x, H - 1 - y);
+    if (d < 6 && (x + y) % (d + 2) === 0) b.set(x, y, cor);
+  }
+  return b;
+}
+
+/* chão de mata: grama com folha caída e umas raízes à mostra */
+function chaoMata(b: Buf, y0: number, semente: number, escuro = false): void {
+  b.rect(0, y0, W, H - y0, escuro ? '#2f5a2a' : P.grass!);
+  const r = rng(semente);
+  for (let i = 0; i < 220; i++) {
+    const c = escuro ? (i % 2 ? '#264a22' : '#3a6a32')
+      : i % 5 === 0 ? '#a8803a' : i % 2 ? P.grassD! : P.grassL!;
+    b.set((r() * W) | 0, y0 + ((r() * (H - y0)) | 0), c);
+  }
+}
+
+/* uma parede de mata fechada ao fundo: troncos e copas em camadas */
+function paredeMata(b: Buf, base: number, semente: number, escura = false): void {
+  const r = rng(semente);
+  const [c, cd, cl] = escura ? ['#1f4c22', '#143618', '#2f6b2e'] : [P.tree!, P.treeD!, P.treeL!];
+  b.rect(0, base - 24, W, 28, '#143618');          // o escuro entre os troncos
+  for (let x = -6; x < W + 10; x += 11) arvore(b, x + ((r() * 6) | 0), base - 10, 40 + ((r() * 14) | 0), cd, '#143618', c);
+  for (let x = 0; x < W + 10; x += 15) arvore(b, x + ((r() * 8) | 0), base, 30 + ((r() * 12) | 0), c, cd, cl);
+}
+
+/* touceira de capim, larga */
+function touceira(b: Buf, x: number, y: number, larg = 8, alt = 14): void {
+  for (let k = -larg; k <= larg; k += 2) {
+    const a = alt - Math.abs(k) + ((k * 7) % 3);
+    b.rect(x + k, y - a, 2, a, k % 4 ? P.tallD! : P.tall!);
+    b.set(x + k, y - a - 1, P.tallL!);
+  }
+}
+
+/* a clareira do Seu Elias: céu entre as copas, o chão de terra batida, o
+   banquinho de tronco e as ferramentas de mateiro encostadas */
+export function clareiraMata(): Buf { return clareira(false); }
+
+/* a mesma clareira no entardecer, com a primeira estrela */
+export function clareiraTarde(): Buf { return clareira(true); }
+
+function clareira(tarde: boolean): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 60, tarde
+    ? [[0x3a, 0x2d, 0x5a], [0xc0, 0x6a, 0x5a], [0xf0, 0xa8, 0x68]]
+    : [[0x6a, 0xb8, 0xe8], [0xb8, 0xe0, 0xf0]]);
+  if (tarde) estrelas(b, 211, 6, 20);
+  paredeMata(b, 72, 201, tarde);
+  chaoMata(b, 70, 203, tarde);
+  b.ellipse(120, 104, 80, 20, tarde ? P.pathD! : P.path!);
+  b.ellipse(120, 104, 70, 16, tarde ? P.path! : P.pathL!);
+  const r = rng(205);
+  for (let i = 0; i < 60; i++) b.set(60 + ((r() * 120) | 0), 92 + ((r() * 24) | 0), P.pathD!);
+  // o banquinho de tronco e o toco com o facão e a enxada encostados
+  b.rect(40, 96, 26, 7, P.trunk!); b.rect(40, 96, 26, 2, '#c9a06a'); b.ellipse(40, 99, 3, 4, '#c9a06a');
+  b.rect(184, 88, 14, 14, P.trunkD!); b.ellipse(191, 88, 7, 2, '#c9a06a');
+  b.line(200, 70, 206, 100, '#8a5a30'); b.rect(197, 68, 8, 4, '#8a8a8a');
+  b.line(210, 76, 212, 100, '#6d4726'); b.rect(208, 74, 6, 3, '#b8b8b8');
+  return b;
+}
+
+/* a mata funda de antigamente, na lembrança do Seu Elias: árvores enormes,
+   luz caindo em feixe, e o menino perdido no meio */
+export function mataAntiga(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, H, [[0x14, 0x30, 0x1a], [0x2a, 0x5a, 0x2a], [0x3a, 0x6a, 0x30]]);
+  // troncos gigantes que somem lá em cima
+  for (const [x, w] of [[14, 16], [70, 22], [150, 18], [206, 26]] as const) {
+    b.rect(x, 0, w, 120, '#4a3220'); b.rect(x, 0, 4, 120, '#5e4028');
+    b.tri(x - 8, 122, x + w + 8, 122, x + w / 2, 100, '#3a2616');     // as sapopemas
+  }
+  // feixes de luz atravessando a copa
+  for (const x0 of [40, 118, 180]) for (let y = 0; y < 120; y += 2) b.rect(x0 + y / 3, y, 6, 1, '#6a9a4a');
+  chaoMata(b, 118, 207);
+  for (const x of [30, 100, 170, 226]) touceira(b, x, 124, 7, 12);
+  return lembranca(b);
+}
+
+/* a picada aberta pela Companhia: troncos pintados com um X vermelho, um
+   já no chão, e a placa da Mata-Seca pregada numa árvore */
+export function arvoresMarcadas(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 60, [[0x7a, 0x9a, 0xb8], [0xc8, 0xd8, 0xd8]]);
+  paredeMata(b, 66, 211);
+  chaoMata(b, 64, 213);
+  // a picada, larga e de terra revirada
+  b.rect(0, 92, W, 26, '#8a6a44');
+  const r = rng(215);
+  for (let i = 0; i < 90; i++) b.set((r() * W) | 0, 92 + ((r() * 26) | 0), i % 2 ? '#a3804f' : '#6d5234');
+  for (let x = 0; x < W; x += 16) b.line(x, 94, x + 10, 116, '#5a4226');       // marca de esteira
+  // os troncos marcados, de pé
+  for (const x of [26, 88, 204]) {
+    b.rect(x, 30, 12, 64, P.trunk!); b.rect(x, 30, 3, 64, P.trunkD!);
+    b.line(x + 2, 54, x + 10, 64, '#d02a1a'); b.line(x + 10, 54, x + 2, 64, '#d02a1a');
+    b.line(x + 3, 54, x + 11, 64, '#d02a1a'); b.line(x + 11, 54, x + 3, 64, '#d02a1a');
+  }
+  // um já derrubado, atravessado na picada, e o toco dele
+  b.rect(120, 104, 70, 9, P.trunk!); b.rect(120, 104, 70, 2, '#8a5a30'); b.ellipse(190, 108, 4, 5, '#c9a06a');
+  b.rect(146, 84, 12, 10, P.trunkD!); b.ellipse(152, 84, 6, 2, '#c9a06a');
+  placaMataSeca(b, 150, 44);
+  return b;
+}
+
+/* o viveiro do Seu Elias: canteiros de terra com mudinha em fileira, a
+   cerca de bambu e a cabaça de regar. Três covas ficaram vazias */
+export function viveiroVazio(): Buf { return viveiro(false, false); }
+
+/* o viveiro completo outra vez, de dia */
+export function viveiroCheio(): Buf { return viveiro(true, false); }
+
+/* o viveiro de noite, com as três mudas de volta */
+export function viveiroNoite(): Buf { return viveiro(true, true); }
+
+function viveiro(completo: boolean, noite: boolean): Buf {
+  const b = new Buf(W, H);
+  if (noite) { degrade(b, 0, 60, [[0x10, 0x14, 0x2a], [0x24, 0x30, 0x4a]]); estrelas(b, 221, 30, 50); b.circle(206, 20, 8, '#f0ecd8'); }
+  else degrade(b, 0, 60, [[0x6a, 0xb8, 0xe8], [0xb8, 0xe0, 0xf0]]);
+  paredeMata(b, 66, 223, noite);
+  chaoMata(b, 64, 225, noite);
+  // a cerca de bambu
+  for (let x = 8; x < W; x += 10) b.rect(x, 64, 3, 16, '#b8a050');
+  b.rect(0, 67, W, 2, '#8a7a3a'); b.rect(0, 74, W, 2, '#8a7a3a');
+  // três canteiros, cada um com cinco covas
+  for (let k = 0; k < 3; k++) {
+    const y = 90 + k * 10;
+    b.rect(20, y, 200, 8, '#6d4a2a'); b.rect(20, y, 200, 2, '#8a6038');
+    for (let i = 0; i < 5; i++) {
+      const x = 36 + i * 42;
+      const vazia = !completo && k === 1 && i % 2 === 0 && i < 5 && i !== 2;
+      const vazia2 = !completo && k === 2 && i === 2;
+      if (vazia || vazia2) { b.ellipse(x, y + 3, 4, 2, '#4a2e18'); continue; }
+      b.rect(x, y - 6, 1, 7, '#3c7c34');
+      b.ellipse(x - 2, y - 5, 3, 2, P.grassL!); b.ellipse(x + 3, y - 3, 3, 2, P.grass!);
+    }
+  }
+  // a cabaça de regar
+  b.ellipse(226, 88, 5, 6, '#c8a048'); b.circle(226, 81, 3, '#c8a048'); b.set(225, 80, '#e8c878');
+  return b;
+}
+
+/* a picada da Companhia de manhã cedo, com uma muda plantada em cada toco */
+export function picadaMudas(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 60, [[0x9a, 0x7a, 0xa8], [0xf0, 0xb8, 0x88], [0xf8, 0xe8, 0xb8]]);
+  paredeMata(b, 66, 231);
+  chaoMata(b, 64, 233);
+  b.rect(0, 92, W, 26, '#8a6a44');
+  const r = rng(235);
+  for (let i = 0; i < 70; i++) b.set((r() * W) | 0, 92 + ((r() * 26) | 0), i % 2 ? '#a3804f' : '#6d5234');
+  for (const [x, y] of [[50, 98], [120, 106], [190, 98]] as const) {
+    b.rect(x - 6, y, 12, 8, P.trunkD!); b.ellipse(x, y, 6, 2, '#c9a06a');
+    b.rect(x, y - 12, 1, 12, '#3c7c34');
+    b.ellipse(x - 3, y - 11, 4, 2, P.grassL!); b.ellipse(x + 4, y - 8, 4, 2, P.grass!); b.ellipse(x - 2, y - 5, 3, 2, P.grassL!);
+  }
+  return b;
+}
+
+/* a fileira de pedra atravessada no igarapé: a tranca do Zeca */
+export function rochaIgarape(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 50, [[0x6a, 0xb8, 0xe8], [0xb8, 0xe0, 0xf0]]);
+  paredeMata(b, 58, 241);
+  chaoMata(b, 56, 243);
+  // o igarapé, correndo de lado lá atrás
+  b.rect(0, 58, W, 14, P.water!);
+  for (let x = 0; x < W; x += 7) b.rect(x, 60 + (x % 5), 4, 1, P.waterL!);
+  // a fileira de pedra, com um vão estreito fechado no meio
+  for (let x = 0; x < W; x += 20) {
+    const y = 84 + ((x * 3) % 5);
+    b.ellipse(x + 10, y, 11, 8, P.rockD!); b.ellipse(x + 9, y - 2, 9, 6, P.rock!); b.ellipse(x + 6, y - 5, 3, 2, '#b8aca0');
+  }
+  for (const x of [30, 90, 150, 210]) touceira(b, x, 130, 8, 12);
+  return b;
+}
+
+/* a beira do igarapé, com a água rasa e as raízes entrando nela */
+export function margemIgarape(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 40, [[0x6a, 0xb8, 0xe8], [0xb8, 0xe0, 0xf0]]);
+  paredeMata(b, 50, 251);
+  b.rect(0, 50, W, 40, P.water!);
+  const r = rng(253);
+  for (let i = 0; i < 40; i++) b.rect((r() * W) | 0, 52 + ((r() * 36) | 0), 5, 1, P.waterL!);
+  b.rect(0, 88, W, 8, P.sand!); for (let x = 0; x < W; x += 3) b.set(x, 88, P.foam!);
+  chaoMata(b, 96, 255);
+  // raízes grossas saindo da margem para dentro da água
+  for (const x of [20, 196]) for (let k = 0; k < 4; k++) b.line(x + k * 4, 96, x - 12 + k * 10, 70 + k * 3, P.trunkD!);
+  for (const x of [60, 140, 220]) touceira(b, x, 140, 9, 16);
+  return b;
+}
+
+/* o mato fechado entre as touceiras, onde nem a luz entra direito */
+export function touceirasFundas(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, H, [[0x2a, 0x5a, 0x2a], [0x3a, 0x7a, 0x34]]);
+  paredeMata(b, 60, 261, true);
+  chaoMata(b, 88, 263);
+  for (const [x, y, l, a] of [[20, 110, 12, 30], [224, 112, 12, 34], [70, 140, 10, 22], [180, 144, 10, 24],
+                               [120, 90, 8, 16], [40, 86, 8, 14], [200, 84, 8, 16]] as const) touceira(b, x, y, l, a);
+  return b;
+}
+
+/* depois da pedra do Zeca: um tronco caído coberto de musgo e cogumelo */
+export function troncoCaido(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 50, [[0x7a, 0xb8, 0xd8], [0xc0, 0xe0, 0xe0]]);
+  paredeMata(b, 64, 271);
+  chaoMata(b, 62, 273);
+  b.rect(10, 86, 150, 16, P.trunk!); b.rect(10, 86, 150, 3, '#8a5a30'); b.rect(10, 99, 150, 3, P.trunkD!);
+  b.ellipse(160, 94, 6, 8, '#c9a06a'); b.ellipse(160, 94, 3, 5, '#a8803a');
+  for (let x = 14; x < 156; x += 6) b.rect(x, 84 + (x % 3), 4, 2, '#5a9a3a');     // o musgo
+  for (const x of [40, 96, 130]) { b.rect(x, 80, 2, 6, '#e8dcc8'); b.ellipse(x + 1, 80, 4, 2, '#c8402a'); b.set(x, 79, '#f4f0e0'); }
+  for (const x of [190, 226, 60]) touceira(b, x, 140, 8, 14);
+  return b;
+}
+
+/* o caderno de pegadas do Seu Elias, aberto: pegadas desenhadas a lápis
+   em cada quadro, e o bicho que a fez desenhado ao lado */
+export function cadernoPegadas(): Buf {
+  const b = new Buf(W, H);
+  b.rect(0, 0, W, H, '#3a5a2a');
+  const r = rng(281);
+  for (let i = 0; i < 200; i++) b.set((r() * W) | 0, (r() * H) | 0, '#2a4a1e');
+  b.rect(6, 4, 228, 120, '#6a4a2a');
+  for (const x0 of [10, 122]) {
+    b.rect(x0, 6, 108, 116, '#efe6c8');
+    for (let y = 14; y < 120; y += 7) b.rect(x0 + 2, y, 104, 1, '#d8ceb0');
+  }
+  b.rect(118, 6, 4, 116, '#b8a878');
+  // os quadros dos bichos, e as fileiras de pegada do lado
+  for (const [x, y] of [[16, 12], [16, 66], [128, 12], [128, 66]] as const) {
+    b.rect(x, y, 44, 44, '#8a8068'); b.rect(x + 1, y + 1, 42, 42, '#faf4e0');
+    for (let k = 0; k < 4; k++) {
+      const px = x + 52 + k * 12, py = y + 10 + (k % 2) * 16;
+      b.ellipse(px, py, 3, 4, '#5a4a3a'); for (let d = -2; d <= 2; d += 2) b.set(px + d, py - 6, '#5a4a3a');
+    }
+  }
+  return b;
+}
+
+/* a grota funda: barranco de raiz dos dois lados, sombra, e pegadas de pé
+   virado no barro, todas apontando para dentro */
+export function grotaFunda(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 40, [[0x2a, 0x4a, 0x3a], [0x4a, 0x6a, 0x4a]]);
+  paredeMata(b, 50, 291, true);
+  // os barrancos, fechando dos lados
+  b.tri(0, 30, 0, H, 80, H, '#3a2a1a'); b.tri(W, 30, W, H, 160, H, '#3a2a1a');
+  for (let k = 0; k < 8; k++) {
+    b.line(4 + k * 8, 40 + k * 10, 30 + k * 8, 50 + k * 12, '#5a3a20');
+    b.line(W - 4 - k * 8, 40 + k * 10, W - 30 - k * 8, 50 + k * 12, '#5a3a20');
+  }
+  // o fundo da grota, de barro úmido
+  b.tri(60, 60, 180, 60, 120, H, '#5a4a30');
+  b.rect(80, 60, 80, 70, '#5a4a30');
+  const r = rng(293);
+  for (let i = 0; i < 80; i++) b.set(80 + ((r() * 80) | 0), 60 + ((r() * 70) | 0), '#6a5a3a');
+  // as pegadas de pé virado: o calcanhar para a frente
+  for (let k = 0; k < 5; k++) {
+    const x = 108 + (k % 2) * 20, y = 116 - k * 12;
+    b.ellipse(x, y, 3, 4, '#3a2a18'); for (let d = -2; d <= 2; d += 2) b.set(x + d, y + 6, '#3a2a18');
+  }
+  for (const x of [40, 200]) touceira(b, x, 70, 10, 18);
+  return b;
+}
+
+/* o salão de raiz da Tiê: parede de terra com raiz aparente, o chão todo
+   de raízes que se mexem, o assento dela lá no alto entre os cipós */
+export function salaoRaiz(): Buf { return salaoDeRaiz(false); }
+
+/* o mesmo salão depois da luta: as raízes pararam e deram flor */
+export function salaoRaizFlorido(): Buf { return salaoDeRaiz(true); }
+
+function salaoDeRaiz(florido: boolean): Buf {
+  const b = new Buf(W, H);
+  b.rect(0, 0, W, 56, '#4a3424');
+  const r = rng(florido ? 301 : 303);
+  for (let i = 0; i < 18; i++) {
+    const x = (r() * W) | 0;
+    b.line(x, 0, x + ((r() * 30) | 0) - 15, 56, '#6d4a2a');                      // raízes na parede
+  }
+  // os cipós pendurados e o assento de raiz trançada lá no alto
+  for (const x of [20, 44, 196, 222]) for (let y = 0; y < 60; y += 3) b.set(x + ((y >> 3) % 2), y, '#3c7c34');
+  b.ellipse(120, 34, 30, 8, '#6d4726'); b.ellipse(120, 32, 26, 5, '#8a5a30');
+  for (let k = 0; k < 3; k++) b.rect(100 + k * 6, 40 + k * 5, 40 - k * 12 + 12, 4, k % 2 ? '#5a3a20' : '#6d4726');
+  // velas nos nichos
+  for (const x of [30, 210]) { b.rect(x - 5, 14, 10, 12, '#2a1c12'); b.rect(x - 1, 18, 2, 6, '#f4f0e0'); b.rect(x - 1, 15, 2, 3, P.fireL!); }
+  // o chão de raízes entrelaçadas
+  b.rect(0, 56, W, 60, '#5a3a20');
+  for (let i = 0; i < 26; i++) {
+    const y = 58 + ((r() * 56) | 0), x = (r() * W) | 0;
+    const x1 = x + 30 + ((r() * 30) | 0), y1 = y + ((r() * 8) | 0) - 4;
+    b.line(x, y, x1, y1, i % 2 ? '#8a5a30' : '#6d4726'); b.line(x, y + 1, x1, y1 + 1, '#4a2e18');
+    if (florido && i % 3 === 0) { b.circle(x + 12, y - 1, 2, '#f08ab0'); b.set(x + 12, y - 1, '#fff0a0'); }
+  }
+  if (!florido) for (let i = 0; i < 20; i++) b.rect((r() * W) | 0, 60 + ((r() * 52) | 0), 3, 1, '#a07040');
+  // os dois tocos de pedra, os únicos freios do salão
+  for (const x of [62, 178]) { b.ellipse(x, 84, 12, 9, P.rockD!); b.ellipse(x - 2, 81, 9, 6, P.rock!); b.ellipse(x - 5, 78, 3, 2, '#b8aca0'); }
+  b.rect(0, 116, W, H - 116, '#6a5a48');
+  for (let x = 0; x < W; x += 16) b.rect(x, 116, 15, 1, '#8a7a64');
+  return b;
+}
+
+/* a sumaúma de mil anos, na lembrança da Tiê: o terreiro nascendo no pé dela */
+export function sumauma(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 100, [[0x5a, 0x8a, 0xc8], [0xa8, 0xd0, 0xe0], [0xd8, 0xe8, 0xd0]]);
+  morros(b, 96, 6, 0.04, 1.2, P.treeD!, 110);
+  chaoMata(b, 104, 311);
+  // as sapopemas, abertas feito paredes
+  b.rect(108, 0, 24, 124, '#7a5a3a'); b.rect(108, 0, 6, 124, '#8a6a48');
+  for (const [xp, alt] of [[46, 44], [76, 60], [196, 46], [166, 62]] as const) {
+    const xt = xp < 120 ? 110 : 130;
+    b.tri(xp, 124, xt, 124, xt, 124 - alt, '#6a4a30');
+    b.line(xp, 124, xt, 124 - alt, '#8a6a48');
+  }
+  // a copa enorme, cortada pela tela
+  for (const [x, y, rr] of [[60, 8, 40], [120, 0, 50], [184, 10, 42], [20, 24, 26], [226, 26, 26]] as const) {
+    b.circle(x, y, rr, P.treeD!); b.circle(x - 4, y - 4, rr - 6, P.tree!); b.circle(x - 10, y - 10, (rr / 3) | 0, P.treeL!);
+  }
+  return lembranca(b);
+}
+
+/* a Serra Boitatá lá longe, ao sul, vista da beira da mata: fumaça subindo
+   do alto e um brilho vermelho que não apaga */
+export function serraAoLonge(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 80, [[0x2a, 0x22, 0x4a], [0x9a, 0x4a, 0x4a], [0xe0, 0x8a, 0x5a]]);
+  estrelas(b, 321, 14, 30);
+  // a serra, recortada, com o brilho no topo
+  morros(b, 70, 20, 0.03, 0.8, '#3a2a3a', 110);
+  for (const [x, y] of [[92, 50], [150, 46]] as const) {
+    b.ellipse(x, y, 10, 3, '#e05a2a'); b.ellipse(x, y - 1, 5, 2, P.fireL!);
+    for (let k = 0; k < 5; k++) b.ellipse(x + k * 5, y - 8 - k * 7, 8 + k * 2, 4, k % 2 ? '#5a4a52' : '#6a5a60');
+  }
+  morros(b, 96, 8, 0.05, 2.1, '#1f3a22', 124);
+  // a beira da mata, de silhueta, na frente
+  for (let x = -4; x < W + 8; x += 14) arvore(b, x, 134, 30 + ((x * 7) % 12), '#14281a', '#0e1c12', '#1f3a22', '#0e1c12');
+  b.rect(0, 124, W, H - 124, '#0e1c12');
+  return b;
+}
+
+/* a touceira de cipó que fecha o canto da clareira, e a trilha atrás dela */
+export function touceiraCipo(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 60, [[0x3a, 0x2d, 0x5a], [0xc0, 0x6a, 0x5a], [0xf0, 0xa8, 0x68]]);
+  paredeMata(b, 70, 331, true);
+  chaoMata(b, 68, 333, true);
+  // a trilha, subindo para o sul lá atrás
+  b.tri(100, 124, 150, 124, 132, 72, P.path!);
+  // o emaranhado de cipó cortado, caído dos dois lados
+  const r = rng(335);
+  for (let i = 0; i < 26; i++) {
+    const x = i % 2 ? 40 + ((r() * 50) | 0) : 160 + ((r() * 50) | 0);
+    const y = 70 + ((r() * 50) | 0);
+    b.line(x, y, x + ((r() * 30) | 0) - 15, y + 10 + ((r() * 14) | 0), i % 3 ? '#3c7c34' : '#2d6027');
+    if (i % 4 === 0) b.ellipse(x, y, 3, 2, P.grassL!);
+  }
+  return b;
+}
+
+/* a muda de árvore, com o torrão de terra — peça que anda no colo da
+   Caiporinha e cai no chão. 14×18 */
+export function muda(): Buf {
+  const b = new Buf(14, 18);
+  b.ellipse(7, 15, 6, 3, '#6d4a2a'); b.ellipse(7, 14, 5, 2, '#8a6038');
+  b.rect(7, 4, 1, 10, '#3c7c34');
+  b.ellipse(4, 5, 3, 2, P.grassL!); b.ellipse(10, 7, 3, 2, P.grass!); b.ellipse(5, 10, 3, 2, P.grassL!);
+  b.ellipse(8, 2, 2, 2, '#8fd06a');
+  return b;
+}
+
+/* a lata de tinta vermelha da Companhia, com o pincel. 12×12 */
+export function lataTinta(): Buf {
+  const b = new Buf(12, 12);
+  b.rect(1, 3, 10, 9, '#8a8a8a'); b.rect(1, 3, 10, 2, '#b8b8b8'); b.rect(2, 4, 8, 1, '#d02a1a');
+  b.rect(3, 7, 6, 3, '#d02a1a');
+  b.line(8, 0, 6, 4, '#8a5a30'); b.rect(8, 0, 2, 2, '#d02a1a');
+  return b;
+}

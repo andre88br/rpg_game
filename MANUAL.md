@@ -214,8 +214,10 @@ loja e benzimento).
 ## Conta 1 — `conta_recado_mata`: a carta para a Tiê
 
 Leve a **Carta para a Tiê** (da Dona Firmina, depois da Medalha Maré) até o
-**Seu Elias**, na Mata do Curupira, (14,9). Ele acende a conta e ainda entrega
-o **caderno de pegadas** dele.
+**Seu Elias**, na Mata do Curupira, (14,9). Uma cutscene conta a história da
+mata; ele acende a conta, entrega o **caderno de pegadas** e avisa da grota.
+É a carta que destrava o resto da região: as Caiporinhas das mudas e o
+Curupira da grota só aparecem depois dela.
 
 > Se o Seu Elias não aceitar nada, é porque você não voltou na Firmina depois
 > da Medalha Maré. Volte lá em Vila Aurora e fale com ela.
@@ -223,7 +225,7 @@ o **caderno de pegadas** dele.
 ## Conta 2 — `conta_zeca_mata`: o Zeca, de novo
 
 No **Igarapé do Curupira**, por volta de (9,15), o **Zeca** (visão 5) fecha o
-caminho para o sul — e há uma barreira em (9,16) que só abre quando ele cai.
+caminho para o sul (no primeiro encontro, uma cutscene conta do pai dele) — e há uma barreira em (9,16) que só abre quando ele cai.
 Time: **Sacizinho 20**, **Caiporinha 20**, **Curupinho 22**. Prêmio 1200.
 
 Três bichos e nível 20+: chegue com time de 20 no mínimo, e leve Fogo para o
@@ -231,14 +233,16 @@ Curupinho.
 
 ## Conta 3 — `conta_mudas`: as três mudas do viveiro
 
-Três **Caiporinhas** fujonas, todas no **Igarapé do Curupira**:
+Três **Caiporinhas** fujonas, todas no **Igarapé do Curupira**, que só
+aparecem depois de entregar a carta ao Seu Elias:
 
-- (7,6)
-- (15,12)
-- (7,18)
+- (7,6), na beira do igarapé — **Caiporinha 13**
+- (15,12), entre as touceiras — **Caiporinha 14**
+- (7,18), no tronco caído, depois da pedra do Zeca — **Caiporinha 15**
 
-Quatro encostões em cada uma; cada uma solta uma **Muda de Árvore**. Com as
-três, volte no **Seu Elias**: paga **500**.
+Chegar perto toca a cutscene de quando ela é achada. Encurralada, ela
+**briga pela muda**: vencer ou prender no patuá solta a **Muda de Árvore**.
+Com as três, volte no **Seu Elias**: paga **500**.
 
 ## Conta 4 — `conta_pegadas`: o caderno de pegadas
 
@@ -249,7 +253,9 @@ Sacizinho, Caiporinha, Curupirá. Volte no Seu Elias: paga **600**.
 ## Conta 5 — `conta_grota`: o Curupira da grota funda
 
 Na **Mata do Curupira**, perto de (15,11), mora um **Curupira selvagem**
-(visão 3): **Curupirá nível 23**. Vencer acende a conta; **capturar também
+(visão 3): **Curupirá nível 23**. Ele só existe depois da carta, e de
+**emboscada**: escondido na moita até você chegar perto — aí a cutscene
+mostra ele saindo, e a luta começa. Vencer acende a conta; **capturar também
 vale**, e recomendo: um Curupirá 23 é a melhor peça de Planta do jogo até aqui
 e aguenta bem o começo da subida da serra.
 

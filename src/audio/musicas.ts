@@ -120,6 +120,43 @@ export const MUSICAS = {
               e5 g5 b5:6 a5 g5:4 | e5 g5 c6:6 b5 a5:4 | g5 e5 c#5:4 d5 f#5 a5:4 | g5:12 -:4`,
   },
 
+  /* ---------------------------------------------- Região 2: a Mata */
+
+  /* o Seu Elias, mateiro: baião manso em lá dórico, de quem anda sem pressa */
+  mata: {
+    bpm: 92, baixo: 'baiao', bateria: 'suave', arpejo: 'colcheia',
+    acordes: ['Am', 'D', 'Am', 'D', 'C', 'G', 'D', 'Am'],
+    melodia: `a4 c5 e5:4 d5 e5 a4:4 | f#5:4 e5 d5 a4:8 | c5 e5 a5:4 g5 e5 d5:4 | f#5:6 e5:2 d5:8 |
+              e5 g5 c6:4 b5 g5 e5:4 | d5 g5 b5:6 a5:2 g5:4 | a5:4 f#5 e5 d5:4 f#5:4 | e5:12 -:4`,
+  },
+  /* Caiporinha no porco-do-mato: trote miúdo, cromático, de quem some no mato */
+  caipora: {
+    bpm: 132, baixo: 'galope', bateria: 'baiao',
+    acordes: ['Em', 'Em', 'Am', 'B7', 'Em', 'C', 'Am B7', 'Em'],
+    melodia: `e5:1 -:1 e5:1 -:1 g5 e5:1 -:1 b4:1 -:1 e5:4 g5 |
+              f#5:1 g5:1 f#5:1 e5:1 d#5 e5 -:4 b4:4 |
+              a5:1 -:1 a5:1 -:1 c6 a5:1 -:1 e5:1 -:1 a5:4 c6 |
+              b5 a5 g5 f#5 d#5:4 b4:4 |
+              e6:1 -:1 b5:1 -:1 g5 e5 b4:1 c5:1 c#5:1 d5:1 d#5:4 |
+              e5 g5 c6:4 b5:1 -:1 g5:1 -:1 e5:4 |
+              a5 c6 e5:4 f#5 a5 d#5:4 |
+              e5 -:2 e4 -:2 e5:4 -:4`,
+  },
+  /* o Curupira da grota: mistério em ré dórico, com o assobio lá no alto */
+  curupira: {
+    bpm: 84, baixo: 'lento', bateria: 'suave', arpejo: 'sobe',
+    acordes: ['Dm', 'C', 'Dm', 'C', 'Bb', 'C', 'Dm', 'A7'],
+    melodia: `a5:6 g5:2 f5:4 d5:4 | e5:4 g5:4 c6:8 | d6:4 c6 a5 f5:4 a5:4 | g5:12 e5:4 |
+              f5:4 bb5:4 d6:6 c6:2 | e6:8 c6:4 g5:4 | f5:4 a5:4 d6:4 a5:4 | c#6:8 e5:4 a4:4`,
+  },
+  /* o Terreiro de Raiz e a Tiê: devagar, como raiz que cresce */
+  terreiro_raiz: {
+    bpm: 60, baixo: 'lento', arpejo: 'colcheia',
+    acordes: ['Gm', 'Eb', 'Bb', 'F', 'Gm', 'Cm', 'D', 'Gm'],
+    melodia: `d5:4 g5:4 bb5:8 | g5:4 bb5:4 eb5:8 | f5:6 d5:2 bb4:8 | c5:4 f5:4 a5:8 |
+              bb5:4 a5 g5 d5:8 | eb5:4 g5:4 c6:6 bb5:2 | a5:4 f#5:4 d5:4 f#5:4 | g5:12 -:4`,
+  },
+
   /* ------------------------------------------------------------ vinhetas */
   cura: {
     bpm: 120, baixo: 'lento', vinheta: true,

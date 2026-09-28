@@ -70,19 +70,20 @@ export const mataDoCurupira: DefMapa = {
            sempre no relatório de "viveiro completo, caderno não" — essa
            condição continuaria valendo por cima da entrega da carta em
            qualquer visita seguinte, e a carta nunca mais seria aceita */
+        /* a cutscene conta a mata de antigamente, a Companhia, o viveiro,
+           o caderno e a grota; a fala só recebe e leva à Tiê */
         { se: 'item:carta_tie', pede: { item: 'carta_tie' },
-          liga: ['conta_recado_mata', 'tem_caderno_mata'], linhas: [
+          liga: ['conta_recado_mata', 'tem_caderno_mata'], cutscene: 'elias', linhas: [
           'Carta da Dona Firmina? Ora, passa pra cá que eu levo à Tiê agora mesmo.',
-          'Ela vai gostar de saber que a Foz não esqueceu da Mata. Acendi a sua primeira conta aqui.',
-          'Já que está aqui: eu anoto pegada de bicho num caderno, e sumiram três mudas do meu viveiro.',
-          'Resolva os dois, e eu acendo mais duas contas da sua guia.'] },
-        { se: 'item:muda>=3', pede: { item: 'muda', n: 3 }, liga: 'conta_mudas', paga: 500, linhas: [
-          'As TRÊS de volta! Eu sabia que era travessura de Caiporinha, e não sumiço de verdade.',
-          'Muda gosta de nó no cipó, e Caiporinha gosta de nó em qualquer coisa. Faz sentido agora.',
-          'Outra conta acesa por sua conta, {crianca}. E toma pelo trabalho.'] },
-        { se: ['tem_caderno_mata', 'vistos>=7'], liga: 'conta_pegadas', paga: 600, linhas: [
-          'Deixa eu contar de novo... sete! Sete bichos diferentes, direitinho anotados.',
-          'Serviço de mateiro de verdade. Acendi outra conta da guia pra você.'] },
+          'Ela vai gostar de saber que a Foz não esqueceu da Mata.'] },
+        /* as três mudas: o viveiro replantado, a Caiporinha da noite e os tocos da picada */
+        { se: 'item:muda>=3', pede: { item: 'muda', n: 3 }, liga: 'conta_mudas', paga: 500,
+          cutscene: 'elias_mudas', linhas: [
+          'As TRÊS de volta! Eu sabia que era travessura de Caiporinha, e não sumiço de verdade.'] },
+        /* o caderno cheio: os bichos anotados e a pegada de pé virado */
+        { se: ['tem_caderno_mata', 'vistos>=7'], liga: 'conta_pegadas', paga: 600,
+          cutscene: 'elias_pegadas', linhas: [
+          'Deixa eu contar de novo... sete! Sete bichos diferentes, direitinho anotados.'] },
         { se: 'conta_mudas', seNao: 'conta_pegadas', linhas: [
           'O viveiro está completo, mas o caderno ainda não. Você anotou {vistos} bichos de sete.',
           'A mata é funda, {crianca}. Ande devagar pelo mato alto que ela mostra o que tem.'] },
@@ -99,7 +100,11 @@ export const mataDoCurupira: DefMapa = {
     },
     {
       id: 'curupira_grota', nome: 'CURUPIRA', estilo: 'bicho:curupira',
-      tx: 15, ty: 11, dir: 'baixo', seNao: 'conta_grota',
+      /* só depois da carta (é o Seu Elias quem avisa da grota), e de
+         emboscada: escondido na moita até o jogador chegar perto — aí a
+         cutscene mostra ele saindo, e a luta começa */
+      tx: 15, ty: 11, dir: 'baixo', se: 'conta_recado_mata', seNao: 'conta_grota',
+      encontro: 'curupira', emboscada: true,
       treinador: {
         classe: 'GUARDIÃO DA MATA', selvagem: true, visao: 3, liga: 'conta_grota',
         time: [{ especie: 'curupira', nivel: 23 }],
@@ -125,6 +130,12 @@ export const mataDoCurupira: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* saindo do terreiro com a Medalha Raiz, o Seu Elias mostra a fumaça da
+     Serra e a touceira que o Dom novo abre. Uma vez só */
+  aoChegar: {
+    quem: 'SEU ELIAS', se: 'medalha:raiz', seNao: 'viu_cut_elias_serra', cutscene: 'elias_serra',
+    linhas: ['Ô, {crianca}! Espera aí, que eu vim correndo lá do viveiro!'],
+  },
   passosPorEncontro: 9,
   encontros: [
     { especie: 'caiporinha', min: 13, max: 17, peso: 60 },

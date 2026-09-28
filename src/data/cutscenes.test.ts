@@ -145,6 +145,53 @@ test('saindo do terreiro com a medalha, o Mestre chama de volta à Firmina, que 
   assert.equal(carta.liga, 'deu_carta_tie');
 });
 
+/* ------------------------------------------- Região 2: a Mata do Curupira */
+
+test('o Seu Elias conta a história da mata quando recebe a carta', () => {
+  const elias = MAPAS['mataDoCurupira']!.npcs.find((n) => n.id === 'elias')!;
+  const carta = elias.falas.find((f) => f.pede?.item === 'carta_tie')!;
+  assert.equal(carta.cutscene, 'elias');
+  assert.ok([carta.liga].flat().includes('conta_recado_mata'));
+  const mudas = elias.falas.find((f) => f.pede?.item === 'muda')!;
+  assert.equal(mudas.cutscene, 'elias_mudas');
+  assert.equal(mudas.liga, 'conta_mudas');
+  const pegadas = elias.falas.find((f) => f.liga === 'conta_pegadas')!;
+  assert.equal(pegadas.cutscene, 'elias_pegadas');
+});
+
+test('o segundo Zeca, no igarapé, é apresentado antes da luta', () => {
+  const zeca = MAPAS['igarapeCurupira']!.npcs.find((n) => n.id === 'zeca2')!;
+  assert.equal(zeca.treinador?.apresentacao, 'zeca_mata');
+  assert.ok(CUTSCENES['zeca_mata']!.some((t) => t.titulo?.includes('ZECA')), 'falta o letreiro do rival');
+});
+
+test('o Curupira da grota só aparece depois da carta, de emboscada', () => {
+  const c = MAPAS['mataDoCurupira']!.npcs.find((n) => n.id === 'curupira_grota')!;
+  assert.equal(c.se, 'conta_recado_mata');
+  assert.equal(c.encontro, 'curupira');
+  assert.ok(c.emboscada);
+  assert.equal(c.treinador?.liga, 'conta_grota');
+  assert.ok(CUTSCENES['curupira']!.some((t) => t.titulo?.includes('CURUPIRA')));
+});
+
+test('o Terreiro de Raiz tem cutscene ao entrar e ao vencer a Tiê', () => {
+  const t = MAPAS['terreiroCurupira']!;
+  assert.equal(t.aoChegar?.cutscene, 'terreiro_raiz');
+  assert.equal(t.aoChegar?.seNao, 'viu_cut_terreiro_raiz', 'a entrada tocaria toda vez');
+  const tie = t.npcs.find((n) => n.id === 'tie')!;
+  assert.equal(tie.treinador?.cutscene, 'tie_vence');
+  // a medalha continua vindo da fala dela, depois da cutscene
+  assert.ok(tie.falas.some((f) => f.medalha === 'raiz'));
+});
+
+test('saindo do terreiro com a Medalha Raiz, o Seu Elias aponta a Serra', () => {
+  const chegada = MAPAS['mataDoCurupira']!.aoChegar!;
+  assert.equal(chegada.cutscene, 'elias_serra');
+  assert.equal(chegada.se, 'medalha:raiz');
+  assert.equal(chegada.seNao, 'viu_cut_elias_serra', 'a chamada tocaria toda vez');
+  assert.ok(CUTSCENES['elias_serra']!.some((t) => t.titulo?.includes('SERRA BOITATÁ')));
+});
+
 /* ------------------------------------------------------------ a trilha */
 
 test('toda cutscene começa dizendo o tema, e todo tema pedido existe', () => {

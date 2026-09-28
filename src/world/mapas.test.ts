@@ -874,6 +874,27 @@ test('as três redes do Mestre do Porto se tomam na briga com os Sacizinhos', ()
   assert.equal(new Set(sacis.map((n) => n.treinador!.cutscene)).size, 3);
 });
 
+test('as três mudas do Seu Elias se tomam na briga com as Caiporinhas', () => {
+  const caipos = entradas.flatMap(([, def]) => def.npcs)
+    .filter((n) => n.treinador?.da?.item === 'muda');
+  assert.equal(caipos.length, 3);
+  for (const n of caipos) {
+    const t = n.treinador!;
+    assert.ok(n.fujao, `${n.id} tem que fugir antes de brigar`);
+    assert.ok(t.selvagem, `${n.id} é bicho: dá para prender no patuá`);
+    assert.ok(!t.visao, `${n.id} não pode desafiar de longe, só encurralada`);
+    assert.equal(t.time[0]!.especie, 'caiporinha');
+    assert.equal(t.liga, n.seNao, `${n.id} tem que sumir depois de largar a muda`);
+    // só depois da carta: é o Seu Elias quem conta do viveiro
+    assert.equal(n.se, 'tem_caderno_mata', `${n.id} apareceria antes do Seu Elias pedir as mudas`);
+    assert.ok(n.encontro, `${n.id} sem cutscene de quando é achada`);
+    assert.ok(t.cutscene, `${n.id} sem cutscene de quando larga a muda`);
+    assert.ok(!t.falaDerrota, `${n.id}: a cutscene já conta a derrota`);
+  }
+  assert.equal(new Set(caipos.map((n) => n.encontro)).size, 3);
+  assert.equal(new Set(caipos.map((n) => n.treinador!.cutscene)).size, 3);
+});
+
 /* ------------------------------------------------- dá para falar com eles?
 
    Tile andável não quer dizer nada: a Dona Firmina ficou uma versão inteira

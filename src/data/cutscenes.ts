@@ -27,7 +27,7 @@ export type Figura =
   | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
-  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' | 'carta' };
+  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' | 'carta' | 'muda' | 'tinta' };
 
 export interface Ator {
   figura: Figura;
@@ -828,6 +828,492 @@ const NO_BECO: Esconderijo = {
   chao: 'no chão do beco',
 };
 
+/* =========================================================================
+   REGIÃO 2 — a Mata do Curupira. O mesmo desenho da Foz: quem pede o
+   serviço conta a história, o rival aparece antes da luta, as três ladras
+   têm o seu esconderijo, o bicho da região vem de emboscada, o terreiro
+   tem a entrada e a vitória, e a saída chama para a próxima região.
+   ========================================================================= */
+
+/* ------------------------------------------ o Seu Elias, com a carta
+
+   Toca quando ele recebe a carta da Firmina: a mata de antigamente, as
+   árvores marcadas pela Companhia, o viveiro roubado, o caderno de pegadas
+   — e o aviso da grota, onde mora o Curupira. */
+const ELIAS: Roteiro = [
+  { // a clareira: ele abre a carta ali mesmo
+    musica: 'mata',
+    fundo: C.clareiraMata,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'baixo' }, x: 132, y: 78 },
+      { figura: { peca: 'carta' }, x: 150, y: 86 },
+      { figura: { jogador: true, dir: 'dir' }, x: -20, y: 92, ate: { x: 96, y: 92, por: 2.6 } },
+      { figura: { inicial: true }, x: -56, y: 82, ate: { x: 60, y: 82, por: 2.6 }, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      'Na clareira da Mata do Curupira, o Seu Elias abre a carta ali mesmo, de pé, sem cerimônia.',
+      { quem: 'SEU ELIAS', texto: 'Letra da Firmina eu conheço de longe. Diz que você voltou da Foz de medalha no peito.' },
+    ],
+  },
+  { // a mata de antigamente, e o Curupira trazendo quem se perdia
+    musica: 'lembranca',
+    fundo: C.mataAntiga,
+    atores: [
+      { figura: { criatura: 'curupira' }, x: 150, y: 76, alfa: 0.7, balanco: { amp: 2, periodo: 1.4 } },
+      { figura: { pessoa: 'crianca', dir: 'dir' }, x: 40, y: 94, ate: { x: 116, y: 94, de: 0.6, por: 3 } },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Quando eu era menino, quem se perdia aqui dentro o Curupira trazia de volta.' },
+      { quem: 'SEU ELIAS', texto: 'De pés virados, pra ninguém achar o rastro dele. A mata tinha quem cuidasse.' },
+    ],
+  },
+  { // a picada da Companhia, com os X vermelhos nos troncos
+    musica: 'companhia',
+    fundo: C.arvoresMarcadas,
+    atores: [
+      { figura: { pessoa: 'capataz', dir: 'esq' }, x: 100, y: 74, ate: { x: 60, y: 74, de: 0.4, por: 2.4 } },
+      { figura: { peca: 'tinta' }, x: 118, y: 90 },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Faz um mês que apareceu gente da Companhia pintando X vermelho nos troncos.' },
+      { quem: 'SEU ELIAS', texto: 'Árvore marcada é árvore que vai cair. E desde então a mata anda estranha.' },
+    ],
+  },
+  { // o viveiro com três covas vazias
+    musica: 'mata',
+    fundo: C.viveiroVazio,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'baixo' }, x: 200, y: 60 },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Até as Caiporinhas deram de roubar. Sumiram três mudas do meu viveiro.' },
+      { quem: 'SEU ELIAS', texto: 'Sem muda não tem o que plantar no lugar do que eles derrubam, {crianca}.' },
+    ],
+  },
+  { // de volta à clareira: a conta, o caderno e o aviso da grota
+    fundo: C.clareiraMata,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 132, y: 78 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 92 },
+      { figura: { inicial: true }, x: 60, y: 82, balanco: { amp: 1, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'A carta vale a primeira conta. E toma este CADERNO DE PEGADAS: anota os bichos que vir.' },
+      { quem: 'SEU ELIAS', texto: 'Traz as mudas e enche o caderno, que eu acendo mais duas contas da sua guia.' },
+      { quem: 'SEU ELIAS', texto: 'Só não entra de bobeira na grota funda, do lado de lá do mato. Aquilo tem dono.' },
+    ],
+  },
+];
+
+/* ------------------------------------------ o Zeca, de novo, no igarapé
+
+   Toca entre a fala de desafio e a luta (`apresentacao`). O Zeca atravessou
+   o rio a nado atrás de quem ganhou dele — e viu o pai do lado de cá,
+   marcando árvore para a Companhia. */
+const ZECA_MATA: Roteiro = [
+  { // a fileira de pedra, e ele em cima dela, pingando
+    musica: 'zeca',
+    fundo: C.rochaIgarape,
+    atores: [
+      { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58, balanco: { amp: 1, periodo: 0.7 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 170, ate: { x: 112, y: 94, por: 2.4 } },
+    ],
+    legendas: [
+      'No meio do igarapé, uma fileira de pedra fecha o caminho para o sul. Em cima dela, pingando...',
+      { quem: 'ZECA', texto: 'Atravessei o rio a nado atrás de você! Achou que ia se livrar de mim assim?' },
+    ],
+  },
+  { // a lembrança: o pai dele pintando X nos troncos
+    musica: 'companhia',
+    fundo: C.arvoresMarcadas,
+    atores: [
+      { figura: { pessoa: 'paiZeca', dir: 'esq' }, x: 96, y: 72 },
+      { figura: { peca: 'tinta' }, x: 84, y: 90 },
+      { figura: { pessoa: 'zeca', dir: 'dir' }, x: 20, y: 80, aparece: 0.6 },
+    ],
+    legendas: [
+      { quem: 'ZECA', texto: 'Sabe quem eu vi ontem, na picada do outro lado? Meu pai. Pintando X vermelho nas árvores.' },
+      { quem: 'ZECA', texto: 'Nem me viu. Ficou lá com a lata de tinta, que nem quem nunca andou nesta mata.' },
+    ],
+  },
+  { // de volta à pedra, frente a frente
+    musica: 'zeca',
+    fundo: C.rochaIgarape,
+    atores: [
+      { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58, ate: { x: 112, y: 68, de: 0.4, por: 0.8 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+      { figura: { criatura: 'curupinho' }, x: 146, y: 62, aparece: 0.8, balanco: { amp: 3, periodo: 0.9 } },
+    ],
+    legendas: [
+      { quem: 'ZECA', texto: 'Eu não sei mais de que lado eu tô, {crianca}. Mas uma coisa eu sei:' },
+      { quem: 'ZECA', texto: 'ninguém passa desta pedra sem me vencer. Nem você!' },
+    ],
+    titulo: ['ZECA', 'DE NOVO NO CAMINHO'],
+  },
+];
+
+/* ---------------------------------------- as mudas de volta, no Seu Elias
+
+   Toca quando ele recebe as três mudas: ele replanta o viveiro, uma
+   Caiporinha volta de noite (para regar, não para roubar) e, de manhã, ele
+   planta muda nos tocos da picada. */
+const ELIAS_MUDAS: Roteiro = [
+  { // no viveiro, as três de volta na terra
+    musica: 'mata',
+    fundo: C.viveiroCheio,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'baixo' }, x: 116, y: 60 },
+      { figura: { jogador: true, dir: 'dir' }, x: 60, y: 60 },
+    ],
+    legendas: [
+      'O Seu Elias ajoelha no viveiro e põe as três mudas na terra, uma do lado da outra.',
+      { quem: 'SEU ELIAS', texto: 'Nem amassou. Caiporinha rouba, mas rouba com cuidado, {crianca}.' },
+    ],
+  },
+  { // de noite, uma Caiporinha volta — com uma cabaça de água
+    musica: 'redes_noite',
+    fundo: C.viveiroNoite,
+    atores: [
+      { figura: { criatura: 'caiporinha' }, x: -40, y: 52, ate: { x: 150, y: 52, de: 0.4, por: 3.2 },
+        balanco: { amp: 2, periodo: 0.4, salto: true } },
+    ],
+    legendas: [
+      'Naquela noite, uma Caiporinha voltou montada no porco-do-mato...',
+      '...e em vez de levar alguma coisa, deixou água do igarapé ao pé de cada muda.',
+    ],
+  },
+  { // de manhã, uma muda em cada toco da picada
+    musica: 'mata',
+    fundo: C.picadaMudas,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'dir' }, x: 10, y: 84, ate: { x: 90, y: 84, por: 2.4 } },
+    ],
+    legendas: [
+      'De manhã cedo, o Seu Elias levou mudas para a picada da Companhia e plantou uma em cada toco.',
+      { quem: 'SEU ELIAS', texto: 'Eles derrubam uma, a gente planta três. Quero ver quem cansa primeiro.' },
+    ],
+  },
+  { // de volta à clareira, a conta
+    fundo: C.clareiraMata,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 132, y: 78 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 92 },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Promessa de mateiro: outra conta da guia acesa, e toma pelo trabalho.' },
+    ],
+  },
+];
+
+/* ------------------------------------------ o caderno de pegadas cheio
+
+   Toca quando o Seu Elias confere os sete bichos: o caderno aberto, a
+   amizade com o Contador de Bichos da Foz, e a pegada de pé virado. */
+const ELIAS_PEGADAS: Roteiro = [
+  { // o caderno aberto, com os bichos nos quadros
+    musica: 'contador',
+    fundo: C.cadernoPegadas,
+    atores: [
+      { figura: { criatura: 'curupinho' }, x: 22, y: 18 },
+      { figura: { criatura: 'caiporinha' }, x: 22, y: 72 },
+      { figura: { criatura: 'sacizinho' }, x: 134, y: 18 },
+      { figura: { inicial: true }, x: 134, y: 72 },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Sete bichos! Pegada de Curupinho, rastro de Caiporinha, redemoinho de Sacizinho...' },
+      { quem: 'SEU ELIAS', texto: 'O Contador de Bichos da Foz ia gostar de ver. A gente troca caderno pelo barco faz trinta anos.' },
+    ],
+  },
+  { // a pegada de pé virado, na beira da grota
+    musica: 'curupira',
+    fundo: C.grotaFunda,
+    atores: [
+      { figura: { criatura: 'curupira' }, x: 104, y: 36, alfa: 0.45, balanco: { amp: 1, periodo: 2 } },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'E olha esta aqui, na última página: pegada de pé virado, na beira da grota funda.' },
+      { quem: 'SEU ELIAS', texto: 'Curupira de verdade. Faz dez anos que ninguém anotava um, {crianca}.' },
+    ],
+  },
+  { // de volta à clareira, a conta
+    musica: 'mata',
+    fundo: C.clareiraMata,
+    atores: [
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 132, y: 78 },
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 92 },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Serviço de mateiro de verdade. Acendi outra conta da guia pra você.' },
+    ],
+  },
+];
+
+/* ---------------------------------------------------- o Curupira da grota
+
+   Toca quando o jogador chega perto da grota: as pegadas ao contrário, o
+   assobio, o mato fechando — e ele sai da moita. A luta começa assim que
+   ela acaba (o NPC é `emboscada`). */
+const CURUPIRA: Roteiro = [
+  { // a grota e as pegadas que só vão para dentro
+    musica: 'curupira',
+    fundo: C.grotaFunda,
+    atores: [
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 170, ate: { x: 112, y: 96, por: 2.6 } },
+    ],
+    legendas: [
+      'Do lado de lá do mato alto, o chão afunda numa grota de raiz e sombra.',
+      'As pegadas no barro vão todas para trás, como se alguém tivesse saído daqui sem nunca ter entrado.',
+    ],
+  },
+  { // o assobio, e ele saindo da moita
+    fundo: C.grotaFunda,
+    atores: [
+      { figura: { criatura: 'curupira' }, x: 104, y: 40, aparece: 0.8, balanco: { amp: 3, periodo: 0.6, salto: true } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 96 },
+    ],
+    efeitos: [{ tipo: 'poeira', x: 120, y: 72, aparece: 0.4, some: 2 }],
+    legendas: [
+      'Um assobio fino corta a mata, e o mato se fecha atrás de você.',
+      'De cabelo de fogo e pés virados, o Curupira sai da moita. Ele não gosta de visita.',
+    ],
+  },
+  { // o letreiro do bicho
+    fundo: C.grotaFunda,
+    atores: [
+      { figura: { criatura: 'curupira' }, x: 104, y: 76, balanco: { amp: 2, periodo: 0.8 } },
+    ],
+    legendas: [],
+    titulo: ['CURUPIRA', 'O GUARDIÃO DA GROTA'],
+  },
+];
+
+/* ------------------------------------------------ o Terreiro de Raiz
+
+   Duas cutscenes da Tiê: a da primeira entrada no salão (`aoChegar` do
+   terreiro) e a da vitória (`cutscene` da treinadora), que termina
+   chamando para a medalha — a fala dela é que entrega. */
+const NA_RAIZ: readonly Ator[] = [
+  { figura: { pessoa: 'tie', dir: 'baixo' }, x: 112, y: 12 },
+];
+
+const TERREIRO_RAIZ: Roteiro = [
+  { // o salão de raiz viva, e ela lá no alto
+    musica: 'terreiro_raiz',
+    fundo: C.salaoRaiz,
+    atores: [
+      ...NA_RAIZ,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 170, ate: { x: 112, y: 94, por: 2.6 } },
+    ],
+    legendas: [
+      'O Terreiro de Raiz é um salão de raiz viva. O chão se mexe devagar, como quem respira.',
+      'Lá no alto, entre os cipós, alguém espera sentada numa raiz trançada.',
+    ],
+  },
+  { // a sumaúma de mil anos, onde o terreiro nasceu
+    musica: 'encantados',
+    fundo: C.sumauma,
+    atores: [
+      { figura: { criatura: 'curupira' }, x: 150, y: 88, alfa: 0.6, balanco: { amp: 2, periodo: 1.6 } },
+    ],
+    legendas: [
+      { quem: 'TIÊ', texto: 'Este terreiro nasceu no pé de uma sumaúma de mil anos. As raízes dela seguram a mata inteira.' },
+      { quem: 'TIÊ', texto: 'Onde a Companhia corta, a raiz morre. E onde a raiz morre, a mata desaba.' },
+    ],
+  },
+  { // ela, e o letreiro
+    musica: 'terreiro_raiz',
+    fundo: C.salaoRaiz,
+    atores: [
+      ...NA_RAIZ,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+    ],
+    legendas: [
+      { quem: 'TIÊ', texto: 'Recebi a carta da Firmina pelo Seu Elias. Ela sempre soube escolher gente, {crianca}.' },
+      { quem: 'TIÊ', texto: 'Mas raiz não se atravessa em linha reta: pisou nela, só para quando bater em alguma coisa.' },
+    ],
+    titulo: ['TIÊ', 'A DONA DO TERREIRO'],
+  },
+];
+
+const TIE_VENCE: Roteiro = [
+  { // as raízes param, e florescem
+    musica: 'terreiro_raiz',
+    fundo: C.salaoRaiz,
+    depois: { fundo: C.salaoRaizFlorido, de: 0.6, por: 3 },
+    atores: [
+      ...NA_RAIZ,
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+    ],
+    legendas: [
+      'Quando a luta acaba, as raízes do salão param de se mexer e dão flor, todas de uma vez.',
+      { quem: 'TIÊ', texto: 'A mata escolheu o seu lado, {crianca}. E eu não vou discordar da mata.' },
+    ],
+  },
+  { // a picada marcada, esperando o fim das chuvas
+    musica: 'companhia',
+    fundo: C.arvoresMarcadas,
+    legendas: [
+      { quem: 'TIÊ', texto: 'A Companhia marcou metade da mata com tinta vermelha. Esperam o fim das chuvas pra derrubar.' },
+      { quem: 'TIÊ', texto: 'Sozinha eu não seguro. Mas cada medalha que você leva é um terreiro que responde junto.' },
+    ],
+  },
+  { // a medalha
+    musica: 'terreiro_raiz',
+    fundo: C.salaoRaizFlorido,
+    atores: [
+      ...NA_RAIZ,
+      { figura: { medalha: 'raiz', tam: 24 }, x: 108, y: 50, aparece: 0.4, balanco: { amp: 2, periodo: 1.4 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
+    ],
+    legendas: [
+      { quem: 'TIÊ', texto: 'A MEDALHA RAIZ é sua. Chega aqui do meu lado, que eu mesma te entrego.' },
+    ],
+  },
+];
+
+/* ------------------------------------------------ a saída para a Serra
+
+   Toca na primeira chegada à clareira com a Medalha Raiz (o `aoChegar` da
+   Mata do Curupira, que é a saída do terreiro): o Seu Elias mostra a
+   fumaça da Serra Boitatá e a touceira de cipó que o Dom novo abre. */
+const ELIAS_SERRA: Roteiro = [
+  { // a clareira no fim da tarde, ele chegando
+    musica: 'mata',
+    fundo: C.clareiraTarde,
+    atores: [
+      { figura: { jogador: true, dir: 'dir' }, x: 96, y: 92 },
+      { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 250, y: 80, ate: { x: 140, y: 80, de: 0.3, por: 2.2 } },
+    ],
+    legendas: [
+      'Lá fora a mata já escurece. E o Seu Elias vem pela trilha, com a pressa de quem tem notícia.',
+      { quem: 'SEU ELIAS', texto: 'Medalha Raiz! A mata inteira já sabe, {crianca}. Até os bichos pararam pra ver.' },
+    ],
+  },
+  { // a fumaça da Serra, ao sul
+    musica: 'boitata',
+    fundo: C.serraAoLonge,
+    efeitos: [{ tipo: 'fumaca', x: 96, y: 44 }, { tipo: 'fumaca', x: 152, y: 40, aparece: 0.8 }],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Olha pro sul. Aquela fumaça é da Serra Boitatá. Fogo de serra acende e apaga há séculos...' },
+      { quem: 'SEU ELIAS', texto: '...mas este ano ele não apaga. Uns dizem que é a Companhia. Outros, que é o Boitatá bravo.' },
+    ],
+  },
+  { // a touceira de cipó, e a trilha atrás dela
+    musica: 'viagem',
+    fundo: C.touceiraCipo,
+    atores: [
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 170, ate: { x: 112, y: 100, por: 2.4 } },
+    ],
+    legendas: [
+      { quem: 'SEU ELIAS', texto: 'Com o Dom de Cortar Cipó, a touceira do canto da clareira não te segura mais.' },
+      { quem: 'SEU ELIAS', texto: 'Atrás dela começa a Trilha da Brasa. Vai com cuidado, que lá o chão é quente.' },
+    ],
+    titulo: ['SERRA BOITATÁ', 'ONDE O FOGO NÃO APAGA'],
+  },
+];
+
+/* ------------------------------------------ as Caiporinhas das três mudas
+
+   O mesmo molde dos Sacizinhos da Foz: a cutscene de quando o jogador
+   acha a ladra (`encontro`) e a de quando ela perde a briga e larga a muda
+   (`cutscene` da luta). Muda só o lugar. */
+interface Toca {
+  fundo: () => Buf;
+  bicho: { x: number; y: number };
+  muda: { x: number; y: number };
+  de: { x: number; y: number };
+  ate: { x: number; y: number };
+  dir: Direcao;
+  onde: string;
+  chao: string;
+}
+
+function caiporinhaAchada(e: Toca): Roteiro {
+  return [
+    { // lá está ela, com a muda no colo
+      musica: 'caipora',
+      fundo: e.fundo,
+      atores: [
+        { figura: { criatura: 'caiporinha' }, x: e.bicho.x, y: e.bicho.y, balanco: { amp: 2, periodo: 0.7 } },
+        { figura: { peca: 'muda' }, x: e.bicho.x + 10, y: e.bicho.y - 6, balanco: { amp: 2, periodo: 0.7 } },
+        { figura: { jogador: true, dir: e.dir }, x: e.de.x, y: e.de.y, ate: { ...e.ate, de: 0.4, por: 2.4 } },
+      ],
+      legendas: [
+        e.onde,
+        'É uma Caiporinha, montada no porco-do-mato, com uma muda do Seu Elias no colo.',
+      ],
+    },
+    { // ela te vê e se prepara pra correr
+      fundo: e.fundo,
+      atores: [
+        { figura: { criatura: 'caiporinha' }, x: e.bicho.x, y: e.bicho.y, balanco: { amp: 5, periodo: 0.35, salto: true } },
+        { figura: { peca: 'muda' }, x: e.bicho.x + 10, y: e.bicho.y - 6, balanco: { amp: 5, periodo: 0.35, salto: true } },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      legendas: [
+        { quem: 'CAIPORINHA', texto: 'Hu-hu! Muda boa, muda minha! Quer? Corre atrás!' },
+        'Caiporinha foge de quem chega perto. Encurrale ela num canto, sem ter pra onde correr.',
+      ],
+    },
+  ];
+}
+
+function caiporinhaVencida(e: Toca): Roteiro {
+  return [
+    { // cansada da briga, ela solta a muda
+      musica: 'caipora',
+      fundo: e.fundo,
+      atores: [
+        { figura: { criatura: 'caiporinha' }, x: e.bicho.x, y: e.bicho.y, balanco: { amp: 1, periodo: 1.6 } },
+        { figura: { peca: 'muda' }, x: e.muda.x, y: e.muda.y, aparece: 1 },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      legendas: [
+        'Sem fôlego da briga, a Caiporinha afrouxa os braços...',
+        `...e a muda do Seu Elias cai ${e.chao}, com torrão e tudo.`,
+      ],
+    },
+    { // o porco ronca, e as duas somem no mato
+      fundo: e.fundo,
+      atores: [
+        { figura: { peca: 'muda' }, x: e.muda.x, y: e.muda.y },
+        { figura: { criatura: 'caiporinha' }, x: e.bicho.x, y: e.bicho.y, some: 1.6,
+          ate: { x: e.bicho.x + 80, y: e.bicho.y - 10, de: 0.4, por: 1.2 }, balanco: { amp: 3, periodo: 0.3, salto: true } },
+        { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
+      ],
+      efeitos: [{ tipo: 'poeira', x: e.bicho.x + 16, y: e.bicho.y + 30, aparece: 0.3, some: 1.8 }],
+      legendas: [
+        'O porco-do-mato dá um ronco, e as duas somem mato adentro, rindo.',
+        'A MUDA DE ÁRVORE é sua. O Seu Elias vai gostar de ver.',
+      ],
+    },
+  ];
+}
+
+/* na beira do igarapé, logo depois da travessia */
+const NA_MARGEM: Toca = {
+  fundo: C.margemIgarape, bicho: { x: 120, y: 92 }, muda: { x: 124, y: 112 },
+  de: { x: -20, y: 106 }, ate: { x: 60, y: 106 }, dir: 'dir',
+  onde: 'Na beira do igarapé, uma muda de árvore passeia sozinha pelo mato...',
+  chao: 'na areia da margem',
+};
+
+/* no mato fechado entre as touceiras */
+const NAS_TOUCEIRAS: Toca = {
+  fundo: C.touceirasFundas, bicho: { x: 112, y: 88 }, muda: { x: 118, y: 112 },
+  de: { x: 250, y: 106 }, ate: { x: 170, y: 106 }, dir: 'esq',
+  onde: 'Entre as touceiras, onde nem a luz entra direito, alguma coisa ronca baixinho.',
+  chao: 'no meio do capim',
+};
+
+/* depois da pedra do Zeca, no tronco caído */
+const NO_TRONCO: Toca = {
+  fundo: C.troncoCaido, bicho: { x: 96, y: 52 }, muda: { x: 120, y: 110 },
+  de: { x: 250, y: 110 }, ate: { x: 180, y: 110 }, dir: 'esq',
+  onde: 'Em cima do tronco caído, coberto de musgo, um rabo de porco-do-mato balança.',
+  chao: 'do alto do tronco',
+};
+
 export const CUTSCENES: Record<string, Roteiro> = {
   intro: INTRO,
   firmina: FIRMINA,
@@ -846,4 +1332,19 @@ export const CUTSCENES: Record<string, Roteiro> = {
   saci_cais_rede: sacizinhoVencido(ATRAS_DO_FAROL),
   saci_praia: sacizinhoAchado(NO_BECO),
   saci_praia_rede: sacizinhoVencido(NO_BECO),
+  // Região 2 — a Mata do Curupira
+  elias: ELIAS,
+  zeca_mata: ZECA_MATA,
+  elias_mudas: ELIAS_MUDAS,
+  elias_pegadas: ELIAS_PEGADAS,
+  curupira: CURUPIRA,
+  terreiro_raiz: TERREIRO_RAIZ,
+  tie_vence: TIE_VENCE,
+  elias_serra: ELIAS_SERRA,
+  caipora_margem: caiporinhaAchada(NA_MARGEM),
+  caipora_margem_muda: caiporinhaVencida(NA_MARGEM),
+  caipora_touceira: caiporinhaAchada(NAS_TOUCEIRAS),
+  caipora_touceira_muda: caiporinhaVencida(NAS_TOUCEIRAS),
+  caipora_tronco: caiporinhaAchada(NO_TRONCO),
+  caipora_tronco_muda: caiporinhaVencida(NO_TRONCO),
 };

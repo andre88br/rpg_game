@@ -62,6 +62,8 @@ export const igarapeCurupira: DefMapa = {
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 1200,
         liga: 'conta_zeca_mata',
+        // no primeiro encontro, a cutscene conta do pai dele na picada
+        apresentacao: 'zeca_mata',
         time: [{ especie: 'sacizinho', nivel: 20 }, { especie: 'caiporinha', nivel: 20 },
                { especie: 'curupinho', nivel: 22 }],
         falaInicio: 'Não pensa que eu ia deixar barato depois da estrada, né? Essa rocha aqui é minha.',
@@ -77,27 +79,47 @@ export const igarapeCurupira: DefMapa = {
     },
     {
       id: 'caiporinha_a', nome: 'CAIPORINHA', estilo: 'bicho:caiporinha',
-      tx: 7, ty: 6, dir: 'baixo', seNao: 'muda_a', fujao: {},
+      tx: 7, ty: 6, dir: 'baixo', se: 'tem_caderno_mata', seNao: 'muda_a', fujao: {},
+      encontro: 'caipora_margem',
+      treinador: {
+        classe: 'LADRA DE MUDA', selvagem: true, liga: 'muda_a', da: { item: 'muda' },
+        time: [{ especie: 'caiporinha', nivel: 13 }],
+        falaInicio: 'A Caiporinha finca o pé no porco-do-mato e vem com muda e tudo!',
+        cutscene: 'caipora_margem_muda',
+      },
       falas: [
-        { liga: 'muda_a', da: { item: 'muda' }, linhas: [
-          'Sem saída no meio do mato, a Caiporinha larga a muda que carregava montada no porco-do-mato.',
-          'Depois some rindo, entre as folhas.'] },
+        { batalha: true, linhas: [
+          'Sem saída no meio do mato, a Caiporinha aperta a muda no colo e encara você.'] },
       ],
     },
     {
       id: 'caiporinha_b', nome: 'CAIPORINHA', estilo: 'bicho:caiporinha',
-      tx: 15, ty: 12, dir: 'esq', seNao: 'muda_b', fujao: {},
+      tx: 15, ty: 12, dir: 'esq', se: 'tem_caderno_mata', seNao: 'muda_b', fujao: {},
+      encontro: 'caipora_touceira',
+      treinador: {
+        classe: 'LADRA DE MUDA', selvagem: true, liga: 'muda_b', da: { item: 'muda' },
+        time: [{ especie: 'caiporinha', nivel: 14 }],
+        falaInicio: 'A Caiporinha finca o pé no porco-do-mato e vem com muda e tudo!',
+        cutscene: 'caipora_touceira_muda',
+      },
       falas: [
-        { liga: 'muda_b', da: { item: 'muda' }, linhas: [
-          'Encurralada entre as touceiras, a Caiporinha entrega a muda amassada, sem graça.'] },
+        { batalha: true, linhas: [
+          'Encurralada entre as touceiras, a Caiporinha não ri mais. Muda, só se tomar dela.'] },
       ],
     },
     {
       id: 'caiporinha_c', nome: 'CAIPORINHA', estilo: 'bicho:caiporinha',
-      tx: 7, ty: 18, dir: 'baixo', seNao: 'muda_c', fujao: {},
+      tx: 7, ty: 18, dir: 'baixo', se: 'tem_caderno_mata', seNao: 'muda_c', fujao: {},
+      encontro: 'caipora_tronco',
+      treinador: {
+        classe: 'LADRA DE MUDA', selvagem: true, liga: 'muda_c', da: { item: 'muda' },
+        time: [{ especie: 'caiporinha', nivel: 15 }],
+        falaInicio: 'A Caiporinha finca o pé no porco-do-mato e vem com muda e tudo!',
+        cutscene: 'caipora_tronco_muda',
+      },
       falas: [
-        { liga: 'muda_c', da: { item: 'muda' }, linhas: [
-          'A última muda cai da mão da Caiporinha, que já vinha sem fôlego havia duas moitas.'] },
+        { batalha: true, linhas: [
+          'Sem fôlego e sem saída, a Caiporinha desce do tronco e vem de cabeça.'] },
       ],
     },
     {
