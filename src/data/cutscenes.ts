@@ -17,6 +17,7 @@
 import type { Buf } from '../core/buf.ts';
 import type { Direcao } from '../art/people.ts';
 import * as C from '../art/cenas.ts';
+import type { IdMusica } from '../audio/musicas.ts';
 
 export type Figura =
   | { pessoa: string; dir?: Direcao }
@@ -69,6 +70,10 @@ export interface Tomada {
   legendas: readonly Legenda[];
   /* letreiro grande no meio da tela (a tomada final da abertura) */
   titulo?: readonly string[];
+  /* o tema que toca a partir desta tomada (audio/musicas.ts). Sem ele,
+     segue o da tomada anterior — a primeira de todo roteiro precisa ter.
+     Música de fundo só existe nas cutscenes: ela é a trilha da história. */
+  musica?: IdMusica;
 }
 
 /* uma página de legenda: narração solta, ou a fala de alguém (o nome vai
@@ -99,6 +104,7 @@ const arcoMedalhas: Ator[] = ORDEM_MEDALHAS.map((id, i) => {
 /* ------------------------------------------------------------ a abertura */
 const INTRO: Roteiro = [
   { // a avó conta, na beira do fogo
+    musica: 'fogueira',
     fundo: C.noiteFogueira,
     atores: [
       { figura: { peca: 'fogueira' }, x: 108, y: 88 },
@@ -109,6 +115,7 @@ const INTRO: Roteiro = [
     legendas: ['Diz a avó que, antes de tudo, o mato falava.'],
   },
   { // o rio, a mata e a serra, cada um com quem mora nele
+    musica: 'encantados',
     fundo: C.panoramaNatureza,
     camera: { de: 0, ate: C.LARG_PANORAMA - 240, inicio: 0.6, por: 16 },
     atores: [
@@ -125,6 +132,7 @@ const INTRO: Roteiro = [
     ],
   },
   { // a vila de hoje: ninguém olha, e eles continuam ali
+    musica: 'fogueira',
     fundo: C.vilaHoje,
     atores: [
       { figura: { criatura: 'iarinha' }, x: 24, y: 70, alfa: 0.35, aparece: 1.2, balanco: { amp: 2, periodo: 2.2 } },
@@ -139,6 +147,7 @@ const INTRO: Roteiro = [
     ],
   },
   { // a Companhia chega: o trator passa e a mata vira toco
+    musica: 'companhia',
     fundo: C.mataAntes,
     depois: { fundo: C.mataDepois, de: 2.5, por: 3 },
     atores: [
@@ -152,6 +161,7 @@ const INTRO: Roteiro = [
     ],
   },
   { // a trilha ao amanhecer, e as oito medalhas no céu
+    musica: 'trilha',
     fundo: C.trilhaAurora,
     atores: [
       ...arcoMedalhas,
@@ -181,6 +191,7 @@ const INTRO: Roteiro = [
    Mata-Seca deixa de ser história de avó e chega à Foz. */
 const FIRMINA: Roteiro = [
   { // os três na sala: o patuá escolhido em cima da mesa
+    musica: 'firmina',
     fundo: C.salaFirmina,
     atores: [
       { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
@@ -194,6 +205,7 @@ const FIRMINA: Roteiro = [
     ],
   },
   { // a Companhia desce na praia da Foz
+    musica: 'companhia',
     fundo: C.fozEstacas,
     atores: [
       { figura: { pessoa: 'capataz', dir: 'dir' }, x: 30, y: 92 },
@@ -219,6 +231,7 @@ const FIRMINA: Roteiro = [
     ],
   },
   { // de volta à sala
+    musica: 'firmina',
     fundo: C.salaFirmina,
     atores: [
       { figura: { jogador: true, dir: 'dir' }, x: 56, y: 84 },
@@ -241,6 +254,7 @@ const FIRMINA: Roteiro = [
    redemoinho que deu o apelido, e o pai que foi trabalhar para a Companhia. */
 const ZECA: Roteiro = [
   { // a tranca atravessada na estrada, e o Zeca esperando
+    musica: 'zeca',
     fundo: C.paredaoRota,
     atores: [
       { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58 },
@@ -262,6 +276,7 @@ const ZECA: Roteiro = [
     titulo: ['ZECA', 'O REDEMOINHO'],
   },
   { // a lembrança: o Zeca pequeno pulando no redemoinho atrás do Sacizinho
+    musica: 'lembranca',
     fundo: C.redemoinhoLembranca,
     atores: [
       { figura: { criatura: 'sacizinho' }, x: 146, y: 60, balanco: { amp: 5, periodo: 0.45 } },
@@ -276,6 +291,7 @@ const ZECA: Roteiro = [
     ],
   },
   { // o pai dele, de uniforme da Companhia, na praia das estacas
+    musica: 'companhia',
     fundo: C.fozEstacas,
     atores: [
       { figura: { pessoa: 'paiZeca', dir: 'esq' }, x: 132, y: 94 },
@@ -288,6 +304,7 @@ const ZECA: Roteiro = [
     ],
   },
   { // de volta ao paredão, frente a frente
+    musica: 'zeca',
     fundo: C.paredaoRota,
     atores: [
       { figura: { pessoa: 'zeca', dir: 'baixo' }, x: 112, y: 58, ate: { x: 112, y: 70, de: 0.4, por: 1 } },
@@ -308,6 +325,7 @@ const ZECA: Roteiro = [
    redes sumidas e o bicho do farol. */
 const MESTRE: Roteiro = [
   { // o cais: ele lê a carta
+    musica: 'porto',
     fundo: C.caisIara,
     atores: [
       { figura: { pessoa: 'pescador', dir: 'esq' }, x: 150, y: 88 },
@@ -320,6 +338,7 @@ const MESTRE: Roteiro = [
     ],
   },
   { // o porto de antigamente: trinta barcos e a Iara-Mãe guiando na neblina
+    musica: 'lembranca',
     fundo: C.portoAntigo,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 96, y: 58, alfa: 0.55, aparece: 0.8,
@@ -331,6 +350,7 @@ const MESTRE: Roteiro = [
     ],
   },
   { // a Companhia com o papel carimbado
+    musica: 'companhia',
     fundo: C.fozEstacas,
     atores: [
       { figura: { pessoa: 'pescador', dir: 'dir' }, x: 100, y: 94 },
@@ -342,6 +362,7 @@ const MESTRE: Roteiro = [
     ],
   },
   { // as redes sumindo de noite
+    musica: 'porto',
     fundo: C.varalRedes,
     atores: [
       { figura: { criatura: 'sacizinho' }, x: 120, y: 84, ate: { x: 250, y: 90, de: 0.5, por: 3.5 }, balanco: { amp: 4, periodo: 0.5 } },
@@ -373,6 +394,7 @@ const MESTRE: Roteiro = [
    espiando de longe) e, de manhã, o barco dele sai pela barra. */
 const MESTRE_REDES: Roteiro = [
   { // no cais: as três redes no tabuado
+    musica: 'porto',
     fundo: C.caisIara,
     atores: [
       { figura: { peca: 'rede' }, x: 100, y: 102 },
@@ -388,6 +410,7 @@ const MESTRE_REDES: Roteiro = [
     ],
   },
   { // de noite, as redes de volta no varal, e um gorro espiando
+    musica: 'redes_noite',
     fundo: C.varalCheio,
     atores: [
       { figura: { criatura: 'sacizinho', flip: true }, x: 212, y: 56, alfa: 0.7, aparece: 1.2, some: 4.2,
@@ -399,6 +422,7 @@ const MESTRE_REDES: Roteiro = [
     ],
   },
   { // de manhã cedo, o barco sai pela barra
+    musica: 'porto',
     fundo: C.barcoAmanhecer,
     legendas: [
       'E no clarear do dia, pela primeira vez em muito tempo, um barco saiu pela barra.',
@@ -426,6 +450,7 @@ const MESTRE_REDES: Roteiro = [
    que ela acaba (o NPC é `emboscada`). */
 const BOITATA: Roteiro = [
   { // a ponta do cais, e o mar começando a ferver
+    musica: 'boitata',
     fundo: C.caisDoFarol,
     atores: [
       { figura: { peca: 'farol' }, x: 150, y: 2, frente: true },
@@ -472,6 +497,7 @@ const BOITATA: Roteiro = [
    de anotar os quatro da região. */
 const CONTADOR: Roteiro = [
   { // debaixo da amendoeira, a mesinha dos cadernos
+    musica: 'contador',
     fundo: C.mesaContador,
     atores: [
       { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 166, y: 72 },
@@ -497,6 +523,7 @@ const CONTADOR: Roteiro = [
     ],
   },
   { // onde a Companhia passa, o caderno emagrece
+    musica: 'companhia',
     fundo: C.mataDepois,
     legendas: [
       { quem: 'CONTADOR DE BICHOS', texto: 'Mas a cada ano o caderno fica mais magro. Onde a Companhia finca estaca, bicho não volta.' },
@@ -504,6 +531,7 @@ const CONTADOR: Roteiro = [
     ],
   },
   { // o caderno novo, para quem vai andar a trilha
+    musica: 'contador',
     fundo: C.mesaContador,
     atores: [
       { figura: { pessoa: 'aldeao', dir: 'esq' }, x: 166, y: 72 },
@@ -528,6 +556,7 @@ const NO_SALAO = [
 
 const TERREIRO_AGUA: Roteiro = [
   { // o salão alagado, e ela lá no alto
+    musica: 'terreiro_agua',
     fundo: C.salaoAgua,
     atores: [
       ...NO_SALAO,
@@ -540,6 +569,7 @@ const TERREIRO_AGUA: Roteiro = [
     ],
   },
   { // a lembrança: a Iara-Mãe no salão, no tempo da maré
+    musica: 'encantados',
     fundo: C.salaoAgua,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 96, y: 50, alfa: 0.5, aparece: 0.4, balanco: { amp: 2, periodo: 2.4 } },
@@ -550,6 +580,7 @@ const TERREIRO_AGUA: Roteiro = [
     ],
   },
   { // ela, e o letreiro
+    musica: 'terreiro_agua',
     fundo: C.salaoAgua,
     atores: [
       ...NO_SALAO,
@@ -566,6 +597,7 @@ const TERREIRO_AGUA: Roteiro = [
 
 const MARIANA_VENCE: Roteiro = [
   { // a água do salão assenta
+    musica: 'terreiro_agua',
     fundo: C.salaoAgua,
     depois: { fundo: C.salaoAguaCalmo, de: 0.6, por: 3 },
     atores: [
@@ -579,6 +611,7 @@ const MARIANA_VENCE: Roteiro = [
     ],
   },
   { // a comporta, e a Iara-Mãe dormindo
+    musica: 'companhia',
     fundo: C.rioCalado,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 60, y: 54, alfa: 0.4, balanco: { amp: 1, periodo: 3 } },
@@ -589,6 +622,7 @@ const MARIANA_VENCE: Roteiro = [
     ],
   },
   { // a medalha
+    musica: 'terreiro_agua',
     fundo: C.salaoAguaCalmo,
     atores: [
       ...NO_SALAO,
@@ -610,6 +644,7 @@ const MARIANA_VENCE: Roteiro = [
    quando ela entrega a carta (a fala é que põe a carta na mochila). */
 const FIRMINA_CHAMA: Roteiro = [
   { // na porta do terreiro, o Mestre chegando esbaforido
+    musica: 'porto',
     fundo: C.portaTerreiro,
     atores: [
       { figura: { jogador: true, dir: 'baixo' }, x: 112, y: 74, ate: { x: 112, y: 92, por: 1.2 } },
@@ -622,6 +657,7 @@ const FIRMINA_CHAMA: Roteiro = [
     ],
   },
   { // a lembrança: a Firmina escrevendo, a carta em cima da mesa
+    musica: 'firmina',
     fundo: C.salaFirminaLembranca,
     atores: [
       { figura: { pessoa: 'firmina', dir: 'esq' }, x: 166, y: 84 },
@@ -633,6 +669,7 @@ const FIRMINA_CHAMA: Roteiro = [
     ],
   },
   { // o caminho de volta, subindo a Rota da Foz
+    musica: 'viagem',
     fundo: C.trilhaAurora,
     atores: [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 124, ate: { x: 116, y: 88, por: 3.5 } },
@@ -647,6 +684,7 @@ const FIRMINA_CHAMA: Roteiro = [
 
 const FIRMINA_CARTA: Roteiro = [
   { // a sala, e a carta lacrada em cima da mesa
+    musica: 'firmina',
     fundo: C.salaFirmina,
     atores: [
       { figura: { peca: 'carta' }, x: 112, y: 80 },
@@ -661,6 +699,7 @@ const FIRMINA_CARTA: Roteiro = [
     ],
   },
   { // do outro lado da água, a mata, e a Tiê
+    musica: 'viagem',
     fundo: C.mataAntes,
     atores: [
       { figura: { pessoa: 'tie', dir: 'baixo' }, x: 150, y: 76, aparece: 0.5 },
@@ -707,6 +746,7 @@ interface Esconderijo {
 function sacizinhoAchado(e: Esconderijo): Roteiro {
   return [
     { // lá está ele, brincando com a rede
+      musica: 'saci',
       fundo: e.fundo,
       atores: [
         { figura: { peca: 'rede' }, x: e.rede.x, y: e.rede.y },
@@ -735,6 +775,7 @@ function sacizinhoAchado(e: Esconderijo): Roteiro {
 function sacizinhoVencido(e: Esconderijo): Roteiro {
   return [
     { // tonto da briga, ele afrouxa o pé e a rede cai
+      musica: 'saci',
       fundo: e.fundo,
       atores: [
         { figura: { criatura: 'sacizinho' }, x: e.saci.x, y: e.saci.y, balanco: { amp: 2, periodo: 1.6 } },

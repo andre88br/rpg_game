@@ -8,7 +8,6 @@ import { texto, larguraTexto } from '../art/font.ts';
 import * as CR from '../art/creatures.ts';
 import { algumSlotOcupado, primeiroSlotVazio } from '../game/save.ts';
 import { TelaSlots } from './slots.ts';
-import * as Som from '../audio/som.ts';
 
 function misturar(a: string, b: string, t: number): string {
   t = Math.max(0, Math.min(1, t));
@@ -76,7 +75,6 @@ export class CenaTitulo implements Cena {
   constructor(aoComecar: (c: Comeco, slot: number) => void) { this.aoComecar = aoComecar; }
 
   entrar(): void {
-    Som.musica('titulo');
     this.fundo = assarSuave(fundoTitulo());
     this.t = 0;
     this.sel = 0;

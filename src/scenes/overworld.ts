@@ -57,7 +57,6 @@ import { avaliarCorrida, encerrar, type DefCorrida } from '../game/corrida.ts';
 const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
 import { salvar } from '../game/save.ts';
 import * as Som from '../audio/som.ts';
-import { musicaDoMapa, type IdMusica } from '../audio/musicas.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
@@ -166,8 +165,6 @@ export interface PedidoBatalha {
   cenario?: Cenario;
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
-  /* a música da luta; sem ela, selvagem ou treinador comum */
-  musica?: IdMusica;
 }
 
 export interface OpcoesCenaMundo {
@@ -269,7 +266,6 @@ export class CenaMundo implements Cena {
 
   entrar(): void {
     if (this.montado) {
-      Som.musica(musicaDoMapa(this.def.id));
       this.tempoFaixa = 0;
       this.conversa = null;
       this.carencia = 0.6;
@@ -335,7 +331,6 @@ export class CenaMundo implements Cena {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     this.marcarVisita(id);
-    Som.musica(musicaDoMapa(id));
     this.conversa = null;
     this.duelo = null;
 
@@ -821,8 +816,6 @@ export class CenaMundo implements Cena {
       },
       itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
-      // bicho-chefe e dono de terreiro (ou o torneio) lutam com a música de mestre
-      musica: t.selvagem || musicaDoMapa(this.def.id) === 'terreiro' ? 'mestre' : undefined,
     });
   }
 

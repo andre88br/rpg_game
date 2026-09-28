@@ -111,12 +111,14 @@ mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
 desenho do mundo muda; conversa, batalha, menu e save são os de sempre. Vem
 ligado; quem prefere o mapa plano troca em **menu → OPÇÕES → VISÃO**.
 
-O jogo tem **som**: cada região tem a sua música (um baião de beira-mar na
-Foz, forró no Campo do Saci, galope na Serra...), a batalha tem a dela — uma
-para bicho selvagem, outra para treinador, outra para mestre de terreiro —, e
-golpe, dano, patuá, porta e menu fazem barulho. Como a arte, **o som também é
-feito por código**, sem nenhum arquivo de áudio. Música e efeitos têm volume
-separado em **menu → OPÇÕES → MÚSICA / EFEITOS**.
+O jogo tem **som**. **Música, só nas cutscenes** — como trilha de cinema,
+mudando a cada momento da história: um acalanto para a avó na fogueira, uma
+marcha de trator para a Companhia Mata-Seca, forró atrevido para o Zeca,
+baião de pescador para o Mestre do Porto, perigo em frígio para o Boitatá.
+Fora delas o mundo e a batalha ficam com os **efeitos** (golpe, dano, patuá,
+porta, menu) e vinhetas curtas (cura, medalha, nível, captura). Como a arte,
+**o som também é feito por código**, sem nenhum arquivo de áudio. Volumes
+separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 
@@ -219,7 +221,7 @@ src/
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no plano)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
 │             notas; baixo, bateria e arpejo saem dos acordes) + teste
-│             musicas.ts (cada música, e qual toca em cada mapa)
+│             musicas.ts (os temas das cutscenes e as vinhetas)
 │             motor.ts (o sintetizador WebAudio: pulso, triângulo, ruído)
 │             som.ts (o que as cenas chamam: música, vinheta, efeito)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
@@ -283,12 +285,33 @@ estilo (`baiao`, `galope`, `marcha`, `passeio`...), então compor uma música
 nova é escrever a melodia e a harmonia. A música é agendada ~150 ms à frente
 no relógio do áudio, para o ritmo não tremer quando um quadro atrasa.
 
-**O que toca onde** (`musicaDoMapa`): terreiro e arena têm a música de
-desafio; benzimento, a calma; loja e casa, a de dentro de casa; o resto, a da
-região. Entrar e sair de casa na mesma região não reinicia a melodia. Batalha:
-selvagem, treinador, ou mestre (dono de terreiro, torneio e bicho-chefe);
-vencer toca a de vitória. Cura, medalha, item, subir de nível e captura são
-**vinhetas**: interrompem a música, tocam uma vez, e ela volta.
+**Música só nas cutscenes, por tomada.** Cada `Tomada` em
+`data/cutscenes.ts` pode dizer `musica: '<tema>'`; sem isso, segue o tema da
+anterior, e a primeira de todo roteiro precisa dizer (o teste cobra, e cobra
+também que nenhum tema fique sem tocar). Trocar de tema no meio da cena é um
+fade de 0,6 s; o mesmo tema em tomadas seguidas não recomeça; ao acabar ou
+pular a cutscene, a música some. Os temas saem do roteiro:
+
+| tema | o tom | onde toca hoje |
+|---|---|---|
+| `fogueira` | acalanto, sem bateria | a avó na beira do fogo |
+| `encantados` | encanto, fá lídio | "cada rio tinha dona"; a Iara-Mãe no salão |
+| `companhia` | ameaça: ostinato grave, marcha, diminuto | toda aparição da Companhia Mata-Seca |
+| `trilha` | esperança que cresce | as oito medalhas no céu |
+| `firmina` | modinha de casa | a sala da Dona Firmina |
+| `zeca` | forró atrevido | o rival, no paredão |
+| `lembranca` | saudade que termina em maior | o redemoinho do Zeca; o porto de antigamente |
+| `porto` | baião de pescador | o Mestre do Porto, as redes, o barco saindo |
+| `redes_noite` | noite calma, gorro espiando | as redes no varal |
+| `boitata` | perigo, mi frígio, galope | o mar fervendo e a cobra de fogo |
+| `saci` | travessura cromática | os três Sacizinhos |
+| `contador` | curiosidade miúda | o Contador de Bichos |
+| `terreiro_agua` | solene, devagar | o Terreiro de Água e a Dona Mariana |
+| `viagem` | partida, horizonte | a carta para a Tiê, "do outro lado da água" |
+
+Cutscene nova de outra região reaproveita um tema ou ganha o seu. Cura,
+medalha, item, subir de nível, captura e derrota são **vinhetas**: tocam uma
+vez, também fora das cutscenes.
 
 **O clique de interface** não está espalhado pelas telas: `Entrada` sabe o
 que cada cena de fato *usou* no quadro (`usadasNoQuadro`), e o laço toca um

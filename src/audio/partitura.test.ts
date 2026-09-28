@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import {
   PASSOS_POR_COMPASSO, acordeDe, compilar, frequencia, lerVoz, midiDe,
 } from './partitura.ts';
-import { MUSICAS, musicaDoMapa, type IdMusica } from './musicas.ts';
-import { MAPAS } from '../data/mapas/index.ts';
+import { MUSICAS, type IdMusica } from './musicas.ts';
 
 test('alturas: lá 4 é 440 Hz e dó central é o midi 60', () => {
   assert.equal(midiDe('a4'), 69);
@@ -68,17 +67,4 @@ test('só as vinhetas deixam de repetir', () => {
   for (const [id, m] of Object.entries(MUSICAS)) {
     assert.equal(compilar(m).vinheta, vinhetas.includes(id as IdMusica), id);
   }
-});
-
-test('cada mapa do jogo tem uma música, e existe', () => {
-  for (const id of Object.keys(MAPAS)) assert.ok(musicaDoMapa(id) in MUSICAS, id);
-  assert.equal(musicaDoMapa('vilaAurora'), 'agua');
-  assert.equal(musicaDoMapa('cumeeiraBoitata'), 'fogo');
-  assert.equal(musicaDoMapa('terreiroBrasaSalao'), 'terreiro');
-  assert.equal(musicaDoMapa('arenaDourada'), 'terreiro');
-  assert.equal(musicaDoMapa('benzimentoCuca'), 'benzimento');
-  assert.equal(musicaDoMapa('lojaTupa'), 'casa');
-  assert.equal(musicaDoMapa('casaFirmina'), 'casa');
-  // casarão assombrado não é casa de gente: é o Bairro da Cuca
-  assert.equal(musicaDoMapa('casaraoAssombrado'), 'sombra');
 });

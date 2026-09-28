@@ -190,8 +190,8 @@ export class Motor {
 
   /* Troca a música: a que toca some num fade curto, a nova entra logo
      depois. `fim` é chamado quando uma vinheta acaba. */
-  tocar(m: Musica | null, fim?: () => void): void {
-    this.calar(0.12);
+  tocar(m: Musica | null, fim?: () => void, fade = 0.12): void {
+    this.calar(fade);
     if (!m) return;
     const comp = this.compilada(m);
     const porPasso = Array.from({ length: comp.passos }, () => ({
@@ -201,7 +201,7 @@ export class Motor {
     for (const b of comp.batidas) porPasso[b.passo]!.batidas.push(b);
     const saida = this.ctx.createGain();
     saida.connect(this.busMusica);
-    this.faixa = { comp, porPasso, saida, inicio: this.agora + 0.14, passo: 0, fim };
+    this.faixa = { comp, porPasso, saida, inicio: this.agora + Math.min(fade, 0.3) + 0.02, passo: 0, fim };
     this.relogio ??= setInterval(() => this.agendar(), INTERVALO_MS);
     this.agendar();
   }

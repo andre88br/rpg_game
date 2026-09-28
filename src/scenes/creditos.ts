@@ -17,7 +17,6 @@ import { medalha, MEDALHAS } from '../art/badges.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { ficha } from '../battle/encantado.ts';
 import { pronomeDe, type EstadoJogo } from '../game/state.ts';
-import * as Som from '../audio/som.ts';
 
 const VELOCIDADE = 16;          // pixels por segundo
 const LARG = LARGURA;
@@ -104,7 +103,6 @@ export class CenaCreditos implements Cena {
   constructor(private readonly estado: EstadoJogo, private readonly aoTerminar: () => void) {}
 
   entrar(): void {
-    Som.musica('titulo');
     this.fundo = assarSuave(ceu());
     const r = rolo(this.estado);
     this.altura = r.h;

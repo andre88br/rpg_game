@@ -13,6 +13,7 @@ import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { MEDALHAS } from '../art/badges.ts';
 import { quebrar, desenhavel } from '../art/font.ts';
 import type { Fala } from '../game/quests.ts';
+import { MUSICAS, type IdMusica } from '../audio/musicas.ts';
 
 test('a abertura existe e tem tomadas', () => {
   assert.ok(CUTSCENES['intro']);
@@ -142,4 +143,23 @@ test('saindo do terreiro com a medalha, o Mestre chama de volta à Firmina, que 
   const carta = firmina.falas.find((f) => f.da?.item === 'carta_tie')!;
   assert.equal(carta.cutscene, 'firmina_carta');
   assert.equal(carta.liga, 'deu_carta_tie');
+});
+
+/* ------------------------------------------------------------ a trilha */
+
+test('toda cutscene começa dizendo o tema, e todo tema pedido existe', () => {
+  for (const [id, roteiro] of Object.entries(CUTSCENES)) {
+    assert.ok(roteiro[0]?.musica, `${id}: a primeira tomada não diz a música`);
+    for (const t of roteiro) {
+      if (t.musica) assert.ok(t.musica in MUSICAS, `${id}: tema "${t.musica}" não existe`);
+    }
+  }
+});
+
+test('todo tema que não é vinheta toca em alguma cutscene', () => {
+  const usados = new Set(Object.values(CUTSCENES).flatMap((r) => r.map((t) => t.musica)));
+  for (const [id, m] of Object.entries(MUSICAS)) {
+    if ('vinheta' in m && m.vinheta) continue;
+    assert.ok(usados.has(id as IdMusica), `o tema "${id}" não toca em cutscene nenhuma`);
+  }
 });

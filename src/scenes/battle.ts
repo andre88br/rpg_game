@@ -29,7 +29,6 @@ import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
-import type { IdMusica } from '../audio/musicas.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 
@@ -83,8 +82,6 @@ export interface OpcoesCenaBatalha {
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
   cenario?: Cenario;
-  /* a música da luta; sem ela, a de selvagem ou a de treinador */
-  musica?: IdMusica;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -155,7 +152,6 @@ export class CenaBatalha implements Cena {
       mochila: est.mochila,
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
-    Som.musica(this.op.musica ?? (this.op.treinador ? 'treinador' : 'selvagem'));
 
     this.fundo = assarSuave(fundoBatalha(this.op.cenario ?? 'praia'));
     this.caixaMsg = assar(UI.caixa(LARGURA, 50));
@@ -376,9 +372,8 @@ export class CenaBatalha implements Cena {
       }
       case 'fim':
         this.espera = 0.05;
-        if (e.resultado === 'vitoria' || e.resultado === 'captura') Som.musica('vitoria');
-        else if (e.resultado === 'fuga') Som.efeito('fuga');
-        else { Som.musica(null); Som.vinheta('derrota'); }
+        if (e.resultado === 'fuga') Som.efeito('fuga');
+        else if (e.resultado === 'derrota') Som.vinheta('derrota');
         break;
       case 'aprender': case 'esquecer': case 'trocarForcado':
         this.espera = 0.05; break;

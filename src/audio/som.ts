@@ -3,7 +3,8 @@
    "toque o efeito tal" — sem saber de WebAudio, de volume, nem de se o
    áudio já destravou.
 
-   Música: uma de cada vez, repetindo. Vinheta (cura, medalha, item...):
+   Música: uma de cada vez, repetindo — só nas cutscenes, onde cada tomada
+   pede o seu tema; a troca entre temas é um fade, não um corte. Vinheta (cura, medalha, item...):
    interrompe a música, toca uma vez, e a música pedida volta do começo.
    Efeito: por cima de tudo, no canal dos efeitos.
 
@@ -48,9 +49,9 @@ export function aplicarVolumes(): void {
   motor?.volumes(GANHO[obterVolume('musica')], GANHO[obterVolume('efeitos')]);
 }
 
-function comecar(id: IdMusica): void {
+function comecar(id: IdMusica, fade = 0.12): void {
   tocando = id;
-  motor!.tocar(MUSICAS[id]);
+  motor!.tocar(MUSICAS[id], undefined, fade);
 }
 
 /* a música de fundo; null para o silêncio. Pedir a que já toca não a
@@ -58,8 +59,9 @@ function comecar(id: IdMusica): void {
 export function musica(id: IdMusica | null): void {
   desejada = id;
   if (!motor || emVinheta || tocando === id) return;
-  if (id) comecar(id);
-  else { tocando = null; motor.calar(0.3); }
+  // um tema cedendo lugar a outro no meio da cena: fade de trilha de cinema
+  if (id) comecar(id, tocando ? 0.6 : 0.12);
+  else { tocando = null; motor.calar(0.6); }
 }
 
 export function vinheta(id: IdMusica): void {

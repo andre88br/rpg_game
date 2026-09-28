@@ -124,7 +124,6 @@ export class CenaCutscene implements Cena {
               private readonly estado: EstadoJogo | null = null) {}
 
   entrar(): void {
-    Som.musica('historia');
     this.faisca = assar(fagulha());
     this.indice = 0;
     this.terminou = false;
@@ -134,6 +133,7 @@ export class CenaCutscene implements Cena {
   private preparar(): void {
     const tomada = this.roteiro[this.indice];
     if (!tomada) { this.fim(); return; }
+    if (tomada.musica) Som.musica(tomada.musica);
     this.prep = {
       tomada,
       fundo: assarSuave(tomada.fundo()),
@@ -161,6 +161,7 @@ export class CenaCutscene implements Cena {
   private fim(): void {
     if (this.terminou) return;
     this.terminou = true;
+    Som.musica(null);             // fora da cutscene, o mundo fica sem música
     this.aoTerminar();
   }
 
