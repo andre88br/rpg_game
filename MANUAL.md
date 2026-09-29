@@ -1434,7 +1434,7 @@ valem em conversa, batalha, loja nem menu.
 | → ← → ← ↓ ↑ ↓ ↑ B A | Pula para o **Círculo Dourado** com as oito medalhas e os oito Dons (o time não muda; use o código de poder) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | Pula para a **Cidade do Sol** (entrando pelo Caminho da Aurora) com as sete medalhas, os sete Dons e 5 Patuás Bons |
 | A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
-| A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 e deixa escolher os quatro golpes |
+| A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 (quem já passou do 60 não desce — não há nível máximo) e deixa escolher os quatro golpes |
 
 ---
 

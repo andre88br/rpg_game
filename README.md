@@ -14,7 +14,8 @@ de novo, o caderno de pegadas do Seu Elias, as mudas sumidas com as Caiporinhas
 e o Curupira da grota funda acendem a guia do Terreiro de Raiz, onde a Tiê
 entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
 inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
-troca, XP, nível e evolução.
+troca, XP, nível e evolução. Não há nível máximo: o Encantado continua
+subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 
 Depois da touceira de cipó começa a **Serra Boitatá**, a primeira região do
 tamanho e da dificuldade novos: **4.480 tiles ao ar livre** (contra 3.058 da
@@ -187,7 +188,7 @@ tudo de novo.
 | → ← → ← ↓ ↑ ↓ ↑ B A | pula para o **Círculo Dourado** (com as oito medalhas e os oito Dons; o time não muda) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | pula para a **Cidade do Sol**, pelo Caminho da Aurora (com as sete medalhas, os sete Dons e cinco patuás bons) |
 | A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
-| A B A B ↓ ↓ A | põe um Encantado no nível máximo, escolhendo os quatro golpes dele |
+| A B A B ↓ ↓ A | põe um Encantado no nível 60 (quem já passou continua onde está), escolhendo os quatro golpes dele |
 
 ## Como está construído
 

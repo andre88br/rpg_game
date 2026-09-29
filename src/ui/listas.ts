@@ -40,7 +40,9 @@ export function listaTime(r: Renderizador, time: readonly Encantado[], sel: numb
     if (i === peguei) r.retangulo(10, y - 1, LARGURA - 20, 19, P.uiBg2!);
     if (i === sel) r.texto('=', 12, y + 3, P.uiAccD!);
     r.texto(nome(e), 22, y, caido ? P.hpRed! : P.uiInk!);
-    r.texto('NV' + e.nivel, 110, y, P.uiInk!);
+    // alinhado à direita, colado na barra: NV100 em diante também cabe
+    const nv = 'NV' + e.nivel;
+    r.texto(nv, 131 - r.larguraTexto(nv), y, P.uiInk!);
 
     const max = hpMaximo(e);
     const pct = Math.max(0, e.hp / max);

@@ -4,7 +4,7 @@ import { Aleatorio } from '../core/rng.ts';
 import {
   atributos, criar, curarTudo, desmaiado, evoluir, ficha, ganharXP,
   golpesAte, hpMaximo, nome, progressoXP, reviver, semPP, sortearSelvagem,
-  substituirGolpe, xpDoNivel, xpPorDerrotar, MAX_GOLPES, NIVEL_MAX,
+  substituirGolpe, xpDoNivel, xpPorDerrotar, MAX_GOLPES,
 } from './encantado.ts';
 import { ESPECIES_ORDEM, especie } from '../data/creatures.ts';
 import { GOLPES } from '../data/moves.ts';
@@ -14,7 +14,7 @@ test('toda espécie referencia golpes e evoluções que existem', () => {
     const e = especie(id);
     for (const a of e.aprende) {
       assert.ok(GOLPES[a.golpe], `${id} aprende golpe inexistente: ${a.golpe}`);
-      assert.ok(a.nv >= 1 && a.nv <= NIVEL_MAX, `${id}: nível inválido ${a.nv}`);
+      assert.ok(a.nv >= 1 && a.nv <= 60, `${id}: nível inválido ${a.nv}`);
     }
     if (e.evolui) {
       assert.ok(ESPECIES_ORDEM.includes(e.evolui.em),
@@ -53,7 +53,7 @@ test('atributo-base maior vira atributo maior no mesmo nível', () => {
 
 test('a curva de XP é crescente e o nível 1 custa zero', () => {
   assert.equal(xpDoNivel(1, 'medio'), 0);
-  for (let n = 2; n <= NIVEL_MAX; n++) {
+  for (let n = 2; n <= 200; n++) {
     assert.ok(xpDoNivel(n, 'medio') > xpDoNivel(n - 1, 'medio'));
   }
   // "rápido" precisa de menos XP que "lento" no mesmo nível
@@ -194,4 +194,15 @@ test('o sorteio do mato respeita os pesos e a faixa de nível', () => {
     assert.ok(e.nivel >= faixa.min && e.nivel <= faixa.max);
   }
   assert.ok(conta['piragua']! > conta['sacizinho']! * 4, 'o peso não pesou');
+});
+
+test('não há nível máximo: o XP continua subindo o bicho depois do 60', () => {
+  const e = criar('iaraMae', 60);
+  const c = ficha(e).crescimento;
+  const subidas = ganharXP(e, xpDoNivel(75, c) - e.xp);
+  assert.equal(e.nivel, 75);
+  assert.equal(subidas.length, 15);
+  assert.equal(e.hp, hpMaximo(e));
+  assert.ok(progressoXP(e) < 1);
+  assert.equal(criar('iaraMae', 120).nivel, 120);
 });

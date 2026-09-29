@@ -16,7 +16,7 @@ import * as L from '../ui/listas.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import { especie } from '../data/creatures.ts';
 import {
-  ficha, hpMaximo, nome, novoGolpe, xpDoNivel, NIVEL_MAX, MAX_GOLPES,
+  ficha, hpMaximo, nome, novoGolpe, xpDoNivel, NIVEL_PODER, MAX_GOLPES,
   type Encantado,
 } from '../battle/encantado.ts';
 import type { EstadoJogo } from '../game/state.ts';
@@ -104,8 +104,11 @@ export class TelaPoder {
   private confirmar(): void {
     const alvo = this.alvo;
     if (!alvo) return;
-    alvo.nivel = NIVEL_MAX;
-    alvo.xp = xpDoNivel(NIVEL_MAX, ficha(alvo).crescimento);
+    // quem já passou do 60 não desce: o poder só sobe
+    if (alvo.nivel < NIVEL_PODER) {
+      alvo.nivel = NIVEL_PODER;
+      alvo.xp = xpDoNivel(NIVEL_PODER, ficha(alvo).crescimento);
+    }
     alvo.status = null;
     alvo.turnosStatus = 0;
     alvo.golpes = this.slots.map(novoGolpe);

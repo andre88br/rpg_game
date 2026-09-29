@@ -21,7 +21,7 @@ import { ESPECIES, especie as fichaEspecie } from '../data/creatures.ts';
 import { GOLPES, golpe as fichaGolpe } from '../data/moves.ts';
 import { ITENS } from '../data/items.ts';
 import { STATUS, type Status } from '../battle/status.ts';
-import { hpMaximo, xpDoNivel, NIVEL_MAX, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
+import { hpMaximo, xpDoNivel, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { TAMANHO_TIME, type EstadoJogo, type Lugar } from './state.ts';
@@ -91,7 +91,7 @@ function bicho(v: unknown): Encantado | null {
   const id = typeof o['especie'] === 'string' ? o['especie'] : '';
   if (!ESPECIES[id]) return null;
 
-  const nivel = inteiro(o['nivel'], 5, 1, NIVEL_MAX);
+  const nivel = inteiro(o['nivel'], 5, 1);
   const golpes = (Array.isArray(o['golpes']) ? o['golpes'] : [])
     .map((g) => (g ?? {}) as Record<string, unknown>)
     .filter((g) => typeof g['id'] === 'string' && GOLPES[g['id']])

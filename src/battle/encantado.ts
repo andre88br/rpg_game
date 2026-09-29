@@ -12,7 +12,9 @@ import type { Status } from './status.ts';
 import { Aleatorio, acaso } from '../core/rng.ts';
 
 export const MAX_GOLPES = 4;
-export const NIVEL_MAX = 60;
+/* Não há nível máximo: o bicho sobe enquanto ganhar XP. 60 é só o teto dos
+   treinadores do jogo e o nível que a tela de poder entrega. */
+export const NIVEL_PODER = 60;
 
 export interface GolpeAprendido { id: string; pp: number; ppMax: number }
 
@@ -47,7 +49,6 @@ export function xpDoNivel(n: number, c: Crescimento): number {
 /* 0..1 — o quanto da barra de XP do nível atual já foi preenchido */
 export function progressoXP(e: Encantado): number {
   const c = ficha(e).crescimento;
-  if (e.nivel >= NIVEL_MAX) return 1;
   const base = xpDoNivel(e.nivel, c);
   const proximo = xpDoNivel(e.nivel + 1, c);
   if (proximo <= base) return 1;
@@ -109,7 +110,7 @@ export interface OpcoesCriar {
 }
 
 export function criar(idEspecie: string, nivel: number, op: OpcoesCriar = {}): Encantado {
-  const nv = Math.max(1, Math.min(NIVEL_MAX, Math.floor(nivel)));
+  const nv = Math.max(1, Math.floor(nivel));
   const ids = op.golpes ? [...op.golpes].slice(0, MAX_GOLPES) : golpesAte(idEspecie, nv);
   const e: Encantado = {
     especie: idEspecie,
@@ -142,7 +143,7 @@ export function ganharXP(e: Encantado, quanto: number): SubidaNivel[] {
   e.xp += Math.max(0, Math.floor(quanto));
   const subidas: SubidaNivel[] = [];
 
-  while (e.nivel < NIVEL_MAX && e.xp >= xpDoNivel(e.nivel + 1, c)) {
+  while (e.xp >= xpDoNivel(e.nivel + 1, c)) {
     const hpAntes = hpMaximo(e);
     e.nivel += 1;
     // subir de nível aumenta o HP máximo; o ganho entra como HP de verdade
