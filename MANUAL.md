@@ -244,9 +244,6 @@ Chegar perto toca a cutscene de quando ela é achada. Encurralada, ela
 **briga pela muda**: vencer ou prender no patuá solta a **Muda de Árvore**.
 Com as três, volte no **Seu Elias**: paga **500**.
 
-Quem ficar com uma Caiporinha no time vê ela virar **Caipora**
-(Terra/Planta) no **nível 40**.
-
 ## Conta 4 — `conta_pegadas`: o caderno de pegadas
 
 Com o caderno do Seu Elias na mão, veja **7 espécies diferentes**. As duas
@@ -1421,6 +1418,42 @@ Todos são espertos: trocam de Encantado e usam garrafada, erva-doce e
 
 ---
 
+## Evoluções
+
+Todo Encantado evolui. Os três iniciais evoluem duas vezes. As formas novas
+de quem antes não evoluía vêm em nível alto, depois do torneio: como não há
+nível máximo, é a recompensa por continuar treinando.
+
+| Linhagem | Tipo da forma nova |
+|---|---|
+| Boitatinha → Boitatão (18) → **Mboitatá** (55) | Fogo |
+| Iarinha → Iara-Mãe (18) → **Ipupiara** (55) | Água/Sombra |
+| Curupinho → Curupirá (18) → **Anhangá** (55) | Planta/Luz |
+| Piraguá → **Piraguaçu** (30) | Água |
+| Sacizinho → Saci (24) | — |
+| Caiporinha → **Caipora** (40) | Terra/Planta |
+| Cabritinha → Cabra-Cabriola (32) | — |
+| Mulinha → Mula-sem-Cabeça (30) | — |
+| Salamanca → **Teiniaguá** (42) | Fogo/Terra |
+| Mãe-do-Ouro → **Eldorado** (62) | Fogo/Luz |
+| Matinta → **Matinta-Perera** (48) | Vento/Sombra |
+| Uirapuru → **Uirapuru-Rei** (62) | Vento/Luz |
+| Faisquinha → Relampo (46) | — |
+| Tatu-Trovão → **Tatuaçu** (54) | Raio/Terra |
+| Arco-da-Velha → **Boiúna** (64) | Água/Raio |
+| Minhoquinha → Minhocão (50) | — |
+| Mapinguari → **Juma** (62) | Terra |
+| Lobinho → Lobisomem (52) | — |
+| Corpo-Seco → **Alma-Penada** (60) | Sombra/Terra |
+| Cuca → **Cuca-Rainha** (64) | Sombra/Água |
+| Pisadeira → **Pesadelo** (64) | Sombra/Vento |
+| Luzeiro → Estrela-d'Alva (50) | — |
+| Lamparina → **Fogo-Fátuo** (62) | Luz/Fogo |
+| Jaci → **Eclipse** (66) | Luz/Sombra |
+
+Em negrito, as evoluções novas. O código A B A B ↑ ↑ A sobe um degrau por
+vez: um inicial precisa do código duas vezes para chegar à última forma.
+
 ## Códigos secretos
 
 Digitados com os próprios botões do jogo, **andando livre pelo mundo** — não
@@ -1436,7 +1469,7 @@ valem em conversa, batalha, loja nem menu.
 | ↑ ↓ ↑ ↓ → ← → ← B A | Pula para o **Bairro da Cuca** (entrando pela Rua do Breu) com as seis medalhas, os seis Dons e 5 Patuás Bons |
 | → ← → ← ↓ ↑ ↓ ↑ B A | Pula para o **Círculo Dourado** com as oito medalhas e os oito Dons (o time não muda; use o código de poder) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | Pula para a **Cidade do Sol** (entrando pelo Caminho da Aurora) com as sete medalhas, os sete Dons e 5 Patuás Bons |
-| A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir |
+| A B A B ↑ ↑ A | Evolui na hora todo Encantado do time que tiver para onde evoluir (um degrau por vez) |
 | A B A B ↓ ↓ A | Abre a tela de poder máximo: escolhe um do time, sobe para nível 60 (quem já passou do 60 não desce — não há nível máximo) e deixa escolher os quatro golpes |
 
 ---

@@ -172,7 +172,13 @@ export function ganharXP(e: Encantado, quanto: number): SubidaNivel[] {
    entra como HP atual — evoluir nunca deixa o bicho pior do que estava. */
 export function evoluir(e: Encantado, idNovo: string): void {
   const antes = hpMaximo(e);
+  // se a curva de XP muda (Caiporinha é rápida, Caipora é lenta), o XP é
+  // refeito na curva nova com o mesmo pedaço da barra já preenchido
+  const progresso = progressoXP(e);
   e.especie = idNovo;
+  const c = ficha(e).crescimento;
+  const base = xpDoNivel(e.nivel, c);
+  e.xp = base + Math.floor((xpDoNivel(e.nivel + 1, c) - base) * Math.min(progresso, 0.999));
   e.hp = Math.max(1, e.hp + (hpMaximo(e) - antes));
 }
 

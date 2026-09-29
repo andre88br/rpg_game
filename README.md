@@ -16,6 +16,9 @@ entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
 inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
 troca, XP, nível e evolução. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
+Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
+cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,
+como recompensa de quem continua treinando. A tabela está no MANUAL.
 
 Depois da touceira de cipó começa a **Serra Boitatá**, a primeira região do
 tamanho e da dificuldade novos: **4.480 tiles ao ar livre** (contra 3.058 da
@@ -187,7 +190,7 @@ tudo de novo.
 | ↑ ↓ ↑ ↓ → ← → ← B A | pula para o **Bairro da Cuca**, pela Rua do Breu (com as seis medalhas, os seis Dons e cinco patuás bons) |
 | → ← → ← ↓ ↑ ↓ ↑ B A | pula para o **Círculo Dourado** (com as oito medalhas e os oito Dons; o time não muda) |
 | ← ↓ → ↑ ← ↓ → ↑ B A | pula para a **Cidade do Sol**, pelo Caminho da Aurora (com as sete medalhas, os sete Dons e cinco patuás bons) |
-| A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir |
+| A B A B ↑ ↑ A | evolui na hora todo Encantado do time que tiver para onde evoluir (um degrau por vez) |
 | A B A B ↓ ↓ A | põe um Encantado no nível 60 (quem já passou continua onde está), escolhendo os quatro golpes dele |
 
 ## Como está construído
@@ -910,8 +913,8 @@ opcionais da região.
   alagado, em que cada passo muda de direção, isso custa um toque a mais.
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
-- As formas intermediárias (Boitatá, Iaraí, Curupira) ainda não existem: por
-  enquanto cada inicial evolui direto para a forma final, no nível 18.
+- Os iniciais evoluem no 18 e de novo no 55. As formas de cima de cada
+  linhagem só aparecem por evolução: nenhum treinador nem mato alto as usa.
 - A Serra Boitatá usa `cenario: 'caverna'` nas batalhas da caverna e da
   cumeeira: não existe fundo de montanha próprio, e a trilha e a vila caem no
   fundo de mata mesmo.

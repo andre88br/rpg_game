@@ -1078,6 +1078,389 @@ export function jaci(): Buf {
   return b.outline(P.ink);
 }
 
+/* =========================================================================
+   Evoluções novas: a forma de cima de cada linhagem. Todas 40x40.
+   ========================================================================= */
+
+/* ---------------- MBOITATÁ (Fogo, 3ª forma da Boitatinha) ---------------- */
+export function mboitata(): Buf {
+  const b = new Buf(40, 40);
+  const azul = '#4ab0f0', azulL = '#b8e8ff';
+  // corpo em "S" de fogo, escamas escuras no dorso
+  for (const [x, y, r] of [[8, 34, 6], [16, 31, 6], [24, 33, 6], [31, 29, 5], [30, 22, 5]] as const) {
+    b.ellipse(x, y, r, r - 1, C.boi);
+    b.ellipse(x, y + 1, r - 3, r - 3, C.boiB);
+    b.set(x, y - r + 1, C.boiD);
+  }
+  chama(b, 4, 32, 4, 8, '#ff6a22', '#ffc23c');         // ponta da cauda acesa
+  // pescoço e cabeça grandes, olhando para a esquerda
+  b.rect(24, 13, 8, 9, C.boi);
+  b.ellipse(22, 11, 11, 7, C.boi);
+  b.ellipse(15, 14, 6, 3, C.boiB);                      // mandíbula clara
+  b.line(8, 14, 22, 14, C.boiD);
+  for (const x of [10, 13, 16]) b.tri(x - 1, 14, x + 1, 14, x, 17, P.white);
+  b.tri(26, 6, 34, -1, 30, 8, C.boiD);                  // chifres
+  b.tri(20, 5, 24, -1, 24, 6, C.boiD);
+  // os olhos de todo bicho que morreu no fogo: três de cada lado, azuis
+  for (const [x, y] of [[17, 9], [21, 8], [25, 9]] as const) {
+    b.ellipse(x, y, 2, 2, azul); b.set(x, y, azulL);
+  }
+  chama(b, 34, 12, 4, 9, '#ff6a22', '#ffc23c');         // juba
+  chama(b, 30, 16, 3, 6, '#ff6a22', '#ffc23c');
+  return b.outline(P.ink);
+}
+
+/* ---------------- IPUPIARA (Água/Sombra, 3ª forma da Iarinha) ---------------- */
+export function ipupiara(): Buf {
+  const b = new Buf(40, 40);
+  const mar = '#1f5c8a', marL = '#3a8fd5', marD = '#123a5a', alga = '#2f7a5a';
+  b.ellipse(20, 37, 19, 3, marD);                       // o fundo do mar
+  // cauda enorme enrolada
+  b.ellipse(20, 30, 14, 7, mar);
+  b.ellipse(20, 30, 9, 4, marL);
+  b.tri(32, 28, 40, 20, 39, 34, marD);
+  // torso e braços compridos de água
+  b.ellipse(20, 20, 8, 7, C.iarH);
+  b.ellipse(20, 22, 5, 4, marL);
+  b.ellipse(9, 19, 3, 7, mar); b.ellipse(31, 19, 3, 7, mar);
+  for (const [x, d] of [[8, -1], [32, 1]] as const) b.line(x, 25, x + d * 3, 28, marL);
+  // cabeça com cabelo de alga e coroa de coral quebrada
+  b.ellipse(20, 10, 7, 7, '#6a8fa0');
+  for (const x of [11, 12, 28, 29]) for (let y = 6; y <= 24; y++) b.set(x, y, alga);
+  b.ellipse(20, 5, 8, 3, alga);
+  b.rect(15, 1, 11, 2, P.goldD);
+  for (const x of [15, 22]) b.tri(x - 2, 2, x, -1, x + 2, 2, P.gold);
+  b.ellipse(17, 10, 2, 2, '#9fe8ff'); b.ellipse(23, 10, 2, 2, '#9fe8ff');
+  b.set(17, 10, P.ink); b.set(23, 10, P.ink);
+  b.line(17, 14, 23, 14, marD);
+  for (const [x, y] of [[4, 8], [36, 6], [3, 26], [37, 14]] as const) {
+    b.ellipse(x, y, 1, 1, marL); b.set(x, y - 1, '#ffffff');
+  }
+  return b.outline(P.ink);
+}
+
+/* ---------------- ANHANGÁ (Planta/Luz, 3ª forma do Curupinho) ---------------- */
+export function anhanga(): Buf {
+  const b = new Buf(40, 40);
+  const pelo = '#f2eee4', peloD = '#c8c0b0', chifre = '#6b4a2e';
+  // o veado branco, de lado, virado para a esquerda
+  for (const x of [11, 15, 25, 29]) b.rect(x, 27, 3, 12, peloD);
+  b.ellipse(21, 23, 12, 7, pelo);
+  b.ellipse(22, 26, 8, 3, peloD);
+  b.tri(32, 20, 37, 17, 34, 24, pelo);                  // rabinho
+  b.rect(9, 11, 6, 12, pelo);                           // pescoço
+  b.ellipse(9, 10, 6, 5, pelo);                         // cabeça
+  b.ellipse(4, 12, 3, 2, peloD);                        // focinho
+  b.set(2, 12, P.ink);
+  b.tri(13, 7, 17, 3, 15, 9, pelo);                     // orelha
+  // galhada de raiz, com folhas brotando
+  b.line(8, 5, 5, 0, chifre); b.line(6, 2, 2, 1, chifre);
+  b.line(11, 5, 14, 0, chifre); b.line(13, 2, 17, 1, chifre);
+  for (const [x, y] of [[2, 1], [17, 1], [5, 0], [14, 0]] as const) b.ellipse(x, y, 1, 1, C.curL);
+  // olho de fogo
+  b.ellipse(8, 9, 2, 2, C.fogoC); b.set(8, 9, C.fogoCL);
+  // folhas no lombo e brilho em volta
+  for (const [x, y] of [[17, 17], [23, 16], [28, 18]] as const) b.ellipse(x, y, 2, 1, C.cur);
+  for (const [x, y] of [[30, 6], [35, 10], [24, 4]] as const) { b.set(x, y, '#fffbe0'); b.set(x + 1, y, '#fff6b0'); }
+  return b.outline(P.ink);
+}
+
+/* ---------------- PIRAGUAÇU (Água, evolução do Piraguá) ---------------- */
+export function piraguacu(): Buf {
+  const b = new Buf(40, 40);
+  const cor = '#2f8fb0', corL = '#6fcfe8', corD = '#1c5f78', barriga = '#f3e9b8';
+  b.tri(10, 20, 0, 8, 0, 32, corD);                     // cauda
+  b.tri(10, 20, 3, 12, 3, 28, cor);
+  b.ellipse(22, 20, 15, 11, cor);                       // corpo grande
+  b.ellipse(23, 25, 12, 5, barriga);
+  b.ellipse(18, 14, 9, 3, corL);
+  b.tri(20, 9, 14, 0, 28, 8, corD);                     // barbatana de cima, alta
+  b.tri(22, 31, 16, 39, 27, 31, corD);
+  for (let i = 0; i < 4; i++) b.line(18 + i * 4, 13 + i, 18 + i * 4, 25 - i, corD);   // escamas
+  // bocarra cheia de dentes
+  b.tri(29, 22, 40, 18, 40, 29, '#e8607a');
+  b.line(29, 22, 40, 25, '#a8324a');
+  for (const x of [32, 35, 38]) { b.set(x, 21, P.white); b.set(x, 27, P.white); }
+  olho(b, 31, 15, 3, 1);
+  b.line(28, 12, 33, 13, corD);                         // sobrancelha brava
+  return b.outline(P.ink);
+}
+
+/* ---------------- TEINIAGUÁ (Fogo/Terra, evolução da Salamanca) ---------------- */
+export function teiniagua(): Buf {
+  const b = new Buf(40, 40);
+  b.ellipse(20, 37, 18, 2, C.escD);
+  // lagarto grande de lado, cauda curva
+  b.ellipse(20, 28, 13, 6, C.sal);
+  b.ellipse(20, 30, 9, 3, C.salL);
+  for (const x of [11, 16, 23, 28]) b.rect(x, 31, 3, 6, C.salD);
+  b.ellipse(5, 25, 4, 3, C.sal); b.ellipse(2, 20, 2, 3, C.sal);
+  for (const x of [12, 17, 22, 27]) b.tri(x - 2, 23, x, 18, x + 2, 23, C.esc);   // cristas de pedra
+  b.ellipse(31, 20, 8, 6, C.sal);                       // cabeça
+  b.ellipse(35, 23, 5, 2, C.salL);
+  b.line(29, 24, 39, 24, C.salD);
+  olho(b, 32, 18, 2, -1);
+  // a pedra de fogo na testa, o carbúnculo
+  b.ellipse(31, 12, 4, 4, '#c9302a');
+  b.ellipse(30, 11, 2, 2, '#ff8a6a');
+  b.set(29, 10, '#ffffff');
+  chama(b, 31, 8, 3, 6, '#ff6a22', '#ffc23c');
+  return b.outline(P.ink);
+}
+
+/* ---------------- MATINTA-PERERA (Vento/Sombra, evolução da Matinta) ---------------- */
+export function matintaPerera(): Buf {
+  const b = new Buf(40, 40);
+  const pena = '#3a2e44', penaL = '#5e4e6e', penaD = '#221a2a', bico = '#e0b040';
+  // coruja grande de asas abertas
+  b.tri(20, 16, 0, 10, 4, 30, penaD);
+  b.tri(20, 16, 40, 10, 36, 30, penaD);
+  for (const [x, d] of [[3, 1], [37, -1]] as const) for (const k of [0, 4, 8]) b.line(x, 14 + k, x + d * 8, 16 + k, penaL);
+  b.ellipse(20, 24, 10, 12, pena);
+  b.ellipse(20, 27, 6, 8, penaL);
+  for (const y of [22, 26, 30]) b.line(17, y, 23, y, pena);
+  b.ellipse(20, 11, 9, 8, pena);                         // cabeça
+  b.tri(11, 6, 11, 0, 15, 5, pena); b.tri(29, 6, 29, 0, 25, 5, pena);   // tufos
+  b.ellipse(16, 11, 4, 4, '#f2e8c0'); b.ellipse(24, 11, 4, 4, '#f2e8c0');
+  b.ellipse(16, 11, 2, 2, '#c93f3f'); b.ellipse(24, 11, 2, 2, '#c93f3f');
+  b.tri(19, 14, 21, 14, 20, 18, bico);
+  // o lenço de véia amarrado no pescoço
+  b.rect(14, 18, 13, 2, '#a8324a'); b.tri(20, 19, 17, 24, 23, 24, '#a8324a');
+  for (const x of [15, 19, 23]) b.line(x, 36, x - 1, 39, bico);   // garras
+  return b.outline(P.ink);
+}
+
+/* ---------------- TATUAÇU (Raio/Terra, evolução do Tatu-Trovão) ---------------- */
+export function tatuacu(): Buf {
+  const b = new Buf(40, 40);
+  const casco = '#7a6a5a', cascoL = '#9c8a78', cascoD = '#4a3e32', pele = '#c9a07a';
+  b.ellipse(20, 37, 19, 2, cascoD);
+  for (const x of [8, 14, 25, 31]) b.rect(x, 30, 4, 7, pele);
+  b.ellipse(20, 22, 17, 12, casco);                     // o casco enorme
+  for (let i = -2; i <= 2; i++) b.line(20 + i * 5, 11, 20 + i * 6, 33, cascoD);   // cintas
+  b.ellipse(15, 16, 5, 3, cascoL);
+  // raios presos no casco
+  for (const [x, y] of [[12, 18], [26, 14], [22, 26]] as const) {
+    b.line(x, y, x - 2, y + 3, P.bolt); b.line(x - 2, y + 3, x + 1, y + 4, P.bolt); b.line(x + 1, y + 4, x - 1, y + 7, P.bolt);
+  }
+  b.ellipse(36, 27, 4, 4, pele);                        // cabeça pontuda
+  b.tri(37, 25, 40, 31, 36, 31, pele);
+  b.ellipse(34, 20, 2, 3, pele);
+  olho(b, 36, 26, 1, 1);
+  b.tri(3, 26, 0, 36, 6, 30, casco);                    // rabo
+  return b.outline(P.ink);
+}
+
+/* ---------------- ALMA-PENADA (Sombra/Terra, evolução do Corpo-Seco) ---------------- */
+export function almaPenada(): Buf {
+  const b = new Buf(40, 40);
+  const veu = '#c8d0e0', veuL = '#eef2f8', veuD = '#8a92a8', corrente = '#6a6a72';
+  // lençol que flutua, sem pé no chão
+  b.ellipse(20, 16, 11, 12, veu);
+  b.rect(9, 16, 23, 14, veu);
+  for (const x of [9, 15, 21, 27]) b.tri(x, 29, x + 3, 36, x + 6, 29, veu);
+  b.ellipse(16, 11, 4, 3, veuL);
+  for (const x of [13, 20, 27]) b.line(x, 18, x, 30, veuD);
+  // olhos fundos e boca de lamento
+  b.ellipse(16, 14, 2, 3, '#1a1410'); b.ellipse(24, 14, 2, 3, '#1a1410');
+  b.set(16, 14, '#c9c040'); b.set(24, 14, '#c9c040');
+  b.ellipse(20, 21, 2, 3, '#1a1410');
+  // a corrente que ela arrasta
+  for (let k = 0; k < 6; k++) b.frame(29 + k, 26 + k * 2, 3, 2, corrente);
+  b.rect(33, 37, 6, 3, '#4a4a52');
+  // galho seco do corpo que ficou para trás
+  b.line(4, 38, 8, 28, '#5a4e38'); b.line(8, 28, 5, 24, '#5a4e38'); b.line(8, 28, 11, 25, '#5a4e38');
+  return b.outline(P.ink);
+}
+
+/* ---------------- CUCA-RAINHA (Sombra/Água, evolução da Cuca) ---------------- */
+export function cucaRainha(): Buf {
+  const b = new Buf(40, 40);
+  const pele = '#3f7a44', peleL = '#6aa068', peleD = '#24502a', manto = '#3a1a4a', mantoL = '#5e2e6e';
+  b.ellipse(20, 37, 19, 3, '#2a4a3a');                  // o brejo
+  b.tri(3, 38, 20, 12, 37, 38, manto);
+  b.tri(10, 38, 20, 18, 30, 38, mantoL);
+  // caldeirão na frente
+  b.ellipse(20, 32, 8, 5, '#2a2a30');
+  b.ellipse(20, 28, 8, 2, '#7ac070');
+  for (const [x, y] of [[17, 25], [22, 24], [20, 22]] as const) b.ellipse(x, y, 1, 1, '#a8e8a0');
+  b.ellipse(6, 24, 3, 5, pele); b.ellipse(34, 24, 3, 5, pele);
+  b.line(5, 28, 4, 31, '#e8e0d0'); b.line(35, 28, 36, 31, '#e8e0d0');
+  // cabeça de jacaré, de frente, com coroa
+  b.ellipse(20, 12, 9, 7, pele);
+  b.ellipse(20, 17, 7, 3, pele);
+  b.ellipse(20, 16, 6, 1, peleL);
+  b.line(13, 18, 27, 18, peleD);
+  for (const x of [14, 17, 20, 23, 26]) b.tri(x - 1, 18, x + 1, 18, x, 20, '#e8e0d0');
+  b.ellipse(15, 10, 3, 3, '#f2d23a'); b.rect(15, 8, 1, 5, P.ink);
+  b.ellipse(25, 10, 3, 3, '#f2d23a'); b.rect(25, 8, 1, 5, P.ink);
+  b.rect(13, 3, 15, 2, P.goldD);
+  for (const x of [14, 20, 26]) b.tri(x - 2, 4, x, 0, x + 2, 4, P.gold);
+  for (const [x, y] of [[9, 8], [10, 13], [30, 8], [31, 13]] as const) b.ellipse(x, y, 2, 3, '#e8e4dc');
+  return b.outline(P.ink);
+}
+
+/* ---------------- PESADELO (Sombra/Vento, evolução da Pisadeira) ---------------- */
+export function pesadelo(): Buf {
+  const b = new Buf(40, 40);
+  const noite = '#2e2440', noiteL = '#4a3a64', pele = '#9890a0', cabelo = '#120e1a';
+  // manto que se desfaz em fumaça
+  b.ellipse(20, 20, 14, 15, noite);
+  for (const x of [6, 12, 18, 24, 30]) b.tri(x, 32, x + 3, 40, x + 6, 32, noite);
+  for (const [x, y] of [[4, 10], [35, 12], [2, 22], [37, 26]] as const) b.ellipse(x, y, 2, 2, noiteL);
+  // braços muito compridos, unhas de fora
+  b.line(10, 16, 1, 30, pele); b.line(30, 16, 39, 30, pele);
+  for (const [x, d] of [[1, 1], [39, -1]] as const) for (const k of [0, 2, 4]) b.line(x, 30, x + d * k, 35, '#e8e0d0');
+  // rosto comprido com cabelo escorrido
+  b.ellipse(20, 12, 5, 7, pele);
+  b.rect(13, 4, 3, 18, cabelo); b.rect(24, 4, 3, 18, cabelo);
+  b.tri(13, 6, 20, 1, 27, 6, cabelo);
+  b.ellipse(18, 11, 1, 2, '#ff4a4a'); b.ellipse(22, 11, 1, 2, '#ff4a4a');
+  b.line(17, 16, 23, 16, '#5a5268');
+  b.set(18, 17, '#e8e0d0'); b.set(22, 17, '#e8e0d0');
+  // lua minguante presa no manto
+  b.ellipse(20, 27, 4, 4, '#f2ecd8'); b.ellipse(22, 26, 4, 4, noite);
+  return b.outline(P.ink);
+}
+
+/* ---------------- JUMA (Terra, evolução do Mapinguari) ---------------- */
+export function juma(): Buf {
+  const b = new Buf(40, 40);
+  const pelo = '#d8d0c0', peloL = '#f2ece0', peloD = '#a89c88', boca = '#7a1e1a';
+  b.rect(9, 30, 8, 9, peloD); b.rect(23, 30, 8, 9, peloD);
+  b.ellipse(13, 38, 6, 2, '#6a5e4a'); b.ellipse(27, 38, 6, 2, '#6a5e4a');
+  b.ellipse(20, 21, 17, 14, pelo);                      // corpanzil de pelo branco
+  for (const [x, y] of [[8, 12], [32, 12], [5, 24], [35, 24], [20, 8], [13, 32], [27, 32]] as const) b.ellipse(x, y, 3, 2, peloL);
+  b.ellipse(20, 25, 8, 6, boca);                        // boca na barriga, maior
+  b.ellipse(20, 26, 6, 4, '#3a0a08');
+  for (const x of [14, 17, 20, 23, 26]) b.tri(x - 1, 20, x + 1, 20, x, 23, '#e8e0d0');
+  for (const x of [16, 20, 24]) b.tri(x - 1, 31, x + 1, 31, x, 28, '#e8e0d0');
+  b.ellipse(3, 20, 4, 8, pelo); b.ellipse(37, 20, 4, 8, pelo);
+  for (const [x, d] of [[1, -1], [38, 1]] as const) { b.line(x, 27, x + d, 31, '#e8e0d0'); b.line(x + 2 * -d, 27, x + d - 2 * d, 31, '#e8e0d0'); }
+  b.ellipse(20, 9, 5, 5, '#f2f0ea');                    // olho único, maior
+  b.ellipse(20, 9, 3, 3, '#e8a020');
+  b.ellipse(20, 9, 1, 2, P.ink);
+  b.line(14, 4, 26, 4, peloD);                          // testa franzida
+  return b.outline(P.ink);
+}
+
+/* ---------------- UIRAPURU-REI (Vento/Luz, evolução do Uirapuru) ---------------- */
+export function uirapuruRei(): Buf {
+  const b = new Buf(40, 40);
+  const pena = '#f2d23a', penaL = '#fff2a0', dourado = '#ffb030', asa = '#3a8fd5', asaD = '#245f9e';
+  // cauda longa em leque
+  for (const [x, y] of [[4, 36], [9, 39], [2, 29]] as const) b.tri(16, 26, x, y, x + 5, y - 2, asaD);
+  b.tri(16, 26, 6, 38, 10, 36, dourado);
+  // asas abertas pra cima
+  b.tri(18, 20, 2, 4, 12, 24, asaD); b.tri(18, 20, 5, 7, 12, 22, asa);
+  b.tri(24, 20, 38, 2, 30, 24, asaD); b.tri(24, 20, 35, 6, 29, 22, asa);
+  b.ellipse(21, 23, 8, 7, pena);                        // corpo
+  b.ellipse(22, 25, 5, 4, penaL);
+  b.ellipse(23, 13, 6, 5, pena);                        // cabeça
+  b.tri(28, 13, 34, 14, 28, 15, '#3a2a1a');             // bico aberto, cantando
+  b.tri(28, 15, 33, 16, 28, 16, '#3a2a1a');
+  olho(b, 24, 12, 2, 1);
+  // coroa de penas douradas
+  for (const x of [19, 22, 25]) b.tri(x - 1, 9, x, 3, x + 1, 9, dourado);
+  // notas do canto
+  for (const [x, y] of [[35, 20], [37, 26]] as const) { b.ellipse(x, y, 1, 1, dourado); b.line(x + 1, y, x + 1, y - 4, dourado); }
+  for (const x of [19, 23]) b.line(x, 30, x, 34, '#3a2a1a');
+  return b.outline(P.ink);
+}
+
+/* ---------------- FOGO-FÁTUO (Luz/Fogo, evolução da Lamparina) ---------------- */
+export function fogoFatuo(): Buf {
+  const b = new Buf(40, 40);
+  const azul = '#4a9ff0', azulL = '#a8dcff', azulD = '#2a5fb0', lata = '#5c616b';
+  // chama azul grande que corre, com rabo de luz
+  b.tri(2, 36, 16, 20, 18, 30, azulD); b.tri(6, 38, 18, 26, 20, 33, azul);
+  b.tri(8, 34, 20, 0, 32, 34, azulD);
+  b.tri(11, 33, 20, 5, 29, 33, azul);
+  b.ellipse(20, 27, 10, 8, azul);
+  b.ellipse(20, 26, 6, 5, azulL);
+  b.ellipse(19, 23, 3, 3, '#ffffff');
+  olho(b, 16, 27, 2, 1); olho(b, 24, 27, 2, -1);
+  b.line(18, 31, 22, 31, azulD);
+  // a alça da lamparina velha, pendurada no dedo de fogo
+  b.line(30, 18, 35, 14, lata); b.line(35, 14, 38, 18, lata);
+  b.rect(34, 18, 5, 4, lata); b.set(36, 19, '#ffe860');
+  for (const [x, y] of [[4, 8], [34, 4], [38, 30], [6, 22]] as const) { b.set(x, y, azulL); b.set(x, y + 1, azul); }
+  return b.outline(P.ink);
+}
+
+/* ---------------- BOIÚNA (Água/Raio, evolução do Arco-da-Velha) ---------------- */
+export function boiuna(): Buf {
+  const b = new Buf(40, 40);
+  const cobra = '#2a3e4a', cobraL = '#4a6a78', cobraD = '#16242c', luz = '#fff2a0';
+  b.ellipse(20, 36, 19, 3, P.waterD);                   // o rio
+  b.ellipse(20, 36, 17, 2, P.water);
+  // voltas da cobra grande saindo da água
+  b.ellipse(8, 32, 6, 6, cobra); b.ellipse(8, 33, 4, 3, P.water);
+  b.ellipse(22, 30, 7, 7, cobra); b.ellipse(22, 32, 5, 4, P.water);
+  for (const [x, y] of [[8, 27], [22, 24]] as const) b.line(x - 3, y, x + 3, y, cobraL);
+  b.rect(30, 14, 7, 20, cobra);                         // pescoço erguido
+  for (const y of [18, 23, 28]) b.line(31, y, 36, y, cobraD);
+  b.ellipse(28, 11, 10, 6, cobra);                      // cabeça
+  b.ellipse(24, 13, 6, 2, cobraL);
+  b.line(18, 14, 32, 14, cobraD);
+  // os olhos que parecem luz de navio
+  b.ellipse(24, 8, 3, 2, luz); b.set(24, 8, '#ffffff');
+  b.ellipse(32, 8, 3, 2, luz); b.set(32, 8, '#ffffff');
+  for (const [x, y] of [[18, 7], [14, 6], [38, 7]] as const) b.set(x, y, luz);
+  // faixa de arco-íris no dorso: não esqueceu de onde veio
+  const faixas = ['#e0524a', '#f09a3a', P.bolt, '#5fbf6a', '#4a9fd0'];
+  faixas.forEach((c, i) => b.line(31 + i, 16, 31 + i, 33, c));
+  // raio caindo atrás
+  b.line(6, 0, 3, 8, P.bolt); b.line(3, 8, 7, 9, P.bolt); b.line(7, 9, 4, 18, P.bolt);
+  return b.outline(P.ink);
+}
+
+/* ---------------- ELDORADO (Fogo/Luz, evolução da Mãe-do-Ouro) ---------------- */
+export function eldorado(): Buf {
+  const b = new Buf(40, 40);
+  // serra de ouro com uma cidade dormindo no alto, e ela é o rosto da serra
+  b.tri(0, 39, 12, 16, 22, 39, C.ourD);
+  b.tri(14, 39, 28, 10, 40, 39, C.our);
+  b.tri(6, 39, 20, 4, 34, 39, C.our);
+  b.tri(12, 39, 20, 10, 28, 39, C.ourL);
+  // torres da cidade
+  for (const [x, h] of [[15, 6], [19, 9], [23, 7]] as const) {
+    b.rect(x, 12 - h + 6, 3, h, C.ourD);
+    b.tri(x - 1, 12 - h + 6, x + 1, 12 - h + 2, x + 3, 12 - h + 6, C.our);
+  }
+  // rosto
+  olho(b, 16, 24, 2, 1); olho(b, 24, 24, 2, -1);
+  b.line(17, 30, 23, 30, C.ourD);
+  // coroa de chamas no pico
+  chama(b, 20, 4, 3, 5, '#ff6a22', '#ffc23c');
+  for (const [x, y] of [[4, 10], [34, 8], [8, 4], [37, 20]] as const) {
+    b.set(x, y, '#ffffff'); b.set(x - 1, y, C.ourL); b.set(x + 1, y, C.ourL); b.set(x, y - 1, C.ourL); b.set(x, y + 1, C.ourL);
+  }
+  return b.outline(P.ink);
+}
+
+/* ---------------- ECLIPSE (Luz/Sombra, evolução da Jaci) ---------------- */
+export function eclipse(): Buf {
+  const b = new Buf(40, 40);
+  const sol = '#ffb030', solL = '#ffe890', lua = '#2e2440';
+  // coroa do sol aparecendo em volta
+  for (let k = 0; k < 12; k++) {
+    const a = (k * Math.PI) / 6;
+    b.tri(20 + Math.cos(a - 0.2) * 12, 20 + Math.sin(a - 0.2) * 12,
+          20 + Math.cos(a) * 19, 20 + Math.sin(a) * 19,
+          20 + Math.cos(a + 0.2) * 12, 20 + Math.sin(a + 0.2) * 12, k % 2 ? sol : solL);
+  }
+  b.ellipse(20, 20, 13, 13, solL);
+  b.ellipse(20, 20, 12, 12, lua);                       // a lua na frente do sol
+  b.ellipse(16, 16, 3, 2, '#4a3a5e');
+  // um olho de dia e um de noite
+  b.ellipse(15, 20, 2, 2, '#fff6b0'); b.set(15, 20, P.ink);
+  b.ellipse(25, 20, 2, 2, '#9fc8ff'); b.set(25, 20, P.ink);
+  b.line(17, 26, 23, 26, '#6a5a80');
+  b.set(33, 11, '#ffffff'); b.set(34, 11, solL); b.set(33, 10, solL);   // o anel de diamante
+  return b.outline(P.ink);
+}
+
 /* -------------------------------------------------------------------------
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
@@ -1091,4 +1474,7 @@ export const ARTE_CRIATURAS: Record<string, () => Buf> = {
   minhoquinha, minhocao, mapinguari, caipora,
   lobinho, lobisomem, corpoSeco, cuca, pisadeira,
   luzeiro, estrelaDalva, lamparina, jaci,
+  mboitata, ipupiara, anhanga, piraguacu, teiniagua, matintaPerera, tatuacu,
+  almaPenada, cucaRainha, pesadelo, juma, uirapuruRei, fogoFatuo, boiuna,
+  eldorado, eclipse,
 };

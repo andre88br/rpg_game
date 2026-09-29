@@ -66,6 +66,19 @@ const LISTA: readonly Especie[] = [
       { nv: 24, golpe: 'fogo_fatuo' }, { nv: 30, golpe: 'clarao_boitata' },
       { nv: 36, golpe: 'encarada' },
     ],
+    evolui: { em: 'mboitata', nv: 55 },
+  },
+  {
+    id: 'mboitata', nome: 'Mboitatá', tipos: ['fogo'],
+    base: { hp: 90, atq: 105, def: 80, esp: 125, vel: 110 },
+    taxaCaptura: 20, xpBase: 230, crescimento: 'medio',
+    arte: 'mboitata', categoria: 'Cobra de Fogo',
+    sobre: 'O nome antigo, do tempo em que o campo não tinha cerca. Os olhos azuis são de todo bicho que morreu no fogo.',
+    aprende: [
+      { nv: 1, golpe: 'labareda' }, { nv: 1, golpe: 'rabo_brasa' },
+      { nv: 1, golpe: 'fogo_fatuo' }, { nv: 1, golpe: 'clarao_boitata' },
+      { nv: 58, golpe: 'encarada' }, { nv: 64, golpe: 'afiar' },
+    ],
   },
   {
     id: 'iarinha', nome: 'Iarinha', tipos: ['agua'],
@@ -92,6 +105,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'canto_iara' }, { nv: 18, golpe: 'mare_cheia' },
       { nv: 24, golpe: 'benzecao' }, { nv: 30, golpe: 'tromba_agua' },
       { nv: 36, golpe: 'lampejo' },
+    ],
+    evolui: { em: 'ipupiara', nv: 55 },
+  },
+  {
+    id: 'ipupiara', nome: 'Ipupiara', tipos: ['agua', 'sombra'],
+    base: { hp: 100, atq: 80, def: 95, esp: 130, vel: 100 },
+    taxaCaptura: 20, xpBase: 230, crescimento: 'medio',
+    arte: 'ipupiara', categoria: 'Mãe das Águas',
+    sobre: 'Desceu tão fundo que o rio virou mar. Pescador antigo só dizia o nome dela baixinho.',
+    aprende: [
+      { nv: 1, golpe: 'tromba_agua' }, { nv: 1, golpe: 'mare_cheia' },
+      { nv: 1, golpe: 'canto_iara' }, { nv: 1, golpe: 'benzecao' },
+      { nv: 58, golpe: 'sombra_fria' }, { nv: 64, golpe: 'breu' },
     ],
   },
   {
@@ -120,6 +146,19 @@ const LISTA: readonly Especie[] = [
       { nv: 24, golpe: 'esporo' }, { nv: 30, golpe: 'tempestade_verde' },
       { nv: 36, golpe: 'desmoronamento' },
     ],
+    evolui: { em: 'anhanga', nv: 55 },
+  },
+  {
+    id: 'anhanga', nome: 'Anhangá', tipos: ['planta', 'luz'],
+    base: { hp: 100, atq: 125, def: 105, esp: 80, vel: 95 },
+    taxaCaptura: 20, xpBase: 230, crescimento: 'medio',
+    arte: 'anhanga', categoria: 'Guarda-Mata',
+    sobre: 'Veado branco de olho de fogo. Caçador que o vê larga a espingarda e não volta mais à mata.',
+    aprende: [
+      { nv: 1, golpe: 'cipo' }, { nv: 1, golpe: 'tempestade_verde' },
+      { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'afiar' },
+      { nv: 58, golpe: 'lampejo' }, { nv: 64, golpe: 'aurora' },
+    ],
   },
 
   /* --------------------- selvagens de Porto Iara --------------------- */
@@ -133,6 +172,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'bolha' },
       { nv: 8, golpe: 'jato_agua' }, { nv: 13, golpe: 'bote' },
       { nv: 19, golpe: 'mare_cheia' },
+    ],
+    evolui: { em: 'piraguacu', nv: 30 },
+  },
+  {
+    id: 'piraguacu', nome: 'Piraguaçu', tipos: ['agua'],
+    base: { hp: 78, atq: 92, def: 70, esp: 80, vel: 95 },
+    taxaCaptura: 45, xpBase: 165, crescimento: 'rapido',
+    arte: 'piraguacu', categoria: 'Peixe Encantado',
+    sobre: 'Roubou tanta isca que virou história de pescador. Vira canoa com uma rabanada só.',
+    aprende: [
+      { nv: 1, golpe: 'bolha' }, { nv: 1, golpe: 'jato_agua' },
+      { nv: 1, golpe: 'bote' }, { nv: 1, golpe: 'mare_cheia' },
+      { nv: 34, golpe: 'tromba_agua' }, { nv: 40, golpe: 'afiar' },
     ],
   },
   {
@@ -224,6 +276,19 @@ const LISTA: readonly Especie[] = [
       { nv: 10, golpe: 'areia' }, { nv: 18, golpe: 'labareda' },
       { nv: 26, golpe: 'tremor' }, { nv: 34, golpe: 'desmoronamento' },
     ],
+    evolui: { em: 'teiniagua', nv: 42 },
+  },
+  {
+    id: 'teiniagua', nome: 'Teiniaguá', tipos: ['fogo', 'terra'],
+    base: { hp: 88, atq: 92, def: 98, esp: 100, vel: 66 },
+    taxaCaptura: 45, xpBase: 180, crescimento: 'medio',
+    arte: 'teiniagua', categoria: 'Guardiã da Mina',
+    sobre: 'A lagartixa da pedra de fogo na testa. Quem pega a pedra fica rico e nunca mais dorme.',
+    aprende: [
+      { nv: 1, golpe: 'brasa' }, { nv: 1, golpe: 'labareda' },
+      { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'desmoronamento' },
+      { nv: 46, golpe: 'clarao_boitata' }, { nv: 52, golpe: 'afiar' },
+    ],
   },
   {
     id: 'maeDoOuro', nome: 'Mãe-do-Ouro', tipos: ['fogo', 'luz'],
@@ -235,6 +300,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
       { nv: 1, golpe: 'lampejo' }, { nv: 20, golpe: 'benzecao' },
       { nv: 30, golpe: 'aurora' }, { nv: 40, golpe: 'clarao_boitata' },
+    ],
+    evolui: { em: 'eldorado', nv: 62 },
+  },
+  {
+    id: 'eldorado', nome: 'Eldorado', tipos: ['fogo', 'luz'],
+    base: { hp: 92, atq: 86, def: 88, esp: 126, vel: 100 },
+    taxaCaptura: 3, xpBase: 220, crescimento: 'lento',
+    arte: 'eldorado', categoria: 'Fogo da Mina',
+    sobre: 'A cidade de ouro que ninguém achou é ela, dormindo. Quando acorda, a serra brilha até de dia.',
+    aprende: [
+      { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'clarao_boitata' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'labareda' },
+      { nv: 64, golpe: 'benzecao' }, { nv: 68, golpe: 'afiar' },
     ],
   },
 
@@ -262,6 +340,19 @@ const LISTA: readonly Especie[] = [
       { nv: 12, golpe: 'encarada' }, { nv: 20, golpe: 'redemoinho' },
       { nv: 28, golpe: 'rosnado' }, { nv: 36, golpe: 'vendaval' },
     ],
+    evolui: { em: 'matintaPerera', nv: 48 },
+  },
+  {
+    id: 'matintaPerera', nome: 'Matinta-Perera', tipos: ['vento', 'sombra'],
+    base: { hp: 86, atq: 82, def: 78, esp: 112, vel: 102 },
+    taxaCaptura: 45, xpBase: 190, crescimento: 'medio',
+    arte: 'matintaPerera', categoria: 'Bruxa do Vento',
+    sobre: 'Assovia fino no telhado a noite toda. Se ninguém prometer fumo, a casa acorda com o nome dela na boca.',
+    aprende: [
+      { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 1, golpe: 'encarada' }, { nv: 1, golpe: 'vendaval' },
+      { nv: 52, golpe: 'mau_olhado' }, { nv: 56, golpe: 'breu' },
+    ],
   },
   {
     id: 'uirapuru', nome: 'Uirapuru', tipos: ['vento'],
@@ -272,6 +363,19 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'redemoinho' },
       { nv: 1, golpe: 'vendaval' }, { nv: 20, golpe: 'encarada' },
+    ],
+    evolui: { em: 'uirapuruRei', nv: 62 },
+  },
+  {
+    id: 'uirapuruRei', nome: 'Uirapuru-Rei', tipos: ['vento', 'luz'],
+    base: { hp: 88, atq: 72, def: 72, esp: 132, vel: 118 },
+    taxaCaptura: 3, xpBase: 225, crescimento: 'lento',
+    arte: 'uirapuruRei', categoria: 'Canto do Mato',
+    sobre: 'Quando ele canta, a mata inteira para pra ouvir. O canto cura qualquer tristeza, menos a de quem caça passarinho.',
+    aprende: [
+      { nv: 1, golpe: 'vendaval' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'lampejo' },
+      { nv: 64, golpe: 'benzecao' }, { nv: 68, golpe: 'aurora' },
     ],
   },
 
@@ -312,6 +416,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'faisca' }, { nv: 20, golpe: 'tremor' },
       { nv: 32, golpe: 'trovoada' }, { nv: 44, golpe: 'desmoronamento' },
     ],
+    evolui: { em: 'tatuacu', nv: 54 },
+  },
+  {
+    id: 'tatuacu', nome: 'Tatuaçu', tipos: ['raio', 'terra'],
+    base: { hp: 100, atq: 112, def: 120, esp: 76, vel: 52 },
+    taxaCaptura: 40, xpBase: 200, crescimento: 'medio',
+    arte: 'tatuacu', categoria: 'Cavador de Tempestade',
+    sobre: 'Tatu do tamanho de carro de boi. Enrolado, vira pedra de raio e desce o morro rolando.',
+    aprende: [
+      { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
+      { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'desmoronamento' },
+      { nv: 56, golpe: 'raio_tupa' }, { nv: 62, golpe: 'afiar' },
+    ],
   },
   {
     id: 'arcoDaVelha', nome: 'Arco-da-Velha', tipos: ['raio', 'luz'],
@@ -322,6 +439,19 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'lampejo' },
       { nv: 1, golpe: 'raio_tupa' }, { nv: 1, golpe: 'aurora' },
+    ],
+    evolui: { em: 'boiuna', nv: 64 },
+  },
+  {
+    id: 'boiuna', nome: 'Boiúna', tipos: ['agua', 'raio'],
+    base: { hp: 100, atq: 84, def: 90, esp: 130, vel: 100 },
+    taxaCaptura: 3, xpBase: 230, crescimento: 'lento',
+    arte: 'boiuna', categoria: 'Serpente da Chuva',
+    sobre: 'A cobra grande que o Arco-da-Velha vira quando bebe o rio inteiro. De noite os olhos dela parecem luz de navio.',
+    aprende: [
+      { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'raio_tupa' },
+      { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'tromba_agua' },
+      { nv: 66, golpe: 'mare_cheia' }, { nv: 70, golpe: 'afiar' },
     ],
   },
 
@@ -360,6 +490,19 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'rosnado' },
       { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'desmoronamento' },
+    ],
+    evolui: { em: 'juma', nv: 62 },
+  },
+  {
+    id: 'juma', nome: 'Juma', tipos: ['terra'],
+    base: { hp: 130, atq: 138, def: 118, esp: 62, vel: 58 },
+    taxaCaptura: 20, xpBase: 240, crescimento: 'lento',
+    arte: 'juma', categoria: 'Gigante da Cava',
+    sobre: 'O Mapinguari mais velho, de pelo branco. O grito dele derruba árvore e deixa caçador surdo por uma lua.',
+    aprende: [
+      { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
+      { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'rosnado' },
+      { nv: 64, golpe: 'esforco' }, { nv: 68, golpe: 'garra_cuca' },
     ],
   },
   {
@@ -411,6 +554,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'sombra_fria' }, { nv: 30, golpe: 'tremor' },
       { nv: 44, golpe: 'garra_cuca' },
     ],
+    evolui: { em: 'almaPenada', nv: 60 },
+  },
+  {
+    id: 'almaPenada', nome: 'Alma-Penada', tipos: ['sombra', 'terra'],
+    base: { hp: 110, atq: 112, def: 124, esp: 80, vel: 60 },
+    taxaCaptura: 30, xpBase: 215, crescimento: 'medio',
+    arte: 'almaPenada', categoria: 'O que a Terra Não Quis',
+    sobre: 'Largou o corpo seco na árvore e saiu vagando. Arrasta corrente pela estrada até alguém rezar por ela.',
+    aprende: [
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'tremor' },
+      { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 62, golpe: 'breu' }, { nv: 66, golpe: 'desmoronamento' },
+    ],
   },
   {
     id: 'cuca', nome: 'Cuca', tipos: ['sombra'],
@@ -422,6 +578,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'mau_olhado' },
       { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'sombra_fria' },
     ],
+    evolui: { em: 'cucaRainha', nv: 64 },
+  },
+  {
+    id: 'cucaRainha', nome: 'Cuca-Rainha', tipos: ['sombra', 'agua'],
+    base: { hp: 120, atq: 100, def: 100, esp: 134, vel: 92 },
+    taxaCaptura: 15, xpBase: 250, crescimento: 'lento',
+    arte: 'cucaRainha', categoria: 'A Velha do Sótão',
+    sobre: 'Largou o sótão e fez ninho no brejo. Mexe um caldeirão do tamanho de um poço e canta pra ninguém dormir.',
+    aprende: [
+      { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'breu' },
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'tromba_agua' },
+      { nv: 66, golpe: 'sombra_fria' }, { nv: 70, golpe: 'afiar' },
+    ],
   },
   {
     id: 'pisadeira', nome: 'Pisadeira', tipos: ['sombra', 'vento'],
@@ -432,6 +601,19 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'vendaval' },
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
+    ],
+    evolui: { em: 'pesadelo', nv: 64 },
+  },
+  {
+    id: 'pesadelo', nome: 'Pesadelo', tipos: ['sombra', 'vento'],
+    base: { hp: 98, atq: 84, def: 86, esp: 138, vel: 122 },
+    taxaCaptura: 3, xpBase: 240, crescimento: 'lento',
+    arte: 'pesadelo', categoria: 'Dona do Telhado',
+    sobre: 'Quando a Pisadeira cansa de pisar no peito, ela entra no sonho. Aí não tem telha que proteja.',
+    aprende: [
+      { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'vendaval' },
+      { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 66, golpe: 'sombra_fria' }, { nv: 70, golpe: 'afiar' },
     ],
   },
 
@@ -471,6 +653,19 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'lampejo' }, { nv: 30, golpe: 'labareda' },
       { nv: 44, golpe: 'aurora' },
     ],
+    evolui: { em: 'fogoFatuo', nv: 62 },
+  },
+  {
+    id: 'fogoFatuo', nome: 'Fogo-Fátuo', tipos: ['luz', 'fogo'],
+    base: { hp: 92, atq: 82, def: 90, esp: 122, vel: 96 },
+    taxaCaptura: 30, xpBase: 210, crescimento: 'medio',
+    arte: 'fogoFatuo', categoria: 'Luz de Beira de Estrada',
+    sobre: 'Luz azul que corre à frente do viajante e some quando ele alcança. Quem segue se perde; quem não segue se arrepende.',
+    aprende: [
+      { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'aurora' },
+      { nv: 64, golpe: 'fogo_fatuo' }, { nv: 68, golpe: 'clarao_boitata' },
+    ],
   },
   {
     id: 'jaci', nome: 'Jaci', tipos: ['luz', 'sombra'],
@@ -481,6 +676,19 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'breu' },
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'sombra_fria' },
+    ],
+    evolui: { em: 'eclipse', nv: 66 },
+  },
+  {
+    id: 'eclipse', nome: 'Eclipse', tipos: ['luz', 'sombra'],
+    base: { hp: 106, atq: 82, def: 100, esp: 142, vel: 110 },
+    taxaCaptura: 3, xpBase: 255, crescimento: 'lento',
+    arte: 'eclipse', categoria: 'A Lua',
+    sobre: 'Quando Jaci encontra Guaraci no meio do céu, o dia vira noite por um instante. Ela é esse instante.',
+    aprende: [
+      { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'breu' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 68, golpe: 'benzecao' }, { nv: 72, golpe: 'afiar' },
     ],
   },
 ];

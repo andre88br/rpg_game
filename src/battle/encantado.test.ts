@@ -14,7 +14,7 @@ test('toda espécie referencia golpes e evoluções que existem', () => {
     const e = especie(id);
     for (const a of e.aprende) {
       assert.ok(GOLPES[a.golpe], `${id} aprende golpe inexistente: ${a.golpe}`);
-      assert.ok(a.nv >= 1 && a.nv <= 60, `${id}: nível inválido ${a.nv}`);
+      assert.ok(a.nv >= 1 && a.nv <= 100, `${id}: nível inválido ${a.nv}`);
     }
     if (e.evolui) {
       assert.ok(ESPECIES_ORDEM.includes(e.evolui.em),
@@ -212,4 +212,39 @@ test('a Caiporinha evolui para a Caipora', () => {
   const e = criar('caiporinha', 39);
   const subidas = ganharXP(e, xpDoNivel(40, ficha(e).crescimento) - e.xp);
   assert.equal(subidas.at(-1)!.evoluiEm, 'caipora');
+});
+
+test('toda linhagem evolui: nenhuma espécie fica sozinha', () => {
+  const alvos = new Set(ESPECIES_ORDEM.map((id) => especie(id).evolui?.em).filter(Boolean));
+  for (const id of ESPECIES_ORDEM) {
+    assert.ok(especie(id).evolui || alvos.has(id), `${id} não evolui nem vem de ninguém`);
+  }
+});
+
+test('cada evolução vem depois da anterior', () => {
+  for (const id of ESPECIES_ORDEM) {
+    const e = especie(id);
+    if (!e.evolui) continue;
+    const alvo = especie(e.evolui.em);
+    if (alvo.evolui) assert.ok(alvo.evolui.nv > e.evolui.nv, `${alvo.id} evolui antes de nascer`);
+  }
+});
+
+test('os iniciais têm duas evoluções', () => {
+  for (const [a, b, c] of [['boitatinha', 'boitatao', 'mboitata'], ['iarinha', 'iaraMae', 'ipupiara'],
+                           ['curupinho', 'curupira', 'anhanga']]) {
+    assert.equal(especie(a!).evolui!.em, b);
+    assert.equal(especie(b!).evolui!.em, c);
+  }
+});
+
+test('evoluir para uma curva de XP diferente mantém o nível e a barra', () => {
+  const e = criar('caiporinha', 45);
+  const c = ficha(e).crescimento;
+  ganharXP(e, Math.floor((xpDoNivel(46, c) - xpDoNivel(45, c)) / 2));
+  const antes = progressoXP(e);
+  evoluir(e, 'caipora');
+  assert.equal(e.nivel, 45);
+  assert.ok(Math.abs(progressoXP(e) - antes) < 0.02);
+  assert.deepEqual(ganharXP(e, 0), []);
 });
