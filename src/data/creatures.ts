@@ -159,6 +159,7 @@ const LISTA: readonly Especie[] = [
       { nv: 7, golpe: 'rosnado' }, { nv: 12, golpe: 'cipo' },
       { nv: 18, golpe: 'raiz_sugadora' },
     ],
+    evolui: { em: 'caipora', nv: 40 },
   },
 
   /* --------------------- da Serra Boitatá --------------------- */

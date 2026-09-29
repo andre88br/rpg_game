@@ -206,3 +206,10 @@ test('não há nível máximo: o XP continua subindo o bicho depois do 60', () =
   assert.ok(progressoXP(e) < 1);
   assert.equal(criar('iaraMae', 120).nivel, 120);
 });
+
+test('a Caiporinha evolui para a Caipora', () => {
+  assert.deepEqual(especie('caiporinha').evolui, { em: 'caipora', nv: 40 });
+  const e = criar('caiporinha', 39);
+  const subidas = ganharXP(e, xpDoNivel(40, ficha(e).crescimento) - e.xp);
+  assert.equal(subidas.at(-1)!.evoluiEm, 'caipora');
+});

@@ -244,6 +244,9 @@ Chegar perto toca a cutscene de quando ela é achada. Encurralada, ela
 **briga pela muda**: vencer ou prender no patuá solta a **Muda de Árvore**.
 Com as três, volte no **Seu Elias**: paga **500**.
 
+Quem ficar com uma Caiporinha no time vê ela virar **Caipora**
+(Terra/Planta) no **nível 40**.
+
 ## Conta 4 — `conta_pegadas`: o caderno de pegadas
 
 Com o caderno do Seu Elias na mão, veja **7 espécies diferentes**. As duas
