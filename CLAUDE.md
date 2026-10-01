@@ -25,4 +25,5 @@ publicar **sem pedir confirmação**, sempre que houver mudança no jogo pronta:
 - `npm test` roda os testes (node:test, sem DOM); `npm run build` = tsc + vite.
 - Arte toda desenhada por código (`src/art/`); mapas são grades de letras em
   `src/data/mapas/`, registrados em `index.ts` e numa região de `src/data/mundo.ts`.
-- Mudança de mecânica ou de região atualiza o README e o MANUAL.
+- Mudança de mecânica ou de região atualiza o README e o MANUAL; mudança na
+  estrutura do código atualiza o ARQUITETURA.md.

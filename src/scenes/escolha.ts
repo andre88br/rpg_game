@@ -18,8 +18,6 @@ export type SaidaEscolha = 'aberto' | 'fechar';
 /* os três da mesa, na ordem em que estão postos */
 export const INICIAIS: readonly string[] = ['curupinho', 'boitatinha', 'iarinha'];
 
-export const NIVEL_INICIAL = 5;
-
 export class EscolhaInicial {
   private sel = 1;                 // começa no do meio
   private confirmando = false;

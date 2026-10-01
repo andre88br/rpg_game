@@ -11,6 +11,8 @@ import type { Direcao } from '../art/people.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 
 export const TAMANHO_TIME = 6;
+/* o nível do Encantado que sai da mesa da Dona Firmina */
+export const NIVEL_INICIAL = 5;
 
 /* Os dois protagonistas — a mesma escolha que abre um jogo novo, em
    scenes/personagem.ts. O pronome mora aqui, não lá, porque é dado que

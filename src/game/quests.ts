@@ -96,7 +96,11 @@ export interface Pergunta {
   errou: { linhas: readonly string[]; desliga?: string | readonly string[] };
 }
 
-export function serve(e: EstadoJogo, f: Fala): boolean {
+/* As condições de uma fala — e de qualquer NPC ou objeto de mapa, que usam
+   o mesmo par `se`/`seNao` para aparecer ou sumir. */
+export type Condicionado = Pick<Fala, 'se' | 'seNao'>;
+
+export function serve(e: EstadoJogo, f: Condicionado): boolean {
   for (const c of lista(f.se)) if (!ligada(e, c)) return false;
   for (const c of lista(f.seNao)) if (ligada(e, c)) return false;
   return true;

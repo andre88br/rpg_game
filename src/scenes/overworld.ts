@@ -9,29 +9,34 @@
 
    O menu de pausa e a loja NÃO são cenas: são sobreposições desenhadas por
    cima do mundo, que continua lá atrás. Trocar de cena apagaria o mapa.
+
+   Esta classe coordena; os pedaços com vida própria moram ao lado:
+     mundo/dialogo.ts    a caixa de conversa e a charada
+     mundo/corteGuia.ts  o corte de câmera para a guia do terreiro
+     mundo/pintor.ts     o desenho do mundo plano e do breu
+     game/avisos.ts      o que placa, tranca e guia dizem ao A
+     game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
 import { vista3D } from '../render3d/carregar.ts';
-import { empaginar } from '../ui/paginas.ts';
 import { EM_3D } from '../render3d/relevo.ts';
+import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
-import { assar, assarSuave, larguraDe, type Assado } from '../core/buf.ts';
-import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
+import { assar, type Assado } from '../core/buf.ts';
+import { LARGURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada, Acao } from '../core/input.ts';
 import {
   Mapa, TS, objetoAtivo, type ContextoMapa, type DefMapa, type DefNPC, type DefSaida,
 } from '../world/tilemap.ts';
 import type { Mundo } from '../world/mundo.ts';
-import { colunaPorta, CONTAS_NA_GUIA } from '../art/tiles.ts';
 import { Camera } from '../world/camera.ts';
 import { Ator, assarBicho, assarFolha, direcaoDe, DELTAS,
          type FolhaAssada } from '../world/actor.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import * as UI from '../art/ui.ts';
-import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
-import { quebrar, larguraTexto } from '../art/font.ts';
+import { larguraTexto } from '../art/font.ts';
 import { acaso } from '../core/rng.ts';
 import {
   criar, evoluir, ficha, nome as nomeDe, sortearSelvagem, type Encantado,
@@ -41,90 +46,41 @@ import type { Cenario } from '../art/battlebg.ts';
 import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo } from '../data/mundo.ts';
-import { guardar, temTimeEmPe, curarTime, type EstadoJogo } from '../game/state.ts';
+import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
 import {
-  aplicarFala, contasAcesasDe, contasFaltandoDe, escolherFala, ligada, preencher,
-  responder, serve, terreiroDaConta, TERREIROS, type Fala,
+  aplicarFala, contasAcesasDe, escolherFala, ligada, responder, serve, terreiroDaConta, type Condicionado, type Fala,
 } from '../game/quests.ts';
+import { montarAvisos, type Aviso } from '../game/avisos.ts';
+import { LeitorCodigos, aplicarPulo } from '../game/codigos.ts';
 import { sondarTesouro } from '../game/tesouro.ts';
 import { escoltaAtiva, derrubarEscolta } from '../game/escolta.ts';
 import { pisarLadrilho } from '../game/sequencia.ts';
 import { avista, proximoDaRonda } from '../game/ronda.ts';
 import { tracarFeixe } from '../game/feixe.ts';
 import { avaliarCorrida, encerrar, type DefCorrida } from '../game/corrida.ts';
-
-/* todas as corridas contra o sol do jogo, de qualquer mapa */
-const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
 import { salvar } from '../game/save.ts';
 import * as Som from '../audio/som.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
-import { multiplicadorVelocidade } from '../game/config.ts';
 import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
-import { EscolhaInicial, NIVEL_INICIAL } from './escolha.ts';
+import { EscolhaInicial } from './escolha.ts';
 import { TelaCaixa } from './caixa.ts';
 import { TelaPoder } from './poder.ts';
+import { Dialogo, type Conversa } from './mundo/dialogo.ts';
+import { CorteDaGuia } from './mundo/corteGuia.ts';
+import { PintorMundo } from './mundo/pintor.ts';
 
-const LARG_DIALOGO = LARGURA - 12;
-const CHARS_POR_SEG = 48;
-/* quanto do sprite (de 20px de altura) fica visível nadando — corta bem no
-   pescoço, água na altura do peito. O resto de baixo nem se desenha: quem
-   mostra que é água ali é o próprio tile por baixo. */
-const ALTURA_NADANDO = 14;
+/* todas as corridas contra o sol do jogo, de qualquer mapa */
+const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
+
 /* um respiro de escuro entre um mapa e outro: sem isso a troca é um tranco */
 const FADE = 0.18;
 /* quanto tempo o "!" fica sobre a cabeça do treinador antes de ele vir */
 const SUSTO = 0.7;
-/* corte de câmera para a guia do terreiro: tempo de entrada/saída do preto,
-   e quanto tempo o recado fica na tela se ninguém apertar nada */
-const CUT_FADE = 0.35;
-const CUT_ESPERA = 3.2;
 /* depois de uma cutscene de apresentação, a luta espera a troca de cena de
    volta terminar (o gerenciador ignora outra troca no meio de uma) */
 const ESPERA_LUTA = 0.4;
-
-/* códigos secretos: digitados com os próprios botões do jogo, andando livre
-   pelo mundo (não contam em conversa, batalha, loja ou qualquer menu). Cada
-   um é conferido contra o fim do mesmo buffer de botões apertados — por
-   isso nenhum pode ser sufixo de outro, senão os dois disparariam juntos. */
-const CODIGO_REGIAO2: readonly Acao[] =
-  ['cima', 'cima', 'baixo', 'baixo', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
-/* o da região 3 é o mesmo de cabeça para baixo: nenhum é sufixo do outro */
-const CODIGO_REGIAO3: readonly Acao[] =
-  ['baixo', 'baixo', 'cima', 'cima', 'dir', 'esq', 'dir', 'esq', 'b', 'a'];
-/* o da região 4 gira a bússola inteira duas vezes — nenhuma sequência de 7
-   ou 10 elementos dela bate com o final de nenhum código acima */
-const CODIGO_REGIAO4: readonly Acao[] =
-  ['cima', 'dir', 'baixo', 'esq', 'cima', 'dir', 'baixo', 'esq', 'b', 'a'];
-/* o da região 5 vai de um lado para o outro antes de subir e descer — a
-   região que cresce para os lados. Nenhum final dele bate com os de cima. */
-const CODIGO_REGIAO5: readonly Acao[] =
-  ['esq', 'dir', 'esq', 'dir', 'cima', 'baixo', 'cima', 'baixo', 'b', 'a'];
-/* o da região 6 desce e sobe antes de ir de lado — mesmo tamanho dos outros
-   e diferente de todos, então nenhum é sufixo dele nem ele de nenhum */
-const CODIGO_REGIAO6: readonly Acao[] =
-  ['baixo', 'cima', 'baixo', 'cima', 'esq', 'dir', 'esq', 'dir', 'b', 'a'];
-/* o da região 7 é o da 6 com cada direção trocada pela oposta */
-const CODIGO_REGIAO7: readonly Acao[] =
-  ['cima', 'baixo', 'cima', 'baixo', 'dir', 'esq', 'dir', 'esq', 'b', 'a'];
-/* o da região 8 gira a bússola ao contrário da 4, duas voltas */
-const CODIGO_REGIAO8: readonly Acao[] =
-  ['esq', 'baixo', 'dir', 'cima', 'esq', 'baixo', 'dir', 'cima', 'b', 'a'];
-/* o do Círculo Dourado é o da região 5 com cada direção trocada pela oposta */
-const CODIGO_TORNEIO: readonly Acao[] =
-  ['dir', 'esq', 'dir', 'esq', 'baixo', 'cima', 'baixo', 'cima', 'b', 'a'];
-/* os dois de baixo só diferem na direção que repetem — sobe evolui, desce dá poder */
-const CODIGO_EVOLUIR: readonly Acao[] = ['a', 'b', 'a', 'b', 'cima', 'cima', 'a'];
-const CODIGO_POTENCIA: readonly Acao[] = ['a', 'b', 'a', 'b', 'baixo', 'baixo', 'a'];
-
-interface Cutscene {
-  mapa: Mapa;
-  cam: Camera;
-  t: number;
-  fase: 'entra' | 'mostra' | 'sai';
-  texto: string;
-}
 
 interface NpcVivo {
   def: DefNPC;
@@ -140,21 +96,6 @@ interface NpcVivo {
 const FOLEGO_PADRAO = 4;
 /* a quantos passos a cutscene de encontro de um NPC dispara */
 const DISTANCIA_ENCONTRO = 3;
-
-interface Conversa {
-  falante: string;
-  linhas: string[];
-  indice: number;
-  revelados: number;
-  /* o que acontece quando a última página fecha */
-  fala: Fala | null;
-  npc: NpcVivo | null;
-}
-
-/* coisas do cenário que respondem ao botão A. As falas são condicionais como
-   as de NPC — é o que deixa um caixote entregar item e acender flag. */
-interface Aviso { nome: string; falas: readonly Fala[] }
-const diz = (...linhas: string[]): readonly Fala[] => [{ linhas }];
 
 /* um treinador que avistou o jogador e está vindo */
 interface Duelo { npc: NpcVivo; fase: 'susto' | 'andando' | 'falando' | 'lutando'; t: number }
@@ -188,13 +129,10 @@ export class CenaMundo implements Cena {
   private ocupados = new Set<string>();
   private avisos = new Map<string, Aviso>();
 
-  private conversa: Conversa | null = null;
-  private caixaDialogo!: Assado;
-  private etiquetas = new Map<string, Assado>();
+  private dialogo!: Dialogo<NpcVivo>;
   private faixaNome: Assado | null = null;
   private tempoFaixa = 0;
-  private rocadas: Assado[] = [];
-  private ondas: Assado[] = [];
+  private pintor!: PintorMundo;
   private tempoAnim = 0;
 
   private op: OpcoesCenaMundo;
@@ -237,29 +175,27 @@ export class CenaMundo implements Cena {
   private relogios = new Map<string, number>();
   /* quantos ladrilhos de memória certos seguidos, neste mapa, nesta visita */
   private progressoLadrilhos = 0;
-  /* charada aberta: a pergunta já foi lida, falta escolher a resposta */
-  private pergunta: { fala: Fala; npc: NpcVivo | null; falante: string;
-                      linhas: string[]; sel: number } | null = null;
   /* folhas de sprite assadas uma vez por estilo, valem para todos os mapas */
   private folhas = new Map<string, FolhaAssada>();
-  /* máscaras de escuridão, assadas uma vez por raio de luz já usado */
-  private mascarasLuz = new Map<number, Assado>();
   /* pedras que se empurram: posição de cada uma, na sala atual */
   private pedras: Pedra[] = [];
-  private pedraImg: Assado | null = null;
   /* resultado da última batalha, aplicado quando a cena volta a ser a da vez */
   private pendente: Resultado | null = null;
   private pendenteEntrouNoTime = false;
   /* uma conta da guia acendeu: o corte de câmera espera a vez, sem interromper
      conversa, batalha ou qualquer outra coisa que já esteja tomando a tela */
-  private cutscenePendente: { terreiro: string; faltam: number } | null = null;
-  private cutscene: Cutscene | null = null;
+  private corte = new CorteDaGuia();
   /* últimos botões apertados, andando livre — é contra isto que o código
      secreto é comparado a cada quadro */
-  private bufferCodigo: Acao[] = [];
+  private codigos = new LeitorCodigos();
 
   constructor(op: OpcoesCenaMundo) {
     this.op = op;
+  }
+
+  /* conversa ou charada na tela: o mundo espera */
+  private get falando(): boolean {
+    return this.dialogo.conversa !== null || this.dialogo.pergunta !== null;
   }
 
   /* ------------------------------------------------------------- montagem */
@@ -267,7 +203,7 @@ export class CenaMundo implements Cena {
   entrar(): void {
     if (this.montado) {
       this.tempoFaixa = 0;
-      this.conversa = null;
+      this.dialogo.conversa = null;
       this.carencia = 0.6;
       if (this.lutaDepois) this.esperaLuta = ESPERA_LUTA;
       this.resolverBatalha();
@@ -276,9 +212,8 @@ export class CenaMundo implements Cena {
     this.montado = true;
 
     // recursos visuais assados uma vez, valem para todos os mapas
-    this.caixaDialogo = assar(UI.caixa(LARG_DIALOGO, 14 + 3 * 10));
-    this.rocadas = [assarSuave(T.rocada(0)), assarSuave(T.rocada(1)), assarSuave(T.rocada(2))];
-    this.ondas = [assarSuave(T.ondaNado(0)), assarSuave(T.ondaNado(1))];
+    this.dialogo = new Dialogo(this.op.estado);
+    this.pintor = new PintorMundo();
     this.menu = new MenuPausa({
       estado: this.op.estado,
       sondar: () => {
@@ -331,11 +266,11 @@ export class CenaMundo implements Cena {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     this.marcarVisita(id);
-    this.conversa = null;
+    this.dialogo.conversa = null;
     this.duelo = null;
 
     this.npcs = this.def.npcs
-      .filter((d) => this.condicoesValem(d.se, d.seNao))
+      .filter((d) => serve(this.op.estado, d))
       .map((d) => ({
         def: d,
         ator: new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir),
@@ -382,7 +317,7 @@ export class CenaMundo implements Cena {
     /* quem só estava ali enquanto o serviço não estava feito vai embora na
        hora: o Sacizinho que largou a rede, o bicho do farol que perdeu */
     const antes = this.npcs.length;
-    this.npcs = this.npcs.filter((n) => this.condicoesValem(n.def.se, n.def.seNao));
+    this.npcs = this.npcs.filter((n) => serve(this.op.estado, n.def));
     if (this.npcs.length !== antes) this.recontarOcupados();
 
     this.sincronizarSeguidor();
@@ -411,8 +346,7 @@ export class CenaMundo implements Cena {
     this.feixe = [];
     const f = this.def.feixe;
     if (!f) return;
-    const ativo = (o: { se?: string | readonly string[]; seNao?: string | readonly string[] }) =>
-      this.condicoesValem(o.se, o.seNao);
+    const ativo = (o: Condicionado) => serve(this.op.estado, o);
     const fonte = this.def.objetos.find((o) => o.tipo === 'fonteLuz' && ativo(o));
     const alvo = this.def.objetos.find((o) => o.tipo === 'cristal' && ativo(o));
     if (!fonte || !alvo) return;
@@ -426,7 +360,7 @@ export class CenaMundo implements Cena {
     if (!r.acertou || e.flags[f.flag]) return;
     e.flags[f.flag] = true;
     const terreiro = this.terreiroDaFala(f.flag);
-    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+    if (terreiro) this.corte.preparar(terreiro, contasAcesasDe(e, terreiro));
     salvar(e);
     this.atualizarCenario();
     this.abrirConversa('CRISTAL', ['O feixe bate no cristal, e o cristal acende inteiro, de dentro para fora.']);
@@ -449,7 +383,7 @@ export class CenaMundo implements Cena {
       this.atualizarCenario();
       if (r === 'venceu') {
         const terreiro = this.terreiroDaFala(c.conta);
-        if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+        if (terreiro) this.corte.preparar(terreiro, contasAcesasDe(e, terreiro));
         salvar(e);
         this.abrirConversa('LAMPIÕES', ['O último lampião acende, e o sol some no mesmo instante. Chegou a tempo!']);
       } else {
@@ -508,97 +442,7 @@ export class CenaMundo implements Cena {
   }
 
   private montarAvisos(): void {
-    this.avisos = new Map();
-    const ctx = this.contexto();
-    for (const o of this.def.objetos) {
-      // objeto que saiu do mapa também não responde ao A
-      if (!this.condicoesValem(o.se, o.seNao)) continue;
-      /* objeto com fala própria manda em tudo: é o caixote, o pote, a brasa */
-      if (o.falas) {
-        for (let j = 0; j < (o.alt ?? 1); j++) {
-          for (let i = 0; i < (o.larg ?? 1); i++) {
-            this.avisos.set(`${o.tx + i},${o.ty + j}`,
-                            { nome: o.placa ?? 'ACHADO', falas: o.falas });
-          }
-        }
-      } else if (o.tipo === 'barreira') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'TRANCA', falas: diz('Uma tranca atravessada fecha a passagem.'),
-          });
-        }
-      } else if (o.tipo === 'monteFolhas') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'MONTE DE FOLHAS', falas: diz('O vento ainda não abriu caminho aqui.'),
-          });
-        }
-      } else if (o.tipo === 'cercaRaio') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'CERCA DE RAIO', falas: diz('A cerca estala de faísca. Alguma chave de para-raio a mantém ligada.'),
-          });
-        }
-      } else if (o.tipo === 'cortinaLuz') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'CORTINA DE LUZ', falas: diz('Um clarão tão forte que o olho fecha sozinho. Falta o que desfaça a luz.'),
-          });
-        }
-      } else if (o.tipo === 'veu') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'VÉU DE SOMBRA', falas: diz('Um breu grosso como pano. A mão atravessa, o corpo não.'),
-          });
-        }
-      } else if (o.tipo === 'monteTerra') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'MONTE DE TERRA', falas: diz('Terra desmoronada tapa a passagem. Só cavando.'),
-          });
-        }
-      } else if (o.tipo === 'pedraRachada') {
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'PEDRA RACHADA', falas: diz('Uma rachadura atravessa a pedra. Falta a faísca que a parta.'),
-          });
-        }
-      } else if (o.tipo === 'portao') {
-        const terreiro = o.terreiro ?? 'agua';
-        const acesas = o.contas ?? ctx.contas(terreiro);
-        const faltando = contasFaltandoDe(this.op.estado, terreiro);
-        for (let i = 0; i < (o.larg ?? 1); i++) {
-          this.avisos.set(`${o.tx + i},${o.ty}`, {
-            nome: 'GUIA DO TERREIRO',
-            falas: acesas >= CONTAS_NA_GUIA
-              ? diz('As cinco contas brilham, e a guia se abre sozinha ao seu passo.')
-              : acesas === 0
-                ? diz('Uma guia de cinco contas atravessa o pátio. Todas apagadas.',
-                      'Cada serviço bem feito na região acende uma. Com as cinco acesas, a guia se abre.')
-                : diz(`A guia tem ${acesas} de ${CONTAS_NA_GUIA} contas acesas.`,
-                      `Ainda falta: ${faltando[0] ?? 'nada'}.`),
-          });
-        }
-      } else if (o.tipo === 'placa' && o.placa) {
-        this.avisos.set(`${o.tx},${o.ty}`, { nome: 'PLACA', falas: diz(o.placa) });
-      } else if (o.trancada) {
-        const col = colunaPorta(o.larg ?? 4, o.portaCol);
-        this.avisos.set(`${o.tx + col},${o.ty + (o.alt ?? 3) - 1}`, {
-          nome: 'PORTA', falas: diz('Está trancada. Não tem ninguém em casa.'),
-        });
-      }
-    }
-  }
-
-  /* o vocabulário de condições de quests.ts, aplicado a objeto e a NPC */
-  private condicoesValem(se?: string | readonly string[],
-                         seNao?: string | readonly string[]): boolean {
-    const e = this.op.estado;
-    const lista = (v?: string | readonly string[]) =>
-      v === undefined ? [] : typeof v === 'string' ? [v] : v;
-    for (const c of lista(se)) if (!ligada(e, c)) return false;
-    for (const c of lista(seNao)) if (ligada(e, c)) return false;
-    return true;
+    this.avisos = montarAvisos(this.def, this.op.estado, this.contexto());
   }
 
   private centrarCamera(): void {
@@ -608,48 +452,18 @@ export class CenaMundo implements Cena {
 
   /* ------------------------------------------------------------ conversa */
 
-  private etiqueta(falante: string): Assado {
-    let e = this.etiquetas.get(falante);
-    if (e) return e;
-    const w = larguraTexto(falante) + 10;
-    const tag = UI.caixa(w, 17, { fundo: P.uiAcc, borda2: P.uiAccD });
-    UI.textoNaCaixa(tag, falante, 5, 5);
-    e = assar(tag);
-    this.etiquetas.set(falante, e);
-    return e;
-  }
-
   private abrirConversa(falante: string, falas: readonly string[],
                         fala: Fala | null = null, npc: NpcVivo | null = null): void {
-    // cada frase quebrada em linhas; a que não cabe no resto da página vai
-    // inteira para a seguinte (ui/paginas.ts)
-    const frases = falas.map((f) => quebrar(preencher(this.op.estado, f), LARG_DIALOGO - 18).join('\n').split('\n'));
-    const linhas = empaginar(frases);
-    this.conversa = { falante, linhas, indice: 0, revelados: 0, fala, npc };
+    this.dialogo.abrir(falante, falas, fala, npc);
   }
-
-  private paginaAtual(): string[] {
-    if (!this.conversa) return [];
-    return this.conversa.linhas.slice(this.conversa.indice, this.conversa.indice + 3);
-  }
-
-  private textoDaPagina(): string { return this.paginaAtual().join(' '); }
 
   /* a última página fechou: só agora a fala mexe no mundo */
-  private fecharConversa(): void {
-    const c = this.conversa;
-    this.conversa = null;
-    if (!c || !c.fala) { this.duelo = null; return; }
+  private fecharConversa(c: Conversa<NpcVivo>): void {
+    if (!c.fala) { this.duelo = null; return; }
 
     /* charada: nada acontece ainda — a última página fica na tela, e quem
        decide o que a fala faz é a resposta escolhida */
-    if (c.fala.pergunta) {
-      // fica na tela a última frase da fala — a própria pergunta
-      const frase = c.fala.linhas[c.fala.linhas.length - 1] ?? '';
-      const ultima = quebrar(preencher(this.op.estado, frase), LARG_DIALOGO - 18).slice(-3);
-      this.pergunta = { fala: c.fala, npc: c.npc, falante: c.falante, linhas: ultima, sel: 0 };
-      return;
-    }
+    if (c.fala.pergunta) { this.dialogo.perguntar(c); return; }
 
     const e = this.op.estado;
     const terreiro = this.terreiroDaFala(c.fala.liga);
@@ -658,7 +472,7 @@ export class CenaMundo implements Cena {
       consumir: (id, n) => consumir(e.mochila, id, n),
     });
     this.atualizarCenario();
-    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+    if (terreiro) this.corte.preparar(terreiro, contasAcesasDe(e, terreiro));
     this.pedirHistoria(c.fala.cutscene);
 
     if (efeito.batalha && c.npc?.def.treinador) {
@@ -748,7 +562,7 @@ export class CenaMundo implements Cena {
 
   /* quem está de olho na estrada vê o jogador passar */
   private olharTreinadores(): void {
-    if (this.duelo || this.conversa || this.indo) return;
+    if (this.duelo || this.dialogo.conversa || this.indo) return;
     // uma cutscene de encontro vem primeiro — e a emboscada já marcou a luta
     if (this.historiaPendente || this.lutaDepois) return;
     // sem ninguém de pé, ser avistado seria derrota na hora
@@ -866,7 +680,7 @@ export class CenaMundo implements Cena {
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
     if (r === 'captura') this.sumirNpc(d.npc);
-    if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+    if (terreiro) this.corte.preparar(terreiro, contasAcesasDe(e, terreiro));
     salvar(e);
     if (t.falaDerrota && r !== 'captura') this.abrirConversa(d.npc.def.nome, [t.falaDerrota]);
     // preso no patuá, o bicho não fala: o que ele carregava fica no chão
@@ -887,11 +701,6 @@ export class CenaMundo implements Cena {
     this.historiaPendente = id;
   }
 
-  /* ------------------------------------------------------- corte de câmera
-
-     Uma conta da guia acabou de acender. O corte não pode atropelar nada
-     que já esteja na tela — conversa, batalha, loja — então ele só GUARDA o
-     que precisa mostrar; é `atualizar()` que decide a hora certa de soltar. */
   /* de qual terreiro é a conta que uma fala ou vitória acabou de ligar —
      nenhuma diferença de contagem: uma flag `conta_*` pertence a um único
      terreiro, e é ela que diz qual guia cortar a câmera para mostrar. */
@@ -904,77 +713,6 @@ export class CenaMundo implements Cena {
     return null;
   }
 
-  private prepararCutscene(terreiro: string, contasAgora: number): void {
-    const total = TERREIROS[terreiro]?.length ?? CONTAS_NA_GUIA;
-    this.cutscenePendente = { terreiro, faltam: total - contasAgora };
-  }
-
-  /* acha a guia de UM terreiro específico entre os mapas do registro */
-  private encontrarGuia(terreiro: string):
-      { mapaId: string; tx: number; ty: number; larg: number } | null {
-    for (const id of this.op.mundo.ids) {
-      const o = this.op.mundo.def(id).objetos
-        .find((x) => x.tipo === 'portao' && (x.terreiro ?? 'agua') === terreiro);
-      if (o) return { mapaId: id, tx: o.tx, ty: o.ty, larg: o.larg ?? 4 };
-    }
-    return null;
-  }
-
-  private iniciarCutscene(): void {
-    const pend = this.cutscenePendente;
-    this.cutscenePendente = null;
-    const g = pend && this.encontrarGuia(pend.terreiro);
-    if (!pend || !g) return;
-
-    const mapa = this.op.mundo.obter(g.mapaId, this.contexto());
-    const cam = new Camera();
-    cam.seguir(g.tx * TS + (g.larg * TS) / 2, g.ty * TS + TS / 2, mapa.larguraPx, mapa.alturaPx);
-
-    const texto = pend.faltam > 0
-      ? `Mais uma conta da guia do terreiro acendeu! Faltam ${pend.faltam} para ela se abrir.`
-      : 'A guia se abriu! O Terreiro está livre — vá em frente.';
-    this.cutscene = { mapa, cam, t: 0, fase: 'entra', texto };
-  }
-
-  private atualizarCutscene(dt: number, entrada: Entrada): void {
-    const c = this.cutscene!;
-    c.t += dt;
-    if (c.fase === 'entra' && c.t >= CUT_FADE) { c.t = 0; c.fase = 'mostra'; }
-    else if (c.fase === 'mostra'
-             && (c.t >= CUT_ESPERA || entrada.apertou('a') || entrada.apertou('b'))) {
-      c.t = 0; c.fase = 'sai';
-    } else if (c.fase === 'sai' && c.t >= CUT_FADE) { this.cutscene = null; }
-  }
-
-  private desenharCutscene(r: Renderizador): void {
-    const c = this.cutscene!;
-    r.limpar('#101018');
-    const vista = this.vistaDo(c.mapa.id);
-    if (vista) {
-      vista.desenhar(r.ctx, { mapa: c.mapa, tempo: c.t, atores: [],
-                             alvoX: (c.cam.x + LARGURA / 2) / TS, alvoY: (c.cam.y + ALTURA / 2) / TS });
-    } else {
-      c.mapa.desenhar(r.ctx, c.cam.x, c.cam.y, LARGURA, ALTURA);
-    }
-
-    if (c.fase === 'mostra') {
-      const larg = LARGURA - 16;
-      const linhas = quebrar(c.texto, larg - 12);
-      const alt = 8 + linhas.length * 10;
-      const y = ALTURA - alt - 10;
-      r.retangulo(6, y - 2, larg + 4, alt + 4, P.ink!);
-      r.retangulo(8, y, larg, alt, P.uiBg!);
-      linhas.forEach((l, i) => r.texto(l, 14, y + 6 + i * 10, P.uiInk!));
-    }
-
-    const alfa = c.fase === 'entra' ? 1 - c.t / CUT_FADE : c.fase === 'sai' ? c.t / CUT_FADE : 0;
-    if (alfa > 0) {
-      r.ctx.globalAlpha = Math.max(0, Math.min(1, alfa));
-      r.limpar('#000000');
-      r.ctx.globalAlpha = 1;
-    }
-  }
-
   private sumirNpc(npc: NpcVivo): void {
     this.npcs = this.npcs.filter((n) => n !== npc);
     this.recontarOcupados();
@@ -982,249 +720,28 @@ export class CenaMundo implements Cena {
 
   /* ------------------------------------------------------ código secreto */
 
-  private bateCodigo(codigo: readonly Acao[]): boolean {
-    if (this.bufferCodigo.length < codigo.length) return false;
-    const cauda = this.bufferCodigo.slice(this.bufferCodigo.length - codigo.length);
-    return codigo.every((a, i) => cauda[i] === a);
-  }
-
   private verificarCodigoSecreto(entrada: Entrada): void {
     const apertados: Acao[] =
       (['cima', 'baixo', 'esq', 'dir', 'a', 'b'] as const)
         .filter((a) => entrada.apertouAgora(a));
-    if (apertados.length === 0) return;
-
-    this.bufferCodigo.push(...apertados);
-    const maior = Math.max(CODIGO_REGIAO2.length, CODIGO_REGIAO3.length, CODIGO_REGIAO4.length,
-                           CODIGO_REGIAO5.length, CODIGO_REGIAO6.length, CODIGO_REGIAO7.length, CODIGO_REGIAO8.length, CODIGO_TORNEIO.length,
-                           CODIGO_EVOLUIR.length, CODIGO_POTENCIA.length);
-    const excesso = this.bufferCodigo.length - maior;
-    if (excesso > 0) this.bufferCodigo.splice(0, excesso);
+    const codigo = this.codigos.ler(apertados);
+    if (!codigo) return;
 
     // todo código termina em 'a' — sem consumi-lo aqui, o mesmo toque cairia
     // de novo em `entrada.apertou('a')` lá embaixo, no andar, e abriria
     // conversa com o que estiver na frente do jogador por cima da ativação
-    if (this.bateCodigo(CODIGO_REGIAO2)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao2();
-    } else if (this.bateCodigo(CODIGO_REGIAO3)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao3();
-    } else if (this.bateCodigo(CODIGO_REGIAO4)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao4();
-    } else if (this.bateCodigo(CODIGO_REGIAO5)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao5();
-    } else if (this.bateCodigo(CODIGO_REGIAO6)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao6();
-    } else if (this.bateCodigo(CODIGO_REGIAO7)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao7();
-    } else if (this.bateCodigo(CODIGO_REGIAO8)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoRegiao8();
-    } else if (this.bateCodigo(CODIGO_TORNEIO)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoTorneio();
-    } else if (this.bateCodigo(CODIGO_EVOLUIR)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoEvoluir();
-    } else if (this.bateCodigo(CODIGO_POTENCIA)) {
-      this.bufferCodigo = [];
-      entrada.apertou('a'); entrada.apertou('b');
-      this.ativarCodigoPotencia();
+    entrada.apertou('a'); entrada.apertou('b');
+    if (codigo === 'evoluir') this.ativarCodigoEvoluir();
+    else if (codigo === 'potencia') this.ativarCodigoPotencia();
+    else {
+      // pula para o começo de uma região, com as medalhas e Dons de antes
+      const pulo = aplicarPulo(this.op.estado, codigo);
+      const alvo = this.op.mundo.def(pulo.destino).inicio;
+      this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
+      this.montarMapa(pulo.destino);   // já grava: medalhas, Dons e time mudaram
+      this.centrarCamera();
+      this.abrirConversa('???', [pulo.aviso]);
     }
-  }
-
-  /* pula direto para a Mata do Curupira: dá a Medalha Maré e o Dom "Nadar"
-     de brinde (a travessia depende dos dois), um Curupinho se o time
-     estiver vazio (para nenhum encontro ou treinador travar a partida), e a
-     carta da Dona Firmina para a Tiê — sem ela, o Seu Elias não aceita nada
-     e a primeira conta da guia fica impossível de acender, já que quem daria
-     a carta (a própria Firmina, em Vila Aurora) ficou pra trás no pulo. */
-  private ativarCodigoRegiao2(): void {
-    const e = this.op.estado;
-    if (!e.medalhas.includes('mare')) e.medalhas.push('mare');
-    e.flags['dom_nadar'] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (!e.flags['deu_carta_tie'] && !e.flags['conta_recado_mata']) {
-      e.flags['deu_carta_tie'] = true;
-      adicionar(e.mochila, 'carta_tie');
-    }
-
-    const alvo = this.op.mundo.def('mataDoCurupira').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('mataDoCurupira');   // já grava: medalha, Dom e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A travessia para a Mata do Curupira se abre.']);
-  }
-
-  /* pula direto para a Serra Boitatá: leva as duas medalhas anteriores e os
-     dois Dons que abrem o caminho até lá, um time se estiver vazio e cinco
-     patuás bons — sem eles a conta do Mestre Patueiro (seis Encantados
-     presos) ficaria impossível para quem pulou a economia das duas
-     primeiras regiões. */
-  private ativarCodigoRegiao3(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    e.flags['dom_nadar'] = true;
-    e.flags['dom_cortarCipo'] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('trilhaDaBrasa').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('trilhaDaBrasa');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A subida para a Serra Boitatá se abre.']);
-  }
-
-  /* pula direto para o Campo do Saci: leva as três medalhas anteriores e os
-     três Dons que abrem o caminho até lá, um time se estiver vazio e cinco
-     patuás bons — mesma lógica do código da região 3. */
-  private ativarCodigoRegiao4(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    e.flags['dom_nadar'] = true;
-    e.flags['dom_cortarCipo'] = true;
-    e.flags['dom_tocha'] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('campoAberto').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('campoAberto');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A entrada para o Campo do Saci se abre.']);
-  }
-
-  /* pula direto para a Aldeia Tupã, pela Campina dos Raios: leva as quatro
-     medalhas anteriores e os quatro Dons, um time se estiver vazio e cinco
-     patuás bons — mesma lógica dos códigos das regiões 3 e 4. */
-  private ativarCodigoRegiao5(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    e.flags['dom_nadar'] = true;
-    e.flags['dom_cortarCipo'] = true;
-    e.flags['dom_tocha'] = true;
-    e.flags['dom_rajada'] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('campinaDosRaios').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('campinaDosRaios');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A estrada para a Aldeia Tupã se abre.']);
-  }
-
-  /* pula direto para as Minas da Caipora, pela Boca da Mina: leva as cinco
-     medalhas anteriores e os cinco Dons — o Faísca é o que abre a estrada —,
-     um time se estiver vazio e cinco patuás bons. */
-  private ativarCodigoRegiao6(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca']) e.flags[`dom_${d}`] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('bocaDaMina').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('bocaDaMina');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A estrada para as Minas da Caipora se abre.']);
-  }
-
-  /* pula direto para o Bairro da Cuca, pela Rua do Breu: as seis medalhas
-     anteriores e os seis Dons (o Escavar abre a estrada), um time se estiver
-     vazio e cinco patuás bons. */
-  private ativarCodigoRegiao7(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar']) e.flags[`dom_${d}`] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('ruaDoBreu').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('ruaDoBreu');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. A estrada para o Bairro da Cuca se abre.']);
-  }
-
-  /* pula direto para o Caminho da Aurora: as sete medalhas e os sete Dons
-     (o véu da saída sul do bairro só cede ao Dom Visão Noturna) */
-  private ativarCodigoRegiao8(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra', 'breu']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar', 'visao']) e.flags[`dom_${d}`] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('caminhoAurora').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('caminhoAurora');   // já grava: medalhas, Dons e time mudaram
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. O véu se abre, e o caminho da Cidade do Sol aparece.']);
-  }
-
-  /* pula direto para a praça do Círculo Dourado: as oito medalhas e os oito
-     Dons. O time não muda — para chegar forte, o código de poder existe. */
-  private ativarCodigoTorneio(): void {
-    const e = this.op.estado;
-    for (const m of ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra', 'breu', 'aurora']) if (!e.medalhas.includes(m)) e.medalhas.push(m);
-    for (const d of ['nadar', 'cortarCipo', 'tocha', 'rajada', 'faisca', 'escavar', 'visao', 'prisma']) e.flags[`dom_${d}`] = true;
-    e.flags['escolheu_inicial'] = true;
-    if (e.time.length === 0) {
-      guardar(e, criar('curupinho', NIVEL_INICIAL));
-      e.flags['inicial_curupinho'] = true;
-    }
-    if (quantidade(e.mochila, 'patua_bom') < 5) adicionar(e.mochila, 'patua_bom', 5);
-
-    const alvo = this.op.mundo.def('circuloDourado').inicio;
-    this.jogador.teleportar(alvo.tx, alvo.ty, alvo.dir);
-    this.montarMapa('circuloDourado');
-    this.centrarCamera();
-    this.abrirConversa('???', ['Código aceito. O Círculo Dourado espera, no meio do mundo.']);
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -1372,10 +889,10 @@ export class CenaMundo implements Cena {
     this.tempoAnim += dt;
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
 
-    if (this.cutscene) { this.atualizarCutscene(dt, entrada); return; }
+    if (this.corte.ativo) { this.corte.atualizar(dt, entrada); return; }
 
     // uma cutscene da história: entra assim que a conversa que a pediu fecha
-    if (this.historiaPendente && !this.conversa && !this.pergunta && !this.indo && !this.duelo
+    if (this.historiaPendente && !this.falando && !this.indo && !this.duelo
         && !this.emLoja && !this.emMenu && !this.emEscolha && !this.emCaixa && !this.emPoder) {
       const id = this.historiaPendente;
       this.historiaPendente = null;
@@ -1396,7 +913,7 @@ export class CenaMundo implements Cena {
     }
 
     // o campeão caiu: os créditos entram assim que a fala dele fecha
-    if (this.creditosPendentes && !this.conversa && !this.pergunta && !this.indo && !this.duelo) {
+    if (this.creditosPendentes && !this.falando && !this.indo && !this.duelo) {
       this.creditosPendentes = false;
       this.op.aoCreditos?.();
       return;
@@ -1404,9 +921,9 @@ export class CenaMundo implements Cena {
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
     // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)
-    if (this.cutscenePendente && !this.conversa && !this.pergunta && !this.emLoja && !this.emMenu
+    if (this.corte.esperando && !this.falando && !this.emLoja && !this.emMenu
         && !this.emEscolha && !this.emCaixa && !this.emPoder && !this.indo && !this.duelo) {
-      this.iniciarCutscene();
+      this.corte.iniciar(this.op.mundo, this.contexto());
       return;
     }
 
@@ -1438,27 +955,14 @@ export class CenaMundo implements Cena {
     if (this.indo) { this.atravessar(dt); return; }
 
     // ---- conversa em andamento: trava o movimento ----
-    if (this.conversa) {
-      const total = this.textoDaPagina().length;
-      this.conversa.revelados = Math.min(total,
-        this.conversa.revelados + CHARS_POR_SEG * multiplicadorVelocidade() * dt);
-      if (entrada.apertou('a')) {
-        if (this.conversa.revelados < total) {
-          this.conversa.revelados = total;            // primeiro A: revela tudo
-        } else {
-          this.conversa.indice += 3;                  // segundo A: próxima página
-          this.conversa.revelados = 0;
-          if (this.conversa.indice >= this.conversa.linhas.length) this.fecharConversa();
-        }
-      } else if (entrada.apertou('b')) {
-        this.conversa.indice = this.conversa.linhas.length;
-        this.fecharConversa();
-      }
+    if (this.dialogo.conversa) {
+      const fechou = this.dialogo.atualizar(dt, entrada);
+      if (fechou) this.fecharConversa(fechou);
       return;
     }
 
     // ---- charada: escolher a resposta ----
-    if (this.pergunta) { this.responderPergunta(entrada); return; }
+    if (this.dialogo.pergunta) { this.responderPergunta(entrada); return; }
 
     // ---- treinador vindo: o jogador assiste ----
     if (this.duelo) {
@@ -1474,7 +978,7 @@ export class CenaMundo implements Cena {
 
     // ---- o relógio das corridas contra o sol ----
     this.andarCorridas(dt);
-    if (this.conversa) return;
+    if (this.dialogo.conversa) return;
 
     this.verificarCodigoSecreto(entrada);
 
@@ -1501,8 +1005,10 @@ export class CenaMundo implements Cena {
 
     if (chegou) this.aoPisarNoTile();
 
-    // espia o A em vez de usá-lo: sem nada na frente, o A fica mudo
-    if (!this.duelo && !this.deslizando && entrada.apertouAgora('a')) this.interagir();
+    // espia o A em vez de usá-lo: sem nada na frente, o A fica mudo. Uma
+    // conversa que abriu neste mesmo quadro (o "Código aceito", que termina
+    // num A) não é atropelada pelo que estiver na frente
+    if (!this.duelo && !this.deslizando && !this.falando && entrada.apertouAgora('a')) this.interagir();
 
     this.centrarCamera();
   }
@@ -1600,7 +1106,7 @@ export class CenaMundo implements Cena {
       e.flags[seq.flag] = true;
       const terreiro = this.terreiroDaFala(seq.flag);
       this.atualizarCenario();
-      if (terreiro) this.prepararCutscene(terreiro, contasAcesasDe(e, terreiro));
+      if (terreiro) this.corte.preparar(terreiro, contasAcesasDe(e, terreiro));
       salvar(e);
       this.abrirConversa('LADRILHOS', ['Os ladrilhos acendem um depois do outro, na ordem em que você pisou.',
                                        'Alguma coisa destrava lá na frente, com um estalo fundo.']);
@@ -1727,75 +1233,34 @@ export class CenaMundo implements Cena {
   /* ------------------------------------------------------------- desenho */
 
   desenhar(r: Renderizador): void {
-    if (this.cutscene) { this.desenharCutscene(r); return; }
+    if (this.corte.ativo) { this.corte.desenhar(r, (id) => this.vistaDo(id)); return; }
 
     r.limpar('#101018');
     const vista = this.vistaDo(this.def.id);
     if (vista) {
-      const atores = [this.jogador, ...this.visiveis().map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
       vista.desenhar(r.ctx, {
         mapa: this.mapa, tempo: this.tempoAnim,
         alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
-        atores: atores.map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
+        atores: this.atoresNaTela().map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
       });
     } else {
-      this.desenharMundoPlano(r);
+      this.pintor.plano(r, {
+        mapa: this.mapa, camera: this.camera, atores: this.atoresNaTela(),
+        pedras: this.pedras, feixe: this.feixe, tempo: this.tempoAnim,
+      });
     }
     this.desenharPorCima(r);
   }
 
-  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
-  private vistaDo(id: string) {
-    if (!obterVisao3D() || !EM_3D.has(id)) return null;
-    return vista3D();
+  /* quem anda pelo mapa agora: o jogador, os NPCs à vista e o escoltado */
+  private atoresNaTela(): Ator[] {
+    return [this.jogador, ...this.visiveis().map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
   }
 
-  private desenharMundoPlano(r: Renderizador): void {
-    this.mapa.desenhar(r.ctx, this.camera.x, this.camera.y, LARGURA, ALTURA);
-
-    // o feixe de luz, por cima do chão e por baixo de quem anda
-    for (const [fx, fy] of this.feixe) {
-      const px = fx * TS - this.camera.x, py = fy * TS - this.camera.y;
-      r.retangulo(px + 5, py + 5, 6, 6, '#ffe860');
-      r.retangulo(px + 7, py + 7, 2, 2, '#ffffff');
-    }
-
-    // atores e pedras, juntos, ordenados pela base: quem está mais abaixo
-    // passa na frente — senão uma pedra numa fileira de baixo tampava
-    // indevidamente quem andasse por cima dela na fileira de cima
-    const todos = [this.jogador, ...this.visiveis().map((n) => n.ator),
-                   ...(this.seguidor ? [this.seguidor] : [])];
-    const itens: { py: number; desenhar: () => void }[] = todos.map((a) => ({
-      py: a.py,
-      desenhar: () => {
-        const x = a.desenhoX - this.camera.x, y = a.desenhoY - this.camera.y;
-        if (this.mapa.agua(a.tx, a.ty)) {
-          // nadando: só a cabeça de fora. O corpo nem se desenha — é a água
-          // do próprio tile, já pintada por baixo, que faz o resto do trabalho
-          const img = a.quadro();
-          r.recorte(img, 0, 0, larguraDe(img), ALTURA_NADANDO, x, y);
-          const q = Math.floor(this.tempoAnim * 2) % 2;
-          r.sprite(this.ondas[q]!, a.px - this.camera.x, y + ALTURA_NADANDO - 3);
-        } else {
-          r.sprite(a.quadro(), x, y);
-        }
-        if (this.mapa.temEncontro(a.tx, a.ty)) {
-          const q = a.movendo ? 1 + (Math.floor(this.tempoAnim * 12) % 2) : 0;
-          r.sprite(this.rocadas[q]!, a.px - this.camera.x, a.py + 8 - this.camera.y);
-        }
-      },
-    }));
-    if (this.pedras.length > 0) {
-      if (!this.pedraImg) this.pedraImg = assar(T.pedraRolante());
-      for (const p of this.pedras) {
-        itens.push({
-          py: p.ty * TS,
-          desenhar: () => r.sprite(this.pedraImg!, p.tx * TS - this.camera.x, p.ty * TS - this.camera.y),
-        });
-      }
-    }
-    itens.sort((a, b) => a.py - b.py);
-    for (const it of itens) it.desenhar();
+  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
+  private vistaDo(id: string): Vista3D | null {
+    if (!obterVisao3D() || !EM_3D.has(id)) return null;
+    return vista3D();
   }
 
   /* o que fica por cima do mundo, seja ele plano ou 3D */
@@ -1813,8 +1278,7 @@ export class CenaMundo implements Cena {
     }
 
     if (this.relogios.size > 0) this.desenharRelogio(r);
-    if (this.conversa) this.desenharDialogo(r);
-    if (this.pergunta) this.desenharPergunta(r);
+    this.dialogo.desenhar(r, this.tempoAnim);
 
     if (this.indo) {
       const t = this.fade <= FADE ? this.fade / FADE : 1 - (this.fade - FADE) / FADE;
@@ -1854,26 +1318,16 @@ export class CenaMundo implements Cena {
   private desenharEscuridao(r: Renderizador): void {
     const def = this.def.escuro!;
     const raio = def.fixo ? (def.raio ?? RAIO_SEM_LUZ) : raioDaLuz(this.op.estado);
-    let mascara = this.mascarasLuz.get(raio);
-    if (!mascara) {
-      mascara = assar(T.mascaraLuz(raio));
-      this.mascarasLuz.set(raio, mascara);
-    }
-    const cx = this.jogador.px - this.camera.x + TS / 2;
-    const cy = this.jogador.py - this.camera.y + TS / 2;
-    r.escuridao(mascara, cx, cy);
+    this.pintor.escuridao(r, raio, this.jogador.px - this.camera.x + TS / 2,
+                          this.jogador.py - this.camera.y + TS / 2);
   }
 
-  /* ↑↓ escolhem, A responde, B desiste sem efeito nenhum (dá para voltar e
-     perguntar de novo quando quiser) */
+  /* a charada: B desiste sem efeito; A responde */
   private responderPergunta(entrada: Entrada): void {
-    const p = this.pergunta!;
-    const n = p.fala.pergunta!.opcoes.length;
-    if (entrada.apertou('cima')) p.sel = (p.sel - 1 + n) % n;
-    if (entrada.apertou('baixo')) p.sel = (p.sel + 1) % n;
-    if (entrada.apertou('b')) { this.pergunta = null; this.duelo = null; return; }
-    if (!entrada.apertou('a')) return;
-    this.pergunta = null;
+    const escolha = this.dialogo.escolher(entrada);
+    if (escolha.k === 'desistiu') { this.duelo = null; return; }
+    if (escolha.k !== 'respondeu') return;
+    const p = escolha.pergunta;
     const r = responder(this.op.estado, p.fala, p.sel);
     // certa: diz o "acertou" e só ao fechar aplica a fala (liga, paga...);
     // errada: o progresso já foi desligado em `responder`, só resta ouvir
@@ -1889,45 +1343,5 @@ export class CenaMundo implements Cena {
     r.retangulo(LARGURA - w - 6, 6, w, 14, P.ink!);
     r.retangulo(LARGURA - w - 5, 7, w - 2, 12, resta <= 10 ? '#8a2a1a' : '#5a3e24');
     r.texto(texto, LARGURA - w - 1, 10, P.bolt!);
-  }
-
-  private desenharPergunta(r: Renderizador): void {
-    const p = this.pergunta!;
-    const y = ALTURA - this.caixaDialogo.height - 6;
-    r.sprite(this.caixaDialogo, 6, y);
-    r.sprite(this.etiqueta(p.falante), 12, y - 11);
-    p.linhas.forEach((l, i) => r.texto(l, 14, y + 8 + i * 10, P.uiInk!));
-
-    const opcoes = p.fala.pergunta!.opcoes;
-    const larg = Math.max(...opcoes.map((o) => r.larguraTexto(o))) + 26;
-    const alt = 8 + opcoes.length * 12;
-    const x = LARGURA - larg - 8, oy = y - alt - 4;
-    r.retangulo(x - 2, oy - 2, larg + 4, alt + 4, P.ink!);
-    r.retangulo(x, oy, larg, alt, P.uiBg!);
-    opcoes.forEach((o, i) => {
-      if (i === p.sel) r.texto('=', x + 5, oy + 5 + i * 12, P.uiAccD!);
-      r.texto(o, x + 15, oy + 5 + i * 12, P.uiInk!);
-    });
-  }
-
-  private desenharDialogo(r: Renderizador): void {
-    const c = this.conversa!;
-    const y = ALTURA - this.caixaDialogo.height - 6;
-    r.sprite(this.caixaDialogo, 6, y);
-    r.sprite(this.etiqueta(c.falante), 12, y - 11);
-
-    // efeito de máquina de escrever: revela a página caractere a caractere
-    let restantes = Math.floor(c.revelados);
-    this.paginaAtual().forEach((linha, i) => {
-      if (restantes <= 0) return;
-      const visivel = linha.slice(0, restantes);
-      restantes -= linha.length + 1;
-      r.texto(visivel, 14, y + 8 + i * 10, P.uiInk!);
-    });
-
-    const completo = Math.floor(c.revelados) >= this.textoDaPagina().length;
-    if (completo && Math.floor(this.tempoAnim * 3) % 2 === 0) {
-      r.texto('v', LARGURA - 20, y + this.caixaDialogo.height - 12, P.uiAccD!);
-    }
   }
 }
