@@ -133,6 +133,8 @@ export const trilhaDaBrasa: DefMapa = {
       tx: 4, ty: 29, dir: 'cima',
       treinador: {
         classe: 'CHEFE DA TROPA', visao: 5, premio: 2000, liga: 'conta_tropa',
+        // no primeiro encontro, a cutscene conta da tropa e da carvoaria
+        apresentacao: 'chefe_tropa',
         time: [{ especie: 'cabritinha', nivel: 29 }, { especie: 'mulinha', nivel: 29 },
                { especie: 'boitatinha', nivel: 29 }, { especie: 'boitatao', nivel: 31 }],
         falaInicio: 'Três tropeiros vencidos e ainda de pé? Então prove com o chefe da tropa.',

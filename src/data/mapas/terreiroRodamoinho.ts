@@ -137,7 +137,7 @@ export const terreiroRodamoinho: DefMapa = {
       ],
     },
     {
-      id: 'perere', nome: 'PERERÊ', estilo: 'mariana',
+      id: 'perere', nome: 'PERERÊ', estilo: 'perere',
       tx: 5, ty: 1, dir: 'baixo',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 4000,
@@ -147,6 +147,8 @@ export const terreiroRodamoinho: DefMapa = {
                { especie: 'matinta', nivel: 48 }],
         falaInicio: 'Três guardas provaram você antes de chegar aqui. Vamos ver quanto sobra depois de mim.',
         falaDerrota: 'Pois é. O vento virou de vez para o seu lado, criança.',
+        /* o vento do salão para, a cerca, e o chamado para a medalha */
+        cutscene: 'perere_vence',
       },
       falas: [
         { se: 'medalha:rodamoinho', linhas: [
@@ -161,6 +163,11 @@ export const terreiroRodamoinho: DefMapa = {
   ],
 
   inicio: { tx: 7, ty: 39, dir: 'cima' },
+  /* a primeira entrada no salão: uma linha, e a cutscene do Pererê */
+  aoChegar: {
+    quem: 'TERREIRO DO RODAMOINHO', seNao: 'viu_cut_terreiro_vento', cutscene: 'terreiro_vento',
+    linhas: ['Do lado de dentro, o vento corre pelo chão feito água de enchente.'],
+  },
 
   saidas: [
     { tx: 7, ty: 40, para: 'aldeiaCatavento', destino: { tx: 16, ty: 8, dir: 'baixo' } },

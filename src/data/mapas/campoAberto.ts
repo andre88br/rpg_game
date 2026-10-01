@@ -180,6 +180,8 @@ export const campoAberto: DefMapa = {
       tx: 14, ty: 31, dir: 'cima',
       treinador: {
         classe: 'CHEFE DOS CATADORES', visao: 5, premio: 2200, liga: 'conta_catadores',
+        // no primeiro encontro, a cutscene conta dos catadores e da cerca
+        apresentacao: 'catadores',
         esperta: true, itens: { garrafada: 2 },
         time: [{ especie: 'saci', nivel: 41 }, { especie: 'matinta', nivel: 41 },
                { especie: 'cabritinha', nivel: 42 }, { especie: 'saci', nivel: 43 }],

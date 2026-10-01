@@ -107,7 +107,10 @@ export const topoDoRedemoinho: DefMapa = {
     },
     {
       id: 'matinta_topo', nome: 'MATINTA', estilo: 'bicho:matinta',
+      /* de emboscada: escondida no redemoinho até o jogador chegar perto —
+         aí a cutscene mostra os olhos abrindo, e a luta começa */
       tx: 16, ty: 27, dir: 'baixo', seNao: 'conta_redemoinho',
+      encontro: 'matinta', emboscada: true,
       treinador: {
         classe: 'DONA DO REDEMOINHO', selvagem: true, visao: 4, liga: 'conta_redemoinho',
         time: [{ especie: 'matinta', nivel: 45 }],

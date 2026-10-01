@@ -117,7 +117,7 @@ export const terreiroPedra: DefMapa = {
       ],
     },
     {
-      id: 'ubirajara', nome: 'UBIRAJARA', estilo: 'guarda',
+      id: 'ubirajara', nome: 'UBIRAJARA', estilo: 'ubirajara',
       tx: 3, ty: 2, dir: 'dir',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 6000,
@@ -133,6 +133,8 @@ export const terreiroPedra: DefMapa = {
         },
         falaInicio: 'Cavou, respondeu, escoltou e desceu a cava. Agora aguenta o peso da pedra.',
         falaDerrota: 'A pedra cedeu. Pouca gente consegue isso comigo.',
+        /* a poeira assenta, a draga, e o chamado para a medalha */
+        cutscene: 'ubirajara_vence',
       },
       falas: [
         { se: 'medalha:pedra', linhas: [
@@ -146,6 +148,11 @@ export const terreiroPedra: DefMapa = {
   ],
 
   inicio: { tx: 14, ty: 21, dir: 'cima' },
+  /* a primeira entrada no salão: uma linha, e a cutscene do Ubirajara */
+  aoChegar: {
+    quem: 'TERREIRO DA PEDRA', seNao: 'viu_cut_terreiro_pedra', cutscene: 'terreiro_pedra',
+    linhas: ['Do lado de dentro, o ar é frio e parado, e cheira a pedra molhada.'],
+  },
 
   saidas: [
     { tx: 14, ty: 22, para: 'arraialCaipora', destino: { tx: 11, ty: 9, dir: 'baixo' } },

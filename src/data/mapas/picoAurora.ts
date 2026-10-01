@@ -116,7 +116,10 @@ export const picoAurora: DefMapa = {
     },
     {
       id: 'estrela_cume', nome: "ESTRELA-D'ALVA", estilo: 'bicho:estrelaDalva',
+      /* de emboscada: brilhando lá no céu até o jogador chegar perto — aí a
+         cutscene mostra ela descendo, e a luta começa */
       tx: 30, ty: 4, dir: 'esq', seNao: 'conta_estrela',
+      encontro: 'estrela', emboscada: true,
       treinador: {
         classe: 'DONA DO CUME', selvagem: true, visao: 4, liga: 'conta_estrela',
         time: [{ especie: 'estrelaDalva', nivel: 60 }],
@@ -131,9 +134,9 @@ export const picoAurora: DefMapa = {
       tx: 50, ty: 3, dir: 'baixo', seNao: 'servico_jaci',
       falas: [
         { se: ['servico_cristais', 'medalha:aurora'], liga: 'servico_jaci',
-          encantado: { especie: 'jaci', nivel: 45 }, linhas: [
+          // a cutscene mostra a noite voltando fora de hora e ela descendo
+          encantado: { especie: 'jaci', nivel: 45 }, cutscene: 'jaci', linhas: [
           'O cercado escurece de repente, e a lua desce até tocar a pedra — metade luz, metade sombra.',
-          '— Quem guardou a luz do dia em cristal merece a noite também.',
           'A JACI desce do céu e vai com você.'] },
         { se: 'medalha:aurora', linhas: [
           'Uma meia-lua aparece no cercado e some antes de você piscar.',

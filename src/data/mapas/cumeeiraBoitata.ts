@@ -97,7 +97,10 @@ export const cumeeiraBoitata: DefMapa = {
     },
     {
       id: 'mula_cumeeira', nome: 'MULA-SEM-CABEÇA', estilo: 'bicho:mulaSemCabeca',
+      /* de emboscada: some no escuro até o jogador chegar perto — aí a
+         cutscene mostra ela vindo a galope, e a luta começa */
       tx: 16, ty: 26, dir: 'cima', seNao: 'conta_mula',
+      encontro: 'mula', emboscada: true,
       treinador: {
         classe: 'BICHO DA CUMEEIRA', selvagem: true, visao: 4, liga: 'conta_mula',
         time: [{ especie: 'mulaSemCabeca', nivel: 34 }],

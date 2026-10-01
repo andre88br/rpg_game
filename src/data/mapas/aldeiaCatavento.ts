@@ -86,6 +86,8 @@ export const aldeiaCatavento: DefMapa = {
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 2200,
         liga: 'venceu_zeca4',
+        // no primeiro encontro, a cutscene conta da cerca derrubada
+        apresentacao: 'zeca_campo',
         time: [{ especie: 'matinta', nivel: 41 }, { especie: 'saci', nivel: 42 },
                { especie: 'cabraCabriola', nivel: 42 }, { especie: 'curupira', nivel: 43 }],
         falaInicio: 'Você achou que eu ia parar depois da vila do Brás? Te segui até aqui em cima.',
@@ -150,6 +152,12 @@ export const aldeiaCatavento: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* saindo do terreiro com a Medalha Rodamoinho, o Moleiro conta do vão
+     aberto no Topo e da Aldeia Tupã. Uma vez só */
+  aoChegar: {
+    quem: 'MOLEIRO', se: 'medalha:rodamoinho', seNao: 'viu_cut_catavento_tupa', cutscene: 'catavento_tupa',
+    linhas: ['Ô, {crianca}! Espera aí, que eu desci do moinho correndo!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'saci', min: 40, max: 42, peso: 45 },

@@ -159,7 +159,10 @@ export const morroDoTrovao: DefMapa = {
     },
     {
       id: 'relampo_cume', nome: 'RELAMPO', estilo: 'bicho:relampo',
+      /* de emboscada: some no clarão até o jogador chegar perto — aí a
+         cutscene mostra ele dando voltas no ninho, e a luta começa */
       tx: 50, ty: 4, dir: 'esq', seNao: 'conta_trovao',
+      encontro: 'relampo', emboscada: true,
       treinador: {
         classe: 'DONO DO CUME', selvagem: true, visao: 4, liga: 'conta_trovao',
         time: [{ especie: 'relampo', nivel: 50 }],

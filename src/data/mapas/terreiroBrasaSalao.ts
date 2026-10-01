@@ -31,7 +31,7 @@ export const terreiroBrasaSalao: DefMapa = {
 
   npcs: [
     {
-      id: 'bras', nome: 'BRÁS', estilo: 'aldeao',
+      id: 'bras', nome: 'BRÁS', estilo: 'bras',
       tx: 7, ty: 2, dir: 'baixo',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 3500,
@@ -46,7 +46,9 @@ export const terreiroBrasaSalao: DefMapa = {
           curupinho: { especie: 'cabraCabriola', nivel: 35 },
         },
         falaInicio: 'Três guardas vencidos, e ainda de pé. Vamos ver se aguenta o dono da casa.',
-        falaDerrota: 'Pois é. Até o Curupira que anda comigo respeita quem chega até aqui.',
+        falaDerrota: 'Pois é. Até o Boitatá que anda comigo respeita quem chega até aqui.',
+        /* a brasa do chão assenta, a carvoaria, e o chamado para a medalha */
+        cutscene: 'bras_vence',
       },
       falas: [
         { se: 'medalha:brasa', linhas: [
@@ -64,6 +66,11 @@ export const terreiroBrasaSalao: DefMapa = {
   ],
 
   inicio: { tx: 7, ty: 13, dir: 'cima' },
+  /* a primeira chegada ao salão: uma linha, e a cutscene do Brás */
+  aoChegar: {
+    quem: 'TERREIRO DE BRASA', seNao: 'viu_cut_terreiro_brasa', cutscene: 'terreiro_brasa',
+    linhas: ['O calor da última sala bate no rosto antes mesmo da porta abrir.'],
+  },
 
   saidas: [
     { tx: 7, ty: 14, para: 'terreiroBrasaBreu', destino: { tx: 8, ty: 1, dir: 'baixo' } },

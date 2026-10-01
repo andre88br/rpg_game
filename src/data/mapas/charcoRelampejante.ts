@@ -137,10 +137,9 @@ export const charcoRelampejante: DefMapa = {
         'O para-raio mestre brilha sozinho. As cercas do casarão estão todas caladas.'] }] },
     { tipo: 'paraRaio', tx: 55, ty: 18, larg: 1, placa: 'PARA-RAIO MESTRE', seNao: 'conta_para_raios',
       vazio: true,
-      falas: [{ liga: 'conta_para_raios', linhas: [
-        'Você encosta a mão no para-raio mestre. Um estalo corre o casarão inteiro,',
-        'de sala em sala, e todas as cercas se calam de uma vez.',
-        'Lá fora, o céu responde com um trovão comprido.'] }] },
+      // a cutscene mostra o casarão calando e a chuva de verdade
+      falas: [{ liga: 'conta_para_raios', cutscene: 'para_raios', linhas: [
+        'Você encosta a mão no para-raio mestre...'] }] },
 
     /* a quarta pedra-de-raio e a segunda pena de trovão */
     { tipo: 'achado', tx: 3, ty: 3, solido: false, placa: 'PEDRA-DE-RAIO',
@@ -203,9 +202,9 @@ export const charcoRelampejante: DefMapa = {
         /* precisa das três penas de trovão E da medalha: é conteúdo de
            depois do Guaraci, e o único jeito de ter o Encantado exclusivo */
         { se: ['servico_penas_trovao', 'medalha:trovao'], liga: 'servico_arco',
-          encantado: { especie: 'arcoDaVelha', nivel: 35 }, linhas: [
+          // a cutscene mostra a chuva certa e o arco descendo até a poça
+          encantado: { especie: 'arcoDaVelha', nivel: 35 }, cutscene: 'arco_da_velha', linhas: [
           'A chuva para de repente, e as duas pontas de um arco-íris descem até a poça atrás do casarão.',
-          '— A rede de penas chamou a chuva certa. Quem faz isso, eu acompanho.',
           'O ARCO-DA-VELHA se enrosca no seu patuá e vai com você.'] },
         { se: 'medalha:trovao', linhas: [
           'Uma ponta de arco-íris toca a poça e some antes de você chegar perto.',

@@ -692,8 +692,10 @@ export class CenaMundo implements Cena {
     }
     if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
     /* um Encantado que acaba de entrar por fala é a mesma oferta de reordenar
-       que uma captura dá — só que sem passar pela tela de batalha */
-    if (efeito.encantado && e.time.length > 1) this.abrirReordenar();
+       que uma captura dá — só que sem passar pela tela de batalha. Se ele
+       chega com cutscene (a Mãe-do-Ouro descendo do teto), a oferta ficaria
+       por cima dela: aí a ordem fica para o menu */
+    if (efeito.encantado && e.time.length > 1 && !c.fala.cutscene) this.abrirReordenar();
     /* gravar depois de curar, de acender uma conta, de ganhar item de serviço
        ou de conquistar medalha: são os pontos em que perder progresso doeria
        de verdade */

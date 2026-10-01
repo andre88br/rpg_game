@@ -115,7 +115,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_bras', nome: 'BRÁS', estilo: 'aldeao',
+      id: 'revanche_bras', nome: 'BRÁS', estilo: 'bras',
       tx: 17, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -130,7 +130,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_perere', nome: 'PERERÊ', estilo: 'mariana',
+      id: 'revanche_perere', nome: 'PERERÊ', estilo: 'perere',
       tx: 26, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -145,7 +145,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_guaraci', nome: 'GUARACI', estilo: 'tie',
+      id: 'revanche_guaraci', nome: 'GUARACI', estilo: 'guaraci',
       tx: 29, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -160,7 +160,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_ubirajara', nome: 'UBIRAJARA', estilo: 'guarda',
+      id: 'revanche_ubirajara', nome: 'UBIRAJARA', estilo: 'ubirajara',
       tx: 32, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -175,7 +175,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_morgana', nome: 'MORGANA', estilo: 'anhanga',
+      id: 'revanche_morgana', nome: 'MORGANA', estilo: 'morgana',
       tx: 26, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -190,7 +190,7 @@ export const circuloDourado: DefMapa = {
       ],
     },
     {
-      id: 'revanche_solano', nome: 'SOLANO', estilo: 'guarda',
+      id: 'revanche_solano', nome: 'SOLANO', estilo: 'solano',
       tx: 29, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
@@ -217,4 +217,10 @@ export const circuloDourado: DefMapa = {
   ],
 
   cenario: 'cidade',
+  /* a primeira chegada à praça, de balão ou a pé: o Porteiro conta do
+     Anhangá, e os oito donos de terreiro vieram ver. Uma vez só */
+  aoChegar: {
+    quem: 'PORTEIRO', se: 'medalha:aurora', seNao: 'viu_cut_circulo', cutscene: 'circulo',
+    linhas: ['Oito medalhas! Faz vinte anos que eu não abro este portão pra ninguém.'],
+  },
 };

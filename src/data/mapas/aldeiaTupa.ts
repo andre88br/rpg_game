@@ -114,6 +114,8 @@ export const aldeiaTupa: DefMapa = {
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 2600,
         liga: 'conta_zeca5',
+        // no primeiro encontro, a cutscene conta do pai dele e do raio
+        apresentacao: 'zeca_tupa',
         time: [{ especie: 'relampo', nivel: 47 }, { especie: 'saci', nivel: 48 },
                { especie: 'cabraCabriola', nivel: 48 }, { especie: 'tatuTrovao', nivel: 48 },
                { especie: 'curupira', nivel: 49 }],
@@ -174,6 +176,12 @@ export const aldeiaTupa: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* saindo do terreiro com a Medalha Trovão, o Pajé conta das pedras
+     rachadas do cume e das Minas. Uma vez só */
+  aoChegar: {
+    quem: 'PAJÉ', se: 'medalha:trovao', seNao: 'viu_cut_tupa_minas', cutscene: 'tupa_minas',
+    linhas: ['Ô, {crianca}! Espera, que perna de velho não corre como antes!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'faisquinha', min: 44, max: 46, peso: 45 },

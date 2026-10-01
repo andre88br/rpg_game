@@ -14,14 +14,14 @@ import * as T from './tiles.ts';
 
 const W = 240, H = 160;
 
-type RGB = readonly [number, number, number];
+export type RGB = readonly [number, number, number];
 
-function hex(c: RGB): string {
+export function hex(c: RGB): string {
   return '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
 }
 
 /* céu em degradê, linha a linha, entre várias cores de parada */
-function degrade(b: Buf, y0: number, y1: number, paradas: readonly RGB[]): void {
+export function degrade(b: Buf, y0: number, y1: number, paradas: readonly RGB[]): void {
   const n = paradas.length - 1;
   for (let y = y0; y < y1; y++) {
     const t = ((y - y0) / Math.max(1, y1 - y0 - 1)) * n;
@@ -31,7 +31,7 @@ function degrade(b: Buf, y0: number, y1: number, paradas: readonly RGB[]): void 
   }
 }
 
-function estrelas(b: Buf, semente: number, n: number, ymax: number): void {
+export function estrelas(b: Buf, semente: number, n: number, ymax: number): void {
   const r = rng(semente);
   for (let i = 0; i < n; i++) {
     b.set((r() * b.w) | 0, (r() * ymax) | 0, i % 6 === 0 ? P.white! : '#a89bd0');
@@ -39,7 +39,7 @@ function estrelas(b: Buf, semente: number, n: number, ymax: number): void {
 }
 
 /* morros ondulados: um perfil de senos, cheio até embaixo */
-function morros(b: Buf, base: number, amp: number, freq: number, fase: number, cor: string, ate = H): void {
+export function morros(b: Buf, base: number, amp: number, freq: number, fase: number, cor: string, ate = H): void {
   for (let x = 0; x < b.w; x++) {
     const y = Math.round(base - amp * (0.6 * Math.sin(x * freq + fase) + 0.4 * Math.sin(x * freq * 2.3 + fase * 1.7)));
     b.rect(x, y, 1, ate - y, cor);
@@ -47,7 +47,7 @@ function morros(b: Buf, base: number, amp: number, freq: number, fase: number, c
 }
 
 /* árvore redonda de copa, maior que o tile do mundo */
-function arvore(b: Buf, cx: number, base: number, alt: number, cor: string, corD: string, corL: string, tronco = P.trunk!): void {
+export function arvore(b: Buf, cx: number, base: number, alt: number, cor: string, corD: string, corL: string, tronco = P.trunk!): void {
   const r = Math.max(5, Math.round(alt * 0.4));
   b.rect(cx - 1, base - alt + r, 3, alt - r, tronco);
   b.circle(cx, base - alt + r, r, corD);
@@ -213,7 +213,7 @@ export function mataDepois(): Buf {
 }
 
 /* a placa "MATA-SECA" com dois moirões, desenhada no próprio fundo */
-function placaMataSeca(b: Buf, x: number, y: number): void {
+export function placaMataSeca(b: Buf, x: number, y: number): void {
   const s = 'MATA-SECA';
   const w = larguraTexto(s) + 10;
   b.rect(x + 6, y + 12, 3, 22, '#3a2a20');
@@ -907,7 +907,7 @@ export function cartaLacrada(): Buf {
    ========================================================================= */
 
 /* a moldura pontilhada que marca uma lembrança */
-function lembranca(b: Buf, cor = '#0a120a'): Buf {
+export function lembranca(b: Buf, cor = '#0a120a'): Buf {
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const d = Math.min(x, y, W - 1 - x, H - 1 - y);
     if (d < 6 && (x + y) % (d + 2) === 0) b.set(x, y, cor);
@@ -916,7 +916,7 @@ function lembranca(b: Buf, cor = '#0a120a'): Buf {
 }
 
 /* chão de mata: grama com folha caída e umas raízes à mostra */
-function chaoMata(b: Buf, y0: number, semente: number, escuro = false): void {
+export function chaoMata(b: Buf, y0: number, semente: number, escuro = false): void {
   b.rect(0, y0, W, H - y0, escuro ? '#2f5a2a' : P.grass!);
   const r = rng(semente);
   for (let i = 0; i < 220; i++) {
@@ -927,7 +927,7 @@ function chaoMata(b: Buf, y0: number, semente: number, escuro = false): void {
 }
 
 /* uma parede de mata fechada ao fundo: troncos e copas em camadas */
-function paredeMata(b: Buf, base: number, semente: number, escura = false): void {
+export function paredeMata(b: Buf, base: number, semente: number, escura = false): void {
   const r = rng(semente);
   const [c, cd, cl] = escura ? ['#1f4c22', '#143618', '#2f6b2e'] : [P.tree!, P.treeD!, P.treeL!];
   b.rect(0, base - 24, W, 28, '#143618');          // o escuro entre os troncos
@@ -936,7 +936,7 @@ function paredeMata(b: Buf, base: number, semente: number, escura = false): void
 }
 
 /* touceira de capim, larga */
-function touceira(b: Buf, x: number, y: number, larg = 8, alt = 14): void {
+export function touceira(b: Buf, x: number, y: number, larg = 8, alt = 14): void {
   for (let k = -larg; k <= larg; k += 2) {
     const a = alt - Math.abs(k) + ((k * 7) % 3);
     b.rect(x + k, y - a, 2, a, k % 4 ? P.tallD! : P.tall!);

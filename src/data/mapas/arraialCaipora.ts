@@ -93,6 +93,8 @@ export const arraialCaipora: DefMapa = {
       tx: 1, ty: 19, dir: 'baixo',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3000,
+        // no primeiro encontro, a cutscene conta do pai dele de volta ao mar
+        apresentacao: 'zeca_minas',
         time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'relampo', nivel: 55 },
                { especie: 'saci', nivel: 55 }, { especie: 'cabraCabriola', nivel: 55 },
                { especie: 'curupira', nivel: 56 }],
@@ -114,10 +116,9 @@ export const arraialCaipora: DefMapa = {
         { se: 'menino_salvo', linhas: [
           'O Tuco não sai mais do meu lado. Deus te pague, {crianca}. A mina não leva mais ninguém meu.'] },
         { se: 'escoltando_menino', liga: ['conta_menino', 'menino_salvo'], desliga: 'escoltando_menino',
-          paga: 1200, linhas: [
-          'TUCO! Meu filho! Onde você se meteu, menino?!',
-          'Você trouxe ele das Galerias... pelos trilhos e tudo. Nem sei como agradecer.',
-          'Toma, é pouco. E a sua guia tem mais uma conta acesa, que eu mesma acendi.'] },
+          /* o abraço, o que o Tuco viu nas Galerias, e a conta */
+          paga: 1200, cutscene: 'tuco', linhas: [
+          'Você trouxe ele das Galerias... pelos trilhos e tudo. Nem sei como agradecer.'] },
         { linhas: [
           'Meu Tuco entrou nas Galerias atrás de um vagonete e não voltou.',
           'Os trilhos lá dentro só vão pra um lado, e as alavancas mudam tudo. Traz ele pra mim?',
@@ -166,6 +167,12 @@ export const arraialCaipora: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* saindo do terreiro com a Medalha Pedra, a Dona Luzia conta da terra
+     desmoronada da Cava e do Bairro da Cuca. Uma vez só */
+  aoChegar: {
+    quem: 'DONA LUZIA', se: 'medalha:pedra', seNao: 'viu_cut_arraial_cuca', cutscene: 'arraial_cuca',
+    linhas: ['Ô, {crianca}! Espera aí, que o Tuco quer te dar um abraço!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'minhoquinha', min: 52, max: 54, peso: 50 },

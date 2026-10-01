@@ -167,6 +167,8 @@ export const cidadeDoSol: DefMapa = {
       tx: 29, ty: 1, dir: 'baixo',
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 4, premio: 5000, liga: 'conta_zeca8',
+        // no primeiro encontro, a cutscene lembra do paredão da Rota da Foz
+        apresentacao: 'zeca_sol',
         time: [{ especie: 'lobisomem', nivel: 59 }, { especie: 'minhocao', nivel: 59 },
                { especie: 'relampo', nivel: 59 }, { especie: 'saci', nivel: 60 },
                { especie: 'estrelaDalva', nivel: 60 }, { especie: 'curupira', nivel: 60 }],
@@ -215,6 +217,12 @@ export const cidadeDoSol: DefMapa = {
   ],
 
   cenario: 'cidade',
+  /* saindo do terreiro com a Medalha Aurora, o Baloeiro conta do Círculo
+     Dourado, no meio do mundo. Uma vez só */
+  aoChegar: {
+    quem: 'BALOEIRO', se: 'medalha:aurora', seNao: 'viu_cut_sol_circulo', cutscene: 'sol_circulo',
+    linhas: ['Ô, {crianca}! Espera, que eu deixei o balão cheio te esperando!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'luzeiro', min: 57, max: 59, peso: 55 },

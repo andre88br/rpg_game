@@ -140,7 +140,10 @@ export const cavaFunda: DefMapa = {
     },
     {
       id: 'mapinguari_fundo', nome: 'MAPINGUARI', estilo: 'bicho:mapinguari',
+      /* de emboscada: enfiado na terra até o jogador chegar perto — aí a
+         cutscene mostra ele saindo do buraco, e a luta começa */
       tx: 38, ty: 19, dir: 'esq', seNao: 'conta_mapinguari',
+      encontro: 'mapinguari', emboscada: true,
       treinador: {
         classe: 'DONO DA CAVA', selvagem: true, visao: 4, liga: 'conta_mapinguari',
         time: [{ especie: 'mapinguari', nivel: 57 }],
@@ -156,9 +159,9 @@ export const cavaFunda: DefMapa = {
       tx: 20, ty: 23, dir: 'dir', seNao: 'servico_caipora',
       falas: [
         { se: ['servico_diamantes', 'medalha:pedra'], liga: 'servico_caipora',
-          encantado: { especie: 'caipora', nivel: 40 }, linhas: [
+          // a cutscene mostra o assobio e ela chegando montada no porco
+          encantado: { especie: 'caipora', nivel: 40 }, cutscene: 'caipora', linhas: [
           'Um assobio fino, e um porco-do-mato sai de trás da pedra com alguém montado nele.',
-          '— Três diamantes achados sem derrubar uma árvore. Quem garimpa assim, eu acompanho.',
           'A CAIPORA desce do porco e vai com você.'] },
         { se: 'medalha:pedra', linhas: [
           'Um cabelo de fogo some atrás da pedra antes de você chegar perto.',

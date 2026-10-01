@@ -208,7 +208,11 @@ src/
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
-│             cenas (fundos e peças das cutscenes: fogueira, trator...)
+│             cenas (fundos e peças das cutscenes da Foz e da Mata, e o
+│             que todo fundo usa: degradê, morro, árvore, moldura de lembrança)
+│             fundos/ (os fundos de cada região da Serra em diante, um
+│             arquivo por região, e o Círculo Dourado) · pecas (as peças
+│             paradas: rede, carta, pote de carvão, sino, pena, balão...)
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
@@ -236,6 +240,8 @@ src/
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
+│             roteiros/ (da Serra em diante, um arquivo de roteiros por
+│             região, e o torneio; comum.ts guarda o arco das oito medalhas)
 │             mapas/ (Região da Foz: 3 externos + 5 interiores; Mata do
 │             Curupira: 2 externos + 2 interiores; Serra Boitatá: 4 externos
 │             + 3 interiores + o terreiro em 4 salas; Campo do Saci: 4
@@ -316,8 +322,33 @@ pular a cutscene, a música some. Os temas saem do roteiro:
 | `caipora` | trote miúdo e cromático | as três Caiporinhas das mudas |
 | `curupira` | mistério, ré dórico, assobio no alto | a grota funda e a pegada de pé virado |
 | `terreiro_raiz` | devagar, como raiz que cresce | o Terreiro de Raiz e a Tiê |
+| `serra` | baião de tropeiro, lá mixolídio | a tropa, a Vila Fornalha de noite |
+| `forja` | marcha de martelo, ré menor | o Ferreiro, a candeia e os cinco potes |
+| `mula` | galope de casco de fogo | a Mula-sem-Cabeça da cumeeira |
+| `terreiro_brasa` | solene, brasa que não apaga | o Terreiro de Brasa e o Brás |
+| `campo` | xote de vento solto | os catadores, o moinho, a Aldeia Catavento |
+| `matinta` | o assobio comprido lá no alto | a Matinta do redemoinho |
+| `terreiro_vento` | vento que gira, ré dórico | o Terreiro do Rodamoinho e o Pererê |
+| `tambores` | baque forte, mi menor | os tambores da campina, a aldeia em festa |
+| `relampo` | tempestade ligeira | o Relampo do cume |
+| `terreiro_trovao` | quem escuta o céu, mi dórico | o Terreiro do Trovão e o Guaraci |
+| `garimpo` | baião de trabalho, ré mixolídio | a Garimpeira, o arraial, o Tuco |
+| `mapinguari` | passo pesado, dó menor | o fundo da Cava Funda |
+| `terreiro_pedra` | pedra que assenta | o Terreiro da Pedra e o Ubirajara |
+| `bairro` | passo miúdo e cromático, de noite | a Cartomante, o bairro, a Velha |
+| `cuca` | o acalanto de "dorme, neném", assombrado | o sótão do Casarão |
+| `terreiro_breu` | o escuro que escuta, sol menor | o Terreiro do Breu e a Morgana |
+| `sol` | marcha clara de meio-dia | a Cidade do Sol, o Oráculo, o Baloeiro |
+| `estrela` | a última estrela, mi maior, no alto | a Estrela-d'Alva do Pico |
+| `terreiro_aurora` | majestoso, sol nascendo | o Terreiro da Aurora e o Solano |
+| `circulo` | fanfarra das oito regiões | a praça e a arena do Círculo Dourado |
+| `anhanga` | a luta final, mi menor | o Anhangá, campeão do Círculo |
+| `campeao` | o hino da trilha inteira | a vitória, e o fim da história |
 
-Cutscene nova de outra região reaproveita um tema ou ganha o seu. Cura,
+Os temas que não são de região (`companhia`, `lembranca`, `encantados`, `zeca`,
+`viagem`, `trilha`, `porto`, `fogueira`) voltam em todas elas: a Companhia
+sempre soa igual, toda lembrança tem a moldura e o tema de lembrança, todo
+Encantado exclusivo desce com `encantados`, e toda saída de região é `viagem`. Cura,
 medalha, item, subir de nível, captura e derrota são **vinhetas**: tocam uma
 vez, também fora das cutscenes.
 
@@ -484,7 +515,8 @@ Três coisas que o chão e a gente fazem, e que a Fase 1 precisava:
 - **Emboscada.** Com `emboscada: true`, o NPC do `encontro` nem aparece
   (nem enxerga, nem conversa) antes da cutscene dele, e a luta começa assim
   que ela acaba — o Boitatá do farol, que só existe depois das redes
-  (`se: 'conta_redes'`). Enquanto uma cutscene de encontro está pedida,
+  (`se: 'conta_redes'`), e o bicho da quinta conta de toda região (a Mula,
+  a Matinta, o Relampo, o Mapinguari, a Cuca, a Estrela-d'Alva). Enquanto uma cutscene de encontro está pedida,
   nenhum treinador desafia ninguém.
 
 **O salão da Dona Mariana não foi desenhado no olho.** Um salão de gelo erra
@@ -643,7 +675,47 @@ letreiro "CURUPIRA, O GUARDIÃO DA GROTA". O **Terreiro de Raiz** tem a entrada
 (`terreiro_raiz`: o salão de raiz viva, a sumaúma de mil anos e o letreiro da
 Tiê) e a vitória (`tie_vence`: as raízes dão flor, a mata marcada, a Medalha
 Raiz). E saindo com a medalha, o `aoChegar` da Mata (`elias_serra`) mostra a
-fumaça da Serra Boitatá e a touceira que o Dom de Cortar Cipó abre. Depois vem `scenes/
+fumaça da Serra Boitatá e a touceira que o Dom de Cortar Cipó abre.
+
+**Da Serra ao Círculo, o mesmo desenho**, com os roteiros de cada região num
+arquivo seu (`data/roteiros/`) e os fundos também (`art/fundos/`). Em toda
+região: o rival e o chefe da estrada apresentados antes da luta
+(`apresentacao`), quem pede serviço contando a história quando a fala fecha, o
+bicho da região de **emboscada** (`encontro` + `emboscada`: some até o jogador
+chegar perto, a cutscene mostra ele saindo e a luta começa), o terreiro com a
+entrada (`aoChegar` do salão) e a vitória (`cutscene` do dono, que termina na
+medalha que a fala dele entrega), a saída chamando a região seguinte (`aoChegar`
+do eixo da região com `se: 'medalha:<id>'`) e o Encantado exclusivo descendo
+com cutscene (a oferta de reordenar o time fica para o menu, para não cobrir a
+cena). A Companhia aparece em todas, cada uma do seu jeito:
+
+| região | a história | cutscenes |
+|---|---|---|
+| Serra Boitatá | a tropa sem trilha; a carvoaria queimando a encosta espantou o Boitatá para o fundo da caverna | `chefe_tropa`, `ferreiro` (a candeia), `zeca_serra`, `ferreiro_fole` (os cinco potes), `mula`, `terreiro_brasa`, `bras_vence`, `fornalha_campo`, `mae_do_ouro` |
+| Campo do Saci | os catadores de vento e o recado do Saci; a cerca de arame e a soja até o horizonte | `catadores`, `zeca_campo`, `moleiro` (as cinco penas), `matinta`, `terreiro_vento`, `perere_vence`, `catavento_tupa`, `uirapuru` |
+| Aldeia Tupã | o tambor que responde ao trovão; as torres e o casarão de para-raios que prendem o raio num fio | `tambores`, `zeca_tupa`, `paje` (as pedras-de-raio), `para_raios` (o para-raio mestre, fala de objeto), `relampo`, `terreiro_trovao`, `guaraci_vence`, `tupa_minas`, `arco_da_velha` |
+| Minas da Caipora | o garimpo de bateia contra a draga que revira o rio | `garimpeira` (a forquilha), `zeca_minas`, `tuco` (o Tuco em casa), `mapinguari`, `terreiro_pedra`, `ubirajara_vence`, `arraial_cuca`, `caipora` |
+| Bairro da Cuca | a noite que era de todo mundo; a placa de VENDIDO no Casarão | `cartomante` (na terceira carta certa), `zeca_cuca`, `cuca`, `terreiro_breu`, `morgana_vence`, `bairro_sol`, `pisadeira` |
+| Cidade do Sol | a visão das oito medalhas e da sala da Companhia, com um X em cada região | `oraculo` (na terceira resposta certa), `zeca_sol`, `estrela`, `terreiro_aurora`, `solano_vence`, `sol_circulo`, `jaci` |
+| Círculo Dourado | o campeão de vinte anos; e o fim | `circulo` (a praça), `arena`, `zeca_final`, `anhanga`, `campeao` |
+
+O **Zeca** atravessa tudo isso com o pai: na Serra o pai vai para os fornos da
+carvoaria, no Campo o Zeca vê um redemoinho derrubar a cerca, na Aldeia um
+raio cai do lado do pai, nas Minas ele pede as contas e volta a pescar com o
+Mestre do Porto, no Bairro manda carta, na Cidade do Sol promete vir — e na
+arena está na arquibancada. E a vitória sobre o **Anhangá** toca `campeao`
+antes dos créditos (a cutscene é pedida antes, e o mundo só solta os créditos
+depois dela): a arena em festa (`camaraFesta`), as oito medalhas acendendo, a
+comporta da Foz rachando com a Iara-Mãe acordando (`rioLivre`), a mata
+voltando (`mataDepois` → `mataAntes`), a avó fechando a história na mesma
+fogueira da abertura e o letreiro "ENCANTADOS".
+
+Os donos de terreiro e quem conta história ganharam estilo próprio em
+`art/people.ts` (`bras`, `perere`, `guaraci`, `ubirajara`, `morgana`,
+`solano`, `ferreiro`, `paje`, `garimpeira`, `cartomante`, `oraculo`), usado
+no mapa, na revanche do Círculo e nas cutscenes.
+
+Depois da abertura vem `scenes/
 personagem.ts:CenaPersonagem` — Tainá ou Bento, e o nome, digitado num
 teclado alfabético na tela (setas andam pela grade, A escolhe a letra, B
 volta da tela de nome pra de personagem). Só depois disso `novoJogo(nome,

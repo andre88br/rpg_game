@@ -30,17 +30,16 @@ export const casaPaje: DefMapa = {
 
   npcs: [
     {
-      id: 'paje', nome: 'PAJÉ', estilo: 'aldeao',
+      id: 'paje', nome: 'PAJÉ', estilo: 'paje',
       tx: 7, ty: 1, dir: 'baixo',
       falas: [
         { se: 'conta_pedras_raio', linhas: [
           'As cinco pedras estão aqui na mesa, cada uma apontada pra onde caiu.',
           'O raio escolheu você, {crianca}. Eu só confirmei.'] },
         { se: 'item:pedra_raio>=5', pede: { item: 'pedra_raio', n: 5 }, liga: 'conta_pedras_raio',
-          paga: 600, linhas: [
-          'Cinco pedras-de-raio, de cinco lugares diferentes! A campina, a aldeia, o charco, o morro...',
-          'Quem anda tudo isso de ponta a ponta merece a conta. Acendi uma da sua guia.',
-          'E toma, pelo caminho.'] },
+          /* as pedras na mesa, o recado de Tupã e o fio da Companhia */
+          paga: 600, cutscene: 'paje', linhas: [
+          'Cinco pedras-de-raio, de cinco lugares diferentes! Senta, que eu vou pôr na mesa.'] },
         { linhas: [
           'Onde o raio cai, ele deixa uma pedra. Cinco caíram na região desde a última lua.',
           'Duas na campina, uma aqui na aldeia, uma no charco e uma no morro — cada uma num canto.',

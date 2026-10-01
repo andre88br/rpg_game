@@ -192,6 +192,163 @@ test('saindo do terreiro com a Medalha Raiz, o Seu Elias aponta a Serra', () => 
   assert.ok(CUTSCENES['elias_serra']!.some((t) => t.titulo?.includes('SERRA BOITATÁ')));
 });
 
+/* ---------------------------------- Regiões 3 a 8 e o Círculo Dourado
+
+   O mesmo desenho em toda região, conferido por tabela: o rival (e o chefe
+   da estrada) apresentado antes da luta, o bicho da região de emboscada, o
+   terreiro com entrada e vitória, a saída chamando a região seguinte, quem
+   pede serviço contando a história e o Encantado exclusivo chegando com
+   cutscene. */
+
+const npc = (mapa: string, id: string) => {
+  const n = MAPAS[mapa]?.npcs.find((x) => x.id === id);
+  assert.ok(n, `${mapa}: NPC "${id}" não existe`);
+  return n!;
+};
+const temLetreiro = (id: string, palavra: string) =>
+  assert.ok(CUTSCENES[id]!.some((t) => t.titulo?.some((l) => l.includes(palavra))), `${id}: falta o letreiro "${palavra}"`);
+
+const APRESENTADOS: readonly [string, string, string, string][] = [
+  ['trilhaDaBrasa', 'chefe_tropa', 'chefe_tropa', 'CHEFE DA TROPA'],
+  ['vilaFornalha', 'zeca3', 'zeca_serra', 'ZECA'],
+  ['campoAberto', 'chefe_catadores', 'catadores', 'CHEFE DOS CATADORES'],
+  ['aldeiaCatavento', 'zeca4', 'zeca_campo', 'ZECA'],
+  ['campinaDosRaios', 'chefe_tambores', 'tambores', 'CHEFE DOS TAMBORES'],
+  ['aldeiaTupa', 'zeca5', 'zeca_tupa', 'ZECA'],
+  ['arraialCaipora', 'zeca6', 'zeca_minas', 'ZECA'],
+  ['bairroDaCuca', 'zeca7', 'zeca_cuca', 'ZECA'],
+  ['cidadeDoSol', 'zeca8', 'zeca_sol', 'ZECA'],
+  ['arenaDourada', 'zeca9', 'zeca_final', 'ZECA'],
+  ['arenaDourada', 'anhanga', 'anhanga', 'ANHANGÁ'],
+];
+
+for (const [mapa, id, cut, letreiro] of APRESENTADOS) {
+  test(`${id} (${mapa}) é apresentado antes da primeira luta`, () => {
+    assert.equal(npc(mapa, id).treinador?.apresentacao, cut);
+    temLetreiro(cut, letreiro);
+  });
+}
+
+const EMBOSCADAS: readonly [string, string, string, string][] = [
+  ['cumeeiraBoitata', 'mula_cumeeira', 'mula', 'MULA-SEM-CABEÇA'],
+  ['topoDoRedemoinho', 'matinta_topo', 'matinta', 'MATINTA'],
+  ['morroDoTrovao', 'relampo_cume', 'relampo', 'RELAMPO'],
+  ['cavaFunda', 'mapinguari_fundo', 'mapinguari', 'MAPINGUARI'],
+  ['casaraoAssombrado', 'cuca_sotao', 'cuca', 'CUCA'],
+  ['picoAurora', 'estrela_cume', 'estrela', "ESTRELA-D'ALVA"],
+];
+
+for (const [mapa, id, cut, letreiro] of EMBOSCADAS) {
+  test(`o bicho de ${mapa} vem de emboscada, com cutscene`, () => {
+    const n = npc(mapa, id);
+    assert.equal(n.encontro, cut);
+    assert.ok(n.emboscada, `${id} apareceria antes da cutscene`);
+    assert.ok(n.treinador?.selvagem && n.treinador.liga, `${id}: a luta tem que acender a conta`);
+    temLetreiro(cut, letreiro);
+  });
+}
+
+/* [mapa da entrada, cutscene da entrada, mapa do dono, dono, cutscene da vitória, medalha] */
+const TERREIROS_DAQUI: readonly [string, string, string, string, string, string][] = [
+  ['terreiroBrasaSalao', 'terreiro_brasa', 'terreiroBrasaSalao', 'bras', 'bras_vence', 'brasa'],
+  ['terreiroRodamoinho', 'terreiro_vento', 'terreiroRodamoinho', 'perere', 'perere_vence', 'rodamoinho'],
+  ['terreiroTrovao', 'terreiro_trovao', 'terreiroTrovao', 'guaraci', 'guaraci_vence', 'trovao'],
+  ['terreiroPedra', 'terreiro_pedra', 'terreiroPedra', 'ubirajara', 'ubirajara_vence', 'pedra'],
+  ['terreiroBreu', 'terreiro_breu', 'terreiroBreu', 'morgana', 'morgana_vence', 'breu'],
+  ['terreiroAurora', 'terreiro_aurora', 'terreiroAurora', 'solano', 'solano_vence', 'aurora'],
+];
+
+for (const [entrada, cutEntrada, mapaDono, dono, cutVence, medalha] of TERREIROS_DAQUI) {
+  test(`o terreiro da medalha ${medalha} tem cutscene ao entrar e ao vencer`, () => {
+    const t = MAPAS[entrada]!;
+    assert.equal(t.aoChegar?.cutscene, cutEntrada);
+    assert.equal(t.aoChegar?.seNao, `viu_cut_${cutEntrada}`, 'a entrada tocaria toda vez');
+    const d = npc(mapaDono, dono);
+    assert.equal(d.treinador?.cutscene, cutVence);
+    // a medalha continua vindo da fala do dono, depois da cutscene
+    assert.ok(d.falas.some((f) => f.medalha === medalha));
+    assert.ok(CUTSCENES[cutVence]!.some((tm) => tm.atores?.some((a) => 'medalha' in a.figura && a.figura.medalha === medalha)),
+              `${cutVence}: a medalha não aparece`);
+    // o dono aparece com o estilo dele, não o de outra pessoa
+    assert.ok(ESTILOS[d.estilo], `${dono}: estilo "${d.estilo}"`);
+  });
+}
+
+/* [mapa, cutscene, medalha que chama, letreiro da região seguinte] */
+const SAIDAS: readonly [string, string, string, string][] = [
+  ['vilaFornalha', 'fornalha_campo', 'brasa', 'CAMPO DO SACI'],
+  ['aldeiaCatavento', 'catavento_tupa', 'rodamoinho', 'ALDEIA TUPÃ'],
+  ['aldeiaTupa', 'tupa_minas', 'trovao', 'MINAS DA CAIPORA'],
+  ['arraialCaipora', 'arraial_cuca', 'pedra', 'BAIRRO DA CUCA'],
+  ['bairroDaCuca', 'bairro_sol', 'breu', 'CIDADE DO SOL'],
+  ['cidadeDoSol', 'sol_circulo', 'aurora', 'O CÍRCULO DOURADO'],
+];
+
+for (const [mapa, cut, medalha, letreiro] of SAIDAS) {
+  test(`saindo com a medalha ${medalha}, ${mapa} chama para a região seguinte`, () => {
+    const c = MAPAS[mapa]!.aoChegar!;
+    assert.equal(c.cutscene, cut);
+    assert.equal(c.se, `medalha:${medalha}`);
+    assert.equal(c.seNao, `viu_cut_${cut}`, 'a chamada tocaria toda vez');
+    temLetreiro(cut, letreiro);
+  });
+}
+
+/* quem pede serviço conta a história: [mapa, npc ou objeto, a flag que a fala liga, cutscene] */
+const SERVICOS: readonly [string, string, string, string][] = [
+  ['forjaFornalha', 'ferreiro', 'tem_candeia', 'ferreiro'],
+  ['forjaFornalha', 'ferreiro', 'conta_fole', 'ferreiro_fole'],
+  ['moinhoCatavento', 'moleiro', 'conta_catavento', 'moleiro'],
+  ['casaPaje', 'paje', 'conta_pedras_raio', 'paje'],
+  ['bocaDaMina', 'garimpeira', 'tem_forquilha', 'garimpeira'],
+  ['arraialCaipora', 'dona_luzia', 'conta_menino', 'tuco'],
+  ['casaCartomante', 'cartomante', 'conta_cartomante', 'cartomante'],
+  ['casaOraculo', 'oraculo', 'conta_oraculo', 'oraculo'],
+];
+
+for (const [mapa, id, flag, cut] of SERVICOS) {
+  test(`${id} conta a história quando a fala de ${flag} fecha`, () => {
+    const f = npc(mapa, id).falas.find((x) => [x.liga].flat().includes(flag));
+    assert.ok(f, `${id}: nenhuma fala liga ${flag}`);
+    assert.equal(f!.cutscene, cut);
+  });
+}
+
+test('o para-raio mestre do charco cala o casarão com cutscene', () => {
+  const o = MAPAS['charcoRelampejante']!.objetos.find((x) => x.falas?.some((f) => f.liga === 'conta_para_raios'));
+  assert.equal(o?.falas?.[0]?.cutscene, 'para_raios');
+});
+
+const EXCLUSIVOS: readonly [string, string, string][] = [
+  ['cavernaBoitata', 'mae_do_ouro', 'mae_do_ouro'],
+  ['moinhoCatavento', 'uirapuru', 'uirapuru'],
+  ['charcoRelampejante', 'arco_da_velha', 'arco_da_velha'],
+  ['cavaFunda', 'caipora_fundo', 'caipora'],
+  ['casaraoAssombrado', 'pisadeira_telhado', 'pisadeira'],
+  ['picoAurora', 'jaci_cume', 'jaci'],
+];
+
+for (const [mapa, id, cut] of EXCLUSIVOS) {
+  test(`o Encantado exclusivo de ${mapa} chega com cutscene`, () => {
+    const f = npc(mapa, id).falas.find((x) => x.encantado);
+    assert.equal(f?.cutscene, cut);
+    const especie = f!.encantado!.especie;
+    assert.ok(CUTSCENES[cut]!.some((t) => t.atores?.some((a) => 'criatura' in a.figura && a.figura.criatura === especie)),
+              `${cut}: o próprio ${especie} não aparece`);
+  });
+}
+
+test('o Círculo Dourado tem cutscene na praça, na arena e no fim, antes dos créditos', () => {
+  assert.equal(MAPAS['circuloDourado']!.aoChegar?.cutscene, 'circulo');
+  assert.equal(MAPAS['arenaDourada']!.aoChegar?.cutscene, 'arena');
+  assert.equal(MAPAS['arenaDourada']!.aoChegar?.seNao, 'viu_cut_arena');
+  const campeao = npc('arenaDourada', 'anhanga').treinador!;
+  assert.equal(campeao.cutscene, 'campeao');
+  assert.ok(campeao.creditos, 'a cutscene do campeão vem antes dos créditos, não no lugar deles');
+  // a última tomada volta ao letreiro da abertura
+  assert.ok(CUTSCENES['campeao']!.at(-1)!.titulo?.includes('ENCANTADOS'));
+});
+
 /* ------------------------------------------------------------ a trilha */
 
 test('toda cutscene começa dizendo o tema, e todo tema pedido existe', () => {

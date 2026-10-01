@@ -18,6 +18,15 @@ import type { Buf } from '../core/buf.ts';
 import type { Direcao } from '../art/people.ts';
 import * as C from '../art/cenas.ts';
 import type { IdMusica } from '../audio/musicas.ts';
+import type { PecaParada } from '../art/pecas.ts';
+import { arcoMedalhas } from './roteiros/comum.ts';
+import { ROTEIROS_SERRA } from './roteiros/serra.ts';
+import { ROTEIROS_CAMPO } from './roteiros/campo.ts';
+import { ROTEIROS_TUPA } from './roteiros/tupa.ts';
+import { ROTEIROS_MINAS } from './roteiros/minas.ts';
+import { ROTEIROS_CUCA } from './roteiros/cuca.ts';
+import { ROTEIROS_SOL } from './roteiros/sol.ts';
+import { ROTEIROS_CIRCULO } from './roteiros/circulo.ts';
 
 export type Figura =
   | { pessoa: string; dir?: Direcao }
@@ -27,7 +36,11 @@ export type Figura =
   | { inicial: true; flip?: boolean }
   | { criatura: string; flip?: boolean }
   | { medalha: string; tam?: number }
-  | { peca: 'fogueira' | 'trator' | 'rede' | 'farol' | 'carta' | 'muda' | 'tinta' };
+  | { peca: Peca };
+
+/* as peças que não são gente nem bicho: a fogueira e o trator se mexem; o
+   resto (art/pecas.ts) é um desenho parado */
+export type Peca = 'fogueira' | 'trator' | PecaParada;
 
 export interface Ator {
   figura: Figura;
@@ -87,19 +100,6 @@ export type Roteiro = readonly Tomada[];
 /* a faixa da legenda: largura útil e quantas linhas cabem nela */
 export const LARG_LEGENDA = 240 - 20;
 export const LINHAS_LEGENDA = 3;
-
-/* as medalhas em arco, acendendo uma depois da outra */
-const ORDEM_MEDALHAS = ['mare', 'raiz', 'brasa', 'rodamoinho', 'trovao', 'pedra', 'breu', 'aurora'];
-const arcoMedalhas: Ator[] = ORDEM_MEDALHAS.map((id, i) => {
-  const a = Math.PI * (0.92 - (i / 7) * 0.84);
-  return {
-    figura: { medalha: id, tam: 16 },
-    x: Math.round(120 + Math.cos(a) * 92 - 8),
-    y: Math.round(66 - Math.sin(a) * 44 - 8),
-    aparece: 0.8 + i * 0.45,
-    balanco: { amp: 1, periodo: 2.4, fase: i * 0.7 },
-  };
-});
 
 /* ------------------------------------------------------------ a abertura */
 const INTRO: Roteiro = [
@@ -1347,4 +1347,12 @@ export const CUTSCENES: Record<string, Roteiro> = {
   caipora_touceira_muda: caiporinhaVencida(NAS_TOUCEIRAS),
   caipora_tronco: caiporinhaAchada(NO_TRONCO),
   caipora_tronco_muda: caiporinhaVencida(NO_TRONCO),
+  // da Região 3 em diante, cada região no seu arquivo (data/roteiros/)
+  ...ROTEIROS_SERRA,
+  ...ROTEIROS_CAMPO,
+  ...ROTEIROS_TUPA,
+  ...ROTEIROS_MINAS,
+  ...ROTEIROS_CUCA,
+  ...ROTEIROS_SOL,
+  ...ROTEIROS_CIRCULO,
 };

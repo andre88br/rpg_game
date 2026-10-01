@@ -31,16 +31,18 @@ export const casaCartomante: DefMapa = {
 
   npcs: [
     {
-      id: 'cartomante', nome: 'CARTOMANTE', estilo: 'anhanga',
+      id: 'cartomante', nome: 'CARTOMANTE', estilo: 'cartomante',
       tx: 7, ty: 1, dir: 'baixo',
       falas: [
         { se: 'conta_cartomante', linhas: [
           'As cartas já disseram tudo o que tinham pra dizer. A sua sorte é boa, {crianca}.'] },
-        { se: 'carta2_ok', liga: 'conta_cartomante', paga: 900, linhas: [
+        /* acertando a terceira, a cutscene lê a sorte: o rio que dorme, a
+           sombra que compra terra e a criança das oito medalhas */
+        { se: 'carta2_ok', liga: 'conta_cartomante', paga: 900, cutscene: 'cartomante', linhas: [
           'Terceira carta, a última. O que é, o que é: tem olho, mas não enxerga?'],
           pergunta: {
             opcoes: ['A CORUJA', 'A AGULHA', 'O CEGO'], certa: 1,
-            acertou: ['A agulha! As três cartas certas. Acendi uma conta da sua guia, e toma.'],
+            acertou: ['A agulha! As três cartas certas. Agora deixa eu ler o que elas dizem.'],
             errou: { linhas: ['Carta errada embaralha o baralho inteiro. Começa de novo.'],
                      desliga: ['carta1_ok', 'carta2_ok'] },
           } },

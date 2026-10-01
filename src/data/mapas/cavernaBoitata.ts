@@ -139,9 +139,9 @@ export const cavernaBoitata: DefMapa = {
         /* precisa dos três sinos E da medalha: é conteúdo de depois do Brás,
            e o único jeito de ter o Encantado exclusivo da região */
         { se: ['servico_sinos', 'medalha:brasa'], liga: 'servico_maeDoOuro',
-          encantado: { especie: 'maeDoOuro', nivel: 30 }, linhas: [
-          'A luz desce devagar até o chão da gruta e toma forma de gente.',
-          '— Três sinos tocaram sem vento, e a serra inteira ouviu. Quem faz isso, eu escuto.',
+          // a cutscene mostra os sinos tocando e a luz descendo do teto
+          encantado: { especie: 'maeDoOuro', nivel: 30 }, cutscene: 'mae_do_ouro', linhas: [
+          'Lá longe, na capela da vila, os três sinos começam a tocar sozinhos...',
           'A MÃE-DO-OURO desce do teto da gruta e vai com você.'] },
         { se: 'medalha:brasa', linhas: [
           'Uma luz risca o fundo da gruta e some antes de você chegar perto.',

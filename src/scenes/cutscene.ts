@@ -16,7 +16,8 @@ import { quebrar } from '../art/font.ts';
 import { spritePessoa, ESTILOS, type Quadro } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { medalha } from '../art/badges.ts';
-import { fogueira, trator, fagulha, redeEnrolada, farolGrande, cartaLacrada, muda, lataTinta } from '../art/cenas.ts';
+import { fogueira, trator, fagulha } from '../art/cenas.ts';
+import { PECAS } from '../art/pecas.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 import { preencher } from '../game/quests.ts';
 import { nome as nomeDe } from '../battle/encantado.ts';
@@ -56,12 +57,8 @@ function quadrosDe(f: Figura, e: EstadoJogo | null): Quadros {
     return { imgs: [assarSuave(b)], fps: 0, soAndando: false };
   }
   if ('medalha' in f) return { imgs: [assar(medalha(f.medalha, f.tam ?? 16))], fps: 0, soAndando: false };
-  if (f.peca === 'rede') return { imgs: [assar(redeEnrolada())], fps: 0, soAndando: false };
-  if (f.peca === 'farol') return { imgs: [assar(farolGrande())], fps: 0, soAndando: false };
-  if (f.peca === 'muda') return { imgs: [assar(muda())], fps: 0, soAndando: false };
-  if (f.peca === 'tinta') return { imgs: [assar(lataTinta())], fps: 0, soAndando: false };
-  if (f.peca === 'carta') return { imgs: [assar(cartaLacrada())], fps: 0, soAndando: false };
   if (f.peca === 'fogueira') return { imgs: [0, 1, 2].map((i) => assar(fogueira(i))), fps: 8, soAndando: false };
+  if (f.peca !== 'trator') return { imgs: [assar(PECAS[f.peca]())], fps: 0, soAndando: false };
   return { imgs: [0, 1].map((i) => assar(trator(i))), fps: 8, soAndando: true };
 }
 

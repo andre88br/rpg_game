@@ -113,7 +113,7 @@ export const terreiroBreu: DefMapa = {
       ],
     },
     {
-      id: 'morgana', nome: 'MORGANA', estilo: 'anhanga',
+      id: 'morgana', nome: 'MORGANA', estilo: 'morgana',
       tx: 3, ty: 2, dir: 'dir',
       treinador: {
         classe: 'DONA DO TERREIRO', premio: 7000,
@@ -129,6 +129,8 @@ export const terreiroBreu: DefMapa = {
         },
         falaInicio: 'Passou pelos vultos, pelas guardas, pelo Casarão. Agora vem o breu de verdade.',
         falaDerrota: 'O breu cedeu. Pouca gente vê no escuro como você.',
+        /* as velas acendem, a placa de VENDIDO, e o chamado para a medalha */
+        cutscene: 'morgana_vence',
       },
       falas: [
         { se: 'medalha:breu', linhas: [
@@ -142,6 +144,11 @@ export const terreiroBreu: DefMapa = {
   ],
 
   inicio: { tx: 14, ty: 21, dir: 'cima' },
+  /* a primeira entrada no salão: uma linha, e a cutscene da Morgana */
+  aoChegar: {
+    quem: 'TERREIRO DO BREU', seNao: 'viu_cut_terreiro_breu', cutscene: 'terreiro_breu',
+    linhas: ['Do lado de dentro, o escuro é tão fundo que parece ter peso.'],
+  },
 
   saidas: [
     { tx: 14, ty: 22, para: 'bairroDaCuca', destino: { tx: 11, ty: 9, dir: 'baixo' } },

@@ -31,16 +31,18 @@ export const casaOraculo: DefMapa = {
 
   npcs: [
     {
-      id: 'oraculo', nome: 'ORÁCULO', estilo: 'firmina',
+      id: 'oraculo', nome: 'ORÁCULO', estilo: 'oraculo',
       tx: 7, ty: 1, dir: 'baixo',
       falas: [
         { se: 'conta_oraculo', linhas: [
           'O sol já me contou tudo sobre você. O caminho até o Solano está aberto, {crianca}.'] },
-        { se: 'oraculo2_ok', liga: 'conta_oraculo', paga: 900, linhas: [
+        /* acertando a terceira, a cutscene mostra a visão: as oito medalhas
+           e a sala da Companhia com um X em cada região */
+        { se: 'oraculo2_ok', liga: 'conta_oraculo', paga: 900, cutscene: 'oraculo', linhas: [
           'Última pergunta. O que é, o que é: nasce grande e morre pequena, e só existe quando tem luz?'],
           pergunta: {
             opcoes: ['A VELA', 'A SOMBRA', 'A LUA'], certa: 1,
-            acertou: ['A sombra, que cresce de manhã e encolhe ao meio-dia! Acendi uma conta da sua guia, e toma.'],
+            acertou: ['A sombra, que cresce de manhã e encolhe ao meio-dia! Agora olha na água, que o sol vai te mostrar.'],
             errou: { linhas: ['Errou. A luz se apaga e a gente volta pro começo.'],
                      desliga: ['oraculo1_ok', 'oraculo2_ok'] },
           } },

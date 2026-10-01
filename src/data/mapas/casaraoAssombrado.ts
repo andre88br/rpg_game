@@ -93,7 +93,10 @@ export const casaraoAssombrado: DefMapa = {
   npcs: [
     {
       id: 'cuca_sotao', nome: 'CUCA', estilo: 'bicho:cuca',
+      /* de emboscada: escondida no escuro do sótão até o jogador chegar
+         perto — aí a cutscene mostra a cantiga e ela vindo, e a luta começa */
       tx: 30, ty: 5, dir: 'esq', seNao: 'conta_cuca',
+      encontro: 'cuca', emboscada: true,
       treinador: {
         classe: 'DONA DO SÓTÃO', selvagem: true, visao: 4, liga: 'conta_cuca',
         time: [{ especie: 'cuca', nivel: 58 }],
@@ -109,9 +112,9 @@ export const casaraoAssombrado: DefMapa = {
       tx: 44, ty: 5, dir: 'esq', seNao: 'servico_pisadeira',
       falas: [
         { se: ['servico_retratos', 'medalha:breu'], liga: 'servico_pisadeira',
-          encantado: { especie: 'pisadeira', nivel: 40 }, linhas: [
+          // a cutscene mostra a lua e ela descendo pela beira do telhado
+          encantado: { especie: 'pisadeira', nivel: 40 }, cutscene: 'pisadeira', linhas: [
           'Um vulto magro desce pela beira do telhado, sem fazer barulho nenhum.',
-          '— Os três retratos de volta na parede. Quem cuida dos mortos assim, eu acompanho.',
           'A PISADEIRA desce do telhado e vai com você.'] },
         { se: 'medalha:breu', linhas: [
           'Umas unhas compridas raspam o telhado e somem.',

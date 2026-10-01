@@ -170,6 +170,8 @@ export const campinaDosRaios: DefMapa = {
       tx: 54, ty: 16, dir: 'esq',
       treinador: {
         classe: 'CHEFE DOS TAMBORES', visao: 5, premio: 2600, liga: 'conta_tambores',
+        // no primeiro encontro, a cutscene conta da festa do trovão e das torres
+        apresentacao: 'tambores',
         esperta: true, itens: { garrafada_forte: 2 },
         time: [{ especie: 'relampo', nivel: 47 }, { especie: 'tatuTrovao', nivel: 47 },
                { especie: 'saci', nivel: 48 }, { especie: 'relampo', nivel: 48 }],

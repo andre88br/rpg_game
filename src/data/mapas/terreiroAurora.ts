@@ -96,7 +96,7 @@ export const terreiroAurora: DefMapa = {
       ],
     },
     {
-      id: 'solano', nome: 'SOLANO', estilo: 'guarda',
+      id: 'solano', nome: 'SOLANO', estilo: 'solano',
       tx: 22, ty: 2, dir: 'esq',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 9000,
@@ -111,6 +111,8 @@ export const terreiroAurora: DefMapa = {
         },
         falaInicio: 'Sete medalhas, sete Dons, oito vezes o Zeca. Agora o sol. Ninguém olha pra ele sem piscar.',
         falaDerrota: 'Você não piscou. A Trilha das Oito Medalhas termina aqui, com você.',
+        /* a luz em sete cores, as oito medalhas, e o chamado para a medalha */
+        cutscene: 'solano_vence',
       },
       falas: [
         { se: 'medalha:aurora', linhas: [
@@ -125,6 +127,11 @@ export const terreiroAurora: DefMapa = {
   ],
 
   inicio: { tx: 14, ty: 21, dir: 'cima' },
+  /* a primeira entrada no salão: uma linha, e a cutscene do Solano */
+  aoChegar: {
+    quem: 'TERREIRO DA AURORA', seNao: 'viu_cut_terreiro_aurora', cutscene: 'terreiro_aurora',
+    linhas: ['Do lado de dentro, a luz é tanta que é preciso apertar os olhos.'],
+  },
 
   saidas: [
     { tx: 14, ty: 22, para: 'cidadeDoSol', destino: { tx: 11, ty: 9, dir: 'baixo' } },

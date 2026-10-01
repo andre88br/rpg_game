@@ -27,6 +27,13 @@ da **MÚSICA** — que só toca nas cutscenes e nas vinhetas — e dos **EFEITOS
 moram na mesma página; A ou as setas para os
 lados trocam o valor). Nada muda nas contas, nos caminhos nem nas coordenadas.
 
+**As cutscenes.** Cada região conta a sua história em cutscenes: quem pede
+o serviço conta o que a Companhia Mata-Seca fez ali, o Zeca (e o chefe da
+estrada) aparece antes da primeira luta, o bicho da quinta conta surge de
+emboscada, o terreiro tem uma na entrada e outra na vitória, e a saída com a
+medalha chama para a região seguinte. Cada uma toca **uma vez só**; **B**
+pula a cutscene inteira. Nenhuma muda conta, caminho ou coordenada.
+
 **A guia de contas.** Cada terreiro tem uma guia com **cinco contas**. A porta
 do terreiro só abre com as cinco acesas. Uma conta acende sozinha assim que
 você cumpre o serviço — não precisa voltar para "entregar" em lugar nenhum,
@@ -451,7 +458,8 @@ Erva-Doce** — é o treinador mais bem abastecido antes do terreiro.
 
 Depois, no fundo, em (16,26), corre a **MULA-SEM-CABEÇA** selvagem (visão 4):
 **Mula-sem-Cabeça nível 34**. É o bicho mais forte que você encara antes do
-Brás.
+Brás. Ela não aparece de longe: está **de emboscada** e só surge quando você
+chega perto — uma cutscene mostra ela vindo a galope, e a luta começa.
 
 Fogo puro: **Água** é a resposta. Vencer acende a conta. **Capturar também
 vale** — e uma Mula-sem-Cabeça 34 é uma das melhores peças que você pode levar
@@ -683,7 +691,8 @@ Fortes + 1 Erva-Doce.
 
 Mais fundo, no meio de um redemoinho decorativo de correntes (não travam
 nada — o corredor central fica sempre limpo), uma **Matinta selvagem nível
-45**. É o bicho mais forte antes do Pererê. Vencer acende a conta;
+45**, **de emboscada**: só aparece, com cutscene, quando você chega perto.
+É o bicho mais forte antes do Pererê. Vencer acende a conta;
 **capturar também vale**, e uma Matinta 45 é ótima para o terreiro.
 
 Com as cinco contas acesas, a guia da região fecha.
@@ -880,8 +889,9 @@ ao pé dos vãos (não trancam nada, mas enxergam longe):
 | 2ª crista (leste) | Relampo 48, Saci 48, Tatu-Trovão 48, Matinta 48 | 2200 |
 | 3ª crista (oeste) | Relampo 49, Curupirá 48, Tatu-Trovão 49, Relampo 49 | 2400 |
 
-No cume, do lado leste, um **Relampo selvagem nível 50**. Vencer acende a
-conta; **capturar também vale**.
+No cume, do lado leste, um **Relampo selvagem nível 50**, **de emboscada**:
+só aparece, com cutscene, quando você chega perto. Vencer acende a conta;
+**capturar também vale**.
 
 ## O Terreiro do Trovão — o salão do Guaraci
 
@@ -1065,7 +1075,8 @@ Relampo 55, Saci 55, Cabra-Cabriola 55, Curupirá 56. Prêmio 3000.
 A Cava Funda é uma **espiral**: três anéis de rocha, cada um com **um vão
 só** — oeste, depois leste, depois oeste. Três garimpeiros no caminho
 (Garimpeiro 55×3, Garimpeira com Mapinguari 55, Garimpeiro com 4 de nível
-56). No fundo, o **Mapinguari selvagem nível 57**. Vencer acende a conta;
+56). No fundo, o **Mapinguari selvagem nível 57**, **de emboscada**: só sai
+da terra, com cutscene, quando você chega perto. Vencer acende a conta;
 **capturar também vale**.
 
 ## O Terreiro da Pedra — o salão do Ubirajara
@@ -1191,8 +1202,9 @@ do canto oeste da sala abre para a ala oeste (e o retrato) e o sótão.
 
 ## Conta 5 — `conta_cuca`: a Cuca do sótão
 
-No sótão do Casarão, uma **Cuca selvagem nível 58**. Vencer acende a conta;
-**capturar também vale**.
+No sótão do Casarão, uma **Cuca selvagem nível 58**, **de emboscada**: só
+aparece, com cutscene, quando você chega perto do berço. Vencer acende a
+conta; **capturar também vale**.
 
 ## O Terreiro do Breu — o salão da Morgana
 
@@ -1324,8 +1336,9 @@ Fortes + 1 Erva-Doce + 1 Água Benta.
 
 O Pico sobe em três cristas, cada uma com uma passagem só (leste, oeste,
 leste), e um **Guia do Pico** em cada uma. No cume (30,4), uma
-**Estrela-d'Alva selvagem nível 60**. Vencer acende a conta; **capturar
-também vale**.
+**Estrela-d'Alva selvagem nível 60**, **de emboscada**: só desce, com
+cutscene, quando você chega perto. Vencer acende a conta; **capturar também
+vale**.
 
 ## O Terreiro da Aurora — o salão do Solano
 
@@ -1406,8 +1419,12 @@ vitória. **Sair ou cair recomeça do primeiro Guardião.**
 | 6 | **Anhangá**, o campeão | — | Cuca, Mapinguari, Uirapuru, Arco-da-Velha, Jaci, Caipora, todos 60, e o inicial de vantagem contra o seu |
 
 Todos são espertos: trocam de Encantado e usam garrafada, erva-doce e
-água benta. Vencer o Anhangá dá **15.000**, o título de campeão e os
-**créditos**.
+água benta. Vencer o Anhangá dá **15.000**, o título de campeão, a
+cutscene do fim da história e, depois dela, os **créditos**.
+
+Na primeira vez, a praça e a arena têm cutscene de chegada, e o Zeca e o
+Anhangá são apresentados antes da luta. Elas tocam uma vez só: perder e
+recomeçar a arena não repete nenhuma.
 
 ## Depois de campeão
 

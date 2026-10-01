@@ -30,21 +30,23 @@ export const forjaFornalha: DefMapa = {
 
   npcs: [
     {
-      id: 'ferreiro', nome: 'FERREIRO', estilo: 'aldeao',
+      id: 'ferreiro', nome: 'FERREIRO', estilo: 'ferreiro',
       tx: 7, ty: 4, dir: 'baixo',
       falas: [
         { se: 'conta_fole', linhas: [
           'Cinco carvões acesos e uma conta da guia, tudo por conta da sua candeia.',
           'Guarde-a. A serra ainda tem gruta escura pela frente.'] },
-        { se: 'item:carvao>=5', pede: { item: 'carvao', n: 5 }, liga: 'conta_fole', paga: 400, linhas: [
-          'Cinco carvões, ainda quentes! É disso que essa forja precisa.',
-          'Acendi uma conta da guia por sua conta. E toma, pelo trabalho.'] },
+        /* os cinco potes: a fornalha pega, a vila fumaça, o Boitatá dorme */
+        { se: 'item:carvao>=5', pede: { item: 'carvao', n: 5 }, liga: 'conta_fole', paga: 400,
+          cutscene: 'ferreiro_fole', linhas: [
+          'Cinco carvões, ainda quentes! É disso que essa forja precisa.'] },
         { se: 'tem_candeia', linhas: [
           'A Caverna do Boitatá é logo ao sul da vila. Cinco carvões, num pote cada, escondidos no breu.',
           'Sem luz de verdade lá dentro você não acha nem a própria mão.'] },
-        { da: { item: 'candeia' }, liga: 'tem_candeia', linhas: [
-          'Vejo que vai enfrentar a caverna. Leve essa candeia — não é muito, mas é mais que nada.',
-          'Ache cinco carvões lá dentro e me traga: essa forja está fria há anos.'] },
+        /* a cutscene conta da forja fria, do carvão do Boitatá e da
+           carvoaria; a fala só abre a conversa */
+        { da: { item: 'candeia' }, liga: 'tem_candeia', cutscene: 'ferreiro', linhas: [
+          'Vejo que vai enfrentar a caverna. Senta aí, que eu te conto por que essa forja está fria.'] },
       ],
     },
   ],

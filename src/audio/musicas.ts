@@ -157,6 +157,184 @@ export const MUSICAS = {
               bb5:4 a5 g5 d5:8 | eb5:4 g5:4 c6:6 bb5:2 | a5:4 f#5:4 d5:4 f#5:4 | g5:12 -:4`,
   },
 
+  /* ---------------------------------------------- Região 3: a Serra */
+
+  /* a tropa subindo a serra: baião de tropeiro em lá mixolídio */
+  serra: {
+    bpm: 112, baixo: 'baiao', bateria: 'baiao', arpejo: 'colcheia',
+    acordes: ['A', 'G', 'A', 'D', 'A', 'G', 'E7', 'A'],
+    melodia: `e5 a5 c#6:4 b5 a5 g5:4 | g5:4 f#5 e5 d5:8 | e5 a5 c#6 e6:4 d6 c#6 a5 | f#5:6 e5:2 d5:8 |
+              c#5 e5 a5:4 g5 e5 c#5:4 | d5 g5 b5:6 a5:2 g5:4 | g#5:4 b5:4 e6:4 d6 b5 | a5:12 -:4`,
+  },
+  /* a forja do Ferreiro: marcha de martelo em ré menor */
+  forja: {
+    bpm: 96, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia',
+    acordes: ['Dm', 'Dm', 'Gm', 'A', 'Dm', 'Bb', 'Gm A', 'Dm'],
+    melodia: `d5:4 a4:4 d5 f5 a5:4 | a5:3 g5:1 f5 e5 d5:8 | g5:4 d5:4 bb5:6 a5:2 | a5:4 c#5:4 e5:8 |
+              d6:4 a5 f5 d5:4 f5:4 | f5 bb5 d6:6 c6:2 bb5:4 | bb5:4 g5:4 e5 g5 c#6:4 | d6:12 -:4`,
+  },
+  /* a Mula-sem-Cabeça: galope de casco de fogo, em lá menor */
+  mula: {
+    bpm: 152, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe',
+    acordes: ['Am', 'E', 'F', 'E', 'Am', 'Dm', 'F E', 'Am'],
+    melodia: `a5:1 -:1 a5:1 -:1 e5 a5 c6 b5 a5:4 | e5:1 -:1 e5:1 -:1 g#5 b5 e6:4 d6 b5 |
+              f5:1 -:1 f5:1 -:1 a5 c6 f6:4 e6 c6 | b5:4 g#5:4 e5:8 |
+              c6 b5 a5 e5 a5:4 c6:4 | d6 c6 a5 f5 d5:4 f5:4 | a5 c6 f5 a5 g#5:4 e5:4 | a5 e5 a4:4 -:8`,
+  },
+  /* o Terreiro de Brasa e o Brás: solene, como brasa que não apaga */
+  terreiro_brasa: {
+    bpm: 62, baixo: 'lento', arpejo: 'colcheia',
+    acordes: ['Em', 'C', 'Am', 'B', 'Em', 'Am', 'B7', 'Em'],
+    melodia: `b4:4 e5:4 g5:8 | e5:4 g5:4 c6:8 | a5:6 g5:2 e5:4 c5:4 | d#5:8 f#5:8 |
+              g5:4 b5:4 e6:8 | c6:4 b5 a5 e5:8 | d#5:4 f#5:4 a5:4 b5:4 | e5:12 -:4`,
+  },
+
+  /* ------------------------------------------- Região 4: o Campo do Saci */
+
+  /* o campo aberto: xote de vento solto, em sol maior */
+  campo: {
+    bpm: 104, baixo: 'passeio', bateria: 'suave', arpejo: 'colcheia',
+    acordes: ['G', 'C', 'G', 'D', 'Em', 'C', 'D7', 'G'],
+    melodia: `d5 g5 b5:4 a5 g5 d5:4 | e5:4 g5 c6:6 b5:2 a5:2 | b5:3 a5:1 g5 d5 g5:4 b5:4 | a5:6 f#5:2 d5:8 |
+              e5 g5 b5:4 a5 g5 e5:4 | c6:4 b5 a5 g5:4 e5:4 | d5 f#5 a5:4 c6:4 b5 a5 | g5:12 -:4`,
+  },
+  /* a Matinta: o assobio comprido lá no alto, em si menor */
+  matinta: {
+    bpm: 76, baixo: 'lento', bateria: 'suave', arpejo: 'sobe',
+    acordes: ['Bm', 'G', 'Bm', 'F#', 'Em', 'G', 'F#7', 'Bm'],
+    melodia: `f#6:6 -:2 b5:4 d6:4 | d6:4 b5 g5 e5:8 | f#6:6 -:2 d6:4 b5:4 | a#5:8 c#6:8 |
+              g5:4 b5:4 e6:8 | d6:4 b5 g5 d5:8 | c#6:4 e6:4 a#5:4 f#5:4 | b5:12 -:4`,
+  },
+  /* o Terreiro do Rodamoinho e o Pererê: vento que gira, em ré dórico */
+  terreiro_vento: {
+    bpm: 70, baixo: 'lento', arpejo: 'sobe',
+    acordes: ['Dm', 'G', 'Dm', 'G', 'Bb', 'C', 'A7', 'Dm'],
+    melodia: `a4:4 d5:4 f5:8 | g5:4 b5:4 d6:8 | c6:6 a5:2 f5:4 d5:4 | e5:8 b5:8 |
+              d6:4 bb5 a5 f5:8 | e5:4 g5:4 c6:6 bb5:2 | a5:4 c#6:4 e6:4 g5:4 | d5:12 -:4`,
+  },
+
+  /* --------------------------------------------- Região 5: a Aldeia Tupã */
+
+  /* os tambores da campina: baque forte, em mi menor */
+  tambores: {
+    bpm: 120, baixo: 'marcha', bateria: 'batalha',
+    acordes: ['Em', 'D', 'Em', 'D', 'C', 'D', 'B7', 'Em'],
+    melodia: `e5:4 g5 a5 b5:4 a5 g5 | f#5:4 d5:4 a5:8 | e5 e5 g5 a5 b5:4 d6:4 | a5:6 f#5:2 d5:8 |
+              e6:4 d6 b5 g5:4 e5:4 | f#5 a5 d6:6 c6:2 a5:4 | d#5:4 f#5:4 a5:4 b5:4 | e5 -:2 e5 -:2 e5:8`,
+  },
+  /* o Relampo do cume: tempestade ligeira, em ré menor */
+  relampo: {
+    bpm: 160, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe',
+    acordes: ['Dm', 'Bb', 'C', 'A', 'Dm', 'Bb', 'Gm A', 'Dm'],
+    melodia: `d6:1 a5:1 f5:1 a5:1 d6:2 -:2 d6:1 e6:1 f6:2 e6:2 d6:2 | bb5:4 f5:4 d5:4 f5:4 |
+              c6:1 g5:1 e5:1 g5:1 c6:2 -:2 c6:1 d6:1 e6:2 d6:2 c6:2 | c#6:4 a5:4 e5:8 |
+              f6:2 e6:2 d6:2 a5:2 f5:4 a5:4 | bb5:2 d6:2 f6:4 e6:2 d6:2 bb5:4 |
+              g5:2 bb5:2 d6:4 c#6:2 e6:2 a5:4 | d6:4 a5:2 f5:2 d5:4 -:4`,
+  },
+  /* o Terreiro do Trovão e o Guaraci: quem escuta o céu, em mi dórico */
+  terreiro_trovao: {
+    bpm: 66, baixo: 'lento', arpejo: 'colcheia',
+    acordes: ['Em', 'A', 'Em', 'A', 'G', 'D', 'B7', 'Em'],
+    melodia: `b4:4 e5:4 g5:8 | a5:4 c#6:4 e6:8 | d6:6 b5:2 g5:4 e5:4 | c#6:8 a5:8 |
+              b5:4 d6:4 g5:8 | a5:4 f#5 d5 a5:8 | d#6:4 b5:4 f#5:4 a5:4 | e5:12 -:4`,
+  },
+
+  /* ------------------------------------------ Região 6: as Minas da Caipora */
+
+  /* o garimpo de bateia: baião de trabalho, em ré mixolídio */
+  garimpo: {
+    bpm: 100, baixo: 'baiao', bateria: 'baiao', arpejo: 'colcheia',
+    acordes: ['D', 'C', 'D', 'A', 'G', 'C', 'A7', 'D'],
+    melodia: `a4 d5 f#5:4 e5 d5 a4:4 | g5:4 e5 c5 e5:8 | f#5 a5 d6:4 c6 a5 f#5:4 | e5:6 c#5:2 a4:8 |
+              b4 d5 g5:4 a5 b5 d6:4 | c6:4 g5 e5 c5:8 | c#5:4 e5:4 g5:4 a5:4 | d5:12 -:4`,
+  },
+  /* o Mapinguari: passo pesado no fundo da cava, em dó menor */
+  mapinguari: {
+    bpm: 72, baixo: 'marcha', bateria: 'marcha',
+    acordes: ['Cm', 'Ab', 'Cm', 'G', 'Fm', 'Ab', 'G7', 'Cm'],
+    melodia: `c4:4 -:2 c4:2 eb4:4 d4:4 | c4:4 ab3:4 c4:8 | g4:4 -:2 g4:2 bb4:4 ab4:4 | g4:8 d4:8 |
+              f4:4 ab4:4 c5:8 | eb5:4 c5 ab4 eb4:8 | d4:4 f4:4 b4:4 d5:4 | c5:4 g4 eb4 c4:8`,
+  },
+  /* o Terreiro da Pedra e o Ubirajara: devagar, como pedra que assenta */
+  terreiro_pedra: {
+    bpm: 64, baixo: 'lento', arpejo: 'sobe',
+    acordes: ['F#m', 'D', 'A', 'E', 'F#m', 'Bm', 'C#7', 'F#m'],
+    melodia: `c#5:4 f#5:4 a5:8 | f#5:4 a5:4 d6:8 | c#6:6 a5:2 e5:4 c#5:4 | b4:8 e5:8 |
+              a5:4 c#6:4 f#6:8 | d6:4 c#6 b5 f#5:8 | f5:4 g#5:4 b5:4 c#6:4 | f#5:12 -:4`,
+  },
+
+  /* --------------------------------------------- Região 7: o Bairro da Cuca */
+
+  /* a rua do bairro de noite: passo miúdo e cromático, de quem anda no escuro */
+  bairro: {
+    bpm: 92, baixo: 'passeio', bateria: 'suave', arpejo: 'colcheia',
+    acordes: ['Dm', 'A7', 'Dm', 'Gm', 'Bb', 'Gm', 'A7', 'Dm'],
+    melodia: `d5 -:2 f5 -:2 a5:4 g#5:4 | a5:4 g5 f5 e5:4 c#5:4 | d5 -:2 f5 -:2 a5 d6 c#6 d6 | bb5:6 a5:2 g5:8 |
+              f5 bb5 d6:4 c6 bb5 f5:4 | g5:4 bb5 a5 g5:8 | e5:4 g5:4 c#6:4 e6:4 | d6:4 a5 f5 d5:8`,
+  },
+  /* a Cuca do sótão: o acalanto de "dorme, neném", assombrado, em lá menor */
+  cuca: {
+    bpm: 84, baixo: 'lento', arpejo: 'sobe',
+    acordes: ['Am', 'Dm', 'E', 'Am', 'F', 'Dm', 'E7', 'Am'],
+    melodia: `e5:4 e5:4 c5:8 | d5:4 f5:4 a5:8 | g#5:4 e5:4 b4:8 | c5:4 b4 a4 e5:8 |
+              f5:4 a5:4 c6:8 | a5:4 f5 d5 a4:8 | b4:4 d5:4 g#5:4 b5:4 | a5:12 -:4`,
+  },
+  /* o Terreiro do Breu e a Morgana: o escuro que escuta, em sol menor */
+  terreiro_breu: {
+    bpm: 60, baixo: 'lento', arpejo: 'sobe',
+    acordes: ['Gm', 'Eb', 'Cm', 'D', 'Gm', 'Cm', 'D7', 'Gm'],
+    melodia: `g4:4 bb4:4 d5:8 | eb5:4 g5:4 bb5:8 | c6:6 bb5:2 g5:4 eb5:4 | f#5:8 a5:8 |
+              bb5:4 a5 g5 d5:8 | eb5:4 g5:4 c6:8 | d6:4 c6 a5 f#5:4 d5:4 | g5:12 -:4`,
+  },
+
+  /* --------------------------------------------- Região 8: a Cidade do Sol */
+
+  /* a Cidade do Sol: marcha clara de meio-dia, em dó maior */
+  sol: {
+    bpm: 112, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia',
+    acordes: ['C', 'F', 'C', 'G', 'Am', 'F', 'G7', 'C'],
+    melodia: `c5 e5 g5:4 c6:6 b5:2 | a5:4 f5 a5 c6:8 | g5 e5 c5 e5 g5:4 c6:4 | b5:6 a5:2 g5:8 |
+              a5 c6 e6:4 d6 c6 a5:4 | f5 a5 c6:6 a5:2 f5:4 | g5:4 b5:4 d6:4 f6:4 | e6:4 c6 g5 c6:8`,
+  },
+  /* a Estrela-d'Alva: a última estrela da noite, lá no alto, em mi maior */
+  estrela: {
+    bpm: 72, baixo: 'lento', bateria: 'suave', arpejo: 'sobe',
+    acordes: ['E', 'C#m', 'A', 'B', 'E', 'G#m', 'F#m B', 'E'],
+    melodia: `g#5:4 b5:4 e6:8 | c#6:4 e6:4 g#6:8 | f#6:6 e6:2 c#6:4 a5:4 | d#6:8 f#6:8 |
+              e6:4 b5 g#5 e5:8 | d#6:4 b5:4 g#5:8 | a5:4 c#6:4 b5:4 d#6:4 | e6:12 -:4`,
+  },
+  /* o Terreiro da Aurora e o Solano: majestoso, como o sol que nasce */
+  terreiro_aurora: {
+    bpm: 76, baixo: 'lento', bateria: 'suave', arpejo: 'colcheia',
+    acordes: ['D', 'Bm', 'G', 'A', 'D', 'G', 'Em A', 'D'],
+    melodia: `d5:4 f#5:4 a5:8 | b5:4 a5 f#5 d5:8 | g5:4 b5:4 d6:8 | c#6:6 b5:2 a5:8 |
+              f#5 a5 d6:4 e6:4 f#6:4 | g6:4 f#6 e6 d6:8 | e6:4 c#6:4 a5:4 c#6:4 | d6:12 -:4`,
+  },
+
+  /* ------------------------------------------- o Círculo Dourado */
+
+  /* a praça do torneio: fanfarra das oito regiões, em si bemol */
+  circulo: {
+    bpm: 120, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia',
+    acordes: ['Bb', 'Eb', 'Bb', 'F', 'Gm', 'Eb', 'F7', 'Bb'],
+    melodia: `f5 bb5 d6:4 f6:6 d6:2 | eb6:4 bb5 g5 eb5:8 | d5 f5 bb5 d6 f6:4 d6:4 | c6:6 a5:2 f5:8 |
+              g5 bb5 d6:4 g6:4 f6:4 | eb6:4 d6 c6 bb5:4 g5:4 | a5:4 c6:4 eb6:4 c6:4 | bb5:4 f5 d5 bb4:8`,
+  },
+  /* o Anhangá, campeão do Círculo: a luta final, em mi menor */
+  anhanga: {
+    bpm: 138, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe',
+    acordes: ['Em', 'C', 'D', 'B7', 'Em', 'Am', 'B7', 'Em'],
+    melodia: `e5:2 g5:2 b5:4 e6:4 d6:2 b5:2 | c6:4 g5:4 e5:4 g5:4 | d6:2 c6:2 b5:2 a5:2 f#5:4 a5:4 | d#6:4 b5:4 f#5:4 b4:4 |
+              e6:2 -:2 e6:2 d6:2 b5:4 g5:4 | a5:2 c6:2 e6:4 d6:2 c6:2 a5:4 | b5:4 d#6:4 f#6:4 a6:4 | g6:4 f#6:2 d#6:2 e6:8`,
+  },
+  /* o campeão: o hino da trilha inteira, em sol maior */
+  campeao: {
+    bpm: 96, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia',
+    acordes: ['G', 'D', 'Em', 'C', 'G', 'C', 'D7', 'G'],
+    melodia: `d5 g5 b5:4 d6:6 b5:2 | a5:4 f#5 a5 d6:8 | e6:4 d6 b5 g5:4 b5:4 | c6:6 b5:2 a5:4 g5:4 |
+              b5 d6 g6:6 f#6:2 e6:4 | e6:4 c6 e6 g6:8 | f#6:4 e6:4 d6:4 c6:4 | b5:4 a5 f#5 g5:8`,
+  },
+
   /* ------------------------------------------------------------ vinhetas */
   cura: {
     bpm: 120, baixo: 'lento', vinheta: true,

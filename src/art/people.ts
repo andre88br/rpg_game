@@ -185,6 +185,41 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
   /* capacete amarelo de mina e roupa cor de barro — as Minas da Caipora */
   garimpeiro: { chapeu: 'bone', chapeuCor: '#d9b23a', chapeuCorL: '#f0d06a', cabelo: '#3a2a1a',
                 roupa: '#7a5a3a', roupaL: '#9c7a52', calca: '#4a3a2a' },
+
+  /* ---- da Serra ao Círculo: quem conta a história em cada região ---- */
+  /* o Ferreiro da Vila Fornalha: avental de couro e braço de quem bate ferro */
+  ferreiro: { cabelo: '#2a2420', cabeloL: '#4a4038', pele: P.skin2, peleEsc: P.skin2D,
+              roupa: '#6a4a30', roupaL: '#8a6a48', calca: '#3a3030' },
+  /* o Brás, dono do Terreiro de Brasa: roupa cor de brasa e cabelo grisalho */
+  bras:     { cabelo: '#8a8078', cabeloL: '#b0a8a0', pele: P.skin2, peleEsc: P.skin2D,
+              roupa: '#bf3316', roupaL: '#ff6a22', calca: '#3a2420' },
+  /* o Pererê, dono do Terreiro do Rodamoinho: gorro vermelho, como o Saci */
+  perere:   { chapeu: 'bone', chapeuCor: '#c42a1f', chapeuCorL: '#e8503e', cabelo: '#1f1410',
+              pele: P.skin2, peleEsc: P.skin2D, roupa: '#7fc4b8', roupaL: '#bfe9e0', calca: '#3a5a55' },
+  /* o Guaraci, dono do Terreiro do Trovão: cocar dourado de raio */
+  guaraci:  { chapeu: 'coroa', cabelo: '#15100c', cabeloL: '#2f2418', cabeloLongo: true,
+              pele: P.skin2, peleEsc: P.skin2D, roupa: '#c79a12', roupaL: '#ffd93b', calca: '#5a4a1a' },
+  /* o Pajé da Aldeia Tupã: cabelo branco comprido, roupa de palha */
+  paje:     { cabelo: '#e8e4dc', cabeloL: '#ffffff', cabeloLongo: true, pele: P.skin2, peleEsc: P.skin2D,
+              roupa: '#c9a86a', roupaL: '#e8d0a0', calca: '#6d4726' },
+  /* o Ubirajara, dono do Terreiro da Pedra: capacete de mina cor de ferro */
+  ubirajara: { chapeu: 'bone', chapeuCor: '#6d635c', chapeuCorL: '#9a8f86', cabelo: '#15100c',
+               pele: P.skin2, peleEsc: P.skin2D, roupa: '#7c5228', roupaL: '#b07840', calca: '#3a3028' },
+  /* a Garimpeira da Boca da Mina: capacete amarelo e lenço vermelho */
+  garimpeira: { chapeu: 'bone', chapeuCor: '#d9b23a', chapeuCorL: '#f0d06a', cabelo: '#4a2a1a',
+                cabeloLongo: true, roupa: '#b0402a', roupaL: '#d0604a', calca: '#4a3a2a' },
+  /* a Cartomante do Bairro da Cuca: xale roxo e cabelo preto comprido */
+  cartomante: { cabelo: '#15101f', cabeloL: '#2f2447', cabeloLongo: true,
+                roupa: '#6a3fa8', roupaL: '#8f62d0', calca: '#2f2447' },
+  /* a Morgana, dona do Terreiro do Breu: tudo preto, só a pele clara */
+  morgana:  { cabelo: '#0d0912', cabeloL: '#2d2338', cabeloLongo: true, pele: '#e8d4c8', peleEsc: '#b8a094',
+              roupa: '#2d2338', roupaL: '#4a3a6b', calca: '#15101f' },
+  /* o Oráculo da Cidade do Sol: cabelo branco e túnica clara */
+  oraculo:  { cabelo: '#f2f0ea', cabeloL: '#ffffff', cabeloLongo: true,
+              roupa: '#e3c96a', roupaL: '#fff3c4', calca: '#a88c35' },
+  /* o Solano, dono do Terreiro da Aurora: coroa de sol e roupa branca */
+  solano:   { chapeu: 'coroa', cabelo: '#c4471f', cabeloL: '#f07a2c',
+              roupa: '#fbf1de', roupaL: '#ffffff', calca: '#e3c96a' },
 };
 
 export const ELENCO: Record<string, () => Buf> =

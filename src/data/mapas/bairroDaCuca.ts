@@ -100,6 +100,8 @@ export const bairroDaCuca: DefMapa = {
       tx: 1, ty: 19, dir: 'baixo',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3400, liga: 'conta_zeca7',
+        // no primeiro encontro, a cutscene conta da cantiga da avó e do Casarão vendido
+        apresentacao: 'zeca_cuca',
         time: [{ especie: 'lobisomem', nivel: 57 }, { especie: 'minhocao', nivel: 57 },
                { especie: 'relampo', nivel: 58 }, { especie: 'saci', nivel: 58 },
                { especie: 'curupira', nivel: 59 }],
@@ -150,6 +152,12 @@ export const bairroDaCuca: DefMapa = {
   ],
 
   cenario: 'cidade',
+  /* saindo do terreiro com a Medalha Breu, a Velha do Bairro conta do véu
+     da saída sul e da Cidade do Sol. Uma vez só */
+  aoChegar: {
+    quem: 'VELHA DO BAIRRO', se: 'medalha:breu', seNao: 'viu_cut_bairro_sol', cutscene: 'bairro_sol',
+    linhas: ['Ô, {crianca}! Espera, que eu quero ver essa medalha de perto!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'lobinho', min: 55, max: 57, peso: 50 },

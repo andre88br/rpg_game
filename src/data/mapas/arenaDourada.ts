@@ -225,6 +225,8 @@ export const arenaDourada: DefMapa = {
       tx: 5, ty: 10, dir: 'dir', seNao: 'campeao',
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 6, premio: 8000, esperta: true,
+        // na primeira vez, a cutscene: o pai na arquibancada, e o redemoinho
+        apresentacao: 'zeca_final',
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'Oito medalhas cada um. Nove vezes eu te barrei. Essa é a última, e é pra valer!',
@@ -270,6 +272,8 @@ export const arenaDourada: DefMapa = {
         falaInicio: 'Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.',
         falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem um novo campeão.',
         liga: 'campeao', creditos: true,
+        // antes da luta, quem ele é; depois, o fim da história — e os créditos
+        apresentacao: 'anhanga', cutscene: 'campeao',
         trunfo: {
           boitatinha: { especie: 'iaraMae', nivel: 60 },
           iarinha: { especie: 'curupira', nivel: 60 },
@@ -311,4 +315,10 @@ export const arenaDourada: DefMapa = {
   ],
 
   cenario: 'cidade',
+  /* a primeira entrada na arena: uma linha, e a cutscene das seis câmaras
+     e dos quatro Guardiões */
+  aoChegar: {
+    quem: 'ARENA DOURADA', seNao: 'viu_cut_arena', cutscene: 'arena',
+    linhas: ['Do lado de dentro, a plateia das oito regiões levanta de uma vez.'],
+  },
 };

@@ -82,6 +82,8 @@ export const vilaFornalha: DefMapa = {
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 1800,
         liga: 'venceu_zeca3',
+        // no primeiro encontro, a cutscene conta do pai dele nos fornos
+        apresentacao: 'zeca_serra',
         time: [{ especie: 'sacizinho', nivel: 28 }, { especie: 'piragua', nivel: 29 },
                { especie: 'caiporinha', nivel: 29 }, { especie: 'curupira', nivel: 30 }],
         falaInicio: 'Te segui até aqui de propósito. A boca da caverna é minha até você provar o contrário.',
@@ -145,6 +147,12 @@ export const vilaFornalha: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* saindo do terreiro com a Medalha Brasa, o Ferreiro conta do muro
+     rachado da cumeeira e do Campo do Saci. Uma vez só */
+  aoChegar: {
+    quem: 'FERREIRO', se: 'medalha:brasa', seNao: 'viu_cut_fornalha_campo', cutscene: 'fornalha_campo',
+    linhas: ['Ô, {crianca}! Espera aí, que eu vim correndo lá da forja!'],
+  },
   passosPorEncontro: 12,
   encontros: [
     { especie: 'cabritinha', min: 26, max: 28, peso: 45 },

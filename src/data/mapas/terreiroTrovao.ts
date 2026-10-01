@@ -145,7 +145,7 @@ export const terreiroTrovao: DefMapa = {
       ],
     },
     {
-      id: 'guaraci', nome: 'GUARACI', estilo: 'tie',
+      id: 'guaraci', nome: 'GUARACI', estilo: 'guaraci',
       tx: 3, ty: 2, dir: 'dir',
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 5000,
@@ -162,6 +162,8 @@ export const terreiroTrovao: DefMapa = {
         },
         falaInicio: 'Três estradas, seis salas, três guardas. Você andou a região inteira de lado. Agora aguenta o raio.',
         falaDerrota: 'O raio escolheu você. Não sou eu quem vai discutir com ele.',
+        /* as cercas apagam, as torres, e o chamado para a medalha */
+        cutscene: 'guaraci_vence',
       },
       falas: [
         { se: 'medalha:trovao', linhas: [
@@ -175,6 +177,11 @@ export const terreiroTrovao: DefMapa = {
   ],
 
   inicio: { tx: 14, ty: 21, dir: 'cima' },
+  /* a primeira entrada no salão: uma linha, e a cutscene do Guaraci */
+  aoChegar: {
+    quem: 'TERREIRO DO TROVÃO', seNao: 'viu_cut_terreiro_trovao', cutscene: 'terreiro_trovao',
+    linhas: ['Do lado de dentro, o ar estala, e o cabelo do braço arrepia sozinho.'],
+  },
 
   saidas: [
     { tx: 14, ty: 22, para: 'aldeiaTupa', destino: { tx: 11, ty: 9, dir: 'baixo' } },

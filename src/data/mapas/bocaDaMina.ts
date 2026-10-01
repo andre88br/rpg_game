@@ -115,7 +115,7 @@ export const bocaDaMina: DefMapa = {
 
   npcs: [
     {
-      id: 'garimpeira', nome: 'GARIMPEIRA', estilo: 'garimpeiro',
+      id: 'garimpeira', nome: 'GARIMPEIRA', estilo: 'garimpeira',
       tx: 23, ty: 36, dir: 'esq',
       falas: [
         { se: 'conta_pepitas', linhas: [
@@ -128,10 +128,10 @@ export const bocaDaMina: DefMapa = {
           'Usa a forquilha na mochila. QUENTE, você está em cima. GELADO, está longe.',
           'Uma perto das pedras do noroeste, uma no leste depois do rochedo, uma no sudoeste.',
           'Quando estiver QUENTE, vire pro chão em volta e aperte A pra cavar.'] },
-        { liga: 'tem_forquilha', da: { item: 'forquilha' }, linhas: [
-          'Chegou gente nova no vale! Três pepitas minhas estão enterradas por aqui, e eu não acho.',
-          'Toma esta FORQUILHA. Usa ela na mochila: ela diz se o ouro está quente ou frio.',
-          'Me traz as três e eu acendo uma conta da sua guia.'] },
+        /* a cutscene conta da avó, da draga e das pepitas enterradas, e
+           entrega a forquilha; a fala só abre a conversa */
+        { liga: 'tem_forquilha', da: { item: 'forquilha' }, cutscene: 'garimpeira', linhas: [
+          'Chegou gente nova no vale! Senta aí na pedra, que eu te conto o que aconteceu com o meu ouro.'] },
       ],
     },
     {

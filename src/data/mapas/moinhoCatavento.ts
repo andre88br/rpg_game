@@ -35,9 +35,10 @@ export const moinhoCatavento: DefMapa = {
         { se: 'conta_catavento', linhas: [
           'Cinco penas moídas e uma conta da guia, tudo por conta do seu olho bom.',
           'O moinho não para de girar desde então.'] },
-        { se: 'item:pena>=5', pede: { item: 'pena', n: 5 }, liga: 'conta_catavento', paga: 400, linhas: [
-          'Cinco penas, e nenhuma igual à outra! É disso que este moinho precisa.',
-          'Acendi uma conta da guia por sua conta. E toma, pelo trabalho.'] },
+        /* as cinco penas: uma em cada pá, o moinho gira, e um canto nas vigas */
+        { se: 'item:pena>=5', pede: { item: 'pena', n: 5 }, liga: 'conta_catavento', paga: 400,
+          cutscene: 'moleiro', linhas: [
+          'Cinco penas, e nenhuma igual à outra! É disso que este moinho precisa.'] },
         { linhas: [
           'O Campo do Saci inteiro está cheio de pena de vento, se você souber olhar.',
           'Cinco penas, achadas soltas pelo campo, e eu acendo uma conta da sua guia.'] },
@@ -51,9 +52,9 @@ export const moinhoCatavento: DefMapa = {
            conteúdo de depois do Pererê, e o único jeito de ter o Encantado
            exclusivo da região */
         { se: ['servico_capim', 'medalha:rodamoinho'], liga: 'servico_uirapuru',
-          encantado: { especie: 'uirapuru', nivel: 30 }, linhas: [
+          // a cutscene mostra o canto e ele descendo das vigas
+          encantado: { especie: 'uirapuru', nivel: 30 }, cutscene: 'uirapuru', linhas: [
           'Um canto desce das vigas do moinho, uma vez só, e o vento inteiro para para escutar.',
-          '— Três punhados de capim dourado, juntos de novo. Quem faz isso, eu canto para.',
           'O UIRAPURU desce das vigas e vai com você.'] },
         { se: 'medalha:rodamoinho', linhas: [
           'Um canto risca as vigas do moinho e some antes de você achar de onde veio.',
