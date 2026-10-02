@@ -40,6 +40,7 @@ src/
 │             luz.ts (o raio que se enxerga no breu)
 │             avisos.ts (o que placa, tranca e guia dizem ao A)
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
+│             transferencia.ts (o save como arquivo .json ou código para colar)
 │             + *.test.ts (puros)
 ├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
 │             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
@@ -51,6 +52,7 @@ src/
 │             som.ts (o que as cenas chamam: música, vinheta, efeito)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
+│             arquivos.ts (baixar, copiar, escolher arquivo, colar: o DOM)
 ├─ scenes/    title.ts · overworld.ts (a cena do mundo: coordena) · battle.ts
 │             mundo/ (os pedaços da cena do mundo: dialogo.ts, a caixa de
 │             conversa e a charada · corteGuia.ts, o corte de câmera para a
@@ -72,7 +74,10 @@ src/
 │             Casarão + 3 interiores + o terreiro em 1 sala; Cidade do Sol:
 │             4 externos largos + 3 interiores + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
-tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs · favicon.mjs
+public/       favicon e ícones (gerados por tools/favicon.mjs) · manifest.webmanifest
+tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs
+              favicon.mjs (favicon e os ícones do app instalado)
+              sw.modelo.js (o service worker; o build preenche a lista de arquivos)
 ```
 
 Três decisões que sustentam o desempenho e a nitidez:
@@ -412,15 +417,36 @@ baixo, isso cai sempre no **slot ativo** da sessão (`obterSlotAtivo()`), que s�
 muda quando o jogador escolhe outro de propósito — ao CONTINUAR, ou gravando
 num slot diferente pela tela SALVAR.
 
-Essa tela — `scenes/slots.ts:TelaSlots` — é uma sobreposição só, usada em três
-lugares: CONTINUAR e NOVO JOGO no título, SALVAR no menu de pausa. Ela lista
+Essa tela — `scenes/slots.ts:TelaSlots` — é uma sobreposição só, usada em quatro
+lugares: CONTINUAR, NOVO JOGO e IMPORTAR SAVE no título, SALVAR no menu de pausa. Ela lista
 os seis slots como uma coisa só (nome, nível, quando foi gravado), mas o
-comportamento muda com o `modo`: CONTINUAR só aceita slot ocupado; NOVO JOGO e
-SALVAR aceitam qualquer um, e um slot ocupado pede confirmação antes. Isso mora
-dentro do próprio componente, então as três telas que o usam ganham a
+comportamento muda com o `modo`: CONTINUAR só aceita slot ocupado; NOVO JOGO,
+SALVAR e IMPORTAR aceitam qualquer um, e um slot ocupado pede confirmação antes. Isso mora
+dentro do próprio componente, então as telas que o usam ganham a
 confirmação de graça, sem reescrever nada. Quem jogava antes dos seis slots
 tinha um save só, numa chave sem número; `migrarSaveAntigo()` o move para o
 slot 1 na primeira vez que o jogo carrega, e nunca mais toca naquela chave.
+
+**Levar o save para fora.** `game/transferencia.ts` transforma a partida em
+texto e de volta: o arquivo baixado é o próprio JSON do slot; o código é o
+mesmo JSON em UTF-8 e base64, com o prefixo `ENCANTADOS1:`. A volta passa por
+`restaurar()`, a mesma porta de entrada de qualquer save, então um arquivo
+de outra versão ou um código mal colado vira no máximo uma partida com
+menos coisas, nunca uma exceção. A ponte com o navegador (baixar, copiar,
+o seletor de arquivo, o `prompt` para colar) mora em `ui/arquivos.ts`.
+Exportar fica em OPÇÕES; importar, no título, que é por onde entra quem
+trocou de aparelho — e a `TelaSlots` ganhou o modo `importar`.
+
+**Instalável e offline.** `public/manifest.webmanifest` e os ícones deixam
+instalar o jogo. O service worker é gerado no build: o plugin
+`encantados-service-worker` (`vite.config.ts`) lista tudo o que foi para
+`dist/` (menos a página de esboços) e escreve `dist/sw.js` a partir de
+`tools/sw.modelo.js`, com uma versão que é o hash dessa lista. Na instalação
+ele guarda todos os arquivos, inclusive a vista 3D; a página vem da rede
+primeiro (sem o cache HTTP de dez minutos do Pages) e cai na cópia guardada
+sem internet; o resto, que tem hash no nome, vem direto do cache. Cada
+publicação cria um cache novo e apaga o anterior. Só é registrado no build
+de produção (`main.ts`).
 
 Um jogo NOVO — nunca um CONTINUAR — passa primeiro pela **cutscene de
 abertura**: seis tomadas animadas (a avó contando a história na beira da

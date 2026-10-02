@@ -27,6 +27,15 @@ da **MÚSICA** — que só toca nas cutscenes e nas vinhetas — e dos **EFEITOS
 moram na mesma página; A ou as setas para os
 lados trocam o valor). Nada muda nas contas, nos caminhos nem nas coordenadas.
 
+**Levar o save.** Em menu → **OPÇÕES**, **BAIXAR SAVE** baixa um arquivo
+`.json` com a partida, e **COPIAR CÓDIGO** copia um texto que começa com
+`ENCANTADOS1:`. No outro aparelho (ou depois de limpar o navegador), a tela
+de título tem **IMPORTAR SAVE** (sem nenhuma partida gravada, é o botão
+**MENU**): escolha o arquivo ou cole o código e diga em que slot gravar.
+
+**A caixa.** Quem não cabe no time vai para a caixa. Para ver quem está lá:
+menu → **TIME** → **→**. Para trocar, só no baú de qualquer benzimento.
+
 **As cutscenes.** Cada região conta a sua história em cutscenes: quem pede
 o serviço conta o que a Companhia Mata-Seca fez ali, o Zeca (e o chefe da
 estrada) aparece antes da primeira luta, o bicho da quinta conta surge de

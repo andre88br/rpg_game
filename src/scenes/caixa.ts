@@ -131,10 +131,7 @@ export class TelaCaixa {
 
       if (l.tipo === 'titulo') { r.texto(l.texto, 14, y, P.uiAccD!); continue; }
       const bicho = l.tipo === 'time' ? est.time[l.indice]! : est.caixa[l.indice]!;
-      if (idx === this.sel) r.texto('=', 12, y, P.uiAccD!);
-      r.texto(nome(bicho), 22, y, P.uiInk!);
-      const nv = 'NV' + bicho.nivel;
-      r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
+      L.linhaBicho(r, bicho, y, idx === this.sel);
     }
 
     if (this.topo > 0) r.texto('...', LARGURA - 34, 28, P.uiBg3!);

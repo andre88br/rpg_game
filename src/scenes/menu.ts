@@ -21,7 +21,9 @@ import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import {
   trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
 } from '../game/state.ts';
-import { obterSlotAtivo, salvarEmSlot, definirSlotAtivo } from '../game/save.ts';
+import { obterSlotAtivo, salvar, salvarEmSlot, definirSlotAtivo } from '../game/save.ts';
+import { codigoDoSave, jsonDoSave, nomeDoArquivo } from '../game/transferencia.ts';
+import { baixar, copiar } from '../ui/arquivos.ts';
 import { TelaSlots } from './slots.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import {
@@ -34,19 +36,23 @@ import {
 } from '../game/config.ts';
 import * as Som from '../audio/som.ts';
 
-/* as linhas da página de OPÇÕES: cada uma troca de valor com A ou com as
-   setas para os lados */
-const OPCOES = ['VELOCIDADE', 'VISÃO', 'MÚSICA', 'EFEITOS'] as const;
+/* as linhas da página de OPÇÕES: as quatro primeiras trocam de valor com A
+   ou com as setas para os lados; as duas de baixo são ações, só com A */
+const OPCOES = ['VELOCIDADE', 'VISÃO', 'MÚSICA', 'EFEITOS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
+type Opcao = (typeof OPCOES)[number];
+const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['BAIXAR SAVE', 'COPIAR CÓDIGO']);
 
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
-type Pagina = 'raiz' | 'time' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
+type Pagina = 'raiz' | 'time' | 'caixa' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
             | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'OPÇÕES', 'SALVAR', 'SAIR'] as const;
 
 const CADERNO_LINHAS_VISIVEIS = 10;
+/* a página CAIXA só mostra quem está guardado: trocar é no baú do benzimento */
+const CAIXA_LINHAS_VISIVEIS = 10;
 
 export interface OpcoesMenu {
   estado: EstadoJogo;
@@ -67,6 +73,10 @@ export class MenuPausa {
   /* item escolhido na mochila, esperando saber em quem vai ser usado */
   private itemUsando: string | null = null;
   private selAlvo = 0;
+
+  /* cursor e rolagem da página CAIXA */
+  private selCaixa = 0;
+  private topoCaixa = 0;
 
   /* cursor e rolagem do Caderno de Bichos */
   private selCaderno = 0;
@@ -159,7 +169,23 @@ export class MenuPausa {
     return 'aberto';
   }
 
-  private mudarOpcao(qual: (typeof OPCOES)[number], passo: 1 | -1): void {
+  /* leva a partida para fora do navegador: grava no slot antes, para o
+     arquivo e o slot dizerem a mesma coisa */
+  private exportar(qual: 'BAIXAR SAVE' | 'COPIAR CÓDIGO'): void {
+    const e = this.op.estado;
+    salvar(e);
+    if (qual === 'BAIXAR SAVE') {
+      this.avisar(baixar(nomeDoArquivo(e), jsonDoSave(e))
+        ? 'SAVE BAIXADO. GUARDE O ARQUIVO.' : 'ESTE NAVEGADOR NÃO DEIXOU BAIXAR.', 2.4);
+      return;
+    }
+    this.avisar('COPIANDO...', 2.4);
+    void copiar(codigoDoSave(e)).then((ok) => {
+      this.avisar(ok ? 'CÓDIGO COPIADO. COLE ONDE QUISER GUARDAR.' : 'COPIE O CÓDIGO DA CAIXINHA.', 2.8);
+    });
+  }
+
+  private mudarOpcao(qual: Opcao, passo: 1 | -1): void {
     switch (qual) {
       case 'VELOCIDADE': {
         const n = VELOCIDADES.length;
@@ -180,6 +206,9 @@ export class MenuPausa {
         Som.aplicarVolumes();
         break;
       }
+      case 'BAIXAR SAVE': case 'COPIAR CÓDIGO':
+        this.exportar(qual);
+        break;
     }
   }
 
@@ -203,9 +232,11 @@ export class MenuPausa {
 
     if (this.pagina === 'velocidade') {
       this.velSel = this.andar(entrada, this.velSel, OPCOES.length);
-      const passo = entrada.apertou('esq') ? -1
-                  : entrada.apertou('dir') || entrada.apertou('a') ? 1 : 0;
-      if (passo !== 0) this.mudarOpcao(OPCOES[this.velSel]!, passo);
+      const opcao = OPCOES[this.velSel]!;
+      const passo = ACOES.has(opcao)
+        ? (entrada.apertou('a') ? 1 : 0)
+        : entrada.apertou('esq') ? -1 : entrada.apertou('dir') || entrada.apertou('a') ? 1 : 0;
+      if (passo !== 0) this.mudarOpcao(opcao, passo);
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'raiz';
       return 'aberto';
     }
@@ -213,10 +244,25 @@ export class MenuPausa {
     if (this.pagina === 'time') {
       this.selLista = this.andar(entrada, this.selLista, this.op.estado.time.length);
       if (entrada.apertou('a')) this.tocarTime();
+      if (this.peguei === null && entrada.apertou('dir')) {
+        this.pagina = 'caixa'; this.selCaixa = 0; this.topoCaixa = 0;
+        return 'aberto';
+      }
       if (entrada.apertou('b') || entrada.apertou('menu')) {
         if (this.peguei !== null) this.peguei = null;
         else this.pagina = 'raiz';
       }
+      return 'aberto';
+    }
+
+    if (this.pagina === 'caixa') {
+      const n = this.op.estado.caixa.length;
+      this.selCaixa = this.andar(entrada, this.selCaixa, n);
+      if (this.selCaixa < this.topoCaixa) this.topoCaixa = this.selCaixa;
+      if (this.selCaixa >= this.topoCaixa + CAIXA_LINHAS_VISIVEIS) {
+        this.topoCaixa = this.selCaixa - CAIXA_LINHAS_VISIVEIS + 1;
+      }
+      if (entrada.apertou('esq') || entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'time';
       return 'aberto';
     }
 
@@ -399,9 +445,12 @@ export class MenuPausa {
     switch (this.pagina) {
       case 'time':
         L.telaCheia(r, this.caixaCheia, 'SEU TIME',
-                   this.peguei !== null ? 'A TROCAR AQUI   B CANCELAR' : 'A PEGAR   B VOLTAR');
+                   this.peguei !== null ? 'A TROCAR AQUI   B CANCELAR' : 'A PEGAR   > CAIXA   B VOLTAR');
         L.listaTime(r, est.time, this.selLista, { peguei: this.peguei ?? undefined });
         this.rodapeTime(r, est.time[this.selLista]);
+        break;
+      case 'caixa':
+        this.desenharCaixa(r);
         break;
       case 'mochila': {
         const ids = this.itens();
@@ -462,12 +511,15 @@ export class MenuPausa {
         break;
       }
       case 'velocidade': {
-        L.telaCheia(r, this.caixaCheia, 'OPÇÕES', 'A OU < > MUDA   B VOLTAR');
-        const valores: Record<(typeof OPCOES)[number], string> = {
+        L.telaCheia(r, this.caixaCheia, 'OPÇÕES',
+                    ACOES.has(OPCOES[this.velSel]!) ? 'A FAZ   B VOLTAR' : 'A OU < > MUDA   B VOLTAR');
+        const valores: Record<Opcao, string> = {
           VELOCIDADE: NOME_VELOCIDADE[obterVelocidade()],
           VISÃO: obterVisao3D() ? '3D NA FOZ' : 'PLANA',
           MÚSICA: NOME_VOLUME[obterVolume('musica')],
           EFEITOS: NOME_VOLUME[obterVolume('efeitos')],
+          'BAIXAR SAVE': '',
+          'COPIAR CÓDIGO': '',
         };
         OPCOES.forEach((op, i) => {
           const y = 34 + i * 18;
@@ -475,13 +527,32 @@ export class MenuPausa {
           if (sel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);
           const v = valores[op];
-          r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiBg3!);
+          if (!ACOES.has(op)) r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiBg3!);
         });
         break;
       }
       default:
         break;
     }
+  }
+
+  private desenharCaixa(r: Renderizador): void {
+    const caixa = this.op.estado.caixa;
+    L.telaCheia(r, this.caixaCheia, `NA CAIXA (${caixa.length})`, '< TIME   B VOLTAR');
+    if (caixa.length === 0) {
+      r.texto('NINGUÉM NA CAIXA AINDA.', 22, 30, P.uiBg3!);
+    }
+    for (let i = 0; i < CAIXA_LINHAS_VISIVEIS; i++) {
+      const idx = this.topoCaixa + i;
+      const bicho = caixa[idx];
+      if (!bicho) break;
+      L.linhaBicho(r, bicho, 28 + i * 10, idx === this.selCaixa);
+    }
+    if (this.topoCaixa > 0) r.texto('...', LARGURA - 34, 28, P.uiBg3!);
+    if (this.topoCaixa + CAIXA_LINHAS_VISIVEIS < caixa.length) {
+      r.texto('...', LARGURA - 34, 28 + (CAIXA_LINHAS_VISIVEIS - 1) * 10, P.uiBg3!);
+    }
+    r.texto('TROCAR, SÓ NO BAÚ DO BENZIMENTO.', 14, ALTURA - 30, P.uiBg3!);
   }
 
   private rodapeTime(r: Renderizador, e: Encantado | undefined): void {

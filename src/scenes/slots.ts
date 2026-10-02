@@ -1,11 +1,11 @@
 /* =========================================================================
-   A tela de slots: seis gavetas de save, escolhidas do mesmo jeito em três
-   lugares diferentes — CONTINUAR e NOVO JOGO no título, SALVAR no menu de
-   pausa. Por isso ela é uma sobreposição própria, como a loja ou a escolha
+   A tela de slots: seis gavetas de save, escolhidas do mesmo jeito em
+   vários lugares — CONTINUAR, NOVO JOGO e IMPORTAR SAVE no título, SALVAR
+   no menu de pausa. Por isso ela é uma sobreposição própria, como a loja ou a escolha
    do inicial, e não um pedaço de nenhuma das telas que a chamam.
 
    Continuar só aceita slot ocupado — não tem o que continuar num vazio.
-   Novo jogo e salvar aceitam qualquer slot, mas um slot ocupado pede
+   Novo jogo, salvar e importar aceitam qualquer slot, mas um slot ocupado pede
    confirmação antes: escrever ali apaga o que tinha.
    ========================================================================= */
 import { assar, type Assado } from '../core/buf.ts';
@@ -15,18 +15,20 @@ import { P } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { NUM_SLOTS, resumoTodos, type ResumoSlot } from '../game/save.ts';
 
-export type ModoSlots = 'continuar' | 'novo' | 'salvar';
+export type ModoSlots = 'continuar' | 'novo' | 'salvar' | 'importar';
 
 const TITULOS: Record<ModoSlots, string> = {
   continuar: 'CONTINUAR DE QUAL SLOT?',
   novo: 'COMEÇAR EM QUAL SLOT?',
   salvar: 'GRAVAR EM QUAL SLOT?',
+  importar: 'IMPORTAR PARA QUAL SLOT?',
 };
 
 const RODAPES: Record<ModoSlots, string> = {
   continuar: 'A CONTINUAR   B VOLTAR',
   novo: 'A COMEÇAR AQUI   B VOLTAR',
   salvar: 'A GRAVAR AQUI   B VOLTAR',
+  importar: 'A IMPORTAR AQUI   B VOLTAR',
 };
 
 export class TelaSlots {

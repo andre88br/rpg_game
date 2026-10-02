@@ -161,6 +161,21 @@ serviços opcionais de cada região.
 | trocar a página da mochila | ← → | direcional ← → |
 | escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
 
+No título, sem nenhuma partida gravada, o **MENU** abre o **IMPORTAR SAVE**.
+Em **menu → TIME**, a seta **→** mostra quem está na caixa.
+
+### Instalar e levar o save
+
+- **Instalar no celular.** No Chrome do Android, "Instalar app" (ou
+  "Adicionar à tela inicial"); no Safari do iPhone, Compartilhar → "Adicionar
+  à Tela de Início". O jogo abre em tela cheia, com ícone próprio, e funciona
+  **sem internet** depois da primeira visita.
+- **Levar a partida para outro aparelho.** Em **menu → OPÇÕES**, **BAIXAR
+  SAVE** (um arquivo `.json`) ou **COPIAR CÓDIGO** (um texto para colar onde
+  quiser guardar). No outro aparelho, **IMPORTAR SAVE** na tela de título.
+  O save também mora no navegador: limpar os dados do site apaga a partida,
+  então vale guardar uma cópia.
+
 ### O Mapa do Mundo
 
 A Dona Firmina entrega o **Mapa do Mundo** junto com o primeiro Encantado

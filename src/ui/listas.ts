@@ -15,6 +15,16 @@ import { STATUS } from '../battle/status.ts';
 import { desmaiado, ficha, hpMaximo, nome, type Encantado } from '../battle/encantado.ts';
 import { ITENS_ORDEM, item as fichaItem, type Mochila } from '../data/items.ts';
 
+/* Uma linha de Encantado em lista comprida (a caixa): o cursor, o nome e
+   o nível encostado à direita. A caixa do benzimento e a página CAIXA do
+   menu de pausa desenham a mesma linha. */
+export function linhaBicho(r: Renderizador, e: Encantado, y: number, selecionado: boolean): void {
+  if (selecionado) r.texto('=', 12, y, P.uiAccD!);
+  r.texto(nome(e), 22, y, P.uiInk!);
+  const nv = 'NV' + e.nivel;
+  r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
+}
+
 /* moldura de tela cheia: título em cima, rodapé com os botões embaixo */
 export function telaCheia(r: Renderizador, caixa: Assado, titulo: string, rodape: string): void {
   r.sprite(caixa, 4, 4);

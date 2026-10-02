@@ -149,6 +149,17 @@ laco.iniciar();
    publicação. Só aqui, porque só aqui sabemos que deu certo de verdade. */
 try { sessionStorage.removeItem('encantados:recarga'); } catch { /* aba privada */ }
 
+/* O service worker (gerado no build, ver vite.config.ts) guarda o jogo
+   para abrir sem internet e deixa instalar no celular. Só no build de
+   produção: no `npm run dev` ele serviria arquivos velhos do cache. */
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((e: unknown) => {
+      console.warn('service worker indisponível:', e);
+    });
+  });
+}
+
 // atalho de depuração, útil no navegador
 Object.assign(window as unknown as Record<string, unknown>, {
   jogo: {
