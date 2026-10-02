@@ -175,7 +175,9 @@ test('drenar cura quem usou', () => {
 
 test('brasa e peçonha tiram vida no fim do turno', () => {
   const meu = criar('curupinho', 30, { golpes: ['esporo'] });
-  const b = montar({ meu: [meu], dele: [criar('caiporinha', 30, { selvagem: true })], semente: 11 });
+  // os golpes que a Caiporinha 30 tinha antes dos golpes novos: o teste é da peçonha, não dela
+  const dele = criar('caiporinha', 30, { selvagem: true, golpes: ['folha_afiada', 'rosnado', 'cipo', 'raiz_sugadora'] });
+  const b = montar({ meu: [meu], dele: [dele], semente: 11 });
   for (let i = 0; i < 15 && b.inimigo.enc.status !== 'envenenado' && !b.resultado; i++) {
     b.executar({ tipo: 'golpe', indice: 0 });
   }
@@ -541,4 +543,116 @@ test('sem `esperta`, nenhum treinador troca — nem com a mesma desvantagem de t
   });
   b.executar({ tipo: 'golpe', indice: 0 });
   assert.equal(b.iInimigo, 0, 'sem `esperta` o treinador não devia trocar');
+});
+
+/* ------------------------------------------------- os efeitos novos (Fase 4) */
+
+/* o dano que um lado levou num punhado de eventos */
+const danosEm = (ev: Evento[], lado: 'aliado' | 'inimigo') =>
+  ev.filter((e): e is Extract<Evento, { k: 'dano' }> => e.k === 'dano' && e.lado === lado);
+
+/* um saco de pancada: muita vida, só encara (não tira HP de ninguém) */
+const saco = (nivel = 60) => criar('juma', nivel, { golpes: ['encarada'], selvagem: true });
+
+test('várias pancadas: bate de duas a cinco vezes e conta quantas', () => {
+  const vistas = new Set<number>();
+  for (let semente = 1; semente <= 40; semente++) {
+    const b = montar({ meu: [criar('curupinho', 30, { golpes: ['bicadas'] })], dele: [saco()], semente });
+    const ev = b.executar({ tipo: 'golpe', indice: 0 });
+    const n = danosEm(ev, 'inimigo').length;
+    assert.ok(n >= 2 && n <= 5, `semente ${semente}: ${n} pancadas`);
+    assert.ok(textos(ev).includes(`Acertou ${n} vezes!`));
+    vistas.add(n);
+  }
+  assert.ok(vistas.size >= 3, 'o número de pancadas varia');
+});
+
+test('várias pancadas param quando o alvo cai', () => {
+  const b = montar({ meu: [criar('curupinho', 30, { golpes: ['bicadas'] })], dele: [saco()] });
+  b.inimigo.enc.hp = 1;
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(danosEm(ev, 'inimigo').length, 1);
+  assert.ok(textos(ev).includes('Acertou uma vez!'));
+});
+
+/* acha uma semente em que a Arremetida acerta no primeiro turno */
+function arremeteu(): { b: Batalha; ev: Evento[] } {
+  for (let semente = 1; semente < 100; semente++) {
+    const b = montar({
+      meu: [criar('curupinho', 30, { golpes: ['arremetida'] }), criar('boitatinha', 30)],
+      dele: [saco()], semente,
+    });
+    const ev = b.executar({ tipo: 'golpe', indice: 0 });
+    if (danosEm(ev, 'inimigo').length > 0) return { b, ev };
+  }
+  throw new Error('a Arremetida nunca acertou');
+}
+
+test('recarga: depois do golpe forte, a vez seguinte se perde', () => {
+  const { b } = arremeteu();
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(textos(ev).some((t) => /precisa recuperar o fôlego/.test(t)));
+  assert.ok(!ev.some((e) => e.k === 'golpe' && e.lado === 'aliado'));
+  // e no turno depois volta a atacar
+  const ev2 = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(ev2.some((e) => e.k === 'golpe' && e.lado === 'aliado'));
+});
+
+test('recarga: trocar de Encantado zera a dívida de fôlego', () => {
+  const { b } = arremeteu();
+  b.executar({ tipo: 'trocar', indice: 1 });
+  b.executar({ tipo: 'trocar', indice: 0 });
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(!textos(ev).some((t) => /precisa recuperar o fôlego/.test(t)));
+});
+
+test('Fecha-Corpo: o golpe do outro não pega; seguido, falha', () => {
+  const meu = criar('curupinho', 30, { golpes: ['fecha_corpo'] });
+  const dele = criar('piragua', 30, { golpes: ['investida'], selvagem: true });
+  const b = montar({ meu: [meu], dele: [dele] });
+  const hp = meu.hp;
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(textos(ev).some((t) => /fechou o corpo/.test(t)));
+  assert.ok(textos(ev).some((t) => /se protegeu/.test(t)));
+  assert.equal(meu.hp, hp);
+  const ev2 = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(textos(ev2).includes('Mas não adiantou nada.'));
+  assert.ok(meu.hp < hp, 'no segundo turno seguido a pancada pega');
+});
+
+test('Fecha-Corpo não barra quem só mexe em si mesmo', () => {
+  const meu = criar('curupinho', 30, { golpes: ['fecha_corpo'] });
+  const dele = criar('piragua', 30, { golpes: ['afiar'], selvagem: true });
+  const b = montar({ meu: [meu], dele: [dele] });
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(b.inimigo.estagios.atq, 1);
+});
+
+test('Assombração tira exatamente o nível de quem assombra', () => {
+  const b = montar({ meu: [criar('lobinho', 37, { golpes: ['assombracao'] })], dele: [saco()] });
+  const antes = b.inimigo.enc.hp;
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.equal(antes - b.inimigo.enc.hp, 37);
+});
+
+test('dobra com estado: contra quem está queimado a pancada é maior', () => {
+  const dano = (status: 'queimado' | null) => {
+    const b = montar({ meu: [criar('boitatinha', 30, { golpes: ['brasa_viva'] })], dele: [saco()], semente: 7 });
+    b.inimigo.enc.status = status;
+    const ev = b.executar({ tipo: 'golpe', indice: 0 });
+    const d = danosEm(ev, 'inimigo')[0]!;
+    return d.de - d.para;
+  };
+  const sao = dano(null), ferido = dano('queimado');
+  assert.ok(ferido > sao * 1.6, `queimado ${ferido} contra são ${sao}`);
+});
+
+test('Pilão sai por último, mesmo sendo mais rápido', () => {
+  const b = montar({
+    meu: [criar('sacizinho', 40, { golpes: ['pilao'] })],
+    dele: [criar('minhoquinha', 10, { golpes: ['investida'], selvagem: true })],
+  });
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  const ordem = ev.filter((e) => e.k === 'golpe').map((e) => e.lado);
+  assert.deepEqual(ordem, ['inimigo', 'aliado']);
 });

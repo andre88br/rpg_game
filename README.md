@@ -14,7 +14,9 @@ de novo, o caderno de pegadas do Seu Elias, as mudas sumidas com as Caiporinhas
 e o Curupira da grota funda acendem a guia do Terreiro de Raiz, onde a Tiê
 entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
 inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
-troca, XP, nível e evolução. Não há nível máximo: o Encantado continua
+troca, XP, nível e evolução. São 92 golpes — alguns batem várias vezes, outros
+cobram um turno de fôlego, e as formas finais mais conhecidas têm um golpe
+próprio, aprendido só por elas no fim da trilha. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
 cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,

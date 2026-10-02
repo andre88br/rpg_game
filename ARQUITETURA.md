@@ -286,12 +286,33 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
   | **TRA** | travado | velocidade pela metade e 25% de chance de perder o turno; Encantado de Raio é imune |
   | **SON** | no sono | não age por 1 a 3 turnos, e **dobra a chance de captura** |
   | **QUE** | quebranto | passageiro (2 a 4 turnos): 50% de chance de se acertar sozinho; é o único que não ocupa a vaga dos outros |
+- **Golpes.** 92, em `data/moves.ts`: cada um é um punhado de números, e o
+  `efeito` diz o que ele faz além do dano. Além de estado, quebranto,
+  atributo, dreno, recuo, cura e crítico, há cinco efeitos que o motor
+  interpreta em `acaoGolpe`/`aplicarGolpe`:
+  - `multi: [min, max]` — várias pancadas, cada uma com o próprio dano e
+    crítico; o "é super eficaz" sai uma vez só, na última;
+  - `recarga` — depois de acertar, `Combatente.recarregando` faz o próximo
+    golpe virar "precisa recuperar o fôlego";
+  - `protege` — o Fecha-Corpo marca `protegido` até o fim do turno, e o
+    golpe do outro que mire nele (`miraOponente`: dano, estado, quebranto ou
+    atributo do oponente) não pega; `ultimoProtege` faz o segundo seguido
+    falhar;
+  - `danoFixo: 'nivel'` — tira o nível de quem usou;
+  - `dobraSeStatus` — potência dobrada contra estado alterado.
+  Trocar de Encantado zera tudo isso (`envolver`). Doze golpes são próprios
+  de uma forma final; `data/moves.test.ts` confere quem aprende cada um, que
+  todo golpe tem quem o aprenda, que as listas estão em ordem de nível, e
+  roda uma simulação de equilíbrio no nível 60 (todas as formas finais contra
+  todas) como alarme contra golpe quebrado.
 - **Captura.** Chance cresce com o dano levado, com o estado alterado e com a
   qualidade do patuá. Os quatro balanços da animação são a mesma chance dividida
   em quatro sorteios: se balançar as quatro vezes, pegou.
 - **IA.** Pontua cada golpe pelo dano real que ele faria e escolhe entre os
   melhores com um pingo de acaso — treinador é mais certeiro que bicho selvagem,
-  e derrubar o oponente naquele turno vale mais que qualquer outra coisa.
+  e derrubar o oponente naquele turno vale mais que qualquer outra coisa. Golpe
+  de várias pancadas conta a média; golpe com recarga só compensa se derruba;
+  o Fecha-Corpo só aparece com a vida curta, e nunca dois turnos seguidos.
 
 ## O mundo
 

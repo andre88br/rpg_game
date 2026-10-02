@@ -50,7 +50,7 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'brasa' },
       { nv: 6, golpe: 'rosnado' }, { nv: 10, golpe: 'labareda' },
       { nv: 14, golpe: 'fogo_fatuo' }, { nv: 20, golpe: 'rabo_brasa' },
-      { nv: 28, golpe: 'clarao_boitata' },
+      { nv: 24, golpe: 'coice_brasa' }, { nv: 28, golpe: 'clarao_boitata' },
     ],
     evolui: { em: 'boitatao', nv: 18 },
   },
@@ -64,7 +64,9 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'brasa' },
       { nv: 1, golpe: 'labareda' }, { nv: 18, golpe: 'rabo_brasa' },
       { nv: 24, golpe: 'fogo_fatuo' }, { nv: 30, golpe: 'clarao_boitata' },
-      { nv: 36, golpe: 'encarada' },
+      { nv: 33, golpe: 'chuva_brasas' }, { nv: 36, golpe: 'encarada' },
+      { nv: 40, golpe: 'brasa_viva' }, { nv: 46, golpe: 'fornalha' },
+      { nv: 52, golpe: 'grito' },
     ],
     evolui: { em: 'mboitata', nv: 55 },
   },
@@ -77,7 +79,10 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'labareda' }, { nv: 1, golpe: 'rabo_brasa' },
       { nv: 1, golpe: 'fogo_fatuo' }, { nv: 1, golpe: 'clarao_boitata' },
-      { nv: 58, golpe: 'encarada' }, { nv: 64, golpe: 'afiar' },
+      { nv: 58, golpe: 'encarada' }, { nv: 60, golpe: 'fogo_mboitata' },
+      { nv: 62, golpe: 'fornalha' }, { nv: 64, golpe: 'afiar' },
+      { nv: 66, golpe: 'coice_brasa' }, { nv: 70, golpe: 'arremetida' },
+      { nv: 74, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -90,7 +95,7 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'bolha' },
       { nv: 6, golpe: 'jato_agua' }, { nv: 12, golpe: 'canto_iara' },
       { nv: 16, golpe: 'mare_cheia' }, { nv: 22, golpe: 'folego' },
-      { nv: 28, golpe: 'tromba_agua' },
+      { nv: 25, golpe: 'pingos' }, { nv: 28, golpe: 'tromba_agua' },
     ],
     evolui: { em: 'iaraMae', nv: 18 },
   },
@@ -104,7 +109,9 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'jato_agua' }, { nv: 1, golpe: 'bolha' },
       { nv: 1, golpe: 'canto_iara' }, { nv: 18, golpe: 'mare_cheia' },
       { nv: 24, golpe: 'benzecao' }, { nv: 30, golpe: 'tromba_agua' },
-      { nv: 36, golpe: 'lampejo' },
+      { nv: 33, golpe: 'correnteza' }, { nv: 36, golpe: 'lampejo' },
+      { nv: 40, golpe: 'agua_cheiro' }, { nv: 46, golpe: 'cachoeira' },
+      { nv: 52, golpe: 'fecha_corpo' },
     ],
     evolui: { em: 'ipupiara', nv: 55 },
   },
@@ -117,7 +124,10 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'tromba_agua' }, { nv: 1, golpe: 'mare_cheia' },
       { nv: 1, golpe: 'canto_iara' }, { nv: 1, golpe: 'benzecao' },
-      { nv: 58, golpe: 'sombra_fria' }, { nv: 64, golpe: 'breu' },
+      { nv: 58, golpe: 'sombra_fria' }, { nv: 60, golpe: 'abraco_fundo' },
+      { nv: 62, golpe: 'mau_sonho' }, { nv: 64, golpe: 'breu' },
+      { nv: 66, golpe: 'cachoeira' }, { nv: 70, golpe: 'assombracao' },
+      { nv: 74, golpe: 'arrepio' },
     ],
   },
   {
@@ -130,7 +140,7 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'folha_afiada' },
       { nv: 6, golpe: 'cipo' }, { nv: 11, golpe: 'raiz_sugadora' },
       { nv: 15, golpe: 'afiar' }, { nv: 21, golpe: 'esporo' },
-      { nv: 28, golpe: 'tempestade_verde' },
+      { nv: 24, golpe: 'espinhos' }, { nv: 28, golpe: 'tempestade_verde' },
     ],
     evolui: { em: 'curupira', nv: 18 },
   },
@@ -144,7 +154,9 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'folha_afiada' },
       { nv: 1, golpe: 'cipo' }, { nv: 18, golpe: 'afiar' },
       { nv: 24, golpe: 'esporo' }, { nv: 30, golpe: 'tempestade_verde' },
-      { nv: 36, golpe: 'desmoronamento' },
+      { nv: 33, golpe: 'seiva_amarga' }, { nv: 36, golpe: 'desmoronamento' },
+      { nv: 40, golpe: 'polen' }, { nv: 46, golpe: 'tronco' },
+      { nv: 52, golpe: 'grito' },
     ],
     evolui: { em: 'anhanga', nv: 55 },
   },
@@ -157,7 +169,10 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'cipo' }, { nv: 1, golpe: 'tempestade_verde' },
       { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'afiar' },
-      { nv: 58, golpe: 'lampejo' }, { nv: 64, golpe: 'aurora' },
+      { nv: 58, golpe: 'lampejo' }, { nv: 60, golpe: 'furia_anhanga' },
+      { nv: 62, golpe: 'feixe' }, { nv: 64, golpe: 'aurora' },
+      { nv: 66, golpe: 'tronco' }, { nv: 70, golpe: 'sol_a_pino' },
+      { nv: 74, golpe: 'prece' },
     ],
   },
 
@@ -171,7 +186,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'bolha' },
       { nv: 8, golpe: 'jato_agua' }, { nv: 13, golpe: 'bote' },
-      { nv: 19, golpe: 'mare_cheia' },
+      { nv: 16, golpe: 'pingos' }, { nv: 19, golpe: 'mare_cheia' },
+      { nv: 24, golpe: 'correnteza' },
     ],
     evolui: { em: 'piraguacu', nv: 30 },
   },
@@ -185,6 +201,9 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'bolha' }, { nv: 1, golpe: 'jato_agua' },
       { nv: 1, golpe: 'bote' }, { nv: 1, golpe: 'mare_cheia' },
       { nv: 34, golpe: 'tromba_agua' }, { nv: 40, golpe: 'afiar' },
+      { nv: 44, golpe: 'cachoeira' }, { nv: 50, golpe: 'agua_cheiro' },
+      { nv: 56, golpe: 'pisao' }, { nv: 62, golpe: 'arremetida' },
+      { nv: 68, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -196,7 +215,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'rajada' },
       { nv: 7, golpe: 'pe_de_vento' }, { nv: 12, golpe: 'encarada' },
-      { nv: 18, golpe: 'redemoinho' },
+      { nv: 15, golpe: 'penas' }, { nv: 18, golpe: 'redemoinho' },
+      { nv: 21, golpe: 'assobio' },
     ],
     evolui: { em: 'saci', nv: 24 },
   },
@@ -209,7 +229,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'folha_afiada' },
       { nv: 7, golpe: 'rosnado' }, { nv: 12, golpe: 'cipo' },
-      { nv: 18, golpe: 'raiz_sugadora' },
+      { nv: 18, golpe: 'raiz_sugadora' }, { nv: 24, golpe: 'espinhos' },
+      { nv: 30, golpe: 'entocar' }, { nv: 36, golpe: 'seiva_amarga' },
     ],
     evolui: { em: 'caipora', nv: 40 },
   },
@@ -224,7 +245,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'pedrada' },
       { nv: 7, golpe: 'areia' }, { nv: 13, golpe: 'tremor' },
-      { nv: 20, golpe: 'afiar' },
+      { nv: 16, golpe: 'pedrinhas' }, { nv: 20, golpe: 'afiar' },
+      { nv: 26, golpe: 'entocar' },
     ],
     evolui: { em: 'cabraCabriola', nv: 32 },
   },
@@ -238,6 +260,8 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
       { nv: 1, golpe: 'brasa' }, { nv: 32, golpe: 'desmoronamento' },
       { nv: 38, golpe: 'rabo_brasa' }, { nv: 44, golpe: 'afiar' },
+      { nv: 50, golpe: 'coice_brasa' }, { nv: 56, golpe: 'terremoto' },
+      { nv: 62, golpe: 'pisao' }, { nv: 68, golpe: 'arremetida' },
     ],
   },
   {
@@ -249,7 +273,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'brasa' },
       { nv: 8, golpe: 'fogo_fatuo' }, { nv: 15, golpe: 'labareda' },
-      { nv: 22, golpe: 'mau_olhado' },
+      { nv: 18, golpe: 'coice_brasa' }, { nv: 22, golpe: 'mau_olhado' },
+      { nv: 26, golpe: 'brasa_viva' },
     ],
     evolui: { em: 'mulaSemCabeca', nv: 30 },
   },
@@ -263,6 +288,9 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'labareda' }, { nv: 1, golpe: 'fogo_fatuo' },
       { nv: 1, golpe: 'mau_olhado' }, { nv: 30, golpe: 'rabo_brasa' },
       { nv: 36, golpe: 'clarao_boitata' }, { nv: 42, golpe: 'breu' },
+      { nv: 46, golpe: 'chuva_brasas' }, { nv: 52, golpe: 'assombracao' },
+      { nv: 58, golpe: 'coice_mula' }, { nv: 64, golpe: 'fornalha' },
+      { nv: 70, golpe: 'arremetida' },
     ],
   },
   {
@@ -274,7 +302,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'brasa' }, { nv: 1, golpe: 'pedrada' },
       { nv: 10, golpe: 'areia' }, { nv: 18, golpe: 'labareda' },
-      { nv: 26, golpe: 'tremor' }, { nv: 34, golpe: 'desmoronamento' },
+      { nv: 22, golpe: 'pedrinhas' }, { nv: 26, golpe: 'tremor' },
+      { nv: 30, golpe: 'brasa_viva' }, { nv: 34, golpe: 'desmoronamento' },
+      { nv: 38, golpe: 'entocar' },
     ],
     evolui: { em: 'teiniagua', nv: 42 },
   },
@@ -288,6 +318,8 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'brasa' }, { nv: 1, golpe: 'labareda' },
       { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'desmoronamento' },
       { nv: 46, golpe: 'clarao_boitata' }, { nv: 52, golpe: 'afiar' },
+      { nv: 56, golpe: 'terremoto' }, { nv: 60, golpe: 'fornalha' },
+      { nv: 64, golpe: 'chuva_brasas' }, { nv: 68, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -300,6 +332,8 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
       { nv: 1, golpe: 'lampejo' }, { nv: 20, golpe: 'benzecao' },
       { nv: 30, golpe: 'aurora' }, { nv: 40, golpe: 'clarao_boitata' },
+      { nv: 46, golpe: 'feixe' }, { nv: 52, golpe: 'fornalha' },
+      { nv: 58, golpe: 'prece' },
     ],
     evolui: { em: 'eldorado', nv: 62 },
   },
@@ -312,7 +346,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'clarao_boitata' },
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'labareda' },
-      { nv: 64, golpe: 'benzecao' }, { nv: 68, golpe: 'afiar' },
+      { nv: 64, golpe: 'benzecao' }, { nv: 66, golpe: 'cidade_ouro' },
+      { nv: 68, golpe: 'afiar' }, { nv: 70, golpe: 'sol_a_pino' },
+      { nv: 74, golpe: 'fecha_corpo' },
     ],
   },
 
@@ -326,7 +362,10 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pe_de_vento' }, { nv: 1, golpe: 'redemoinho' },
       { nv: 1, golpe: 'encarada' }, { nv: 24, golpe: 'vendaval' },
-      { nv: 30, golpe: 'afiar' },
+      { nv: 30, golpe: 'afiar' }, { nv: 36, golpe: 'rasante' },
+      { nv: 42, golpe: 'bicadas' }, { nv: 48, golpe: 'grito' },
+      { nv: 54, golpe: 'furacao' }, { nv: 60, golpe: 'rodamoinho_saci' },
+      { nv: 66, golpe: 'fecha_corpo' }, { nv: 72, golpe: 'penas' },
     ],
   },
   {
@@ -339,6 +378,7 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'pe_de_vento' },
       { nv: 12, golpe: 'encarada' }, { nv: 20, golpe: 'redemoinho' },
       { nv: 28, golpe: 'rosnado' }, { nv: 36, golpe: 'vendaval' },
+      { nv: 42, golpe: 'penas' }, { nv: 46, golpe: 'assobio' },
     ],
     evolui: { em: 'matintaPerera', nv: 48 },
   },
@@ -352,6 +392,8 @@ const LISTA: readonly Especie[] = [
       { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'redemoinho' },
       { nv: 1, golpe: 'encarada' }, { nv: 1, golpe: 'vendaval' },
       { nv: 52, golpe: 'mau_olhado' }, { nv: 56, golpe: 'breu' },
+      { nv: 60, golpe: 'mau_sonho' }, { nv: 64, golpe: 'furacao' },
+      { nv: 68, golpe: 'arrepio' }, { nv: 72, golpe: 'unhas_noite' },
     ],
   },
   {
@@ -363,6 +405,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'redemoinho' },
       { nv: 1, golpe: 'vendaval' }, { nv: 20, golpe: 'encarada' },
+      { nv: 30, golpe: 'penas' }, { nv: 40, golpe: 'assobio' },
+      { nv: 50, golpe: 'rasante' }, { nv: 56, golpe: 'fecha_corpo' },
     ],
     evolui: { em: 'uirapuruRei', nv: 62 },
   },
@@ -375,7 +419,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'vendaval' }, { nv: 1, golpe: 'redemoinho' },
       { nv: 1, golpe: 'rajada' }, { nv: 1, golpe: 'lampejo' },
-      { nv: 64, golpe: 'benzecao' }, { nv: 68, golpe: 'aurora' },
+      { nv: 64, golpe: 'benzecao' }, { nv: 66, golpe: 'canto_uirapuru' },
+      { nv: 68, golpe: 'aurora' }, { nv: 70, golpe: 'furacao' },
+      { nv: 74, golpe: 'feixe' },
     ],
   },
 
@@ -389,7 +435,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'faisca' },
       { nv: 9, golpe: 'teia_eletrica' }, { nv: 15, golpe: 'encarada' },
-      { nv: 22, golpe: 'trovoada' },
+      { nv: 22, golpe: 'trovoada' }, { nv: 28, golpe: 'faiscas' },
+      { nv: 34, golpe: 'risco' }, { nv: 40, golpe: 'carregar' },
     ],
     evolui: { em: 'relampo', nv: 46 },
   },
@@ -402,7 +449,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'faisca' }, { nv: 1, golpe: 'teia_eletrica' },
       { nv: 1, golpe: 'trovoada' }, { nv: 46, golpe: 'raio_tupa' },
-      { nv: 50, golpe: 'afiar' },
+      { nv: 50, golpe: 'afiar' }, { nv: 54, golpe: 'trovao_seco' },
+      { nv: 58, golpe: 'risco' }, { nv: 62, golpe: 'carregar' },
+      { nv: 66, golpe: 'arremetida' }, { nv: 70, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -414,7 +463,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'pedrada' },
       { nv: 1, golpe: 'faisca' }, { nv: 20, golpe: 'tremor' },
-      { nv: 32, golpe: 'trovoada' }, { nv: 44, golpe: 'desmoronamento' },
+      { nv: 26, golpe: 'faiscas' }, { nv: 32, golpe: 'trovoada' },
+      { nv: 38, golpe: 'entocar' }, { nv: 44, golpe: 'desmoronamento' },
+      { nv: 50, golpe: 'pedrinhas' },
     ],
     evolui: { em: 'tatuacu', nv: 54 },
   },
@@ -427,7 +478,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
       { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'desmoronamento' },
-      { nv: 56, golpe: 'raio_tupa' }, { nv: 62, golpe: 'afiar' },
+      { nv: 56, golpe: 'raio_tupa' }, { nv: 58, golpe: 'terremoto' },
+      { nv: 62, golpe: 'afiar' }, { nv: 64, golpe: 'trovao_seco' },
+      { nv: 68, golpe: 'pisao' }, { nv: 72, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -439,6 +492,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'lampejo' },
       { nv: 1, golpe: 'raio_tupa' }, { nv: 1, golpe: 'aurora' },
+      { nv: 45, golpe: 'feixe' }, { nv: 50, golpe: 'carregar' },
+      { nv: 55, golpe: 'raios_sol' }, { nv: 60, golpe: 'trovao_seco' },
     ],
     evolui: { em: 'boiuna', nv: 64 },
   },
@@ -451,7 +506,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'trovoada' }, { nv: 1, golpe: 'raio_tupa' },
       { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'tromba_agua' },
-      { nv: 66, golpe: 'mare_cheia' }, { nv: 70, golpe: 'afiar' },
+      { nv: 66, golpe: 'mare_cheia' }, { nv: 68, golpe: 'boiuna_eletrica' },
+      { nv: 70, golpe: 'afiar' }, { nv: 72, golpe: 'cachoeira' },
+      { nv: 74, golpe: 'fecha_corpo' },
     ],
   },
 
@@ -465,7 +522,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'areia' },
       { nv: 10, golpe: 'pedrada' }, { nv: 18, golpe: 'encarada' },
-      { nv: 26, golpe: 'tremor' },
+      { nv: 26, golpe: 'tremor' }, { nv: 30, golpe: 'pedrinhas' },
+      { nv: 38, golpe: 'entocar' }, { nv: 44, golpe: 'pisao' },
     ],
     evolui: { em: 'minhocao', nv: 50 },
   },
@@ -478,7 +536,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
       { nv: 1, golpe: 'areia' }, { nv: 50, golpe: 'desmoronamento' },
-      { nv: 54, golpe: 'afiar' },
+      { nv: 54, golpe: 'afiar' }, { nv: 58, golpe: 'terremoto' },
+      { nv: 62, golpe: 'grito' }, { nv: 66, golpe: 'arremetida' },
+      { nv: 70, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -490,6 +550,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'rosnado' },
       { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'desmoronamento' },
+      { nv: 45, golpe: 'terremoto' }, { nv: 50, golpe: 'pisao' },
+      { nv: 55, golpe: 'grito' }, { nv: 60, golpe: 'entocar' },
     ],
     evolui: { em: 'juma', nv: 62 },
   },
@@ -502,7 +564,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'pedrada' }, { nv: 1, golpe: 'tremor' },
       { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'rosnado' },
-      { nv: 64, golpe: 'esforco' }, { nv: 68, golpe: 'garra_cuca' },
+      { nv: 64, golpe: 'esforco' }, { nv: 66, golpe: 'bocarra' },
+      { nv: 68, golpe: 'garra_cuca' }, { nv: 72, golpe: 'pilao' },
+      { nv: 74, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -514,6 +578,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'tremor' }, { nv: 1, golpe: 'cipo' },
       { nv: 1, golpe: 'desmoronamento' }, { nv: 1, golpe: 'tempestade_verde' },
+      { nv: 45, golpe: 'terremoto' }, { nv: 50, golpe: 'pedrinhas' },
+      { nv: 56, golpe: 'tronco' }, { nv: 62, golpe: 'polen' },
+      { nv: 68, golpe: 'grito' },
     ],
   },
 
@@ -527,7 +594,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'sombra_fria' },
       { nv: 12, golpe: 'rosnado' }, { nv: 20, golpe: 'mau_olhado' },
-      { nv: 30, golpe: 'garra_cuca' },
+      { nv: 30, golpe: 'garra_cuca' }, { nv: 36, golpe: 'unhas_noite' },
+      { nv: 44, golpe: 'arrepio' },
     ],
     evolui: { em: 'lobisomem', nv: 52 },
   },
@@ -540,7 +608,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'rosnado' },
       { nv: 1, golpe: 'sombra_fria' }, { nv: 52, golpe: 'breu' },
-      { nv: 56, golpe: 'afiar' },
+      { nv: 56, golpe: 'afiar' }, { nv: 60, golpe: 'uivo_lua' },
+      { nv: 62, golpe: 'grito' }, { nv: 66, golpe: 'mau_sonho' },
+      { nv: 70, golpe: 'pisao' }, { nv: 74, golpe: 'fecha_corpo' },
     ],
   },
   {
@@ -552,7 +622,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'pedrada' },
       { nv: 1, golpe: 'sombra_fria' }, { nv: 30, golpe: 'tremor' },
-      { nv: 44, golpe: 'garra_cuca' },
+      { nv: 36, golpe: 'assombracao' }, { nv: 44, golpe: 'garra_cuca' },
+      { nv: 50, golpe: 'arrepio' }, { nv: 56, golpe: 'entocar' },
     ],
     evolui: { em: 'almaPenada', nv: 60 },
   },
@@ -565,7 +636,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'tremor' },
       { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'sombra_fria' },
-      { nv: 62, golpe: 'breu' }, { nv: 66, golpe: 'desmoronamento' },
+      { nv: 62, golpe: 'breu' }, { nv: 64, golpe: 'mau_sonho' },
+      { nv: 66, golpe: 'desmoronamento' }, { nv: 68, golpe: 'terremoto' },
+      { nv: 72, golpe: 'unhas_noite' },
     ],
   },
   {
@@ -577,6 +650,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'mau_olhado' },
       { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 45, golpe: 'mau_sonho' }, { nv: 50, golpe: 'arrepio' },
+      { nv: 55, golpe: 'assombracao' }, { nv: 60, golpe: 'fecha_corpo' },
     ],
     evolui: { em: 'cucaRainha', nv: 64 },
   },
@@ -589,7 +664,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'garra_cuca' }, { nv: 1, golpe: 'breu' },
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'tromba_agua' },
-      { nv: 66, golpe: 'sombra_fria' }, { nv: 70, golpe: 'afiar' },
+      { nv: 66, golpe: 'sombra_fria' }, { nv: 68, golpe: 'acalanto_cuca' },
+      { nv: 70, golpe: 'afiar' }, { nv: 72, golpe: 'cachoeira' },
     ],
   },
   {
@@ -601,6 +677,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'vendaval' },
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
+      { nv: 45, golpe: 'assombracao' }, { nv: 50, golpe: 'penas' },
+      { nv: 55, golpe: 'mau_sonho' }, { nv: 60, golpe: 'arrepio' },
     ],
     evolui: { em: 'pesadelo', nv: 64 },
   },
@@ -613,7 +691,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'breu' }, { nv: 1, golpe: 'vendaval' },
       { nv: 1, golpe: 'mau_olhado' }, { nv: 1, golpe: 'redemoinho' },
-      { nv: 66, golpe: 'sombra_fria' }, { nv: 70, golpe: 'afiar' },
+      { nv: 66, golpe: 'sombra_fria' }, { nv: 68, golpe: 'furacao' },
+      { nv: 70, golpe: 'afiar' }, { nv: 72, golpe: 'unhas_noite' },
     ],
   },
 
@@ -627,7 +706,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'clarao' },
       { nv: 12, golpe: 'benzecao' }, { nv: 22, golpe: 'lampejo' },
-      { nv: 34, golpe: 'afiar' },
+      { nv: 28, golpe: 'raios_sol' }, { nv: 34, golpe: 'afiar' },
+      { nv: 42, golpe: 'prece' }, { nv: 46, golpe: 'feixe' },
     ],
     evolui: { em: 'estrelaDalva', nv: 50 },
   },
@@ -640,6 +720,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'benzecao' },
       { nv: 1, golpe: 'clarao' }, { nv: 50, golpe: 'aurora' },
+      { nv: 54, golpe: 'feixe' }, { nv: 58, golpe: 'sol_a_pino' },
+      { nv: 62, golpe: 'prece' }, { nv: 66, golpe: 'fecha_corpo' },
+      { nv: 70, golpe: 'raios_sol' },
     ],
   },
   {
@@ -650,8 +733,9 @@ const LISTA: readonly Especie[] = [
     sobre: 'Acende sozinha na janela de quem espera alguém voltar. Apaga quando a pessoa chega.',
     aprende: [
       { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'brasa' },
-      { nv: 1, golpe: 'lampejo' }, { nv: 30, golpe: 'labareda' },
-      { nv: 44, golpe: 'aurora' },
+      { nv: 1, golpe: 'lampejo' }, { nv: 20, golpe: 'chuva_brasas' },
+      { nv: 30, golpe: 'labareda' }, { nv: 36, golpe: 'brasa_viva' },
+      { nv: 44, golpe: 'aurora' }, { nv: 52, golpe: 'feixe' },
     ],
     evolui: { em: 'fogoFatuo', nv: 62 },
   },
@@ -664,7 +748,9 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'clarao' }, { nv: 1, golpe: 'labareda' },
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'aurora' },
-      { nv: 64, golpe: 'fogo_fatuo' }, { nv: 68, golpe: 'clarao_boitata' },
+      { nv: 64, golpe: 'fogo_fatuo' }, { nv: 66, golpe: 'sol_a_pino' },
+      { nv: 68, golpe: 'clarao_boitata' }, { nv: 70, golpe: 'fornalha' },
+      { nv: 74, golpe: 'assombracao' },
     ],
   },
   {
@@ -676,6 +762,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'breu' },
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 45, golpe: 'mau_sonho' }, { nv: 50, golpe: 'feixe' },
+      { nv: 55, golpe: 'prece' }, { nv: 60, golpe: 'raios_sol' },
     ],
     evolui: { em: 'eclipse', nv: 66 },
   },
@@ -688,7 +776,8 @@ const LISTA: readonly Especie[] = [
     aprende: [
       { nv: 1, golpe: 'aurora' }, { nv: 1, golpe: 'breu' },
       { nv: 1, golpe: 'lampejo' }, { nv: 1, golpe: 'sombra_fria' },
-      { nv: 68, golpe: 'benzecao' }, { nv: 72, golpe: 'afiar' },
+      { nv: 68, golpe: 'benzecao' }, { nv: 70, golpe: 'eclipse_total' },
+      { nv: 72, golpe: 'afiar' }, { nv: 74, golpe: 'sol_a_pino' },
     ],
   },
 ];

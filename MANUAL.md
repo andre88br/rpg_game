@@ -75,6 +75,36 @@ Todo o resto é 1x. Bicho de dois tipos multiplica: Salamanca (Fogo/Terra) leva
 2x de Água, não 4x, porque Água não bate em Terra. Não existe resistência — um
 golpe nunca vale menos que 1x, então **atacar com o tipo certo é tudo**.
 
+**Golpes.** São 92, de 8 a 14 por tipo. Além de dano, estado e mudança de
+atributo, alguns fazem coisas a mais:
+
+| efeito | exemplos | o que faz |
+|---|---|---|
+| várias pancadas | Bicadas, Chuva de Brasas, Pingos, Espinhos, Chuva de Pedrinhas, Penas, Faíscas, Unhas da Noite, Raios de Sol | bate de 2 a 5 vezes no mesmo turno; cada pancada pode ser crítica; para se o alvo cair |
+| recarga | Arremetida, Fogo de Mboitatá, Fúria do Anhangá, Bocarra, Boiúna Elétrica, Uivo da Lua Cheia, Eclipse Total | muito forte, mas depois de acertar o Encantado perde a vez seguinte; trocar de Encantado desfaz |
+| Fecha-Corpo | Fecha-Corpo | sai antes de tudo e o golpe do adversário naquele turno não pega; usado dois turnos seguidos, falha |
+| dano fixo | Assombração | tira sempre o nível de quem usa, sem tipo nem crítico |
+| dobra com estado | Brasa Viva, Seiva Amarga, Mau Sonho | potência dobrada se o alvo estiver queimado, envenenado, dormindo ou travado |
+| por último | Pilão | forte, mas sai depois de todo mundo |
+
+As formas finais mais conhecidas têm um **golpe próprio**, aprendido só por
+elas e só no fim da trilha:
+
+| golpe | quem aprende | nível |
+|---|---|---|
+| Fogo de Mboitatá | Mboitatá | 60 |
+| Abraço do Fundo | Ipupiara | 60 |
+| Fúria do Anhangá | Anhangá | 60 |
+| Coice da Mula | Mula-sem-Cabeça | 58 |
+| Rodamoinho do Saci | Saci | 60 |
+| Uivo da Lua Cheia | Lobisomem | 60 |
+| Cidade de Ouro | Eldorado | 66 |
+| Canto do Uirapuru | Uirapuru-Rei | 66 |
+| Bocarra | Juma | 66 |
+| Boiúna Elétrica | Boiúna | 68 |
+| Acalanto da Cuca | Cuca-Rainha | 68 |
+| Eclipse Total | Eclipse | 70 |
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.

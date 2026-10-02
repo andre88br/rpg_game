@@ -78,10 +78,25 @@ export interface Combatente {
   enc: Encantado;
   estagios: Estagios;
   feitico: number;          // turnos restantes de enfeitiçado (0 = são)
+  /* usou golpe com recarga: perde a próxima vez */
+  recarregando: boolean;
+  /* fechou o corpo neste turno: o golpe do outro não pega */
+  protegido: boolean;
+  /* turno do último Fecha-Corpo — dois seguidos, o segundo falha */
+  ultimoProtege: number;
 }
 
+/* o golpe mira no adversário? (o corpo fechado do outro só barra estes;
+   curar a si ou mexer no próprio atributo passa) */
+function miraOponente(g: Golpe): boolean {
+  const e = g.efeito;
+  return g.categoria !== 'estado' || !!e?.status || !!e?.feitico || e?.mod?.alvo === 'oponente';
+}
+
+/* trocar de Encantado zera tudo isto: estágios, quebranto, recarga, proteção */
 function envolver(e: Encantado): Combatente {
-  return { enc: e, estagios: { atq: 0, def: 0, esp: 0, vel: 0 }, feitico: 0 };
+  return { enc: e, estagios: { atq: 0, def: 0, esp: 0, vel: 0 }, feitico: 0,
+           recarregando: false, protegido: false, ultimoProtege: -9 };
 }
 
 /* --------------------------------------------------------- treinador */
@@ -394,6 +409,13 @@ export class Batalha {
     const alvoLado = this.oposto(lado);
     const alvo = this.lado(alvoLado);
 
+    // o golpe forte do turno passado cobra agora: a vez se perde
+    if (eu.recarregando) {
+      eu.recarregando = false;
+      ev.push({ k: 'texto', t: `${nome(eu.enc)} precisa recuperar o fôlego!` });
+      return;
+    }
+
     if (!this.podeAgir(lado, eu, ev)) return;
 
     const g = this.golpeDe(eu, indice);
@@ -410,9 +432,40 @@ export class Batalha {
       return;
     }
 
+    // Fecha-Corpo: só pega se não tiver sido usado no turno anterior
+    if (g.efeito?.protege) {
+      if (eu.ultimoProtege === this.turno - 1) {
+        eu.ultimoProtege = -9;
+        ev.push({ k: 'texto', t: 'Mas não adiantou nada.' });
+        return;
+      }
+      eu.protegido = true;
+      eu.ultimoProtege = this.turno;
+      ev.push({ k: 'texto', t: `${nome(eu.enc)} fechou o corpo!` });
+      return;
+    }
+
+    // corpo fechado do outro lado: nada que mire nele pega
+    if (alvo.protegido && miraOponente(g)) {
+      ev.push({ k: 'texto', t: `${nome(alvo.enc)} se protegeu!` });
+      return;
+    }
+
     let causado = 0;
     if (g.categoria !== 'estado') {
-      causado = this.aplicarGolpe(g, eu, alvoLado, alvo, ev);
+      const multi = g.efeito?.multi;
+      if (multi) {
+        const vezes = this.rnd.inteiro(multi[0], multi[1]);
+        let acertos = 0;
+        for (let i = 0; i < vezes && !desmaiado(alvo.enc); i++) {
+          causado += this.aplicarGolpe(g, eu, alvoLado, alvo, ev, i === vezes - 1);
+          acertos++;
+        }
+        ev.push({ k: 'texto', t: acertos === 1 ? 'Acertou uma vez!' : `Acertou ${acertos} vezes!` });
+      } else {
+        causado = this.aplicarGolpe(g, eu, alvoLado, alvo, ev);
+      }
+      if (g.efeito?.recarga) eu.recarregando = true;
     }
 
     if (g.efeito) this.aplicarEfeito(g, lado, eu, alvoLado, alvo, causado, ev);
@@ -467,9 +520,17 @@ export class Batalha {
     return true;
   }
 
-  /* tira o HP e devolve quanto tirou (drenar e recuo precisam desse número) */
+  /* tira o HP e devolve quanto tirou (drenar e recuo precisam desse número).
+     `comFrase` falso cala o "é super eficaz" — numa sequência de pancadas
+     ele sai uma vez só, na última. */
   private aplicarGolpe(g: Golpe, eu: Combatente,
-                       alvoLado: Lado, alvo: Combatente, ev: Evento[]): number {
+                       alvoLado: Lado, alvo: Combatente, ev: Evento[], comFrase = true): number {
+    if (g.efeito?.danoFixo) {
+      const antes = alvo.enc.hp;
+      alvo.enc.hp = Math.max(0, alvo.enc.hp - eu.enc.nivel);
+      ev.push({ k: 'dano', lado: alvoLado, de: antes, para: alvo.enc.hp, critico: false, eficacia: 1 });
+      return antes - alvo.enc.hp;
+    }
     const stEu = atributos(eu.enc);
     const stAlvo = atributos(alvo.enc);
     const fisico = g.categoria === 'fisico';
@@ -485,9 +546,10 @@ export class Batalha {
       : aplicarEstagio(stAlvo.esp, alvo.estagios.esp);
 
     const efic = eficacia(g.tipo, tipos(alvo.enc));
+    const potencia = g.efeito?.dobraSeStatus && alvo.enc.status ? g.pot * 2 : g.pot;
     const r = calcularDano({
       nivel: eu.enc.nivel, ataque, defesa,
-      potencia: g.pot,
+      potencia,
       afinidade: temAfinidade(g.tipo, tipos(eu.enc)),
       eficacia: efic,
       bonusCritico: g.efeito?.critico ?? 0,
@@ -498,7 +560,7 @@ export class Batalha {
     ev.push({ k: 'dano', lado: alvoLado, de: antes, para: alvo.enc.hp,
               critico: r.critico, eficacia: efic });
     if (r.critico) ev.push({ k: 'texto', t: 'Acertou em cheio!' });
-    const frase = fraseEficacia(efic);
+    const frase = comFrase ? fraseEficacia(efic) : null;
     if (frase) ev.push({ k: 'texto', t: frase });
     return r.dano;
   }
@@ -606,6 +668,9 @@ export class Batalha {
   /* ------------------------------------------------------- fim de turno */
 
   private fimDeTurno(ev: Evento[]): void {
+    // o corpo fechado vale só para o turno em que foi fechado
+    this.aliado.protegido = false;
+    this.inimigo.protegido = false;
     for (const lado of ['aliado', 'inimigo'] as Lado[]) {
       const c = this.lado(lado);
       if (desmaiado(c.enc) || !c.enc.status) continue;
@@ -761,6 +826,14 @@ export class Batalha {
     return this.rnd.chance(CHANCE_TROCA_IA) ? bom : -1;
   }
 
+  /* o golpe de melhor nota para o lado do jogador, com a mesma conta da IA —
+     é o que a simulação de equilíbrio dos testes usa para jogar sozinha */
+  melhorGolpeDoAliado(): number {
+    const notas = this.aliado.enc.golpes.map((_, i) => this.notaGolpe(i, this.aliado, this.inimigo));
+    const melhor = Math.max(0, ...notas);
+    return Math.max(0, notas.indexOf(melhor));
+  }
+
   private notaGolpe(indice: number, eu: Combatente, alvo: Combatente): number {
     const aprendido = eu.enc.golpes[indice];
     if (!aprendido || aprendido.pp <= 0) return 0;
@@ -771,7 +844,9 @@ export class Batalha {
       // golpe de estado só vale quando ainda tem efeito a aplicar
       const ef = g.efeito;
       let nota = 12;
-      if (ef?.curar) nota = eu.enc.hp < hpMaximo(eu.enc) * 0.5 ? 45 : 2;
+      // fechar o corpo só aperta quando a vida já está curta — e nunca seguido
+      if (ef?.protege) nota = eu.ultimoProtege === this.turno ? 0 : eu.enc.hp < hpMaximo(eu.enc) * 0.35 ? 20 : 3;
+      else if (ef?.curar) nota = eu.enc.hp < hpMaximo(eu.enc) * 0.5 ? 45 : 2;
       else if (ef?.status) nota = alvo.enc.status ? 1 : 30;
       else if (ef?.feitico) nota = alvo.feitico > 0 ? 1 : 26;
       else if (ef?.mod) nota = 18;
@@ -789,14 +864,25 @@ export class Batalha {
       ? aplicarEstagio(stAlvo.def, alvo.estagios.def)
       : aplicarEstagio(stAlvo.esp, alvo.estagios.esp);
 
-    const bruto = Math.floor(
-      (Math.floor((2 * eu.enc.nivel) / 5 + 2) * g.pot * (ataque / Math.max(1, defesa))) / 50,
-    ) + 2;
-    const efic = eficacia(g.tipo, tipos(alvo.enc));
-    const afin = temAfinidade(g.tipo, tipos(eu.enc)) ? 1.5 : 1;
-    const dano = bruto * efic * afin * precisao;
+    const ef = g.efeito;
+    let dano: number;
+    if (ef?.danoFixo) {
+      dano = eu.enc.nivel * precisao;
+    } else {
+      const pot = ef?.dobraSeStatus && alvo.enc.status ? g.pot * 2 : g.pot;
+      const bruto = Math.floor(
+        (Math.floor((2 * eu.enc.nivel) / 5 + 2) * pot * (ataque / Math.max(1, defesa))) / 50,
+      ) + 2;
+      const efic = eficacia(g.tipo, tipos(alvo.enc));
+      const afin = temAfinidade(g.tipo, tipos(eu.enc)) ? 1.5 : 1;
+      // várias pancadas: conta a média (três e pouco)
+      const vezes = ef?.multi ? (ef.multi[0] + ef.multi[1]) / 2 : 1;
+      dano = bruto * efic * afin * precisao * vezes;
+    }
 
     // derrubar agora vale mais que qualquer outra consideração
-    return dano >= alvo.enc.hp ? dano * 3 : dano;
+    if (dano >= alvo.enc.hp) return dano * 3;
+    // o golpe que cobra um turno de fôlego só compensa quando derruba
+    return ef?.recarga ? dano * 0.6 : dano;
   }
 }
