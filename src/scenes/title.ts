@@ -10,6 +10,7 @@ import { algumSlotOcupado, primeiroSlotVazio, salvarEmSlot } from '../game/save.
 import { saveDoTexto } from '../game/transferencia.ts';
 import { escolherArquivo, pedirTexto } from '../ui/arquivos.ts';
 import { TelaSlots } from './slots.ts';
+import * as Som from '../audio/som.ts';
 
 function misturar(a: string, b: string, t: number): string {
   t = Math.max(0, Math.min(1, t));
@@ -94,6 +95,7 @@ export class CenaTitulo implements Cena {
   constructor(aoComecar: (c: Comeco, slot: number) => void) { this.aoComecar = aoComecar; }
 
   entrar(): void {
+    Som.musica(null);                 // quem volta da partida não traz o tema do mapa
     this.fundo = assarSuave(fundoTitulo());
     this.t = 0;
     this.sel = 0;

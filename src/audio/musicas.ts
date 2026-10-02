@@ -1,11 +1,15 @@
 /* =========================================================================
    As músicas do jogo.
 
-   Música de fundo só toca nas CUTSCENES: o mundo e a batalha ficam com os
-   efeitos, e a música vira trilha de cinema — cada tema é o tom de um
-   momento da história, e cada tomada de cutscene diz qual quer
-   (`musica` em data/cutscenes.ts). Fora delas, só as vinhetas curtas
-   (cura, medalha, item, nível, captura, derrota).
+   Três famílias:
+   - os temas da HISTÓRIA, trilha de cinema das cutscenes: cada um é o tom
+     de um momento, e cada tomada diz qual quer (`musica` em
+     data/cutscenes.ts);
+   - os temas do MUNDO e da BATALHA, em laço, mais baixos: um por região ao
+     ar livre, mais casa, terreiro e breu, e selvagem, treinador e chefe —
+     quem escolhe é audio/temas.ts;
+   - as VINHETAS curtas (cura, medalha, item, nível, captura, vitória,
+     derrota), que interrompem e devolvem a música da vez.
 
    Notação em partitura.ts. Puro: teste em partitura.test.ts.
    ========================================================================= */
@@ -335,6 +339,142 @@ export const MUSICAS = {
               b5 d6 g6:6 f#6:2 e6:4 | e6:4 c6 e6 g6:8 | f#6:4 e6:4 d6:4 c6:4 | b5:4 a5 f#5 g5:8`,
   },
 
+  /* ------------------------------------------------- o mundo, andando
+
+     Tocam em laço enquanto se anda: mais longos que os da história (16
+     compassos, para o laço não cansar) e mais baixos (`ganho`), por baixo
+     dos efeitos e das conversas. Quem escolhe qual toca é audio/temas.ts. */
+
+  /* a Foz: baião praiano em ré maior, de rede balançando */
+  mundoFoz: {
+    bpm: 104, baixo: 'baiao', bateria: 'suave', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D', 'Bm', 'G', 'D', 'A', 'G', 'A', 'D', 'D'],
+    melodia: `a4 d5 f#5:4 e5 d5 a4:4 | b4 d5 g5:6 f#5:2 e5:4 | f#5:4 a5:4 f#5 e5 d5:4 | e5:6 c#5:2 a4:8 |
+              a4 d5 f#5:4 a5 f#5 d6:4 | b5:4 a5 g5 d5:8 | c#5 e5 a5:4 g5 e5 c#5:4 | d5:12 -:4 |
+              f#5 b5 d6:4 c#6 b5 f#5:4 | g5:4 b5:4 d6:6 b5:2 | a5:4 f#5 d5 a4:4 d5:4 | e5:6 g5:2 c#5:8 |
+              b4 d5 g5:4 b5 a5 g5:4 | a4 c#5 e5:4 a5 g5 e5:4 | f#5:4 e5 d5 a4 d5 f#5:4 | d5:12 -:4`,
+  },
+  /* a Mata: toada em lá dórico, o arpejo subindo como cipó */
+  mundoMata: {
+    bpm: 84, baixo: 'lento', bateria: 'suave', arpejo: 'sobe', ganho: 0.7,
+    acordes: ['Am', 'D', 'Am', 'D', 'C', 'G', 'Am', 'Am', 'F', 'C', 'G', 'Am', 'Dm', 'G', 'Am', 'E7'],
+    melodia: `e5:4 a5:4 c6:6 b5:2 | a5:4 f#5:4 d5:8 | c5 e5 a5:4 g5 e5 c5:4 | d5:6 e5:2 f#5:8 |
+              g5:4 e5 g5 c6:8 | b5:4 a5 g5 d5:8 | e5:4 c5:4 a4:8 | -:4 e5 a5 c6:4 b5:4 |
+              a5:6 g5:2 f5:4 c5:4 | e5:4 g5:4 c6:8 | d6:4 b5 g5 d5:4 g5:4 | e5:12 -:4 |
+              f5:4 a5:4 d6:6 c6:2 | b5:4 g5 a5 b5:8 | c6:4 b5 a5 e5:4 c5:4 | b4:4 d5:4 g#5:8`,
+  },
+  /* a Serra: marcha de tropeiro em sol mixolídio, de casco no cascalho */
+  mundoSerra: {
+    bpm: 96, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['G', 'F', 'G', 'F', 'C', 'G', 'F', 'G', 'Em', 'F', 'G', 'C', 'G', 'F', 'D', 'G'],
+    melodia: `d5 g5 b5:4 a5 g5 d5:4 | c5 f5 a5:4 g5 f5 c5:4 | b4 d5 g5:6 f5:2 d5:4 | c5:4 a4:4 f4:8 |
+              e5 g5 c6:4 b5 g5 e5:4 | d5:6 b4:2 g4:8 | a4 c5 f5:4 a5:4 g5:4 | g5:12 -:4 |
+              e5:4 g5:4 b5:6 a5:2 | a5:4 f5 g5 a5:8 | b5:4 d6:4 b5 a5 g5:4 | e5:12 -:4 |
+              d5 g5 b5:4 d6 b5 g5:4 | f5 a5 c6:4 a5 f5 c5:4 | d5:4 f#5:4 a5:4 c6:4 | b5:4 g5:4 g4:8`,
+  },
+  /* o Campo do Saci: xote em fá maior, de vento a favor */
+  mundoCampo: {
+    bpm: 100, baixo: 'passeio', bateria: 'suave', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['F', 'Bb', 'F', 'C', 'F', 'Bb', 'C', 'F', 'Dm', 'Bb', 'F', 'C', 'Bb', 'C', 'F', 'F'],
+    melodia: `c5 f5 a5:4 g5 f5 c5:4 | d5:4 f5 bb5:6 a5:2 g5:2 | a5:3 g5:1 f5 c5 f5:4 a5:4 | g5:6 e5:2 c5:8 |
+              f5 a5 c6:4 a5 f5 c5:4 | bb5:4 a5 g5 f5:4 d5:4 | e5 g5 c6:4 bb5:4 g5:4 | f5:12 -:4 |
+              a5:4 f5 a5 d6:6 c6:2 | bb5:4 a5 g5 f5:8 | c6:3 a5:1 f5 a5 c6:4 f6:4 | e6:6 d6:2 c6:8 |
+              d6 c6 bb5:4 a5 g5 f5:4 | e5 g5 c6:4 bb5 g5 e5:4 | f5:4 a5 g5 f5 c5 f5:4 | f5:12 -:4`,
+  },
+  /* a Aldeia Tupã: tambor e escala pentatônica em mi, sem arpejo */
+  mundoTupa: {
+    bpm: 108, baixo: 'marcha', bateria: 'baiao', ganho: 0.7,
+    acordes: ['Em', 'D', 'Em', 'D', 'Em', 'G', 'D', 'Em', 'C', 'D', 'Em', 'Em', 'Am', 'D', 'Em', 'Em'],
+    melodia: `e5:3 e5:1 g5 a5 b5:4 a5 g5 | a5:4 b5 a5 d5:8 | e5:3 e5:1 g5 a5 b5:4 d6:4 | b5 a5 g5 a5 d5:8 |
+              e6:4 d6 b5 a5:4 g5:4 | g5:4 b5 d6 b5:8 | a5:4 g5 a5 d5:8 | e5:12 -:4 |
+              g5:3 g5:1 e5 g5 a5:4 g5:4 | a5:3 a5:1 g5 a5 b5:4 d6:4 | e6:4 d6:4 b5:8 | -:4 b4 d5 e5:8 |
+              a5:4 g5 e5 a5:8 | d6:4 b5 a5 d5:8 | g5 a5 b5:4 a5 g5 e5:4 | e5:12 -:4`,
+  },
+  /* as Minas: passeio grave em ré menor, de quem desce de candeia na mão */
+  mundoMinas: {
+    bpm: 92, baixo: 'passeio', bateria: 'suave', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['Dm', 'Dm', 'Gm', 'A', 'Dm', 'Bb', 'Gm', 'A', 'F', 'C', 'Dm', 'A', 'Bb', 'Gm', 'A', 'Dm'],
+    melodia: `d5:4 f5 a5 d5:4 a4:4 | f5:4 e5 d5 a4:8 | g4 bb4 d5:4 g5:6 f5:2 | e5:6 c#5:2 a4:8 |
+              a4 d5 f5:4 e5 d5 a5:4 | bb5:4 a5 g5 f5:8 | g5:4 d5 bb4 g4:8 | a4:12 -:4 |
+              c5 f5 a5:4 c6:6 a5:2 | g5:4 e5 c5 g4:8 | f5:4 d5:4 a5:8 | c#6:6 b5:2 a5:8 |
+              d6:4 bb5 f5 d5:4 f5:4 | g5:4 bb5 a5 g5:8 | e5 g5 c#6:4 e5:4 a4:4 | d5:12 -:4`,
+  },
+  /* o Bairro da Cuca: toada de mistério em mi frígio, sem bateria */
+  mundoCuca: {
+    bpm: 80, baixo: 'lento', arpejo: 'sobe', ganho: 0.7,
+    acordes: ['Em', 'F', 'Em', 'F', 'Am', 'G', 'F', 'Em', 'Dm', 'Em', 'F', 'G', 'Am', 'F', 'E', 'E'],
+    melodia: `e5:4 f5:4 g5:6 f5:2 | e5:4 c5:4 a4:8 | b4 e5 g5:4 b5:6 a5:2 | g5:4 f5 e5 f5:8 |
+              a5:4 c6:4 e6:6 d6:2 | d6:4 b5 g5 d5:8 | c6:4 a5 f5 c5:4 f5:4 | e5:12 -:4 |
+              d5 f5 a5:4 g5 f5 d5:4 | e5 g5 b5:4 a5 g5 e5:4 | f5:4 a5:4 c6:6 b5:2 | d6:6 c6:2 b5:8 |
+              c6:4 b5 a5 e5:8 | f5:4 e5 d5 c5:8 | b4:4 e5:4 g#5:8 | f5:4 e5:4 e4:8`,
+  },
+  /* a Cidade do Sol: galope luminoso em lá maior */
+  mundoSol: {
+    bpm: 120, baixo: 'galope', bateria: 'baiao', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['A', 'E', 'A', 'D', 'A', 'F#m', 'D', 'E', 'D', 'E', 'C#m', 'F#m', 'D', 'E', 'A', 'A'],
+    melodia: `e5 a5 c#6:4 b5 a5 e5:4 | g#5:4 b5:4 e6:6 d6:2 | c#6:4 a5 e5 a5:4 c#6:4 | d6:6 c#6:2 b5:4 a5:4 |
+              e5 a5 c#6:4 e6:4 c#6:4 | f#5 a5 c#6:4 a5:4 f#5:4 | d5 f#5 a5:4 d6:4 a5:4 | b5:12 -:4 |
+              a5:4 f#5 a5 d6:8 | e6:4 d6 c#6 b5:8 | c#6:4 g#5 e5 c#5:4 e5:4 | f#5:6 a5:2 c#6:8 |
+              d6 c#6 b5 a5 f#5:4 d5:4 | e5 g#5 b5:4 e6:4 d6:4 | c#6:4 a5:4 e5:4 a5:4 | a5:12 -:4`,
+  },
+  /* o Círculo Dourado e a estrada até ele: marcha solene em si bemol */
+  mundoCirculo: {
+    bpm: 96, baixo: 'marcha', bateria: 'marcha', arpejo: 'colcheia', ganho: 0.7,
+    acordes: ['Bb', 'F', 'Gm', 'Eb', 'Bb', 'F', 'Eb', 'F', 'Gm', 'Dm', 'Eb', 'Bb', 'Eb', 'F', 'Bb', 'Bb'],
+    melodia: `f5:4 bb5:4 d6:6 c6:2 | c6:4 a5 f5 c5:8 | d5 g5 bb5:4 a5 g5 d5:4 | eb5:6 g5:2 bb5:8 |
+              bb5:4 d6:4 f6:6 d6:2 | c6:4 a5:4 f5:8 | g5 bb5 eb6:4 d6 c6 bb5:4 | a5:12 -:4 |
+              g5:4 bb5:4 d6:6 c6:2 | a5:4 f5 a5 d6:8 | eb6:4 d6 c6 bb5:4 g5:4 | f5:12 -:4 |
+              g5 bb5 eb6:4 g6:4 f6:4 | f6:4 eb6 d6 c6:8 | d6:4 c6 bb5 f5:4 d5:4 | bb5:12 -:4`,
+  },
+
+  /* dentro de casa: modinha baixinha em dó, sem bateria */
+  casa: {
+    bpm: 76, baixo: 'passeio', arpejo: 'colcheia', ganho: 0.6,
+    acordes: ['C', 'Am', 'F', 'G', 'C', 'Am', 'Dm', 'G'],
+    melodia: `e5:4 g5:4 c6:6 b5:2 | a5:4 e5:4 c5:8 | f5 a5 c6:4 a5 f5 c5:4 | d5:6 g5:2 b5:8 |
+              c6:4 b5 a5 g5:4 e5:4 | a5:4 c6 b5 a5:8 | f5 a5 d6:4 c6:4 a5:4 | b5:6 a5:2 g5:8`,
+  },
+  /* dentro do terreiro e da arena: tenso, em ré menor, o baixo galopando */
+  terreiro: {
+    bpm: 88, baixo: 'galope', bateria: 'suave', arpejo: 'sobe', ganho: 0.7,
+    acordes: ['Dm', 'Bb', 'Dm', 'A', 'Gm', 'Dm', 'A', 'A'],
+    melodia: `d5:4 -:2 d5:2 f5:4 a5:4 | bb5:4 a5 g5 f5:8 | d6:4 -:2 d6:2 c6:4 a5:4 | c#6:6 bb5:2 a5:8 |
+              g5:4 bb5:4 d6:4 bb5:4 | a5:4 f5:4 d5:8 | e5 g5 bb5:4 a5 g5 e5:4 | c#5:8 a4:8`,
+  },
+  /* no breu (caverna, casarão): quase só baixo e arpejo, uma nota de vez em quando */
+  breu: {
+    bpm: 64, baixo: 'lento', arpejo: 'sobe', ganho: 0.6,
+    acordes: ['Am', 'F', 'Am', 'E', 'Dm', 'Am', 'F', 'E'],
+    melodia: `-:8 e5:8 | c5:12 -:4 | -:8 a5:4 g5:4 | g#5:12 -:4 |
+              -:8 f5:8 | e5:12 -:4 | -:8 c6:4 a5:4 | b5:12 -:4`,
+  },
+
+  /* ---------------------------------------------------------- batalha */
+
+  /* bicho do mato: corrida curta em mi menor */
+  batalhaSelvagem: {
+    bpm: 152, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe', ganho: 0.85,
+    acordes: ['Em', 'C', 'D', 'B7', 'Em', 'C', 'Am', 'B7'],
+    melodia: `e5:1 -:1 e5:1 -:1 g5 b5 e6:4 d6 b5 | c6:4 g5 e5 c6:4 b5 g5 |
+              d6:1 -:1 d6:1 -:1 a5 f#5 d6:4 e6 f#6 | d#6:4 b5:4 f#5:4 a5:4 |
+              g5 b5 e6:4 g6 f#6 e6:4 | e6 d6 c6 b5 g5:4 e5:4 | a5 c6 e6:4 d6 c6 a5:4 | b5:4 a5:4 f#5 d#5 b4:4`,
+  },
+  /* treinador na estrada: sol menor, de quem quer mostrar serviço */
+  batalhaTreinador: {
+    bpm: 144, baixo: 'galope', bateria: 'batalha', arpejo: 'colcheia', ganho: 0.85,
+    acordes: ['Gm', 'Eb', 'F', 'D', 'Gm', 'Bb', 'Cm', 'D7'],
+    melodia: `g5:3 g5:1 bb5 d6 g6:4 f6 d6 | eb6:4 d6 c6 bb5:4 g5:4 | f5:3 f5:1 a5 c6 f6:4 eb6 c6 | d6:4 a5:4 f#5:8 |
+              g5 bb5 d6 g6 f6:4 d6:4 | f6 d6 bb5 f5 bb5:4 d6:4 | eb6 d6 c6 g5 eb5:4 c6:4 | d6:4 c6 a5 f#5:4 d5:4`,
+  },
+  /* dono de terreiro, rival, guardião, campeão e bicho-chefe: dó menor, no limite */
+  batalhaChefe: {
+    bpm: 160, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe', ganho: 0.9,
+    acordes: ['Cm', 'Ab', 'Bb', 'G', 'Cm', 'Fm', 'Ab', 'G7'],
+    melodia: `c6:1 -:1 c6:1 -:1 g5:1 -:1 c6:1 -:1 eb6:4 d6 c6 | ab5:4 c6:4 eb6:6 d6:2 |
+              bb5:1 -:1 bb5:1 -:1 f5:1 -:1 bb5:1 -:1 d6:4 c6 bb5 | b5:4 d6:4 g6:8 |
+              g6 f6 eb6 d6 c6:4 g5:4 | ab5 c6 f6:4 eb6 c6 ab5:4 | eb6:4 c6 ab5 eb6:4 g6:4 | f6:4 d6:4 b5 g5 f5:4`,
+  },
+
   /* ------------------------------------------------------------ vinhetas */
   cura: {
     bpm: 120, baixo: 'lento', vinheta: true,
@@ -360,6 +500,12 @@ export const MUSICAS = {
     bpm: 150, vinheta: true,
     acordes: ['F'],
     melodia: 'c5 f5 a5 c6:10',
+  },
+  /* venceu a luta: fanfarra curta em dó */
+  vitoria: {
+    bpm: 150, baixo: 'marcha', vinheta: true,
+    acordes: ['C', 'G C'],
+    melodia: 'g5 g5 g5 c6:6 e6:4 | d6 c6 b5 d6 c6:8',
   },
   derrota: {
     bpm: 70, baixo: 'lento', vinheta: true,

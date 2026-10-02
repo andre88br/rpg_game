@@ -115,14 +115,20 @@ mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
 desenho do mundo muda; conversa, batalha, menu e save são os de sempre. Vem
 ligado; quem prefere o mapa plano troca em **menu → OPÇÕES → VISÃO**.
 
-O jogo tem **som**. **Música, só nas cutscenes** — como trilha de cinema,
-mudando a cada momento da história: um acalanto para a avó na fogueira, uma
-marcha de trator para a Companhia Mata-Seca, forró atrevido para o Zeca,
-baião de pescador para o Mestre do Porto, perigo em frígio para o Boitatá.
-Fora delas o mundo e a batalha ficam com os **efeitos** (golpe, dano, patuá,
-porta, menu) e vinhetas curtas (cura, medalha, nível, captura). Como a arte,
-**o som também é feito por código**, sem nenhum arquivo de áudio. Volumes
-separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
+O jogo tem **som**. Nas **cutscenes**, a música é trilha de cinema e muda a
+cada momento da história: um acalanto para a avó na fogueira, uma marcha de
+trator para a Companhia Mata-Seca, forró atrevido para o Zeca, baião de
+pescador para o Mestre do Porto, perigo em frígio para o Boitatá. **Andando
+pelo mundo**, cada região tem o seu tema — baião praiano na Foz, toada na
+Mata, marcha de tropeiro na Serra, xote no Campo, tambores em Tupã, passeio
+grave nas Minas, mistério no Bairro da Cuca, galope na Cidade do Sol —, e
+há temas próprios para dentro de casa, para os terreiros e para o breu das
+cavernas. Na **batalha**, três: o bicho do mato, o treinador da estrada e o
+chefe (dono de terreiro, o Zeca, os guardiões e os bichos-chefe), com
+fanfarra de vitória no fim. Por cima de tudo, os **efeitos** (golpe, dano,
+patuá, porta, menu) e as vinhetas curtas (cura, medalha, nível, captura).
+Como a arte, **o som também é feito por código**, sem nenhum arquivo de
+áudio. Volumes separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
 
 Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
 

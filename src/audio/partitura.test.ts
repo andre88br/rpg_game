@@ -63,7 +63,7 @@ test('todas as músicas compilam, dentro da faixa que se ouve bem', () => {
 });
 
 test('só as vinhetas deixam de repetir', () => {
-  const vinhetas: IdMusica[] = ['cura', 'item', 'medalha', 'captura', 'nivel', 'derrota'];
+  const vinhetas: IdMusica[] = ['cura', 'item', 'medalha', 'captura', 'nivel', 'vitoria', 'derrota'];
   for (const [id, m] of Object.entries(MUSICAS)) {
     assert.equal(compilar(m).vinheta, vinhetas.includes(id as IdMusica), id);
   }

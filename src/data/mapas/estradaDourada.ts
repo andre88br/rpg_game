@@ -11,6 +11,7 @@ import type { DefMapa } from '../../world/tilemap.ts';
 export const estradaDourada: DefMapa = {
   id: 'estradaDourada',
   nome: 'ESTRADA DOURADA',
+  musica: 'mundoCirculo',
 
   chao: [
     '################################################', // 0

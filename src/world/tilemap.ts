@@ -15,6 +15,7 @@ import type { Cenario } from '../art/battlebg.ts';
 import type { Fala } from '../game/quests.ts';
 import type { DefPedra } from './pedras.ts';
 import type { DefCorrida } from '../game/corrida.ts';
+import type { IdMusica } from '../audio/musicas.ts';
 import { casaDaRegiao, terreiroDaRegiao, arenaDourada, balao, SOBRA } from '../art/predios.ts';
 import { regiaoDoMapa } from '../data/mundo.ts';
 
@@ -244,6 +245,9 @@ export interface DefMapa {
   saidas?: readonly DefSaida[];
   /* dentro de uma construcao: sem faixa de cidade e sem céu */
   interior?: boolean;
+  /* o tema que toca aqui, quando a regra de audio/temas.ts não serve (a
+     praça do Círculo fica na região do Sol, mas tem tema próprio) */
+  musica?: IdMusica;
   /* abrigo: e aqui que o jogador acorda depois de apagar no mato */
   refugio?: boolean;
   /* quem recebe o jogador que apagou, e o que essa pessoa diz */

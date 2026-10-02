@@ -3,8 +3,9 @@
    "toque o efeito tal" — sem saber de WebAudio, de volume, nem de se o
    áudio já destravou.
 
-   Música: uma de cada vez, repetindo — só nas cutscenes, onde cada tomada
-   pede o seu tema; a troca entre temas é um fade, não um corte. Vinheta (cura, medalha, item...):
+   Música: uma de cada vez, repetindo — o tema do mapa, o da batalha, ou o
+   que cada tomada de cutscene pede (quem escolhe os do mapa e da batalha é
+   audio/temas.ts); a troca entre temas é um fade, não um corte. Vinheta (cura, medalha, item...):
    interrompe a música, toca uma vez, e a música pedida volta do começo.
    Efeito: por cima de tudo, no canal dos efeitos.
 
@@ -63,6 +64,10 @@ export function musica(id: IdMusica | null): void {
   if (id) comecar(id, tocando ? 0.6 : 0.12);
   else { tocando = null; motor.calar(0.6); }
 }
+
+/* o tema pedido agora (o que toca, ou vai tocar quando o áudio destravar) —
+   para a depuração no navegador; o jogo nunca precisa perguntar */
+export function tocandoAgora(): IdMusica | null { return desejada; }
 
 export function vinheta(id: IdMusica): void {
   if (!motor || obterVolume('musica') === 0) return;

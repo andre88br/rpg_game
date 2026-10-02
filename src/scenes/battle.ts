@@ -374,6 +374,7 @@ export class CenaBatalha implements Cena {
         this.espera = 0.05;
         if (e.resultado === 'fuga') Som.efeito('fuga');
         else if (e.resultado === 'derrota') Som.vinheta('derrota');
+        else if (e.resultado === 'vitoria') Som.vinheta('vitoria');
         break;
       case 'aprender': case 'esquecer': case 'trocarForcado':
         this.espera = 0.05; break;

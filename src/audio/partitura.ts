@@ -43,6 +43,9 @@ export interface Musica {
   arpejo?: EstiloArpejo;
   /* toca uma vez e para (vinheta de cura, de medalha...) em vez de repetir */
   vinheta?: boolean;
+  /* volume da faixa inteira, 1 = o de sempre. Os temas do mundo tocam mais
+     baixo que os de cutscene, por baixo dos efeitos e das conversas. */
+  ganho?: number;
 }
 
 export interface NotaTocada { passo: number; dur: number; freq: number; voz: Voz }

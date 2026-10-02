@@ -12,6 +12,7 @@ import type { DefMapa } from '../../world/tilemap.ts';
 export const circuloDourado: DefMapa = {
   id: 'circuloDourado',
   nome: 'CÍRCULO DOURADO',
+  musica: 'mundoCirculo',
 
   chao: [
     '############################################', // 0

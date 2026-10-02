@@ -23,7 +23,7 @@ como a trilha funciona e entrega a primeira carta.
 
 **Visão 3D.** A Região da Foz aparece em 3D. Para voltar ao mapa plano:
 menu → **OPÇÕES** → **VISÃO** → **PLANA** (a velocidade do jogo e o volume
-da **MÚSICA** — que só toca nas cutscenes e nas vinhetas — e dos **EFEITOS**
+da **MÚSICA** — um tema por região, outro na batalha, e a trilha das cutscenes — e dos **EFEITOS**
 moram na mesma página; A ou as setas para os
 lados trocam o valor). Nada muda nas contas, nos caminhos nem nas coordenadas.
 

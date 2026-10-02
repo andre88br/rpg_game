@@ -60,6 +60,8 @@ import { tracarFeixe } from '../game/feixe.ts';
 import { avaliarCorrida, encerrar, type DefCorrida } from '../game/corrida.ts';
 import { salvar } from '../game/save.ts';
 import * as Som from '../audio/som.ts';
+import { temaDaBatalha, temaDoMapa } from '../audio/temas.ts';
+import type { IdMusica } from '../audio/musicas.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
 import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
 import { MenuPausa } from './menu.ts';
@@ -102,6 +104,8 @@ interface Duelo { npc: NpcVivo; fase: 'susto' | 'andando' | 'falando' | 'lutando
 
 export interface PedidoBatalha {
   oponentes: Encantado[];
+  /* o tema da luta (audio/temas.ts); ausente = bicho do mato */
+  musica?: IdMusica;
   treinador?: Treinador | null;
   cenario?: Cenario;
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
@@ -205,6 +209,7 @@ export class CenaMundo implements Cena {
       this.tempoFaixa = 0;
       this.dialogo.conversa = null;
       this.carencia = 0.6;
+      Som.musica(temaDoMapa(this.def));     // de volta da batalha ou da cutscene
       if (this.lutaDepois) this.esperaLuta = ESPERA_LUTA;
       this.resolverBatalha();
       return;
@@ -265,6 +270,7 @@ export class CenaMundo implements Cena {
     }
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
+    Som.musica(temaDoMapa(this.def));       // o mesmo tema não recomeça
     this.marcarVisita(id);
     this.dialogo.conversa = null;
     this.duelo = null;
@@ -632,6 +638,7 @@ export class CenaMundo implements Cena {
       },
       itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
+      musica: temaDaBatalha(t),
     });
   }
 

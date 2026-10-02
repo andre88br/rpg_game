@@ -200,6 +200,7 @@ export class Motor {
     for (const n of comp.notas) porPasso[n.passo]!.notas.push(n);
     for (const b of comp.batidas) porPasso[b.passo]!.batidas.push(b);
     const saida = this.ctx.createGain();
+    saida.gain.value = m.ganho ?? 1;
     saida.connect(this.busMusica);
     this.faixa = { comp, porPasso, saida, inicio: this.agora + Math.min(fade, 0.3) + 0.02, passo: 0, fim };
     this.relogio ??= setInterval(() => this.agendar(), INTERVALO_MS);

@@ -14,6 +14,7 @@ import { MEDALHAS } from '../art/badges.ts';
 import { quebrar, desenhavel } from '../art/font.ts';
 import type { Fala } from '../game/quests.ts';
 import { MUSICAS, type IdMusica } from '../audio/musicas.ts';
+import { temaDaBatalha, temaDoMapa } from '../audio/temas.ts';
 
 test('a abertura existe e tem tomadas', () => {
   assert.ok(CUTSCENES['intro']);
@@ -360,10 +361,15 @@ test('toda cutscene começa dizendo o tema, e todo tema pedido existe', () => {
   }
 });
 
-test('todo tema que não é vinheta toca em alguma cutscene', () => {
-  const usados = new Set(Object.values(CUTSCENES).flatMap((r) => r.map((t) => t.musica)));
+test('todo tema que não é vinheta toca em algum lugar: cutscene, mapa ou batalha', () => {
+  const usados = new Set<IdMusica | undefined>([
+    ...Object.values(CUTSCENES).flatMap((r) => r.map((t) => t.musica)),
+    ...Object.values(MAPAS).map((d) => temaDoMapa(d)),
+    temaDaBatalha(null),
+    ...Object.values(MAPAS).flatMap((d) => d.npcs.flatMap((n) => (n.treinador ? [temaDaBatalha(n.treinador)] : []))),
+  ]);
   for (const [id, m] of Object.entries(MUSICAS)) {
     if ('vinheta' in m && m.vinheta) continue;
-    assert.ok(usados.has(id as IdMusica), `o tema "${id}" não toca em cutscene nenhuma`);
+    assert.ok(usados.has(id as IdMusica), `o tema "${id}" não toca em lugar nenhum`);
   }
 });

@@ -47,7 +47,8 @@ src/
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no plano)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
 │             notas; baixo, bateria e arpejo saem dos acordes) + teste
-│             musicas.ts (os temas das cutscenes e as vinhetas)
+│             musicas.ts (os temas das cutscenes, do mundo, da batalha e as vinhetas)
+│             temas.ts (qual tema toca em cada mapa e em cada batalha) + teste
 │             motor.ts (o sintetizador WebAudio: pulso, triângulo, ruído)
 │             som.ts (o que as cenas chamam: música, vinheta, efeito)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
@@ -120,12 +121,13 @@ estilo (`baiao`, `galope`, `marcha`, `passeio`...), então compor uma música
 nova é escrever a melodia e a harmonia. A música é agendada ~150 ms à frente
 no relógio do áudio, para o ritmo não tremer quando um quadro atrasa.
 
-**Música só nas cutscenes, por tomada.** Cada `Tomada` em
+**Na cutscene, a música é por tomada.** Cada `Tomada` em
 `data/cutscenes.ts` pode dizer `musica: '<tema>'`; sem isso, segue o tema da
 anterior, e a primeira de todo roteiro precisa dizer (o teste cobra, e cobra
 também que nenhum tema fique sem tocar). Trocar de tema no meio da cena é um
 fade de 0,6 s; o mesmo tema em tomadas seguidas não recomeça; ao acabar ou
-pular a cutscene, a música some. Os temas saem do roteiro:
+pular a cutscene, a música some, e o mundo põe o tema dele de volta. Os
+temas saem do roteiro:
 
 | tema | o tom | onde toca hoje |
 |---|---|---|
@@ -174,8 +176,35 @@ Os temas que não são de região (`companhia`, `lembranca`, `encantados`, `zeca
 `viagem`, `trilha`, `porto`, `fogueira`) voltam em todas elas: a Companhia
 sempre soa igual, toda lembrança tem a moldura e o tema de lembrança, todo
 Encantado exclusivo desce com `encantados`, e toda saída de região é `viagem`. Cura,
-medalha, item, subir de nível, captura e derrota são **vinhetas**: tocam uma
-vez, também fora das cutscenes.
+medalha, item, subir de nível, captura, vitória e derrota são **vinhetas**:
+tocam uma vez, interrompem a música da vez e a devolvem do começo.
+
+**No mundo e na batalha, a música é por lugar.** Os temas do mundo são
+outros, mais longos (16 compassos, para o laço não cansar) e mais baixos — o
+campo `ganho` de `Musica` baixa a faixa inteira no motor. Quem escolhe é
+`audio/temas.ts`, puro e testado:
+
+| onde | tema |
+|---|---|
+| ao ar livre, por região | `mundoFoz` · `mundoMata` · `mundoSerra` · `mundoCampo` · `mundoTupa` · `mundoMinas` · `mundoCuca` · `mundoSol` |
+| a praça do Círculo e a Estrada Dourada | `mundoCirculo` (pedido no próprio mapa: `musica` em `DefMapa`) |
+| dentro de casa, loja, benzimento | `casa` |
+| terreiros e a arena | `terreiro` |
+| mapa com `escuro` (caverna, casarão, os salões no breu) | `breu` |
+| bicho do mato alto, e o bicho-ladrão (Sacizinho, Caiporinha) | `batalhaSelvagem` |
+| treinador da estrada, guarda de terreiro | `batalhaTreinador` |
+| dono de terreiro, o Zeca, guardião, campeão, revanche, bicho-chefe | `batalhaChefe` |
+
+`temaDoMapa` olha, nesta ordem: o `musica` do mapa, o `escuro`, se é terreiro
+(o id ou `zeraAoEntrar`), se é interior, e por fim a região. `temaDaBatalha`
+decide pela `classe` do treinador (DONO/DONA, REVANCHE, RIVAL, MOLEQUE DA
+VILA — o Zeca —, GUARDIÃ(O), CAMPEÃO, BICHO, CHEFE); "GUARDA DO..." fica de
+fora. A cena do mundo pede o tema ao montar o mapa e ao voltar de batalha
+ou cutscene; `main.ts` pede o da batalha ao começar a luta (`PedidoBatalha.
+musica`); os créditos tocam `campeao`, e o título fica em silêncio. Pedir o
+tema que já toca não o recomeça — entrar e sair de casa só troca o tema
+quando ele muda. O teste de cutscenes cobra que nenhum tema fique sem tocar
+em lugar nenhum: cutscene, mapa ou batalha.
 
 **O clique de interface** não está espalhado pelas telas: `Entrada` sabe o
 que cada cena de fato *usou* no quadro (`usadasNoQuadro`), e o laço toca um

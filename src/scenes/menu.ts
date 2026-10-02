@@ -215,6 +215,8 @@ export class MenuPausa {
   private naPagina(entrada: Entrada): SaidaMenu {
     if (this.pagina === 'sair') {
       this.sel = this.andar(entrada, this.sel, 2);
+      // SIM e NÃO ficam lado a lado: as setas para os lados também escolhem
+      if (entrada.apertou('esq') || entrada.apertou('dir')) this.sel = 1 - this.sel;
       if (entrada.apertou('b')) { this.pagina = 'raiz'; this.sel = 0; return 'aberto'; }
       if (entrada.apertou('a')) {
         if (this.sel === 0) return 'titulo';

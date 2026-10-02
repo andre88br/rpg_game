@@ -75,6 +75,7 @@ function lutar(p: PedidoBatalha): void {
   const est = estado!;
   const cena = mundo!;
   Som.efeito('encontro');
+  Som.musica(p.musica ?? 'batalhaSelvagem');
   cenas.trocar(new CenaBatalha({
     estado: est,
     oponentes: p.oponentes,
@@ -164,6 +165,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 Object.assign(window as unknown as Record<string, unknown>, {
   jogo: {
     r, entrada, cenas, laco, regiao, lutar, LARGURA, ALTURA,
+    musica: () => Som.tocandoAgora(),
     get estado() { return estado; },
     get mundo() { return mundo; },
   },
