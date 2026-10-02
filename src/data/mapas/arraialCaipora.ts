@@ -137,13 +137,18 @@ export const arraialCaipora: DefMapa = {
       id: 'ourives', nome: 'OURIVES', estilo: 'aldeao',
       tx: 32, ty: 24, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_diamantes', seNao: 'item:cantiga_pedra', cantiga: 'cantiga_pedra', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina TERREMOTO a quem for de Terra, Fogo ou Raio. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_diamantes', linhas: [
           'Os três diamantes já estão lapidados. E dizem que a Caipora anda rondando a Cava Funda.'] },
-        { se: 'item:diamante>=3', pede: { item: 'diamante', n: 3 }, liga: 'servico_diamantes',
+        { se: 'item:diamante>=3', pede: { item: 'diamante', n: 3 }, liga: 'servico_diamantes', cantiga: 'cantiga_pedra',
           paga: 4000, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'TRÊS diamantes brutos! Isso é trabalho de uma vida inteira de garimpo.',
           'Toma o que eu tenho de melhor, e o dinheiro. Negócio justo.',
-          'E escuta: quem acha três diamantes, a Caipora vem conhecer. Olha no fundo da Cava.'] },
+          'E escuta: quem acha três diamantes, a Caipora vem conhecer. Olha no fundo da Cava.',
+          'E leva esta cantiga também: ela ensina TERREMOTO a quem for de Terra, Fogo ou Raio. Não se gasta.'] },
         { linhas: [
           'Três diamantes estão enterrados nas Minas: um no vale da Boca, um nas Galerias, um na Cava Funda.',
           'Com a forquilha você acha. Me traz os três que eu pago bem.'] },

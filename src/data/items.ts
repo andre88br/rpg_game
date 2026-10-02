@@ -5,13 +5,17 @@
    o Encantado. Quanto melhor o patuá, maior o bônus na conta de captura.
    ========================================================================= */
 import type { Status } from '../battle/status.ts';
+import type { Tipo } from '../art/palette.ts';
 
 export type EfeitoItem =
   | { k: 'nenhum' }                    // item de recado: vale pelo que destrava
   | { k: 'patua'; bonus: number }
   | { k: 'cura'; hp: number }
   | { k: 'limpar'; status: readonly Status[] | 'todos' }
-  | { k: 'reviver'; fracao: number };
+  | { k: 'reviver'; fracao: number }
+  /* ensina um golpe a quem tiver um dos `tipos` (ou a qualquer um, com
+     'todos'). Não se gasta: fica na mochila para ensinar a outros */
+  | { k: 'cantiga'; golpe: string; tipos: readonly Tipo[] | 'todos' };
 
 export interface Item {
   id: string;
@@ -22,6 +26,8 @@ export interface Item {
   descricao: string;
   /* item de serviço: não se compra, não se vende, não se usa à toa */
   chave?: boolean;
+  /* só aparece na prateleira das lojas depois desta medalha */
+  medalha?: string;
 }
 
 const LISTA: readonly Item[] = [
@@ -127,6 +133,43 @@ const LISTA: readonly Item[] = [
   { id: 'mapa_sombra', nome: 'Mapa do Bairro', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'O Bairro da Cuca, beco por beco. Com ele, o Mapa do Mundo mostra a planta de cada lugar dela.' },
+
+  /* ---- cantigas: ensinam um golpe e não se gastam ----
+     As de prêmio vêm dos serviços opcionais de cada região; as de loja
+     aparecem em qualquer balcão depois da medalha marcada. */
+  { id: 'cantiga_sino', nome: 'Cantiga do Sino', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'grito', tipos: 'todos' },
+    descricao: 'Ensina Grito de Guerra a qualquer Encantado. Prêmio do Sineiro da Serra.' },
+  { id: 'cantiga_capim', nome: 'Cantiga do Capim', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'fecha_corpo', tipos: 'todos' },
+    descricao: 'Ensina Fecha-Corpo a qualquer Encantado. Prêmio do Capinzeiro do Campo.' },
+  { id: 'cantiga_trovao', nome: 'Cantiga do Trovão', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'trovao_seco', tipos: ['raio', 'vento', 'agua'] },
+    descricao: 'Ensina Trovão Seco a Raio, Vento ou Água. Prêmio da Tecelã de Tupã.' },
+  { id: 'cantiga_pedra', nome: 'Cantiga da Pedra', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'terremoto', tipos: ['terra', 'fogo', 'raio'] },
+    descricao: 'Ensina Terremoto a Terra, Fogo ou Raio. Prêmio do Ourives das Minas.' },
+  { id: 'cantiga_retrato', nome: 'Cantiga do Retrato', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'mau_sonho', tipos: ['sombra', 'vento', 'agua', 'luz'] },
+    descricao: 'Ensina Mau Sonho a Sombra, Vento, Água ou Luz. Prêmio da Velha do Bairro.' },
+  { id: 'cantiga_cristal', nome: 'Cantiga do Cristal', preco: 0, emBatalha: false, chave: true,
+    efeito: { k: 'cantiga', golpe: 'feixe', tipos: ['luz', 'fogo', 'raio', 'agua'] },
+    descricao: 'Ensina Feixe a Luz, Fogo, Raio ou Água. Prêmio da Joalheira do Sol.' },
+  { id: 'cantiga_pisao', nome: 'Cantiga do Pisão', preco: 3000, emBatalha: false, medalha: 'breu',
+    efeito: { k: 'cantiga', golpe: 'pisao', tipos: 'todos' },
+    descricao: 'Ensina Pisão a qualquer Encantado. Não se gasta.' },
+  { id: 'cantiga_cachoeira', nome: 'Cantiga da Cachoeira', preco: 4000, emBatalha: false, medalha: 'aurora',
+    efeito: { k: 'cantiga', golpe: 'cachoeira', tipos: ['agua', 'planta', 'vento', 'sombra'] },
+    descricao: 'Ensina Cachoeira a Água, Planta, Vento ou Sombra. Não se gasta.' },
+  { id: 'cantiga_tronco', nome: 'Cantiga do Tronco', preco: 4000, emBatalha: false, medalha: 'aurora',
+    efeito: { k: 'cantiga', golpe: 'tronco', tipos: ['planta', 'terra', 'luz'] },
+    descricao: 'Ensina Tronco a Planta, Terra ou Luz. Não se gasta.' },
+  { id: 'cantiga_rasante', nome: 'Cantiga do Rasante', preco: 5000, emBatalha: false, medalha: 'aurora',
+    efeito: { k: 'cantiga', golpe: 'rasante', tipos: ['vento', 'fogo', 'sombra', 'luz'] },
+    descricao: 'Ensina Rasante a Vento, Fogo, Sombra ou Luz. Não se gasta.' },
+  { id: 'cantiga_coice', nome: 'Cantiga do Coice', preco: 5000, emBatalha: false, medalha: 'aurora',
+    efeito: { k: 'cantiga', golpe: 'coice_brasa', tipos: ['fogo', 'terra', 'raio'] },
+    descricao: 'Ensina Coice de Brasa a Fogo, Terra ou Raio. Não se gasta.' },
 ];
 
 export const ITENS: Record<string, Item> =
@@ -140,9 +183,22 @@ export function item(id: string): Item {
 
 export const ITENS_ORDEM: readonly string[] = LISTA.map((i) => i.id);
 
-/* o que a loja de Porto Iara põe na prateleira */
+/* o que as lojas põem na prateleira; o que pede medalha só aparece depois
+   dela (ver `aVendaPara`) */
 export const ITENS_A_VENDA: readonly string[] =
   LISTA.filter((i) => !i.chave && i.preco > 0).map((i) => i.id);
+
+export function aVendaPara(medalhas: readonly string[]): string[] {
+  return ITENS_A_VENDA.filter((id) => {
+    const m = ITENS[id]!.medalha;
+    return !m || medalhas.includes(m);
+  });
+}
+
+/* a cantiga não se gasta: uma na mochila basta para sempre */
+export function maximoNaMochila(id: string): number {
+  return ITENS[id]?.efeito.k === 'cantiga' ? 1 : 99;
+}
 
 /* ------------------------------------------------------------- mochila */
 

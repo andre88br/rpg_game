@@ -25,6 +25,18 @@ export function linhaBicho(r: Renderizador, e: Encantado, y: number, selecionado
   r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
 }
 
+/* A etiqueta de tipo de um golpe: moldura escura por fora, miolo claro por
+   dentro — direto em cima da cor escura, o texto dos golpes COMUNS (quase
+   preta) some. O mesmo truque da tela de poder. */
+export function etiquetaTipo(r: Renderizador, info: { nome: string; cor: string; corD: string },
+                             x: number, y: number, letras = 5): void {
+  const texto = info.nome.slice(0, letras);
+  const w = r.larguraTexto(texto) + 6;
+  r.retangulo(x, y - 1, w, 9, info.corD);
+  r.retangulo(x + 1, y, w - 2, 7, info.cor);
+  r.texto(texto, x + 3, y, P.uiInk!);
+}
+
 /* moldura de tela cheia: título em cima, rodapé com os botões embaixo */
 export function telaCheia(r: Renderizador, caixa: Assado, titulo: string, rodape: string): void {
   r.sprite(caixa, 4, 4);
@@ -38,11 +50,13 @@ export interface OpcoesListaTime {
   emCampo?: number;
   /* índice de quem foi "pego" na mão, esperando trocar de lugar com outro */
   peguei?: number;
+  /* um rótulo por linha no lugar do estado (a cantiga diz PODE / NÃO PODE) */
+  etiqueta?: (i: number) => { texto: string; cor: string } | null;
 }
 
 export function listaTime(r: Renderizador, time: readonly Encantado[], sel: number,
                           opt: OpcoesListaTime = {}): void {
-  const { emCampo = -1, peguei } = opt;
+  const { emCampo = -1, peguei, etiqueta } = opt;
   time.forEach((e, i) => {
     const y = 28 + i * 21;
     const caido = desmaiado(e);
@@ -65,7 +79,9 @@ export function listaTime(r: Renderizador, time: readonly Encantado[], sel: numb
     const tipo = ficha(e).tipos[0]!;
     r.retangulo(22, y + 9, 26, 8, TIPOS[tipo].corD);
     r.texto(TIPOS[tipo].nome.slice(0, 4), 24, y + 10, P.uiInk!);
-    if (caido) r.texto('CAÍDO', 56, y + 10, P.hpRed!);
+    const rotulo = etiqueta?.(i);
+    if (rotulo) r.texto(rotulo.texto, 56, y + 10, rotulo.cor);
+    else if (caido) r.texto('CAÍDO', 56, y + 10, P.hpRed!);
     else if (i === emCampo) r.texto('EM CAMPO', 56, y + 10, P.uiAccD!);
     else if (e.status) r.texto(STATUS[e.status].sigla, 56, y + 10, UI.statusCor(STATUS[e.status].sigla));
   });

@@ -45,6 +45,16 @@ export const benzimentoCirculo: DefMapa = {
           'Lembra: lá dentro não tem gamela. O que você levar na mochila é o que você tem.'] },
       ],
     },
+    /* o Rezador: faz lembrar golpe esquecido, a dinheiro (scenes/rezador.ts) */
+    {
+      id: 'rezador_circulo', nome: 'REZADOR', estilo: 'paje',
+      tx: 2, ty: 3, dir: 'baixo',
+      falas: [
+        { rezador: true, linhas: [
+          'Tem golpe que o Encantado esquece, mas a reza traz de volta.',
+          'Oitocentos réis por reza. Escolha quem, e o que ele vai lembrar.'] },
+      ],
+    },
   ],
 
   inicio: { tx: 7, ty: 8, dir: 'cima' },

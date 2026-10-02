@@ -116,15 +116,20 @@ export const vilaFornalha: DefMapa = {
       id: 'sineiro', nome: 'SINEIRO DA CAPELA', estilo: 'aldeao',
       tx: 12, ty: 19, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_sinos', seNao: 'item:cantiga_sino', cantiga: 'cantiga_sino', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina GRITO DE GUERRA a qualquer Encantado. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_sinos', linhas: [
           'Os três de volta na torre, tocando juntos. A serra inteira ouviu, {crianca}.',
           'Dizem que a Mãe-do-Ouro também ouve esse som. Se for verdade, ela sabe onde te achar.'] },
         /* serviço opcional: não trava guia nenhuma, mas paga bem */
-        { se: 'item:sino>=3', pede: { item: 'sino', n: 3 }, liga: 'servico_sinos',
+        { se: 'item:sino>=3', pede: { item: 'sino', n: 3 }, liga: 'servico_sinos', cantiga: 'cantiga_sino',
           paga: 3000, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'Os TRÊS! Eu já tinha me conformado de morrer sem ouvir os três juntos.',
           'Toma o que eu tenho de melhor guardado, e o dinheiro da capela junto.',
-          'E fique de olho no fundo da caverna. Sino tocado atrai o que brilha.'] },
+          'E fique de olho no fundo da caverna. Sino tocado atrai o que brilha.',
+          'E leva esta cantiga também: ela ensina GRITO DE GUERRA a qualquer Encantado. Não se gasta.'] },
         { linhas: [
           'A capela da serra tinha três sinos de bronze. O vento levou os três, cada um pro seu canto.',
           'Um ficou na trilha, um aqui na vila mesmo, e o terceiro lá em cima na cumeeira.',

@@ -105,6 +105,33 @@ elas e só no fim da trilha:
 | Acalanto da Cuca | Cuca-Rainha | 68 |
 | Eclipse Total | Eclipse | 70 |
 
+**O Rezador.** Em todo benzimento, à esquerda de quem entra, um Rezador faz
+um Encantado **lembrar** um golpe que já soube — ou que já teria aprendido no
+nível dele, nesta forma ou na de antes (o Curupirá lembra a Raiz Sugadora do
+tempo de Curupinho). **800 réis por reza.** Com quatro golpes, ele pergunta
+qual esquecer.
+
+**Cantigas.** Ensinam um golpe fora do nível e **não se gastam**: uma basta
+para ensinar a quantos quiser (menu → MOCHILA → a cantiga → quem aprende; a
+lista mostra PODE, NÃO PODE e JÁ SABE).
+
+| cantiga | ensina | a quem | onde |
+|---|---|---|---|
+| Cantiga do Sino | Grito de Guerra | qualquer um | Sineiro, Vila Fornalha (os 3 sinos) |
+| Cantiga do Capim | Fecha-Corpo | qualquer um | Capinzeiro, Aldeia Catavento (os 3 capins) |
+| Cantiga do Trovão | Trovão Seco | Raio, Vento, Água | Tecelã, Aldeia Tupã (as 3 penas) |
+| Cantiga da Pedra | Terremoto | Terra, Fogo, Raio | Ourives, Arraial da Caipora (os 3 diamantes) |
+| Cantiga do Retrato | Mau Sonho | Sombra, Vento, Água, Luz | Velha do Bairro, Bairro da Cuca (os 3 retratos) |
+| Cantiga do Cristal | Feixe | Luz, Fogo, Raio, Água | Joalheira, Cidade do Sol (os 3 cristais) |
+| Cantiga do Pisão | Pisão | qualquer um | qualquer loja, depois da Medalha Breu (3000) |
+| Cantiga da Cachoeira | Cachoeira | Água, Planta, Vento, Sombra | qualquer loja, depois da Medalha Aurora (4000) |
+| Cantiga do Tronco | Tronco | Planta, Terra, Luz | qualquer loja, depois da Medalha Aurora (4000) |
+| Cantiga do Rasante | Rasante | Vento, Fogo, Sombra, Luz | qualquer loja, depois da Medalha Aurora (5000) |
+| Cantiga do Coice | Coice de Brasa | Fogo, Terra, Raio | qualquer loja, depois da Medalha Aurora (5000) |
+
+Quem já tinha feito o serviço antes das cantigas existirem recebe a dele
+falando de novo com quem pagou o serviço.
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.

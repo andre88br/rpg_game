@@ -134,14 +134,19 @@ export const aldeiaTupa: DefMapa = {
       id: 'tecela', nome: 'TECELÃ', estilo: 'firmina',
       tx: 30, ty: 25, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_penas_trovao', seNao: 'item:cantiga_trovao', cantiga: 'cantiga_trovao', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina TROVÃO SECO a quem for de Raio, Vento ou Água. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_penas_trovao', linhas: [
           'A rede de penas ficou pronta. Pendurei no alto da aldeia, pra chamar a chuva certa.'] },
         /* serviço opcional: não trava guia nenhuma, mas paga bem */
-        { se: 'item:pena_trovao>=3', pede: { item: 'pena_trovao', n: 3 }, liga: 'servico_penas_trovao',
+        { se: 'item:pena_trovao>=3', pede: { item: 'pena_trovao', n: 3 }, liga: 'servico_penas_trovao', cantiga: 'cantiga_trovao',
           paga: 3500, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'As TRÊS penas de trovão! Com elas eu fecho a rede de chamar chuva.',
           'Toma o que eu tenho de melhor guardado, e o dinheiro que a aldeia separou.',
-          'E escuta: quando a chuva vier, olha pra trás do casarão do charco. Tem coisa que só aparece depois.'] },
+          'E escuta: quando a chuva vier, olha pra trás do casarão do charco. Tem coisa que só aparece depois.',
+          'E leva esta cantiga também: ela ensina TROVÃO SECO a quem for de Raio, Vento ou Água. Não se gasta.'] },
         { linhas: [
           'Três penas de trovão caíram pela região: uma aqui na aldeia, uma no charco, uma lá no morro.',
           'Me traz as três e eu te pago bem. Pena de trovão arrepia sozinha — é fácil de reconhecer.'] },

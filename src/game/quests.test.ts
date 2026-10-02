@@ -221,3 +221,20 @@ test('resposta errada desliga o progresso e não aplica nada', () => {
   assert.equal(ligada(e, 'charada2_ok'), false);
   assert.equal(e.dinheiro, antes);
 });
+
+test('a fala que dá cantiga entrega uma vez só: ela não se gasta', () => {
+  const e = novoJogo();
+  const mochila = { adicionar: (id: string, n: number) => adicionar(e.mochila, id, n),
+                    consumir: (id: string, n: number) => consumir(e.mochila, id, n) };
+  const f = { cantiga: 'cantiga_capim', linhas: ['Toma.'] };
+  assert.equal(aplicarFala(e, f, mochila).deu, 'cantiga_capim');
+  aplicarFala(e, f, mochila);
+  assert.equal(quantidade(e.mochila, 'cantiga_capim'), 1);
+});
+
+test('a fala do Rezador abre a tela dele', () => {
+  const e = novoJogo();
+  const mochila = { adicionar: () => {}, consumir: () => true };
+  assert.equal(aplicarFala(e, { rezador: true, linhas: ['...'] }, mochila).rezador, true);
+  assert.equal(aplicarFala(e, { linhas: ['...'] }, mochila).rezador, false);
+});

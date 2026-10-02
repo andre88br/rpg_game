@@ -68,6 +68,7 @@ import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
 import { EscolhaInicial } from './escolha.ts';
 import { TelaCaixa } from './caixa.ts';
+import { TelaRezador } from './rezador.ts';
 import { TelaPoder } from './poder.ts';
 import { Dialogo, type Conversa } from './mundo/dialogo.ts';
 import { CorteDaGuia } from './mundo/corteGuia.ts';
@@ -162,11 +163,13 @@ export class CenaMundo implements Cena {
   private loja: Loja | null = null;
   private escolha: EscolhaInicial | null = null;
   private telaCaixa: TelaCaixa | null = null;
+  private telaRezador: TelaRezador | null = null;
   private telaPoder: TelaPoder | null = null;
   private emMenu = false;
   private emLoja = false;
   private emEscolha = false;
   private emCaixa = false;
+  private emRezador = false;
   private emPoder = false;
   /* deslizando numa poça: o passo continua sozinho até bater em alguma coisa */
   private deslizando = false;
@@ -230,6 +233,7 @@ export class CenaMundo implements Cena {
     this.loja = new Loja(this.op.estado);
     this.escolha = new EscolhaInicial();
     this.telaCaixa = new TelaCaixa(this.op.estado);
+    this.telaRezador = new TelaRezador(this.op.estado);
     this.telaPoder = new TelaPoder(this.op.estado);
 
     /* o relógio de uma corrida não vai para o save: quem volta com uma
@@ -511,6 +515,7 @@ export class CenaMundo implements Cena {
       this.escolha!.abrir((id) => this.receberInicial(id));
     }
     if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
+    if (efeito.rezador) { this.emRezador = true; this.telaRezador!.abrir(); }
     /* um Encantado que acaba de entrar por fala é a mesma oferta de reordenar
        que uma captura dá — só que sem passar pela tela de batalha. Se ele
        chega com cutscene (a Mãe-do-Ouro descendo do teto), a oferta ficaria
@@ -900,7 +905,7 @@ export class CenaMundo implements Cena {
 
     // uma cutscene da história: entra assim que a conversa que a pediu fecha
     if (this.historiaPendente && !this.falando && !this.indo && !this.duelo
-        && !this.emLoja && !this.emMenu && !this.emEscolha && !this.emCaixa && !this.emPoder) {
+        && !this.emLoja && !this.emMenu && !this.emEscolha && !this.emCaixa && !this.emRezador && !this.emPoder) {
       const id = this.historiaPendente;
       this.historiaPendente = null;
       salvar(this.op.estado);
@@ -929,7 +934,7 @@ export class CenaMundo implements Cena {
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
     // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)
     if (this.corte.esperando && !this.falando && !this.emLoja && !this.emMenu
-        && !this.emEscolha && !this.emCaixa && !this.emPoder && !this.indo && !this.duelo) {
+        && !this.emEscolha && !this.emCaixa && !this.emRezador && !this.emPoder && !this.indo && !this.duelo) {
       this.corte.iniciar(this.op.mundo, this.contexto());
       return;
     }
@@ -951,6 +956,11 @@ export class CenaMundo implements Cena {
     }
     if (this.emEscolha) {
       if (this.escolha!.atualizar(dt, entrada) === 'fechar') this.emEscolha = false;
+      return;
+    }
+    if (this.emRezador) {
+      // a reza gasta dinheiro: grava ao sair, como depois de qualquer compra de serviço
+      if (this.telaRezador!.atualizar(dt, entrada) === 'fechar') { this.emRezador = false; salvar(this.op.estado); }
       return;
     }
     if (this.emCaixa) {
@@ -1297,6 +1307,7 @@ export class CenaMundo implements Cena {
     if (this.emEscolha) { r.cortina(0.45); this.escolha!.desenhar(r); }
     else if (this.emLoja) { r.cortina(0.45); this.loja!.desenhar(r); }
     else if (this.emCaixa) { r.cortina(0.45); this.telaCaixa!.desenhar(r); }
+    else if (this.emRezador) { r.cortina(0.45); this.telaRezador!.desenhar(r); }
     else if (this.emPoder) { r.cortina(0.45); this.telaPoder!.desenhar(r); }
     else if (this.emMenu) { r.cortina(0.45); this.menu!.desenhar(r); }
   }

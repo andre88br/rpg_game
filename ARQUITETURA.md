@@ -41,6 +41,7 @@ src/
 │             avisos.ts (o que placa, tranca e guia dizem ao A)
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
+│             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
 │             + *.test.ts (puros)
 ├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
 │             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
@@ -54,11 +55,13 @@ src/
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
 │             arquivos.ts (baixar, copiar, escolher arquivo, colar: o DOM)
+│             esquecer.ts ("esquecer qual golpe?", do Rezador e da cantiga)
 ├─ scenes/    title.ts · overworld.ts (a cena do mundo: coordena) · battle.ts
 │             mundo/ (os pedaços da cena do mundo: dialogo.ts, a caixa de
 │             conversa e a charada · corteGuia.ts, o corte de câmera para a
 │             guia · pintor.ts, o desenho do mundo plano e do breu)
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
+│             rezador.ts (o Rezador do benzimento: lembrar golpe a dinheiro)
 │             creditos.ts (o fim do Círculo Dourado)
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
@@ -305,6 +308,16 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
   todo golpe tem quem o aprenda, que as listas estão em ordem de nível, e
   roda uma simulação de equilíbrio no nível 60 (todas as formas finais contra
   todas) como alarme contra golpe quebrado.
+- **Golpes fora do nível.** `game/golpes.ts` é puro: `relembraveis` junta o
+  que a espécie e as formas de antes dela (pela cadeia `evolui.em`) aprendem
+  até o nível de agora, menos o que ele sabe — sem campo novo no save;
+  `compatibilidade` diz se uma cantiga serve (`tipos` ou `'todos'`); `ensinar`
+  põe na vaga ou troca o golpe escolhido. O Rezador é uma fala com
+  `rezador: true` (como o baú tem `caixa: true`) que abre `scenes/rezador.ts`;
+  a cantiga é um item `{ k: 'cantiga', golpe, tipos }` que não se gasta —
+  `Fala.cantiga` entrega uma se ainda não estiver na mochila, e a de loja tem
+  `medalha` (só aparece no balcão depois dela, `aVendaPara`) e máximo de uma
+  (`maximoNaMochila`).
 - **Captura.** Chance cresce com o dano levado, com o estado alterado e com a
   qualidade do patuá. Os quatro balanços da animação são a mesma chance dividida
   em quatro sorteios: se balançar as quatro vezes, pegou.

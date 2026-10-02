@@ -46,6 +46,16 @@ export const benzimentoPortoIara: DefMapa = {
           'E fique tranquila: se apagar no mato, é aqui que você acorda.'] },
       ],
     },
+    /* o Rezador: faz lembrar golpe esquecido, a dinheiro (scenes/rezador.ts) */
+    {
+      id: 'rezador_portoIara', nome: 'REZADOR', estilo: 'paje',
+      tx: 2, ty: 3, dir: 'baixo',
+      falas: [
+        { rezador: true, linhas: [
+          'Tem golpe que o Encantado esquece, mas a reza traz de volta.',
+          'Oitocentos réis por reza. Escolha quem, e o que ele vai lembrar.'] },
+      ],
+    },
   ],
 
   inicio: { tx: 7, ty: 8, dir: 'cima' },

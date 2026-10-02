@@ -72,6 +72,10 @@ export interface Fala {
   loja?: boolean;           // abre o balcão
   escolher?: boolean;       // abre a escolha do Encantado inicial
   caixa?: boolean;          // abre a caixa da benzedeira
+  rezador?: boolean;        // abre o Rezador: lembrar golpe esquecido, a dinheiro
+  /* entrega esta cantiga, se ainda não estiver na mochila (ela não se gasta;
+     uma basta) — é como os serviços opcionais pagam com golpe */
+  cantiga?: string;
   medalha?: string;         // entrega a medalha do terreiro
   dom?: string;             // e o Dom de Campo que vem junto com ela
   /* entrega um Encantado pronto, direto no time (ou na caixa, se não couber) */
@@ -121,6 +125,7 @@ export interface EfeitoFala {
   loja: boolean;
   escolher: boolean;
   caixa: boolean;
+  rezador: boolean;
   deu: string | null;        // item recebido, para anunciar
   levou: string | null;      // item entregue
   medalha: string | null;    // medalha conquistada agora
@@ -132,7 +137,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   consumir: (id: string, n: number) => boolean;
 }): EfeitoFala {
   const efeito: EfeitoFala = {
-    curou: false, batalha: false, loja: false, escolher: false, caixa: false,
+    curou: false, batalha: false, loja: false, escolher: false, caixa: false, rezador: false,
     deu: null, levou: null, medalha: null, encantado: null,
   };
 
@@ -146,6 +151,10 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
     const n = f.da.n ?? 1;
     mochila.adicionar(f.da.item, n);
     efeito.deu = f.da.item;
+  }
+  if (f.cantiga && quantidade(e.mochila, f.cantiga) === 0) {
+    mochila.adicionar(f.cantiga, 1);
+    efeito.deu ??= f.cantiga;
   }
   if (f.paga) e.dinheiro = Math.max(0, e.dinheiro + f.paga);
   for (const flag of lista(f.liga)) e.flags[flag] = true;
@@ -166,6 +175,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   efeito.loja = f.loja === true;
   efeito.escolher = f.escolher === true;
   efeito.caixa = f.caixa === true;
+  efeito.rezador = f.rezador === true;
   return efeito;
 }
 

@@ -190,6 +190,7 @@ test('toda fala cita item que existe', () => {
       for (const f of n.falas) {
         if (f.da) assert.ok(ITENS[f.da.item], `${id}/${n.id}: dá item desconhecido "${f.da.item}"`);
         if (f.pede) assert.ok(ITENS[f.pede.item], `${id}/${n.id}: pede item desconhecido "${f.pede.item}"`);
+        if (f.cantiga) assert.equal(ITENS[f.cantiga]?.efeito.k, 'cantiga', `${id}/${n.id}: "${f.cantiga}" não é cantiga`);
         assert.ok(f.linhas.length > 0, `${id}/${n.id}: fala sem nenhuma linha`);
       }
     }
@@ -392,5 +393,21 @@ test('a Dona Firmina explica a trilha quando entrega a primeira carta', () => {
   const texto = f.linhas.join(' ');
   for (const palavra of ['guia de cinco contas', 'medalha', 'Dom', 'patuá', 'Porto Iara']) {
     assert.ok(texto.includes(palavra), `a explicação não fala de "${palavra}"`);
+  }
+});
+
+test('todo benzimento tem o Rezador', () => {
+  for (const [id, def] of entradas) {
+    if (!id.startsWith('benzimento')) continue;
+    assert.ok(def.npcs.some((n) => n.falas.some((f) => f.rezador)), `${id}: sem Rezador`);
+  }
+});
+
+test('toda cantiga de prêmio tem quem a entregue, e a de loja tem medalha', () => {
+  const entregues = new Set(entradas.flatMap(([, def]) => def.npcs.flatMap((n) => n.falas.map((f) => f.cantiga))));
+  for (const it of Object.values(ITENS)) {
+    if (it.efeito.k !== 'cantiga') continue;
+    if (it.chave) assert.ok(entregues.has(it.id), `${it.id}: ninguém entrega`);
+    else assert.ok(it.preco > 0 && it.medalha, `${it.id}: cantiga de loja sem preço ou medalha`);
   }
 });

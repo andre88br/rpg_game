@@ -120,14 +120,19 @@ export const aldeiaCatavento: DefMapa = {
       id: 'capinzeiro', nome: 'CAPINZEIRO', estilo: 'aldeao',
       tx: 12, ty: 19, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_capim', seNao: 'item:cantiga_capim', cantiga: 'cantiga_capim', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina FECHA-CORPO a qualquer Encantado. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_capim', linhas: [
           'Os três punhados de capim dourado, guardados no moinho. A aldeia inteira agradece.'] },
         /* serviço opcional: não trava guia nenhuma, mas paga bem */
-        { se: 'item:capim_dourado>=3', pede: { item: 'capim_dourado', n: 3 }, liga: 'servico_capim',
+        { se: 'item:capim_dourado>=3', pede: { item: 'capim_dourado', n: 3 }, liga: 'servico_capim', cantiga: 'cantiga_capim',
           paga: 3000, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'Os TRÊS! Ninguém achava os três punhados desde que eu era criança.',
           'Toma o que eu tenho de melhor guardado, e o dinheiro que a aldeia separou.',
-          'E fica de olho no moinho. Capim dourado atrai bicho que ninguém nunca viu.'] },
+          'E fica de olho no moinho. Capim dourado atrai bicho que ninguém nunca viu.',
+          'E leva esta cantiga também: ela ensina FECHA-CORPO a qualquer Encantado. Não se gasta.'] },
         { linhas: [
           'O vento espalhou três punhados de capim dourado pela região: um aqui na aldeia mesmo,',
           'e os outros dois em campo aberto e lá no topo. Nenhum murcha, nenhum apaga.',

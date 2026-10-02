@@ -16,7 +16,9 @@ entrega a **Medalha Raiz** e o Dom de **Cortar Cipó**. A batalha continua
 inteira: turnos, tabela de tipos, estados alterados, itens, captura com patuá,
 troca, XP, nível e evolução. São 92 golpes — alguns batem várias vezes, outros
 cobram um turno de fôlego, e as formas finais mais conhecidas têm um golpe
-próprio, aprendido só por elas no fim da trilha. Não há nível máximo: o Encantado continua
+próprio, aprendido só por elas no fim da trilha. Golpe esquecido volta com o **Rezador**
+de qualquer benzimento, e as **Cantigas** — prêmio dos serviços opcionais e
+das lojas do fim — ensinam golpe fora do nível, sem se gastar. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
 cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,

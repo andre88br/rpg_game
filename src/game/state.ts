@@ -117,7 +117,7 @@ export function trocarPosicoes(e: EstadoJogo, i: number, j: number): void {
    adversário nenhum, então não há razão para trancá-los na batalha. */
 export function usavelForaDeBatalha(id: string): boolean {
   const k = item(id).efeito.k;
-  return k === 'cura' || k === 'limpar' || k === 'reviver';
+  return k === 'cura' || k === 'limpar' || k === 'reviver' || k === 'cantiga';
 }
 
 /* Usa um item de cura fora de batalha, no Encantado do índice dado.

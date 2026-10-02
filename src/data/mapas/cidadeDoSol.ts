@@ -187,13 +187,18 @@ export const cidadeDoSol: DefMapa = {
       id: 'joalheira', nome: 'JOALHEIRA', estilo: 'firmina',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_cristais', seNao: 'item:cantiga_cristal', cantiga: 'cantiga_cristal', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina FEIXE a quem for de Luz, Fogo, Raio ou Água. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_cristais', linhas: [
           'Os três cristais já estão na coroa da cidade. E a lua, dizem, anda descendo no Pico.'] },
-        { se: 'item:cristal_solar>=3', pede: { item: 'cristal_solar', n: 3 }, liga: 'servico_cristais',
+        { se: 'item:cristal_solar>=3', pede: { item: 'cristal_solar', n: 3 }, liga: 'servico_cristais', cantiga: 'cantiga_cristal',
           paga: 5000, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'Os TRÊS cristais solares! Com eles a cidade guarda a luz do dia a noite inteira.',
           'Toma o que eu tenho de melhor, e o dinheiro. E escuta:',
-          'quem guarda a luz do dia, a Jaci vem ver. Sobe no alto do Pico de noite.'] },
+          'quem guarda a luz do dia, a Jaci vem ver. Sobe no alto do Pico de noite.',
+          'E leva esta cantiga também: ela ensina FEIXE a quem for de Luz, Fogo, Raio ou Água. Não se gasta.'] },
         { linhas: [
           'Três cristais solares estão enterrados na região: um no Caminho, um no Jardim, um no Pico.',
           'A sua forquilha acha. Me traz os três?'] },

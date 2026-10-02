@@ -12,7 +12,7 @@ import { P } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import * as L from '../ui/listas.ts';
 import {
-  ITENS_A_VENDA, adicionar, consumir, item as fichaItem, quantidade,
+  aVendaPara, maximoNaMochila, adicionar, consumir, item as fichaItem, quantidade,
 } from '../data/items.ts';
 import type { EstadoJogo } from '../game/state.ts';
 
@@ -51,7 +51,7 @@ export class Loja {
     this.recado = null;
   }
 
-  private aVenda(): readonly string[] { return ITENS_A_VENDA; }
+  private aVenda(): readonly string[] { return aVendaPara(this.estado.medalhas); }
   private aVender(): string[] {
     return L.itensDaMochila(this.estado.mochila).filter((id) => !fichaItem(id).chave);
   }
@@ -96,7 +96,8 @@ export class Loja {
     if (!id) return 1;
     if (this.pagina === 'comprar') {
       const preco = fichaItem(id).preco;
-      return Math.max(1, Math.min(99, Math.floor(this.estado.dinheiro / Math.max(1, preco))));
+      const cabe = maximoNaMochila(id) - quantidade(this.estado.mochila, id);
+      return Math.max(1, Math.min(cabe, Math.floor(this.estado.dinheiro / Math.max(1, preco))));
     }
     return Math.max(1, quantidade(this.estado.mochila, id));
   }
@@ -107,6 +108,10 @@ export class Loja {
     const it = fichaItem(id);
 
     if (this.pagina === 'comprar') {
+      if (quantidade(this.estado.mochila, id) + this.quantos > maximoNaMochila(id)) {
+        this.avisar('ESSA VOCÊ JÁ TEM. NÃO SE GASTA.');
+        return;
+      }
       const custo = it.preco * this.quantos;
       if (custo > this.estado.dinheiro) { this.avisar('RÉIS NÃO DÃO PRA ISSO.'); return; }
       this.estado.dinheiro -= custo;

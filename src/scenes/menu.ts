@@ -11,7 +11,10 @@ import type { Entrada } from '../core/input.ts';
 import { P } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { MEDALHAS, medalha } from '../art/badges.ts';
-import { ficha, nome, type Encantado } from '../battle/encantado.ts';
+import { ficha, nome, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
+import { golpe as fichaGolpe } from '../data/moves.ts';
+import { compatibilidade, ensinar } from '../game/golpes.ts';
+import { EscolhaEsquecer } from '../ui/esquecer.ts';
 import * as L from '../ui/listas.ts';
 import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
@@ -45,7 +48,7 @@ const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['BAIXAR SAVE', 'COPIAR CÓDIGO
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
 
-type Pagina = 'raiz' | 'time' | 'caixa' | 'mochila' | 'mochilaAlvo' | 'medalhas' | 'guia'
+type Pagina = 'raiz' | 'time' | 'caixa' | 'mochila' | 'mochilaAlvo' | 'cantigaEsquecer' | 'medalhas' | 'guia'
             | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'OPÇÕES', 'SALVAR', 'SAIR'] as const;
@@ -73,6 +76,9 @@ export class MenuPausa {
   /* item escolhido na mochila, esperando saber em quem vai ser usado */
   private itemUsando: string | null = null;
   private selAlvo = 0;
+
+  /* qual golpe sai para a cantiga entrar */
+  private esquecer = new EscolhaEsquecer();
 
   /* cursor e rolagem da página CAIXA */
   private selCaixa = 0;
@@ -226,6 +232,12 @@ export class MenuPausa {
     }
 
     if (this.pagina === 'mochilaAlvo') return this.naMochilaAlvo(entrada);
+    if (this.pagina === 'cantigaEsquecer') {
+      const r = this.esquecer.atualizar(entrada, this.op.estado.time[this.selAlvo]!);
+      if (r.k === 'desistiu') this.pagina = 'mochilaAlvo';
+      else if (r.k === 'esquece') this.terminarCantiga(r.indice);
+      return 'aberto';
+    }
 
     if (this.pagina === 'slots') {
       if (this.slots.atualizar(entrada) === 'fechar') this.pagina = 'raiz';
@@ -384,6 +396,7 @@ export class MenuPausa {
   private naMochilaAlvo(entrada: Entrada): SaidaMenu {
     this.selAlvo = this.andar(entrada, this.selAlvo, this.op.estado.time.length);
     if (entrada.apertou('b')) { this.pagina = 'mochila'; return 'aberto'; }
+    if (entrada.apertou('a') && this.ehCantiga()) { this.cantar(); return 'aberto'; }
     if (entrada.apertou('a')) {
       const r = usarItemForaDeBatalha(this.op.estado, this.itemUsando!, this.selAlvo);
       this.avisar(r.msg);
@@ -392,6 +405,44 @@ export class MenuPausa {
       this.selLista = Math.min(this.selLista, Math.max(0, this.itens().length - 1));
     }
     return 'aberto';
+  }
+
+  /* ---------------------------------------------------------- cantigas */
+
+  private ehCantiga(): boolean {
+    return !!this.itemUsando && item(this.itemUsando).efeito.k === 'cantiga';
+  }
+
+  private golpeDaCantiga(): string {
+    const ef = item(this.itemUsando!).efeito;
+    return ef.k === 'cantiga' ? ef.golpe : '';
+  }
+
+  /* A em alguém, com uma cantiga na mão: ensina na hora se houver vaga, ou
+     pergunta qual golpe esquecer. A cantiga não se gasta. */
+  private cantar(): void {
+    const e = this.op.estado.time[this.selAlvo];
+    if (!e) return;
+    const c = compatibilidade(e, this.itemUsando!);
+    const golpe = fichaGolpe(this.golpeDaCantiga()).nome.toUpperCase();
+    if (c === 'ja') { this.avisar(`${nome(e).toUpperCase()} JÁ SABE ${golpe}.`); return; }
+    if (c === 'nao') { this.avisar(`${nome(e).toUpperCase()} NÃO APRENDE ESSA CANTIGA.`); return; }
+    if (e.golpes.length < MAX_GOLPES) { this.terminarCantiga(); return; }
+    this.esquecer.abrir();
+    this.pagina = 'cantigaEsquecer';
+  }
+
+  private terminarCantiga(substituir?: number): void {
+    const e = this.op.estado.time[this.selAlvo]!;
+    const golpe = this.golpeDaCantiga();
+    const saiu = substituir === undefined ? null : fichaGolpe(e.golpes[substituir]!.id).nome.toUpperCase();
+    if (!ensinar(e, golpe, substituir)) return;
+    Som.vinheta('item');
+    const novo = fichaGolpe(golpe).nome.toUpperCase();
+    this.avisar(saiu ? `${nome(e).toUpperCase()} ESQUECEU ${saiu} E APRENDEU ${novo}!`
+                     : `${nome(e).toUpperCase()} APRENDEU ${novo}!`, 2.6);
+    salvarEmSlot(this.op.estado, obterSlotAtivo());
+    this.pagina = 'mochilaAlvo';
   }
 
   private avisar(s: string, duracao = 1.6): void { this.recado = s; this.tempoRecado = duracao; }
@@ -463,8 +514,26 @@ export class MenuPausa {
       }
       case 'mochilaAlvo': {
         const nomeItem = item(this.itemUsando!).nome.toUpperCase();
+        if (this.ehCantiga()) {
+          const golpe = fichaGolpe(this.golpeDaCantiga()).nome.toUpperCase();
+          L.telaCheia(r, this.caixaCheia, `ENSINAR ${golpe} A QUEM?`, 'A ENSINAR   B VOLTAR');
+          const ROTULOS = { pode: ['PODE', P.uiAccD!], nao: ['NÃO PODE', P.uiBg3!], ja: ['JÁ SABE', P.uiBg3!] } as const;
+          L.listaTime(r, est.time, this.selAlvo, {
+            etiqueta: (i) => {
+              const [texto, cor] = ROTULOS[compatibilidade(est.time[i]!, this.itemUsando!)];
+              return { texto, cor };
+            },
+          });
+          break;
+        }
         L.telaCheia(r, this.caixaCheia, `USAR ${nomeItem} EM QUEM?`, 'A USAR   B VOLTAR');
         L.listaTime(r, est.time, this.selAlvo);
+        break;
+      }
+      case 'cantigaEsquecer': {
+        const golpe = fichaGolpe(this.golpeDaCantiga()).nome.toUpperCase();
+        L.telaCheia(r, this.caixaCheia, `PARA APRENDER ${golpe}`, 'A ESQUECE ESTE   B VOLTAR');
+        this.esquecer.desenhar(r, est.time[this.selAlvo]!);
         break;
       }
       case 'medalhas':

@@ -120,13 +120,18 @@ export const bairroDaCuca: DefMapa = {
       id: 'velha_retratos', nome: 'VELHA DO BAIRRO', estilo: 'firmina',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
+        /* quem fez o serviço antes das cantigas existirem recebe agora */
+        { se: 'servico_retratos', seNao: 'item:cantiga_retrato', cantiga: 'cantiga_retrato', linhas: [
+          'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
+          'Ela ensina MAU SONHO a quem for de Sombra, Vento, Água ou Luz. E não se gasta: serve para quantos você quiser.'] },
         { se: 'servico_retratos', linhas: [
           'Os três retratos estão na parede de novo. Obrigada, {crianca}. E cuidado com o telhado do Casarão.'] },
-        { se: 'item:retrato>=3', pede: { item: 'retrato', n: 3 }, liga: 'servico_retratos',
+        { se: 'item:retrato>=3', pede: { item: 'retrato', n: 3 }, liga: 'servico_retratos', cantiga: 'cantiga_retrato',
           paga: 4500, da: { item: 'patua_mestre', n: 3 }, linhas: [
           'Os TRÊS! Minha mãe, meu avô e... esse eu nunca soube quem era.',
           'Toma, é o que eu guardei a vida inteira. E escuta:',
-          'quem junta os três retratos, a Pisadeira vem espiar. Olha no telhado do Casarão.'] },
+          'quem junta os três retratos, a Pisadeira vem espiar. Olha no telhado do Casarão.',
+          'E leva esta cantiga também: ela ensina MAU SONHO a quem for de Sombra, Vento, Água ou Luz. Não se gasta.'] },
         { linhas: [
           'Três retratos da minha família sumiram: um na Rua do Breu, um no Casarão, um no Beco.',
           'O do Beco eu sei que está num nicho do muro, lá no canto de cima. Me traz os três?'] },
