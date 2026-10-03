@@ -13,6 +13,7 @@ import { Mundo } from './mundo.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESPECIES } from '../data/creatures.ts';
 import { ITENS } from '../data/items.ts';
+import { tabelaDoMomento } from '../game/tempo.ts';
 import { type Fala } from '../game/quests.ts';
 import { CONTAS_NA_GUIA } from '../art/tiles.ts';
 import { ABERTO, FECHADO, entradas, mapa, alcance } from './mapas.apoio.ts';
@@ -154,6 +155,19 @@ test('toda tabela de encontro cita espécie que existe', () => {
       assert.ok(ESPECIES[f.especie], `${id}: espécie desconhecida "${f.especie}"`);
       assert.ok(f.min <= f.max, `${id}: ${f.especie} com min acima do max`);
       assert.ok(f.peso > 0, `${id}: ${f.especie} com peso zero`);
+    }
+  }
+});
+
+test('em toda hora e todo clima, a tabela de encontro continua com peso', () => {
+  for (const [id, def] of entradas) {
+    if (!def.encontros?.length) continue;
+    for (const p of ['manha', 'dia', 'tarde', 'noite'] as const) {
+      for (const c of ['limpo', 'chuva', 'ventania', 'tempestade', 'neblina'] as const) {
+        for (const f of tabelaDoMomento(def.encontros, p, c)) {
+          assert.ok(f.peso > 0, `${id}: ${f.especie} some ${p}/${c}`);
+        }
+      }
     }
   }
 });

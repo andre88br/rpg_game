@@ -212,7 +212,13 @@ export function reviver(e: Encantado, fracao = 0.5): void {
 
 /* ------------------------------------------------------- encontro no mato */
 
-export interface FaixaEncontro { especie: string; min: number; max: number; peso: number }
+export interface FaixaEncontro {
+  especie: string; min: number; max: number; peso: number;
+  /* só (ou mais) de dia ou de noite, e o tempo que ele prefere — vencem as
+     tabelas por espécie de game/tempo.ts quando o mapa quer algo próprio */
+  quando?: 'dia' | 'noite';
+  clima?: 'limpo' | 'chuva' | 'ventania' | 'tempestade' | 'neblina';
+}
 
 export function sortearSelvagem(tabela: readonly FaixaEncontro[],
                                 rnd: Aleatorio = acaso): Encantado {

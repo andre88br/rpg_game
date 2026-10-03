@@ -14,6 +14,7 @@ import { MEDALHAS, medalha } from '../art/badges.ts';
 import { ficha, nome, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import { tracoDaEspecie } from '../data/tracos.ts';
+import { NOME_CLIMA, NOME_PERIODO, periodo, type Clima } from '../game/tempo.ts';
 import { compatibilidade, ensinar } from '../game/golpes.ts';
 import { EscolhaEsquecer } from '../ui/esquecer.ts';
 import * as L from '../ui/listas.ts';
@@ -63,6 +64,8 @@ export interface OpcoesMenu {
   /* a forquilha de radiestesia: a cena do mundo sabe onde o jogador está e
      o que há enterrado no mapa; o menu só mostra o que ela responder */
   sondar?: () => string;
+  /* o tempo que faz onde o jogador está, para o cantinho do menu */
+  clima?: () => Clima;
 }
 
 export class MenuPausa {
@@ -480,6 +483,14 @@ export class MenuPausa {
       if (i === this.sel && this.pagina === 'raiz') r.texto('=', x + 8, iy, P.uiAccD!);
       r.texto(item, x + 18, iy, P.uiInk!);
     });
+
+    // a hora e o tempo, no canto de cima à esquerda
+    const c = this.op.clima?.() ?? 'limpo';
+    const hora = c === 'limpo' ? NOME_PERIODO[periodo()] : `${NOME_PERIODO[periodo()]} - ${NOME_CLIMA[c]}`;
+    const w = r.larguraTexto(hora) + 10;
+    r.retangulo(6, 6, w, 13, P.ink!);
+    r.retangulo(7, 7, w - 2, 11, P.uiBg!);
+    r.texto(hora, 11, 9, P.uiInk!);
 
     if (this.pagina !== 'sair') return;
     /* a pergunta de sair fica por cima do próprio menu: quem apertou SAIR

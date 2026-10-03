@@ -24,6 +24,7 @@ import {
 import { eficacia, fraseEficacia } from './typechart.ts';
 import { tentarCaptura } from './capture.ts';
 import { tracoDaEspecie, type Traco } from '../data/tracos.ts';
+import { FRASE_CLIMA, fatorClima, type Clima } from '../game/tempo.ts';
 import {
   CHANCE_AUTO_GOLPE, CHANCE_TRAVAR_PARALISADO, DANO_POR_TURNO,
   FATOR_ATAQUE_QUEIMADO, FATOR_VELOCIDADE_PARALISADO, POTENCIA_AUTO_GOLPE,
@@ -129,6 +130,8 @@ export interface OpcoesBatalha {
   podeFugir?: boolean;
   /* é de noite? (a Lua Cheia e as Fases da Lua leem isto) */
   noite?: boolean;
+  /* o tempo que faz no mapa (game/tempo.ts): mexe na força de alguns tipos */
+  clima?: Clima;
 }
 
 /* abaixo desta fração de HP a IA considera curar; acima, nunca gasta item */
@@ -151,6 +154,7 @@ export class Batalha {
   readonly rnd: Aleatorio;
   readonly podeFugir: boolean;
   readonly noite: boolean;
+  readonly clima: Clima;
 
   aliado: Combatente;
   inimigo: Combatente;
@@ -174,6 +178,7 @@ export class Batalha {
     this.rnd = new Aleatorio(op.semente);
     this.podeFugir = op.podeFugir ?? this.selvagem;
     this.noite = op.noite ?? false;
+    this.clima = op.clima ?? 'limpo';
 
     this.iAliado = this.time.findIndex((e) => !desmaiado(e));
     if (this.iAliado < 0) this.iAliado = 0;
@@ -215,6 +220,8 @@ export class Batalha {
       ev.push({ k: 'texto', t: `${t.nome} mandou ${nome(this.inimigo.enc)}!` });
     }
     ev.push({ k: 'texto', t: `Vai lá, ${nome(this.aliado.enc)}!` });
+    const frase = FRASE_CLIMA[this.clima];
+    if (frase) ev.push({ k: 'texto', t: frase });
     this.aoEntrar('aliado', ev);
     this.aoEntrar('inimigo', ev);
     return ev;
@@ -242,10 +249,11 @@ export class Batalha {
     this.mexerEstagio(this.oposto(lado), outro, t.aoEntrar.stat, t.aoEntrar.passos, ev);
   }
 
-  /* quanto o traço dos dois lados muda o dano deste golpe: a força de quem
-     bate vezes o couro de quem apanha. A IA usa a mesma conta. */
+  /* quanto o traço dos dois lados (e o tempo que faz) muda o dano deste
+     golpe: a força de quem bate vezes o couro de quem apanha vezes o clima.
+     A IA usa a mesma conta. */
   fatorTraco(g: Golpe, eu: Combatente, alvo: Combatente): number {
-    let f = 1;
+    let f = fatorClima(g.tipo, this.clima);
     for (const c of this.traco(eu).forca ?? []) {
       if (c.tipo && c.tipo !== g.tipo) continue;
       if (c.hpAbaixo !== undefined && eu.enc.hp > hpMaximo(eu.enc) * c.hpAbaixo) continue;

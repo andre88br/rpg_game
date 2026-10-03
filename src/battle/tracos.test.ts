@@ -246,3 +246,17 @@ test('Rodamoinho: vencendo um selvagem, às vezes acha um item na mochila', () =
   }
   assert.ok(achou > 8 && achou < 40, `achou ${achou} de 80`);
 });
+
+/* ------------------------------------------------------------------ clima */
+
+test('na chuva a água bate mais e o fogo menos, e a abertura avisa', () => {
+  const dano = (golpe: string, clima: 'limpo' | 'chuva') => {
+    const meu = criar('mulinha', 30, { golpes: [golpe] });
+    const b = new Batalha({ time: [meu], oponentes: [neutro(60)], semente: 9, clima });
+    return danos(b.executar({ tipo: 'golpe', indice: 0 }), 'inimigo')[0]!;
+  };
+  assert.ok(dano('jato_agua', 'chuva') > dano('jato_agua', 'limpo'));
+  assert.ok(dano('brasa', 'chuva') < dano('brasa', 'limpo'));
+  const b = new Batalha({ time: [criar('mulinha', 30)], oponentes: [neutro()], clima: 'chuva' });
+  assert.ok(b.abrir().some((e) => e.k === 'texto' && e.t === 'Está chovendo.'));
+});

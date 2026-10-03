@@ -45,7 +45,9 @@ import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
 import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
-import { lugarNoMundo } from '../data/mundo.ts';
+import { lugarNoMundo, regiaoDoMapa } from '../data/mundo.ts';
+import { periodo, sortearClima, tabelaDoMomento, type Clima } from '../game/tempo.ts';
+import { desenharClima, tingir } from '../art/ceu.ts';
 import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
 import {
   aplicarFala, contasAcesasDe, escolherFala, ligada, responder, serve, terreiroDaConta, type Condicionado, type Fala,
@@ -111,6 +113,8 @@ export interface PedidoBatalha {
   cenario?: Cenario;
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
+  /* o tempo que faz onde a luta começou */
+  clima?: Clima;
 }
 
 export interface OpcoesCenaMundo {
@@ -159,6 +163,9 @@ export class CenaMundo implements Cena {
   private fade = 0;
 
   private duelo: Duelo | null = null;
+  /* o tempo que faz, sorteado ao chegar numa região (não vai para o save) */
+  private clima: Clima = 'limpo';
+  private regiaoDoTempo: string | null = null;
   private menu: MenuPausa | null = null;
   private loja: Loja | null = null;
   private escolha: EscolhaInicial | null = null;
@@ -224,6 +231,7 @@ export class CenaMundo implements Cena {
     this.pintor = new PintorMundo();
     this.menu = new MenuPausa({
       estado: this.op.estado,
+      clima: () => this.climaAqui(),
       sondar: () => {
         const ctx = this.contexto();
         return sondarTesouro(this.def, (o) => objetoAtivo(o, ctx),
@@ -275,6 +283,7 @@ export class CenaMundo implements Cena {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     Som.musica(temaDoMapa(this.def));       // o mesmo tema não recomeça
+    this.talvezMudarTempo();
     this.marcarVisita(id);
     this.dialogo.conversa = null;
     this.duelo = null;
@@ -644,6 +653,7 @@ export class CenaMundo implements Cena {
       itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
       musica: temaDaBatalha(t),
+      clima: this.climaAqui(),
     });
   }
 
@@ -1212,6 +1222,26 @@ export class CenaMundo implements Cena {
     if (this.fade >= FADE * 2) { this.indo = null; this.fade = 0; }
   }
 
+  /* o céu deste mapa aparece? (casa, terreiro e caverna não têm céu) */
+  private ceuAberto(): boolean { return !this.def.interior && !this.def.escuro; }
+
+  /* o tempo só muda ao chegar ao ar livre numa região diferente: entrar e
+     sair de casa não faz parar de chover */
+  private talvezMudarTempo(): void {
+    if (!this.ceuAberto()) return;
+    const tipo = regiaoDoMapa(this.def.id)?.tipo ?? null;
+    const chave = tipo ?? 'fora';
+    if (chave === this.regiaoDoTempo) return;
+    this.regiaoDoTempo = chave;
+    this.clima = sortearClima(tipo, acaso);
+  }
+
+  /* o tempo que faz aqui agora (debaixo de teto, sempre limpo) */
+  climaAqui(): Clima { return this.ceuAberto() ? this.clima : 'limpo'; }
+
+  /* para o atalho de teste do navegador */
+  forcarClima(c: Clima): void { this.clima = c; }
+
   /* um passo no mato alto: às vezes vira encontro */
   private talvezEncontro(): void {
     const tabela = this.def.encontros;
@@ -1221,9 +1251,11 @@ export class CenaMundo implements Cena {
     const media = this.def.passosPorEncontro ?? 10;
     if (!acaso.chance(100 / media)) return;
 
+    const agora = tabelaDoMomento(tabela, periodo(), this.climaAqui());
     this.op.aoBatalhar({
-      oponentes: [sortearSelvagem(tabela, acaso)],
+      oponentes: [sortearSelvagem(agora, acaso)],
       cenario: this.def.cenario ?? 'praia',
+      clima: this.climaAqui(),
     });
   }
 
@@ -1285,6 +1317,10 @@ export class CenaMundo implements Cena {
     if (this.duelo?.fase === 'susto') this.desenharSusto(r);
 
     if (this.def.escuro) this.desenharEscuridao(r);
+    if (this.ceuAberto()) {
+      tingir(r, periodo());
+      desenharClima(r, this.clima, this.tempoAnim);
+    }
 
     // faixa com o nome do lugar, ao chegar
     if (this.tempoFaixa > 0 && this.faixaNome) {

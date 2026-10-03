@@ -21,7 +21,10 @@ de qualquer benzimento, e as **Cantigas** — prêmio dos serviços opcionais e
 das lojas do fim — ensinam golpe fora do nível, sem se gastar. Cada espécie
 tem um **traço** que age sozinho na luta (24 ao todo: o Agouro da Matinta
 baixa o ataque de quem chega, a Pele Elétrica do Relampo trava quem bate
-nele, a Lua Cheia do Lobisomem pesa mais à noite...). Não há nível máximo: o Encantado continua
+nele, a Lua Cheia do Lobisomem pesa mais à noite...). O céu segue o
+relógio do aparelho — manhã, dia, tarde e noite — e cada região tem o seu
+tempo (chuva na Foz e na Mata, ventania no Campo, tempestade em Tupã,
+neblina no Bairro), que muda quem aparece no mato e a força de alguns golpes. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
 cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,

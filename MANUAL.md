@@ -165,6 +165,39 @@ anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico
 | Fogo Brando | Lamparina, Fogo-Fátuo | contato: 30% de queimar quem bateu |
 | Fases da Lua | Jaci, Eclipse | de dia, Luz bate 20% mais; à noite, Sombra |
 
+**Dia, noite e clima.** A hora vem do relógio do aparelho: **manhã** (6h às
+10h), **dia** (10h às 16h), **tarde** (16h às 18h) e **noite** (18h às 6h),
+cada uma com a sua cor no céu. Ao chegar numa região sorteia-se o tempo, que
+fica até você ir para outra região (entrar e sair de casa não muda nada; em
+casa, terreiro e caverna não há céu). O menu mostra os dois no canto.
+
+| região | tempo | chance |
+|---|---|---|
+| Foz | chuva | 30% |
+| Mata | chuva | 35% |
+| Campo | ventania | 35% |
+| Tupã | tempestade (com clarão) | 35% |
+| Bairro | neblina | 40% |
+| as outras | sempre limpo | — |
+
+No mato, quem é da noite aparece **três vezes mais** de noite e bem menos
+de dia (nunca some de vez), e o contrário para quem é do dia; quem gosta do
+tempo que faz aparece **o dobro**.
+
+| | quem |
+|---|---|
+| da noite | Lobinho, Lobisomem, Matinta, Matinta-Perera, Cuca, Corpo-Seco, Alma-Penada, Pisadeira, Lamparina |
+| do dia | Luzeiro, Estrela-d'Alva, Uirapuru, Mãe-do-Ouro |
+| gosta de chuva | Iarinha, Piraguá, Minhoquinha |
+| gosta de ventania | Sacizinho, Matinta |
+| gosta de tempestade | Faisquinha, Tatu-Trovão |
+| gosta de neblina | Pisadeira, Cuca |
+
+Na luta, o tempo de onde ela começou pesa um pouco: **chuva** — Água +20%,
+Fogo −20%; **tempestade** — Raio +20%, Água +10%; **ventania** — Vento +20%;
+**neblina** — Sombra +20%. A Lua Cheia e as Fases da Lua (traços) seguem a
+mesma noite.
+
 **Treinadores.** Treinador não desperdiça golpe: não tenta queimar quem é de
 Fogo, pôr no sono quem já dorme ou baixar o que já está no fundo, e com os
 dois por um fio usa o golpe que sai primeiro. Da Serra em diante, os mais

@@ -19,6 +19,7 @@ src/
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
+│             ceu (a cor da hora e a chuva, o vento, a neblina e o clarão)
 │             cenas (fundos e peças das cutscenes da Foz e da Mata, e o
 │             que todo fundo usa: degradê, morro, árvore, moldura de lembrança)
 │             fundos/ (os fundos de cada região da Serra em diante, um
@@ -44,7 +45,8 @@ src/
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
-│             tempo.ts (é noite? pelo relógio do aparelho)
+│             tempo.ts (período do dia, clima por região, o mato do
+│             momento — `tabelaDoMomento` — e o clima na força do golpe)
 │             + *.test.ts (puros)
 ├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
 │             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)

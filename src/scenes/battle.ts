@@ -31,7 +31,8 @@ import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
-import { ehNoite } from '../game/tempo.ts';
+import { periodo, type Clima } from '../game/tempo.ts';
+import { desenharClima, tingir } from '../art/ceu.ts';
 
 /* ------------------------------------------------------------ constantes */
 
@@ -83,6 +84,8 @@ export interface OpcoesCenaBatalha {
   /* o bolso do treinador inimigo, nunca a mochila do jogador */
   itensIA?: Record<string, number>;
   cenario?: Cenario;
+  /* o tempo que faz onde a luta começou */
+  clima?: Clima;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -153,7 +156,8 @@ export class CenaBatalha implements Cena {
       treinador: this.op.treinador ?? null,
       itensIA: this.op.itensIA,
       mochila: est.mochila,
-      noite: ehNoite(),
+      noite: periodo() === 'noite',
+      clima: this.op.clima ?? 'limpo',
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
 
@@ -617,6 +621,8 @@ export class CenaBatalha implements Cena {
 
   desenhar(r: Renderizador): void {
     r.sprite(this.fundo, 0, 0);
+    tingir(r, periodo(), true);
+    desenharClima(r, this.op.clima ?? 'limpo', this.relogio);
     this.desenharCombatente(r, 'inimigo');
     this.desenharCombatente(r, 'aliado');
     this.desenharProjetil(r);

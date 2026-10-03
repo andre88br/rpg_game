@@ -1,5 +1,6 @@
 /* Ponto de entrada: monta o renderizador, a entrada e o laço, e liga os
    botões de toque da página às mesmas ações do teclado. */
+import { fixarHora, type Clima } from './game/tempo.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
@@ -82,6 +83,7 @@ function lutar(p: PedidoBatalha): void {
     treinador: p.treinador ?? null,
     itensIA: p.itensIA,
     cenario: p.cenario ?? 'praia',
+    clima: p.clima,
     aoTerminar: (resultado, entrouNoTime) => {
       // a cena do mundo aplica o resultado quando volta a ser a cena da vez
       cena.voltouDaBatalha(resultado, entrouNoTime);
@@ -166,6 +168,8 @@ Object.assign(window as unknown as Record<string, unknown>, {
   jogo: {
     r, entrada, cenas, laco, regiao, lutar, LARGURA, ALTURA,
     musica: () => Som.tocandoAgora(),
+    hora: (h: number | null) => fixarHora(h),
+    clima: (c: Clima) => mundo?.forcarClima(c),
     get estado() { return estado; },
     get mundo() { return mundo; },
   },
