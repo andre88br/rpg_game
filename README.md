@@ -24,7 +24,9 @@ baixa o ataque de quem chega, a Pele Elétrica do Relampo trava quem bate
 nele, a Lua Cheia do Lobisomem pesa mais à noite...). O céu segue o
 relógio do aparelho — manhã, dia, tarde e noite — e cada região tem o seu
 tempo (chuva na Foz e na Mata, ventania no Campo, tempestade em Tupã,
-neblina no Bairro), que muda quem aparece no mato e a força de alguns golpes. Não há nível máximo: o Encantado continua
+neblina no Bairro), que muda quem aparece no mato e a força de alguns golpes.
+Depois da primeira medalha, a **Canoa Encantada** da Dona Firmina leva de
+volta a qualquer cidade onde você já esteve. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
 cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,

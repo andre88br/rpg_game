@@ -48,10 +48,10 @@ type Opcao = (typeof OPCOES)[number];
 const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['BAIXAR SAVE', 'COPIAR CÓDIGO']);
 
 /* o que a sobreposição devolve a cada quadro */
-export type SaidaMenu = 'aberto' | 'fechar' | 'titulo';
+export type SaidaMenu = 'aberto' | 'fechar' | 'titulo' | 'viajar';
 
 type Pagina = 'raiz' | 'time' | 'caixa' | 'mochila' | 'mochilaAlvo' | 'cantigaEsquecer' | 'medalhas' | 'guia'
-            | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal';
+            | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal' | 'canoa';
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'OPÇÕES', 'SALVAR', 'SAIR'] as const;
 
@@ -66,6 +66,8 @@ export interface OpcoesMenu {
   sondar?: () => string;
   /* o tempo que faz onde o jogador está, para o cantinho do menu */
   clima?: () => Clima;
+  /* a Canoa Encantada: para onde dá para ir, ou por que não dá agora */
+  canoa?: () => { destinos: string[]; motivo: string | null };
 }
 
 export class MenuPausa {
@@ -96,6 +98,12 @@ export class MenuPausa {
 
   /* o Mapa do Mundo: o lugar apontado, a planta aberta e o relógio do pisca */
   private selMundo: string | null = null;
+  /* a canoa: os destinos, o escolhido, e se está na pergunta "IR PARA?" */
+  private destinosCanoa: string[] = [];
+  private selCanoa = 0;
+  private confirmaCanoa = false;
+  /* para onde a canoa vai; a cena do mundo lê quando o menu devolve 'viajar' */
+  destinoViagem: string | null = null;
   private plantaDe: string | null = null;
   private relogio = 0;
   private estradasMundo = estradas(MAPAS);
@@ -295,6 +303,7 @@ export class MenuPausa {
       return 'aberto';
     }
 
+    if (this.pagina === 'canoa') return this.naCanoa(entrada);
     if (this.pagina === 'mapaMundo') {
       const lista = this.lugaresConhecidos();
       const i = Math.max(0, lista.indexOf(this.selMundo ?? ''));
@@ -335,6 +344,7 @@ export class MenuPausa {
     const id = this.itens()[this.selLista];
     if (!id) return;
     if (id === 'caderno') { this.abrirCaderno(); return; }
+    if (id === 'canoa') { this.abrirCanoa(); return; }
     if (id === 'mapa' || id.startsWith('mapa_')) { this.abrirMapa(); return; }
     if (id === 'forquilha') {
       this.avisar(this.op.sondar?.() ?? 'A forquilha só serve com os pés no chão.', 3);
@@ -348,6 +358,42 @@ export class MenuPausa {
     this.itemUsando = id;
     this.selAlvo = 0;
     this.pagina = 'mochilaAlvo';
+  }
+
+  /* -------------------------------------------------------------- Canoa */
+
+  private abrirCanoa(): void {
+    const c = this.op.canoa?.();
+    if (!c) { this.avisar('A canoa só anda com os pés na beira.'); return; }
+    if (c.motivo) { this.avisar(c.motivo, 2.4); return; }
+    this.destinosCanoa = c.destinos;
+    this.selCanoa = 0;
+    this.confirmaCanoa = false;
+    this.pagina = 'canoa';
+  }
+
+  private naCanoa(entrada: Entrada): SaidaMenu {
+    const n = this.destinosCanoa.length;
+    if (this.confirmaCanoa) {
+      if (entrada.apertou('esq') || entrada.apertou('dir') || entrada.apertou('cima') || entrada.apertou('baixo')) {
+        this.sel = 1 - this.sel;
+      }
+      if (entrada.apertou('b')) { this.confirmaCanoa = false; return 'aberto'; }
+      if (entrada.apertou('a')) {
+        if (this.sel === 0) {
+          this.destinoViagem = this.destinosCanoa[this.selCanoa] ?? null;
+          this.pagina = 'raiz'; this.sel = 0; this.confirmaCanoa = false;
+          return this.destinoViagem ? 'viajar' : 'aberto';
+        }
+        this.confirmaCanoa = false;
+      }
+      return 'aberto';
+    }
+    if (entrada.apertou('dir') || entrada.apertou('baixo')) this.selCanoa = (this.selCanoa + 1) % n;
+    if (entrada.apertou('esq') || entrada.apertou('cima')) this.selCanoa = (this.selCanoa - 1 + n) % n;
+    if (entrada.apertou('a')) { this.confirmaCanoa = true; this.sel = 0; }
+    if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'mochila';
+    return 'aberto';
   }
 
   /* ------------------------------------------------------ Mapa do Mundo */
@@ -585,6 +631,26 @@ export class MenuPausa {
           r.texto(MAPAS[id]!.nome, 14, ALTURA - 42, P.uiInk!);
           const tem = quantidade(est.mochila, itemMapaDaRegiao(reg)) > 0;
           r.texto(tem ? reg.nome : `${reg.nome}: MAPA ESCONDIDO`, 14, ALTURA - 31, P.uiBg3!);
+        }
+        break;
+      }
+      case 'canoa': {
+        L.telaCheia(r, this.caixaCheia, 'CANOA ENCANTADA', 'A REMAR   B VOLTAR   <> CIDADE');
+        const id = this.destinosCanoa[this.selCanoa] ?? null;
+        const piscando = Math.floor(this.relogio * 3) % 2 === 0;
+        desenharMundo(r, new Set(this.destinosCanoa), this.estradasMundo, this.lugarAtual(), id, piscando);
+        if (id) r.texto(`PARA ${MAPAS[id]!.nome}`.toUpperCase(), 14, ALTURA - 42, P.uiInk!);
+        if (this.confirmaCanoa && id) {
+          const larg = 150, alt = 40;
+          const px = (LARGURA - larg) / 2, py = (ALTURA - alt) / 2;
+          r.retangulo(px - 2, py - 2, larg + 4, alt + 4, P.ink!);
+          r.retangulo(px, py, larg, alt, P.uiBg!);
+          r.texto('REMAR ATÉ LÁ?', px + 10, py + 8, P.uiInk!);
+          ['SIM', 'NÃO'].forEach((op, i) => {
+            const ox = px + 20 + i * 60;
+            if (i === this.sel) r.texto('=', ox - 10, py + 24, P.uiAccD!);
+            r.texto(op, ox, py + 24, P.uiInk!);
+          });
         }
         break;
       }

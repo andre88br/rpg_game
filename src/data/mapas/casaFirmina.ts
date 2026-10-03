@@ -51,6 +51,11 @@ export const casaFirmina: DefMapa = {
           da: { item: 'carta_tie' }, cutscene: 'firmina_carta', linhas: [
           'Chegou depressa! O Mestre do Porto deu o recado, então.',
           'A Região da Foz é só o começo, {crianca}. Senta aqui, que eu tenho uma carta pra você.'] },
+        /* a canoa vem na conversa seguinte à da carta — e quem já tinha a
+           Medalha Maré num save antigo recebe falando com ela de novo */
+        { se: 'medalha:mare', seNao: 'item:canoa', da: { item: 'canoa' }, linhas: [
+          'Ah, e leve isto. É a canoa do meu avô: rema sozinha, é só dizer o nome da cidade.',
+          'Mas ela só conhece o caminho de onde você já esteve. Use pela mochila, {crianca}.'] },
         { se: 'medalha:mare', linhas: [
           'A Foz inteira é sua conhecida agora, {nome}. Vá em frente, que a mata está esperando.'] },
         { se: 'contas>=5', linhas: [

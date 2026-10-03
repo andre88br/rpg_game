@@ -45,6 +45,8 @@ src/
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
+│             viagem.ts (a Canoa: abrigo de cada cidade, destinos pelas
+│             flags `visitou_`, a chegada e quando não dá para remar)
 │             tempo.ts (período do dia, clima por região, o mato do
 │             momento — `tabelaDoMomento` — e o clima na força do golpe)
 │             + *.test.ts (puros)

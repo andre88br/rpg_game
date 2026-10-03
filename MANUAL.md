@@ -165,6 +165,15 @@ anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico
 | Fogo Brando | Lamparina, Fogo-Fátuo | contato: 30% de queimar quem bateu |
 | Fases da Lua | Jaci, Eclipse | de dia, Luz bate 20% mais; à noite, Sombra |
 
+**Viagem rápida: a Canoa Encantada.** Depois da Medalha Maré, a Dona
+Firmina entrega a carta para a Tiê e, na conversa seguinte, a **Canoa
+Encantada** (quem já tinha a medalha num save antigo recebe falando com ela
+de novo). Menu → MOCHILA → Canoa: o mapa mostra as cidades onde você já
+esteve; escolha uma e a canoa leva direto para dentro do benzimento dela (na
+Vila Aurora, a sua casa; na Mata, a casa da Encruzilhada). Não rema enquanto
+você estiver levando alguém (a escolta) nem com o relógio de uma corrida
+andando.
+
 **Dia, noite e clima.** A hora vem do relógio do aparelho: **manhã** (6h às
 10h), **dia** (10h às 16h), **tarde** (16h às 18h) e **noite** (18h às 6h),
 cada uma com a sua cor no céu. Ao chegar numa região sorteia-se o tempo, que

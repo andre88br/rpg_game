@@ -46,6 +46,7 @@ import type { Cenario } from '../art/battlebg.ts';
 import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo, regiaoDoMapa } from '../data/mundo.ts';
+import { chegada, destinosDaCanoa, motivoParaNaoViajar } from '../game/viagem.ts';
 import { periodo, sortearClima, tabelaDoMomento, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
@@ -232,6 +233,10 @@ export class CenaMundo implements Cena {
     this.menu = new MenuPausa({
       estado: this.op.estado,
       clima: () => this.climaAqui(),
+      canoa: () => {
+        const destinos = destinosDaCanoa(this.op.estado, MAPAS, lugarNoMundo(this.def.id, MAPAS));
+        return { destinos, motivo: motivoParaNaoViajar(this.op.estado, { correndo: this.relogios.size > 0, destinos: destinos.length }) };
+      },
       sondar: () => {
         const ctx = this.contexto();
         return sondarTesouro(this.def, (o) => objetoAtivo(o, ctx),
@@ -957,6 +962,7 @@ export class CenaMundo implements Cena {
     if (this.emMenu) {
       const saida = this.menu!.atualizar(dt, entrada);
       if (saida === 'fechar') this.emMenu = false;
+      else if (saida === 'viajar') { this.emMenu = false; this.remar(this.menu!.destinoViagem); }
       else if (saida === 'titulo') { this.emMenu = false; this.op.aoSair?.(); }
       return;
     }
@@ -1220,6 +1226,16 @@ export class CenaMundo implements Cena {
       this.centrarCamera();
     }
     if (this.fade >= FADE * 2) { this.indo = null; this.fade = 0; }
+  }
+
+  /* a Canoa Encantada: escurece como numa porta e clareia dentro do
+     benzimento da cidade escolhida */
+  private remar(cidade: string | null): void {
+    const c = cidade ? chegada(cidade, MAPAS) : null;
+    if (!c) return;
+    this.indo = { tx: this.jogador.tx, ty: this.jogador.ty, para: c.mapa,
+                  destino: { tx: c.tx, ty: c.ty, dir: c.dir } };
+    this.fade = 0;
   }
 
   /* o céu deste mapa aparece? (casa, terreiro e caverna não têm céu) */
