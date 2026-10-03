@@ -1,34 +1,44 @@
 /* =========================================================================
-   A vista 3D do mundo — a Região da Foz fora do papel.
+   A vista 3D do mundo — low-poly colorido.
 
    Não é um jogo à parte: a lógica inteira continua na cena do mundo
    (overworld.ts), andando em grade, conversando, lutando e gravando como
-   sempre. Esta vista só troca o DESENHO do mundo: monta o mapa em blocos a
-   partir da mesma grade de letras (relevo.ts diz o que cada uma vira), pinta
-   o topo com os mesmos tiles do mapa plano, levanta as construções, e põe de
-   pé os mesmos sprites de gente e de bicho, como recortes num cenário de
-   maquete. Diálogo, menu e o resto da interface continuam por cima, em 2D.
+   sempre. Esta vista só troca o DESENHO do mundo, a partir da mesma grade
+   de letras (relevo.ts diz o que cada uma vira):
 
-   Renderiza num canvas próprio, na resolução do jogo (240x160 vezes SUAVE),
-   e a cena do mundo carimba o resultado no canvas principal: o pixel
-   continua grande e nítido, como em todo o resto do jogo.
+   - o chão é uma malha contínua de triângulos com cor por vértice: os
+     cantos de cada tile ficam na média dos vizinhos, o que chanfra todo
+     barranco e mistura grama, caminho e areia sem degrau de cor;
+   - parede e rocha são blocos, com um tampo chanfrado;
+   - a água é um shader: ondas, espuma na margem e um brilho que corre;
+   - árvore e mato balançam no vento (no shader, sem custo de CPU);
+   - a luz vem da região e da hora (relevo.ts: luzDe), com névoa, céu em
+     degradê e tone mapping ACES;
+   - a câmera segue o jogador devagar, com ângulo próprio para rua, casa
+     e caverna.
 
-   Carregada sob demanda (carregar.ts): quem nunca entra na Foz, ou joga no
-   mapa plano, não baixa nada disto.
+   Renderiza num canvas PRÓPRIO, na resolução real da tela (vezes a
+   densidade do aparelho, até 2), atrás do canvas do jogo. A interface
+   (diálogo, menu, clima) continua em 2D, por cima — a cena do mundo só
+   limpa o canvas 2D onde o mundo aparece. Carregada sob demanda
+   (carregar.ts): quem nunca entra num mapa 3D não baixa nada disto.
    ========================================================================= */
 import * as THREE from 'three';
-import { Buf, assar, larguraDe, alturaDe, SUAVE, type Assado } from '../core/buf.ts';
+import { Buf, assar, larguraDe, alturaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA } from '../core/renderer.ts';
-import { TILES, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
+import { objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
 import * as T from '../art/tiles.ts';
 import { P } from '../art/palette.ts';
 import { texto, larguraTexto } from '../art/font.ts';
 import {
-  DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, PREDIOS, modeloDe, relevoDe, type Relevo,
+  DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, PREDIOS, luzDe, modeloDe, relevoDe,
+  type ClimaLuz, type PeriodoLuz, type Relevo,
 } from './relevo.ts';
 
 /* quantos pixels do quadro ficam fora d'água — o mesmo do mapa plano */
 const ALTURA_NADANDO = 14;
+/* a densidade máxima: acima disso o celular esquenta e ninguém vê diferença */
+const DPR_MAX = 2;
 
 export interface Ator3D {
   img: Assado;
@@ -45,13 +55,11 @@ export interface Quadro3D {
   alvoY: number;
   atores: readonly Ator3D[];
   tempo: number;
+  /* a hora, o tempo e a região: a luz sai deles */
+  periodo?: PeriodoLuz;
+  clima?: ClimaLuz;
+  regiao?: string | null;
 }
-
-const COR_LADO: Record<string, string> = {
-  '.': '#6b4a2e', ',': '#6b4a2e', '=': '#6b4a2e', 'f': '#6b4a2e',
-  'a': '#c8a870', 'p': '#5a3e24', '~': '#2a5a8a', 'R': '#7a7468',
-  'W': '#b89a70', '_': '#5a3e24', 'T': '#5a3e24', 'm': '#5a3e24', 'u': '#5a3e24',
-};
 
 /* textura com cara de pixel: nada de borrar ao ampliar */
 function texturaDe(img: HTMLCanvasElement, repetir = false): THREE.CanvasTexture {
@@ -64,18 +72,73 @@ function texturaDe(img: HTMLCanvasElement, repetir = false): THREE.CanvasTexture
   return t;
 }
 
-/* ruído estável por tile, para árvores e tufos não saírem todos iguais */
+/* ruído estável por posição, para nada sair todo igual */
 function sorte(x: number, y: number, k = 0): number {
   const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453;
   return s - Math.floor(s);
 }
 
+/* ---------------------------------------------------------- shader d'água */
+
+const AGUA_VERTICE = /* glsl */`
+  uniform float uTempo;
+  varying vec2 vMundo;
+  varying float vDist;
+  varying float vOnda;
+  void main() {
+    vec4 m = modelMatrix * vec4(position, 1.0);
+    float o = sin(m.x * 1.3 + uTempo * 1.6) * 0.5 + sin(m.z * 1.7 - uTempo * 1.2) * 0.5;
+    m.y += o * 0.035;
+    vOnda = o;
+    vMundo = m.xz;
+    vec4 mv = viewMatrix * m;
+    vDist = -mv.z;
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+
+const AGUA_FRAGMENTO = /* glsl */`
+  uniform float uTempo;
+  uniform vec3 uRaso;
+  uniform vec3 uFundo;
+  uniform vec3 uEspuma;
+  uniform vec3 uLuz;
+  uniform vec3 uNevoa;
+  uniform float uPerto;
+  uniform float uLonge;
+  uniform sampler2D uMargem;
+  uniform vec2 uTam;
+  varying vec2 vMundo;
+  varying float vDist;
+  varying float vOnda;
+  void main() {
+    // a textura tem uma borda de mar aberto em volta: fora do mapa, margem zero
+    float marg = texture2D(uMargem, (vMundo + 1.0) / (uTam + 2.0)).r;
+    float risco = sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5);
+    // a espuma é uma linha: só onde a margem passa (entre a terra e a água)
+    float m = marg + 0.06 * risco;
+    float espuma = smoothstep(0.6, 0.72, m) * (1.0 - smoothstep(0.8, 0.9, m)) * 0.85;
+    vec3 cor = mix(uFundo, uRaso, clamp(marg * 1.5 + vOnda * 0.08, 0.0, 1.0));
+    float brilho = pow(max(0.0, sin(vMundo.x * 2.1 + uTempo) * sin(vMundo.y * 2.7 - uTempo * 1.3)), 14.0) * 0.4;
+    cor = cor * uLuz + espuma * uEspuma * uLuz + brilho * uLuz;
+    cor = mix(cor, uNevoa, smoothstep(uPerto, uLonge, vDist));
+    gl_FragColor = vec4(cor, 0.86 + espuma * 0.14);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+
 export class Vista3D {
+  private readonly canvas: HTMLCanvasElement;
   private readonly renderer: THREE.WebGLRenderer;
   private readonly cena = new THREE.Scene();
-  private readonly camera = new THREE.PerspectiveCamera(42, LARGURA / ALTURA, 0.1, 200);
+  private readonly camera = new THREE.PerspectiveCamera(38, LARGURA / ALTURA, 0.1, 300);
   private readonly sol: THREE.DirectionalLight;
   private readonly ceu: THREE.HemisphereLight;
+  private larguraTela = 0;
+  private alturaTela = 0;
+  /* desenhada neste quadro? se não, o canvas some (carregar.ts) */
+  private usada = false;
 
   /* tudo que pertence ao mapa atual; trocado inteiro quando o mapa muda */
   private grupo: THREE.Group | null = null;
@@ -84,7 +147,17 @@ export class Vista3D {
   private alturas: Float32Array = new Float32Array(0);
   private largura = 0;
   private altura = 0;
-  private agua: THREE.Texture | null = null;
+  private aguaMat: THREE.ShaderMaterial | null = null;
+
+  /* a luz de agora (só recalcula quando a chave muda) */
+  private chaveLuz = '';
+  private fundo: THREE.CanvasTexture | null = null;
+  /* o tempo do vento, compartilhado por todo material que balança */
+  private readonly vento = { value: 0 };
+
+  /* a câmera persegue este ponto, devagar */
+  private readonly olhar = new THREE.Vector3();
+  private ultimoTempo = -1;
 
   /* os atores reaproveitam sprites e texturas de um quadro para o outro */
   private readonly texturas = new Map<Assado, THREE.SpriteMaterial>();
@@ -95,29 +168,63 @@ export class Vista3D {
   private readonly sombraMat = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
 
   constructor() {
-    const canvas = document.createElement('canvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'low-power' });
-    this.renderer.setPixelRatio(1);
-    this.renderer.setSize(LARGURA * SUAVE, ALTURA * SUAVE, false);
+    this.canvas = document.createElement('canvas');
+    this.canvas.id = 'mundo3d';
+    this.canvas.style.display = 'none';
+    const jogo = document.getElementById('jogo');
+    if (jogo?.parentElement) jogo.parentElement.insertBefore(this.canvas, jogo);
+    else document.body.appendChild(this.canvas);
+
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    this.ceu = new THREE.HemisphereLight('#e8f4ff', '#5a7a3a', 0.9);
+    this.ceu = new THREE.HemisphereLight('#e8f4ff', '#5a7a3a', 1);
     this.sol = new THREE.DirectionalLight('#fff0d0', 2.2);
     this.sol.castShadow = true;
     this.sol.shadow.mapSize.set(2048, 2048);
-    this.sol.shadow.bias = -0.0008;
+    this.sol.shadow.bias = -0.0006;
+    this.sol.shadow.normalBias = 0.02;
     this.cena.add(this.ceu, this.sol, this.sol.target);
   }
 
-  /* desenha o mundo e carimba no canvas do jogo, cobrindo a tela inteira */
+  /* desenha o mundo no canvas de trás e abre o buraco no canvas do jogo */
   desenhar(ctx: CanvasRenderingContext2D, q: Quadro3D): void {
-    if (q.mapa !== this.mapaAtual) this.montar(q.mapa);
-    this.posicionarCamera(q);
+    this.usada = true;
+    this.canvas.style.display = 'block';
+    this.ajustarTamanho();
+    ctx.clearRect(0, 0, LARGURA, ALTURA);
+    const novo = q.mapa !== this.mapaAtual;
+    if (novo) this.montar(q.mapa);
+    this.aplicarLuz(q);
+    this.posicionarCamera(q, novo);
     this.posicionarAtores(q.atores);
-    if (this.agua) this.agua.offset.set((q.tempo * 0.05) % 1, (q.tempo * 0.03) % 1);
+    this.vento.value = q.tempo;
+    if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
     this.renderer.render(this.cena, this.camera);
-    ctx.drawImage(this.renderer.domElement, 0, 0, LARGURA, ALTURA);
+  }
+
+  /* chamado uma vez por quadro (carregar.ts): quem não desenhou, some */
+  fimDoQuadro(): void {
+    if (!this.usada) this.canvas.style.display = 'none';
+    this.usada = false;
+  }
+
+  /* o canvas de trás acompanha o tamanho do canvas do jogo, na resolução real */
+  private ajustarTamanho(): void {
+    const ref = document.getElementById('jogo');
+    const w = ref?.clientWidth || LARGURA * 3, h = ref?.clientHeight || ALTURA * 3;
+    if (w === this.larguraTela && h === this.alturaTela) return;
+    this.larguraTela = w; this.alturaTela = h;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.renderer.setPixelRatio(Math.min(DPR_MAX, window.devicePixelRatio || 1));
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
   }
 
   /* onde um ponto do mundo (em tiles) cai na tela de 240x160 — para o
@@ -127,14 +234,77 @@ export class Vista3D {
     return { x: (v.x + 1) / 2 * LARGURA, y: (1 - v.y) / 2 * ALTURA };
   }
 
+  /* ------------------------------------------------------------- luz */
+
+  private aplicarLuz(q: Quadro3D): void {
+    const def = q.mapa.def;
+    const dentro = def.interior === true;
+    const chave = `${def.id}|${q.periodo ?? 'dia'}|${q.clima ?? 'limpo'}|${q.regiao ?? ''}`;
+    if (chave === this.chaveLuz) return;
+    this.chaveLuz = chave;
+    const l = luzDe(q.regiao ?? null, q.periodo ?? 'dia', q.clima ?? 'limpo', dentro);
+    this.ceu.color.set(l.hemiCima);
+    this.ceu.groundColor.set(l.hemiBaixo);
+    this.ceu.intensity = l.hemi;
+    this.sol.color.set(l.sol);
+    this.sol.intensity = l.solForca;
+    const cx = this.largura / 2, cz = this.altura / 2, raio = Math.max(this.largura, this.altura) / 2 + 4;
+    const dist = 30;
+    this.sol.position.set(cx + Math.cos(l.solAngulo) * dist, 8 + l.solAltura * 22, cz + Math.sin(l.solAngulo) * dist * 0.6 + 8);
+    this.sol.target.position.set(cx, 0, cz);
+    const sc = this.sol.shadow.camera;
+    sc.left = -raio * 1.4; sc.right = raio * 1.4; sc.top = raio * 1.4; sc.bottom = -raio * 1.4;
+    sc.near = 1; sc.far = 120;
+    sc.updateProjectionMatrix();
+
+    this.cena.fog = dentro ? null : new THREE.Fog(l.nevoa, l.nevoaPerto, l.nevoaLonge);
+    this.fundo?.dispose();
+    this.fundo = this.degrade(l.ceuTopo, l.ceuBase);
+    this.cena.background = this.fundo;
+
+    if (this.aguaMat) {
+      const u = this.aguaMat.uniforms;
+      const luz = new THREE.Color(l.hemiCima).multiplyScalar(l.hemi * 0.45)
+        .add(new THREE.Color(l.sol).multiplyScalar(l.solForca * 0.14));
+      u['uLuz']!.value = luz;
+      u['uNevoa']!.value = new THREE.Color(l.nevoa);
+      u['uPerto']!.value = dentro ? 999 : l.nevoaPerto;
+      u['uLonge']!.value = dentro ? 1000 : l.nevoaLonge;
+    }
+  }
+
+  /* o céu: um degradê vertical, de cima para o horizonte */
+  private degrade(topo: string, base: string): THREE.CanvasTexture {
+    const c = document.createElement('canvas');
+    c.width = 2; c.height = 128;
+    const g = c.getContext('2d')!;
+    const gr = g.createLinearGradient(0, 0, 0, 128);
+    gr.addColorStop(0, topo);
+    gr.addColorStop(1, base);
+    g.fillStyle = gr;
+    g.fillRect(0, 0, 2, 128);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+
   /* ------------------------------------------------------------ câmera */
 
-  private posicionarCamera(q: Quadro3D): void {
-    const dentro = q.mapa.def.interior === true;
+  private posicionarCamera(q: Quadro3D, novo: boolean): void {
+    const def = q.mapa.def;
+    const caverna = def.escuro !== undefined;
+    const dentro = def.interior === true;
     const alvo = new THREE.Vector3(q.alvoX, this.chaoEm(q.alvoX, q.alvoY) * 0.5, q.alvoY);
-    const [sobe, recua] = dentro ? [8.6, 7.6] : [10.5, 10.5];
-    this.camera.position.set(alvo.x, alvo.y + sobe, alvo.z + recua);
-    this.camera.lookAt(alvo.x, alvo.y, alvo.z - 0.9);
+    // segue devagar; salta quando o mapa muda ou o jogador some de um lado a outro
+    const dt = this.ultimoTempo < 0 ? 0 : Math.max(0, Math.min(0.1, q.tempo - this.ultimoTempo));
+    this.ultimoTempo = q.tempo;
+    if (novo || dt === 0 || this.olhar.distanceTo(alvo) > 6) this.olhar.copy(alvo);
+    else this.olhar.lerp(alvo, 1 - Math.exp(-dt * 7));
+    const [sobe, recua, fov] = caverna ? [8.2, 7.2, 40] : dentro ? [8.8, 7.6, 40] : [11, 10.2, 40];
+    if (this.camera.fov !== fov) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
+    const o = this.olhar;
+    this.camera.position.set(o.x, o.y + sobe, o.z + recua);
+    this.camera.lookAt(o.x, o.y, o.z - 0.6);
   }
 
   private chaoEm(x: number, y: number): number {
@@ -199,8 +369,9 @@ export class Vista3D {
     if (this.grupo) this.cena.remove(this.grupo);
     for (const d of this.descartaveis) d.dispose();
     this.descartaveis = [];
-    this.agua = null;
+    this.aguaMat = null;
     this.mapaAtual = mapa;
+    this.chaveLuz = '';
 
     const g = new THREE.Group();
     this.grupo = g;
@@ -216,151 +387,265 @@ export class Vista3D {
     for (let y = 0; y < this.altura; y++) {
       for (let x = 0; x < this.largura; x++) {
         const r = { ...(relevoDe(def.chao[y]![x]!) ?? relevoDe('.')!) };
-        if (r.enfeite === 'parede' && y === this.altura - 1) r.altura = PAREDE_CORTADA;
+        if (r.bloco && dentro && y === this.altura - 1) r.altura = PAREDE_CORTADA;
         rel.push(r);
         this.alturas[y * this.largura + x] = r.agua ? NIVEL_AGUA : r.altura;
       }
     }
 
-    this.cena.background = new THREE.Color(dentro ? '#101018' : '#9fd3f0');
-    this.cena.fog = dentro ? null : new THREE.Fog('#bfe3f5', 22, 42);
-
     this.montarChao(g, rel);
-    if (!dentro) this.montarEntorno(g);
-    if (def.chao.some((l) => l.includes('~'))) this.montarAgua(g);
-    this.montarEnfeites(g, rel);
+    this.montarBlocos(g, rel);
+    const fora = dentro ? [] : this.montarEntorno(g, rel);
+    if (rel.some((r) => r.agua)) this.montarAgua(g, rel);
+    this.montarEnfeites(g, rel, fora);
     for (const o of def.objetos) if (objetoAtivo(o, mapa.ctx)) this.montarObjeto(g, o, mapa);
-
-    // o sol cobre o mapa todo, e a sombra acompanha
-    const cx = this.largura / 2, cz = this.altura / 2, raio = Math.max(this.largura, this.altura) / 2 + 4;
-    this.sol.position.set(cx - 14, 26, cz + 16);
-    this.sol.target.position.set(cx, 0, cz);
-    const sc = this.sol.shadow.camera;
-    sc.left = -raio * 1.3; sc.right = raio * 1.3; sc.top = raio * 1.3; sc.bottom = -raio * 1.3;
-    sc.near = 1; sc.far = 90;
-    sc.updateProjectionMatrix();
-    this.ceu.intensity = dentro ? 1.4 : 0.9;
   }
 
   private guardar<X extends { dispose(): void }>(x: X): X { this.descartaveis.push(x); return x; }
 
-  /* o chão inteiro numa malha só: topo de cada tile, pintado com o mesmo
-     desenho do mapa plano, e o barranco onde o vizinho é mais baixo */
+  /* material que balança no vento: o topo anda mais que a base */
+  private balancando(mat: THREE.Material, forca: number): THREE.Material {
+    mat.onBeforeCompile = (s) => {
+      s.uniforms['uTempo'] = this.vento;
+      s.vertexShader = 'uniform float uTempo;\n' + s.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        #ifdef USE_INSTANCING
+          vec3 baseV = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
+        #else
+          vec3 baseV = vec3(0.0);
+        #endif
+        float balanco = sin(uTempo * 1.7 + baseV.x * 0.8 + baseV.z * 0.6) * ${forca.toFixed(3)} * max(position.y + 0.5, 0.0);
+        transformed.x += balanco;
+        transformed.z += balanco * 0.4;`);
+    };
+    return mat;
+  }
+
+  /* O chão inteiro numa malha só. Cada tile vira quatro triângulos em
+     volta do centro: o centro fica na altura do tile (é onde se pisa), os
+     cantos na média dos vizinhos — o barranco vira rampa chanfrada, e a cor
+     do canto, a mistura das cores em volta. */
   private montarChao(g: THREE.Group, rel: Relevo[]): void {
     const W = this.largura, H = this.altura;
-    const atlas = new Buf(W * 16, H * 16);
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const piso = rel[y * W + x]!.piso;
-        atlas.blit((TILES[piso] ?? TILES['.']!).desenho(x * 31 + y * 17 + 3), x * 16, y * 16);
+    // dentro de casa o piso não se mistura: tapete é tapete, tábua é tábua
+    const misturar = this.mapaAtual!.def.interior !== true;
+    const cantoH = new Float32Array((W + 1) * (H + 1));
+    const cantoC: THREE.Color[] = [];
+    const corDe = (r: Relevo) => new THREE.Color(r.cor);
+    for (let cy = 0; cy <= H; cy++) {
+      for (let cx = 0; cx <= W; cx++) {
+        let soma = 0, n = 0;
+        const c = new THREE.Color(0, 0, 0);
+        for (const [dx, dy] of [[-1, -1], [0, -1], [-1, 0], [0, 0]] as const) {
+          const x = cx + dx, y = cy + dy;
+          if (x < 0 || y < 0 || x >= W || y >= H) continue;
+          const r = rel[y * W + x]!;
+          if (r.bloco) continue;
+          // o fundo d'água puxa o canto só até a metade: margem em rampa, não em poço
+          soma += r.agua ? NIVEL_AGUA - 0.25 : r.altura; n++;
+          c.add(corDe(r));
+        }
+        if (n === 0) { cantoH[cy * (W + 1) + cx] = 0; cantoC.push(new THREE.Color('#5a5048')); continue; }
+        cantoH[cy * (W + 1) + cx] = soma / n;
+        // um pouco de variação por canto: o low-poly respira
+        cantoC.push(c.multiplyScalar(1 / n).multiplyScalar(0.94 + sorte(cx, cy) * 0.12));
       }
     }
-    const tex = this.guardar(texturaDe(assar(atlas)));
 
-    const pos: number[] = [], uv: number[] = [], nor: number[] = [], cor: number[] = [];
-    const idx: number[] = [], idxLado: number[] = [];
-    const quad = (v: number[][], n: number[], u: number[][] | null, c: THREE.Color | null, alvo: number[]) => {
-      const base = pos.length / 3;
-      for (let i = 0; i < 4; i++) {
-        pos.push(...v[i]!); nor.push(...n);
-        uv.push(...(u ? u[i]! : [0, 0]));
-        cor.push(...(c ? [c.r, c.g, c.b] : [1, 1, 1]));
-      }
-      alvo.push(base, base + 1, base + 2, base, base + 2, base + 3);
-    };
+    const pos: number[] = [], cor: number[] = [];
+    const v = (x: number, y: number, z: number, c: THREE.Color) => { pos.push(x, y, z); cor.push(c.r, c.g, c.b); };
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const r = rel[y * W + x]!;
+        if (r.bloco) continue;
         const h = r.altura;
-        const u0 = x / W, u1 = (x + 1) / W, v0 = 1 - y / H, v1 = 1 - (y + 1) / H;
-        quad([[x, h, y + 1], [x + 1, h, y + 1], [x + 1, h, y], [x, h, y]], [0, 1, 0],
-             [[u0, v1], [u1, v1], [u1, v0], [u0, v0]], null, idx);
-        const c = new THREE.Color(COR_LADO[r.piso] ?? '#6b4a2e');
-        for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]] as const) {
-          const nx = x + dx, ny = y + dy;
-          if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
-          const nh = rel[ny * W + nx]!.altura;
-          if (nh >= h) continue;
-          // a face do barranco, voltada para o vizinho mais baixo
-          const cc = c.clone().multiplyScalar(dy === 1 ? 1 : dy === -1 ? 0.6 : 0.8);
-          if (dy === 1) quad([[x, nh, y + 1], [x + 1, nh, y + 1], [x + 1, h, y + 1], [x, h, y + 1]], [0, 0, 1], null, cc, idxLado);
-          if (dy === -1) quad([[x + 1, nh, y], [x, nh, y], [x, h, y], [x + 1, h, y]], [0, 0, -1], null, cc, idxLado);
-          if (dx === 1) quad([[x + 1, nh, y + 1], [x + 1, nh, y], [x + 1, h, y], [x + 1, h, y + 1]], [1, 0, 0], null, cc, idxLado);
-          if (dx === -1) quad([[x, nh, y], [x, nh, y + 1], [x, h, y + 1], [x, h, y]], [-1, 0, 0], null, cc, idxLado);
+        const cc = corDe(r).multiplyScalar(0.96 + sorte(x, y, 7) * 0.08);
+        const k = (cx: number, cy: number) => cy * (W + 1) + cx;
+        const cantos: [number, number][] = [[x, y], [x + 1, y], [x + 1, y + 1], [x, y + 1]];
+        // os quatro triângulos em leque, na ordem que deixa a face para cima
+        for (let i = 0; i < 4; i++) {
+          const [ax, ay] = cantos[(i + 1) % 4]!;
+          const [bx, by] = cantos[i]!;
+          v(x + 0.5, h, y + 0.5, cc);
+          v(ax, cantoH[k(ax, ay)]!, ay, misturar ? cantoC[k(ax, ay)]! : cc);
+          v(bx, cantoH[k(bx, by)]!, by, misturar ? cantoC[k(bx, by)]! : cc);
         }
       }
     }
     const geo = this.guardar(new THREE.BufferGeometry());
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
-    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(cor, 3));
-    geo.setIndex([...idx, ...idxLado]);
-    geo.addGroup(0, idx.length, 0);
-    geo.addGroup(idx.length, idxLado.length, 1);
-    const topo = this.guardar(new THREE.MeshLambertMaterial({ map: tex }));
-    const lado = this.guardar(new THREE.MeshLambertMaterial({ vertexColors: true }));
-    const m = new THREE.Mesh(geo, [topo, lado]);
+    geo.computeVertexNormals();
+    const mat = this.guardar(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
-    m.castShadow = true;
     g.add(m);
-  }
 
-  /* grama além da borda do mapa, para a câmera nunca ver o vazio — menos
-     do lado em que a borda é mar */
-  private montarEntorno(g: THREE.Group): void {
-    const W = this.largura, H = this.altura, M = 30;
-    const tex = this.guardar(texturaDe(assar(T.tileGrama(1)), true));
-    const lados: [number, number, number, number, string][] = [
-      [-M, -M, W + 2 * M, M, this.def().chao[0]!],
-      [-M, H, W + 2 * M, M, this.def().chao[H - 1]!],
-      [-M, 0, M, H, this.def().chao.map((l) => l[0]).join('')],
-      [W, 0, M, H, this.def().chao.map((l) => l[W - 1]).join('')],
-    ];
-    for (const [x, z, w, d, borda] of lados) {
-      const mar = [...borda].filter((c) => c === '~').length > borda.length / 2;
-      if (mar) continue;
-      const t = tex.clone();
-      t.repeat.set(w, d);
-      t.needsUpdate = true;
-      this.guardar(t);
-      const geo = this.guardar(new THREE.PlaneGeometry(w, d));
-      const mat = this.guardar(new THREE.MeshLambertMaterial({ map: t, color: '#b8c8a8' }));
-      const p = new THREE.Mesh(geo, mat);
-      p.rotation.x = -Math.PI / 2;
-      p.position.set(x + w / 2, -0.001, z + d / 2);
-      p.receiveShadow = true;
-      g.add(p);
+    // lava: um véu que brilha sozinho por cima do chão
+    const lavas = rel.flatMap((r, i) => (r.brilha ? [i] : []));
+    if (lavas.length) {
+      const brilho = new THREE.InstancedMesh(this.guardar(new THREE.PlaneGeometry(1, 1)),
+        this.guardar(new THREE.MeshBasicMaterial({ color: '#ff8a2a' })), lavas.length);
+      const o = new THREE.Object3D();
+      lavas.forEach((i, n) => {
+        o.position.set(i % W + 0.5, rel[i]!.altura + 0.02, Math.floor(i / W) + 0.5);
+        o.rotation.set(-Math.PI / 2, 0, 0);
+        o.updateMatrix();
+        brilho.setMatrixAt(n, o.matrix);
+      });
+      g.add(brilho);
     }
   }
 
-  private def() { return this.mapaAtual!.def; }
+  /* parede, rocha e paredão: um bloco que desce até o fundo, e um tampo
+     menor e mais claro em cima — o chanfro que tira a cara de caixote */
+  private montarBlocos(g: THREE.Group, rel: Relevo[]): void {
+    const W = this.largura;
+    const blocos = rel.flatMap((r, i) => (r.bloco ? [i] : []));
+    if (!blocos.length) return;
+    const corpo = new THREE.InstancedMesh(this.guardar(new THREE.BoxGeometry(1, 1, 1)),
+      this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), blocos.length);
+    const tampo = new THREE.InstancedMesh(this.guardar(new THREE.BoxGeometry(0.84, 0.14, 0.84)),
+      this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), blocos.length);
+    corpo.castShadow = corpo.receiveShadow = tampo.castShadow = tampo.receiveShadow = true;
+    const o = new THREE.Object3D();
+    blocos.forEach((i, n) => {
+      const r = rel[i]!;
+      const x = i % W, y = Math.floor(i / W);
+      const h = r.altura + (r.enfeite === 'rocha' ? (sorte(x, y) - 0.5) * 0.3 : 0);
+      o.position.set(x + 0.5, (h - 1.2) / 2, y + 0.5);
+      o.scale.set(1, h + 1.2, 1);
+      o.rotation.set(0, 0, 0);
+      o.updateMatrix();
+      corpo.setMatrixAt(n, o.matrix);
+      corpo.setColorAt(n, new THREE.Color(r.cor).multiplyScalar(0.88 + sorte(x, y, 3) * 0.1));
+      o.position.set(x + 0.5, h + 0.07, y + 0.5);
+      o.scale.set(1, 1, 1);
+      o.rotation.set(0, r.enfeite === 'rocha' ? sorte(x, y, 5) * 0.4 : 0, 0);
+      o.updateMatrix();
+      tampo.setMatrixAt(n, o.matrix);
+      tampo.setColorAt(n, new THREE.Color(r.cor).multiplyScalar(1.12));
+    });
+    g.add(corpo, tampo);
+  }
 
-  /* a lâmina d'água: o desenho da água do jogo, repetido e correndo devagar */
-  private montarAgua(g: THREE.Group): void {
+  /* O que fica além da borda: chão com a cor da borda, e — onde não é
+     mar — uma faixa de mata que vai rareando, e morros ao longe. A câmera
+     nunca vê o vazio, e o mapa deixa de parecer um tabuleiro recortado.
+     Devolve onde pôr as árvores de fora (montadas junto com as de dentro). */
+  private montarEntorno(g: THREE.Group, rel: Relevo[]): [number, number][] {
     const W = this.largura, H = this.altura, M = 40;
-    const t = this.guardar(texturaDe(assar(T.tileAgua(3)), true));
-    t.repeat.set(W + 2 * M, H + 2 * M);
-    this.agua = t;
-    const geo = this.guardar(new THREE.PlaneGeometry(W + 2 * M, H + 2 * M));
-    const mat = this.guardar(new THREE.MeshLambertMaterial({ map: t, transparent: true, opacity: 0.82, depthWrite: false }));
+    const def = this.mapaAtual!.def;
+    const lados: { x: number; z: number; w: number; d: number; borda: string; arvore: (k: number) => [number, number] }[] = [
+      { x: -M, z: -M, w: W + 2 * M, d: M, borda: def.chao[0]!, arvore: (k) => [sorte(k, 1) * (W + 16) - 8, -1 - sorte(k, 2) ** 2 * 9] },
+      { x: -M, z: H, w: W + 2 * M, d: M, borda: def.chao[H - 1]!, arvore: (k) => [sorte(k, 3) * (W + 16) - 8, H + 1 + sorte(k, 4) ** 2 * 9] },
+      { x: -M, z: 0, w: M, d: H, borda: def.chao.map((l) => l[0]).join(''), arvore: (k) => [-1 - sorte(k, 5) ** 2 * 9, sorte(k, 6) * H] },
+      { x: W, z: 0, w: M, d: H, borda: def.chao.map((l) => l[W - 1]).join(''), arvore: (k) => [W + 1 + sorte(k, 7) ** 2 * 9, sorte(k, 8) * H] },
+    ];
+    const arvores: [number, number][] = [];
+    const morros = new THREE.InstancedMesh(this.guardar(new THREE.ConeGeometry(1, 1, 6)),
+      this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), 60);
+    let nMorros = 0;
+    const o = new THREE.Object3D();
+    lados.forEach((l, li) => {
+      const mar = [...l.borda].filter((c) => c === '~').length > l.borda.length / 2;
+      if (mar) return;
+      const corBorda = new THREE.Color(0, 0, 0);
+      let n = 0;
+      for (const c of l.borda) { const r = relevoDe(c); if (r && !r.agua) { corBorda.add(new THREE.Color(r.bloco ? '#5e9e4c' : r.cor)); n++; } }
+      corBorda.multiplyScalar(1 / Math.max(1, n)).multiplyScalar(0.92);
+      const p = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(l.w, l.d)),
+        this.guardar(new THREE.MeshLambertMaterial({ color: corBorda })));
+      p.rotation.x = -Math.PI / 2;
+      p.position.set(l.x + l.w / 2, -0.01, l.z + l.d / 2);
+      p.receiveShadow = true;
+      g.add(p);
+      const comprimento = li < 2 ? W : H;
+      for (let k = 0; k < Math.round(comprimento * 1.6); k++) arvores.push(l.arvore(k + li * 1000));
+      // morros ao longe, que a névoa apaga devagar
+      for (let k = 0; k < 12 && nMorros < 60; k++, nMorros++) {
+        const [ax, az] = l.arvore(k + li * 500 + 77);
+        const longe = 14 + sorte(k, li, 9) * 10;
+        const px = li === 2 ? ax - longe : li === 3 ? ax + longe : ax;
+        const pz = li === 0 ? az - longe : li === 1 ? az + longe : az;
+        const r = 4 + sorte(k, li, 11) * 5;
+        o.position.set(px, r * 0.35, pz);
+        o.scale.set(r, r * 0.7 + 1.5, r);
+        o.rotation.set(0, sorte(k, li) * 3, 0);
+        o.updateMatrix();
+        morros.setMatrixAt(nMorros, o.matrix);
+        morros.setColorAt(nMorros, new THREE.Color('#4f7f44').multiplyScalar(0.8 + sorte(k, li, 13) * 0.3));
+      }
+    });
+    morros.count = nMorros;
+    morros.receiveShadow = true;
+    g.add(morros);
+    void rel;
+    return arvores;
+  }
+
+  /* a lâmina d'água: um shader com ondas, espuma rente à margem e brilho */
+  private montarAgua(g: THREE.Group, rel: Relevo[]): void {
+    const W = this.largura, H = this.altura, M = 40;
+    // a textura da margem: forte na água colada em terra, fraca logo depois
+    const dados = new Uint8Array((W + 2) * (H + 2) * 4);
+    const agua = (x: number, y: number) => x < 0 || y < 0 || x >= W || y >= H || rel[y * W + x]!.agua;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let v = 0;
+        if (agua(x, y)) {
+          for (let dy = -2; dy <= 2; dy++) {
+            for (let dx = -2; dx <= 2; dx++) {
+              if (!agua(x + dx, y + dy)) v = Math.max(v, Math.max(Math.abs(dx), Math.abs(dy)) === 1 ? 140 : 50);
+            }
+          }
+        } else v = 255;
+        const i = ((y + 1) * (W + 2) + x + 1) * 4;
+        dados[i] = dados[i + 1] = dados[i + 2] = v; dados[i + 3] = 255;
+      }
+    }
+    const margem = this.guardar(new THREE.DataTexture(dados, W + 2, H + 2, THREE.RGBAFormat));
+    margem.magFilter = margem.minFilter = THREE.LinearFilter;
+    margem.wrapS = margem.wrapT = THREE.ClampToEdgeWrapping;
+    margem.needsUpdate = true;
+
+    const mat = this.guardar(new THREE.ShaderMaterial({
+      vertexShader: AGUA_VERTICE,
+      fragmentShader: AGUA_FRAGMENTO,
+      transparent: true,
+      depthWrite: false,
+      uniforms: {
+        uTempo: { value: 0 },
+        uRaso: { value: new THREE.Color('#3a9ccc') },
+        uFundo: { value: new THREE.Color('#1f5f9a') },
+        uEspuma: { value: new THREE.Color('#e8f6ff') },
+        uLuz: { value: new THREE.Color(1, 1, 1) },
+        uNevoa: { value: new THREE.Color('#bfe3f5') },
+        uPerto: { value: 26 },
+        uLonge: { value: 52 },
+        uMargem: { value: margem },
+        uTam: { value: new THREE.Vector2(W, H) },
+      },
+    }));
+    this.aguaMat = mat;
+    const seg = Math.min(220, W + 2 * M);
+    const geo = this.guardar(new THREE.PlaneGeometry(W + 2 * M, H + 2 * M, seg, Math.min(220, H + 2 * M)));
     const p = new THREE.Mesh(geo, mat);
     p.rotation.x = -Math.PI / 2;
     p.position.set(W / 2, NIVEL_AGUA, H / 2);
-    p.receiveShadow = true;
     p.renderOrder = 1;
     g.add(p);
     const fundo = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(W + 2 * M, H + 2 * M)),
-                                 this.guardar(new THREE.MeshBasicMaterial({ color: '#1f4f7a' })));
+                                 this.guardar(new THREE.MeshLambertMaterial({ color: '#1a4a72' })));
     fundo.rotation.x = -Math.PI / 2;
-    fundo.position.set(W / 2, -1.45, H / 2);
+    fundo.position.set(W / 2, -1.5, H / 2);
     g.add(fundo);
   }
 
-  /* árvores, pedras, tufos de mato e flores: uma malha repetida por tipo */
-  private montarEnfeites(g: THREE.Group, rel: Relevo[]): void {
+  /* árvores, pedras, tufos de mato, capim, cascalho, trilhos e flores: uma
+     malha repetida por tipo, e o vento nas copas e no mato */
+  private montarEnfeites(g: THREE.Group, rel: Relevo[], fora: [number, number][]): void {
     const W = this.largura;
-    const onde = (e: string) => rel.flatMap((r, i) => (r.enfeite === e ? [[i % W, Math.floor(i / W)] as const] : []));
+    const onde = (e: string) => rel.flatMap((r, i) => (r.enfeite === e ? [[i % W, Math.floor(i / W)] as [number, number]] : []));
     const plano = (cor: string) => this.guardar(new THREE.MeshLambertMaterial({ color: cor, flatShading: true }));
     const repetido = (geo: THREE.BufferGeometry, mat: THREE.Material, n: number, sombra = true) => {
       const m = new THREE.InstancedMesh(this.guardar(geo), mat, Math.max(1, n));
@@ -376,33 +661,69 @@ export class Vista3D {
       m.setMatrixAt(i, o.matrix);
     };
 
-    const arvores = onde('arvore');
-    const tronco = repetido(new THREE.BoxGeometry(0.22, 1, 0.22), plano('#6b4a2e'), arvores.length);
-    const copas = ['#2f6e32', '#3f8a3a', '#2a5e28'].map((c, k) =>
-      repetido(new THREE.ConeGeometry(0.62 - k * 0.14, 0.8, 7), plano(c), arvores.length));
-    arvores.forEach(([x, y], i) => {
-      const h = 0.8 + sorte(x, y) * 0.5, cx = x + 0.5 + (sorte(x, y, 1) - 0.5) * 0.15, cz = y + 0.5;
-      pôr(tronco, i, cx, h / 2, cz, 1, 0, h);
-      copas.forEach((c, k) => pôr(c, i, cx, h + 0.2 + k * 0.42, cz, 0.9 + sorte(x, y, 2) * 0.25, sorte(x, y, 3) * 6));
+    // árvore: tronco e três copas de icosaedro, em tons de verde diferentes
+    const dentro = onde('arvore').map(([x, y]) => [x + 0.5 + (sorte(x, y, 1) - 0.5) * 0.15, y + 0.5] as [number, number]);
+    const todas = [...dentro, ...fora];
+    const tronco = repetido(new THREE.CylinderGeometry(0.09, 0.14, 1, 6), plano('#6b4a2e'), todas.length);
+    const copa = repetido(new THREE.IcosahedronGeometry(0.5, 0), this.balancando(
+      this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), 0.05), todas.length * 2);
+    const verdes = ['#2f7a36', '#3f8f3e', '#2a6a30', '#4f9a40'];
+    todas.forEach(([x, z], i) => {
+      const h = 0.75 + sorte(x, z) * 0.55;
+      const s = 0.95 + sorte(x, z, 2) * 0.35;
+      pôr(tronco, i, x, h / 2, z, 1, 0, h);
+      pôr(copa, i * 2, x, h + 0.25, z, s, sorte(x, z, 3) * 6, s * 1.05);
+      pôr(copa, i * 2 + 1, x + (sorte(x, z, 4) - 0.5) * 0.3, h + 0.75, z + (sorte(x, z, 5) - 0.5) * 0.3, s * 0.72, sorte(x, z, 6) * 6);
+      copa.setColorAt(i * 2, new THREE.Color(verdes[Math.floor(sorte(x, z, 7) * 4)]!));
+      copa.setColorAt(i * 2 + 1, new THREE.Color(verdes[Math.floor(sorte(x, z, 8) * 4)]!).multiplyScalar(1.12));
     });
 
     const pedras = onde('pedra');
     const pedra = repetido(new THREE.DodecahedronGeometry(0.42, 0), plano('#9a9488'), pedras.length);
     pedras.forEach(([x, y], i) => pôr(pedra, i, x + 0.5, 0.25, y + 0.5, 1, sorte(x, y) * 6, 0.8));
 
-    const matos = onde('mato');
-    const tufos = [plano('#3f8a3a'), plano('#5aa44a')].map((m) =>
-      repetido(new THREE.ConeGeometry(0.09, 0.55, 4), m, matos.length * 3, false));
-    matos.forEach(([x, y], i) => {
-      for (let k = 0; k < 6; k++) {
-        const tx = x + 0.15 + sorte(x, y, k) * 0.7, tz = y + 0.15 + sorte(x, y, k + 9) * 0.7;
-        pôr(tufos[k % 2]!, i * 3 + (k >> 1), tx, 0.26, tz, 1, 0, 0.8 + sorte(x, y, k + 4) * 0.5);
-      }
-    });
+    // mato e capim: tufos finos que balançam
+    for (const [qual, cores] of [['mato', ['#3f8a3a', '#5aa44a']], ['capim', ['#c8a84a', '#e0c060']]] as const) {
+      const lugares = onde(qual);
+      if (!lugares.length) continue;
+      const tufos = cores.map((c) => repetido(new THREE.ConeGeometry(0.08, 0.55, 4),
+        this.balancando(plano(c), 0.12), lugares.length * 3, false));
+      lugares.forEach(([x, y], i) => {
+        for (let k = 0; k < 6; k++) {
+          const tx = x + 0.15 + sorte(x, y, k) * 0.7, tz = y + 0.15 + sorte(x, y, k + 9) * 0.7;
+          pôr(tufos[k % 2]!, i * 3 + (k >> 1), tx, 0.26, tz, 1, 0, 0.8 + sorte(x, y, k + 4) * 0.5);
+        }
+      });
+    }
+
+    const cascalhos = onde('cascalho');
+    if (cascalhos.length) {
+      const seixo = repetido(new THREE.DodecahedronGeometry(0.1, 0), plano('#8a8290'), cascalhos.length * 4, false);
+      cascalhos.forEach(([x, y], i) => {
+        for (let k = 0; k < 4; k++) pôr(seixo, i * 4 + k, x + 0.2 + sorte(x, y, k) * 0.6, 0.04, y + 0.2 + sorte(x, y, k + 3) * 0.6, 0.7 + sorte(x, y, k + 6) * 0.6, sorte(x, y, k + 8) * 6);
+      });
+    }
+
+    const trilhos = onde('trilho');
+    if (trilhos.length) {
+      const trilho = repetido(new THREE.BoxGeometry(0.08, 0.06, 1), plano('#5a5258'), trilhos.length * 2, false);
+      const dorm = repetido(new THREE.BoxGeometry(0.7, 0.04, 0.14), plano('#6b4a2e'), trilhos.length * 2, false);
+      trilhos.forEach(([x, y], i) => {
+        const ch = this.mapaAtual!.def.chao[y]![x]!;
+        const deitado = ch === 'D' || ch === 'E';
+        const rot = deitado ? Math.PI / 2 : 0;
+        for (const k of [0, 1]) {
+          const d = k === 0 ? -0.22 : 0.22;
+          pôr(trilho, i * 2 + k, x + 0.5 + (deitado ? 0 : d), 0.03, y + 0.5 + (deitado ? d : 0), 1, rot);
+          const e = k === 0 ? -0.25 : 0.25;
+          pôr(dorm, i * 2 + k, x + 0.5 + (deitado ? e : 0), 0.02, y + 0.5 + (deitado ? 0 : e), 1, rot);
+        }
+      });
+    }
 
     const flores = onde('flores');
     const cores = ['#f2d24b', '#e8583a', '#f4f0e8', '#c25d8f'];
-    const petalas = repetido(new THREE.SphereGeometry(0.07, 6, 4), this.guardar(new THREE.MeshLambertMaterial()), flores.length * 4, false);
+    const petalas = repetido(new THREE.IcosahedronGeometry(0.07, 0), this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), flores.length * 4, false);
     flores.forEach(([x, y], i) => {
       for (let k = 0; k < 4; k++) {
         pôr(petalas, i * 4 + k, x + 0.2 + sorte(x, y, k) * 0.6, 0.1, y + 0.2 + sorte(x, y, k + 5) * 0.6);
@@ -431,7 +752,7 @@ export class Vista3D {
       const lado = this.guardar(new THREE.MeshLambertMaterial({ color: '#7a5a3a' }));
       const topo = this.guardar(new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.3 }));
       const geo = this.guardar(new THREE.BoxGeometry(w, alto, h));
-      const caixa = new THREE.Mesh(geo, movel ? [lado, lado, topo, lado, lado, lado] : [lado, lado, topo, lado, lado, lado]);
+      const caixa = new THREE.Mesh(geo, [lado, lado, topo, lado, lado, lado]);
       const sobre = o.tipo === 'patuas' ? 0.52 : 0;
       caixa.position.set(o.tx + w / 2, chao + sobre + alto / 2, o.ty + deslocY / 16 + h / 2);
       if (!movel) caixa.material = [topo, topo, topo, topo, topo, topo];
@@ -465,10 +786,10 @@ export class Vista3D {
   private predio(g: THREE.Group, o: DefObjeto): void {
     const cfg = PREDIOS[o.tipo]!;
     const w = o.larg ?? 4, alt = o.alt ?? 3;
-    const d = alt - 0.45, h = o.tipo === 'terreiro' ? 2.5 : 1.8;
+    const d = alt - 0.45, h = o.tipo === 'terreiro' || o.tipo === 'arena' ? 2.5 : 1.8;
     const cx = o.tx + w / 2, cz = o.ty + 0.05 + d / 2;
     const frente = cz + d / 2;
-    const mat = (c: string) => this.guardar(new THREE.MeshLambertMaterial({ color: c }));
+    const mat = (c: string) => this.guardar(new THREE.MeshLambertMaterial({ color: c, flatShading: true }));
     const caixa = (bw: number, bh: number, bd: number, m: THREE.Material, x: number, y: number, z: number, sombra = true) => {
       const b = new THREE.Mesh(this.guardar(new THREE.BoxGeometry(bw, bh, bd)), m);
       b.position.set(x, y, z);
@@ -519,7 +840,7 @@ export class Vista3D {
       const bf = new THREE.Shape();
       bf.moveTo(0, 0); bf.lineTo(0.9, -0.25); bf.lineTo(0, -0.5);
       const bandeira = new THREE.Mesh(this.guardar(new THREE.ShapeGeometry(bf)),
-        this.guardar(new THREE.MeshLambertMaterial({ color: P.water!, side: THREE.DoubleSide })));
+        this.balancando(this.guardar(new THREE.MeshLambertMaterial({ color: P.water!, side: THREE.DoubleSide })), 0.15));
       bandeira.position.set(o.tx + 0.93, h + 1.05, cz);
       bandeira.castShadow = true;
       g.add(bandeira);
@@ -529,7 +850,7 @@ export class Vista3D {
   private farol(g: THREE.Group, o: DefObjeto): void {
     const w = o.larg ?? 3, alt = o.alt ?? 7;
     const cx = o.tx + w / 2, cz = o.ty + alt - 1;
-    const mat = (c: string, e?: string) => this.guardar(new THREE.MeshLambertMaterial({ color: c, emissive: e ?? '#000000' }));
+    const mat = (c: string, e?: string) => this.guardar(new THREE.MeshLambertMaterial({ color: c, emissive: e ?? '#000000', flatShading: true }));
     const peca = (geo: THREE.BufferGeometry, m: THREE.Material, y: number) => {
       const p = new THREE.Mesh(this.guardar(geo), m);
       p.position.set(cx, y, cz);
@@ -539,9 +860,9 @@ export class Vista3D {
     peca(new THREE.BoxGeometry(w + 0.2, 0.6, 2.4), mat('#8a8478'), -0.15);
     // baixo o bastante para não tampar a praia quando a câmera passa por ela
     for (let i = 0; i < 5; i++) {
-      peca(new THREE.CylinderGeometry(0.8 - i * 0.07, 0.86 - i * 0.07, 0.7, 14), mat(i % 2 ? '#c2493f' : '#f4f0e8'), 0.5 + i * 0.7);
+      peca(new THREE.CylinderGeometry(0.8 - i * 0.07, 0.86 - i * 0.07, 0.7, 10), mat(i % 2 ? '#c2493f' : '#f4f0e8'), 0.5 + i * 0.7);
     }
-    peca(new THREE.CylinderGeometry(0.42, 0.42, 0.55, 12), mat('#ffe89a', '#c89020'), 4.05);
-    peca(new THREE.ConeGeometry(0.62, 0.6, 12), mat('#93312c'), 4.6);
+    peca(new THREE.CylinderGeometry(0.42, 0.42, 0.55, 10), mat('#ffe89a', '#c89020'), 4.05);
+    peca(new THREE.ConeGeometry(0.62, 0.6, 10), mat('#93312c'), 4.6);
   }
 }

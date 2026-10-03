@@ -15,3 +15,7 @@ export function vista3D(): Vista3D | null {
   }
   return vista;
 }
+
+/* uma vez por quadro, depois de desenhar a cena: se o mundo 3D não foi
+   desenhado neste quadro (batalha, menu de título...), o canvas dele some */
+export function fimDoQuadro3D(): void { vista?.fimDoQuadro(); }

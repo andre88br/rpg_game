@@ -57,9 +57,11 @@ src/
 │             tempo.ts (período do dia, clima por região, o mato do
 │             momento — `tabelaDoMomento` — e o clima na força do golpe)
 │             + *.test.ts (puros)
-├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
-│             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
-│             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no plano)
+├─ render3d/  relevo.ts (o que cada uma das 27 letras do chão vira, o modelo
+│             de cada tipo de objeto, a luz de cada região e hora) + teste
+│             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
+│             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
+│             plano; `fimDoQuadro3D` esconde o canvas quando ninguém o usou)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
 │             notas; baixo, bateria e arpejo saem dos acordes) + teste
 │             musicas.ts (os temas das cutscenes, do mundo, da batalha e as vinhetas)
@@ -113,6 +115,36 @@ Três decisões que sustentam o desempenho e a nitidez:
   desperdiçaria mais de 10% da largura, preenchemos a tela — com 3 pixels
   físicos por pixel do jogo a diferença não é perceptível, e o jogo deixa de
   ficar minúsculo no celular.
+
+## O mundo em 3D
+
+A vista 3D não muda a lógica: a cena do mundo anda em grade como sempre e só
+troca o desenho. Ela renderiza num **canvas próprio** (`#mundo3d`), atrás do
+canvas do jogo, na **resolução real da tela** (densidade até 2) e com
+antisserrilhado. O canvas do jogo ficou transparente: a cena do mundo limpa o
+quadro onde o mundo aparece, e diálogo, menu e clima continuam em 2D por cima.
+O laço chama `fimDoQuadro3D()` depois de desenhar; se o mundo 3D não foi
+desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
+
+- **Chão low-poly.** Cada tile vira quatro triângulos em leque: o centro na
+  altura do tile (é onde se pisa), os cantos na média dos vizinhos — o
+  barranco vira rampa chanfrada, e ao ar livre a cor do canto mistura as
+  cores em volta (dentro de casa, não: tapete é tapete). Parede, rocha e
+  paredão são blocos com tampo chanfrado; o fundo d'água é areia, o que dá
+  prainha nas margens.
+- **Água em shader.** Ondas no vértice, e uma textura de margem (forte na
+  água colada em terra, com uma borda de mar aberto em volta) que desenha a
+  linha de espuma; brilho que corre e a mesma névoa da cena.
+- **Vento.** Copa e mato balançam no shader (`onBeforeCompile`, o tempo num
+  uniform compartilhado) — o topo anda mais que a base.
+- **Luz.** `luzDe(região, período, clima, interior)` em `relevo.ts`: céu em
+  degradê com a cor da região, sol que muda de cor e de ângulo com a hora,
+  névoa; chuva apaga o sol e neblina aproxima a névoa. Tone mapping ACES.
+- **Entorno.** Além da borda: chão da cor da borda, uma faixa de mata que
+  rareia e morros que a névoa apaga — o mapa não parece um tabuleiro
+  recortado. Do lado do mar, só o mar.
+- **Câmera.** Persegue o jogador com amortecimento (salta ao trocar de mapa),
+  com altura e recuo próprios para rua, casa e caverna.
 
 ## Som feito por código
 

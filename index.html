@@ -50,11 +50,15 @@
   }
   /* o jogo desenha em 240x160; o canvas guarda o dobro disso, para caber o
      anti-serrilhado do mundo, e o CSS amplia por fator inteiro */
+  /* o canvas do jogo e, atrás dele na mesma célula, o do mundo 3D (que tem
+     resolução própria). O do jogo é transparente onde o mundo aparece. */
+  #jogo, #mundo3d { grid-area: 1 / 1; }
   #jogo {
     display: block; image-rendering: pixelated; image-rendering: crisp-edges;
-    background: #000; border-radius: 2px;
+    background: transparent; border-radius: 2px; position: relative; z-index: 1;
     box-shadow: 0 0 0 2px #2b2733, 0 8px 32px #0006;
   }
+  #mundo3d { display: block; border-radius: 2px; background: #000; }
 
   /* ---------- controles de toque ---------- */
   #controles { display: none; }

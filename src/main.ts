@@ -1,5 +1,6 @@
 /* Ponto de entrada: monta o renderizador, a entrada e o laço, e liga os
    botões de toque da página às mesmas ações do teclado. */
+import { fimDoQuadro3D } from './render3d/carregar.ts';
 import { fixarHora, type Clima } from './game/tempo.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
@@ -146,6 +147,7 @@ const laco = new Laco((dt) => {
   cenas.atualizar(dt, entrada);
   somDeInterface();
   cenas.desenhar(r);
+  fimDoQuadro3D();
   entrada.virarQuadro();
 });
 laco.iniciar();

@@ -79,7 +79,7 @@ export class Renderizador {
     this.canvas = canvas;
     canvas.width = LARGURA * SUAVE;
     canvas.height = ALTURA * SUAVE;
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) throw new Error('canvas 2d indisponivel');
     this.ctx = ctx;
     this.ctx.imageSmoothingEnabled = false;

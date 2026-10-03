@@ -1387,6 +1387,7 @@ export class CenaMundo implements Cena {
         mapa: this.mapa, tempo: this.tempoAnim,
         alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
         atores: this.atoresNaTela().map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
+        periodo: periodo(), clima: this.climaAqui(), regiao: regiaoDoMapa(this.def.id)?.tipo ?? null,
       });
     } else {
       this.pintor.plano(r, {
@@ -1414,7 +1415,8 @@ export class CenaMundo implements Cena {
 
     if (this.def.escuro) this.desenharEscuridao(r);
     if (this.ceuAberto()) {
-      tingir(r, periodo());
+      // no 3D a hora já está na luz da cena; no plano, um filtro de cor
+      if (!this.vistaDo(this.def.id)) tingir(r, periodo());
       desenharClima(r, this.clima, this.tempoAnim);
     }
 
