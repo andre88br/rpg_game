@@ -1465,7 +1465,59 @@ export function eclipse(): Buf {
    Registro: liga a chave `arte` de cada espécie ao desenho.
    É por aqui que a batalha e o Caderno acham o sprite certo.
    ------------------------------------------------------------------------- */
+/* ---------------- BOTO (Água/Luz, o secreto) ---------------- */
+export function boto(): Buf {
+  const b = new Buf(32, 32);
+  const rosa = '#e88aa8', rosaL = '#f6bfd0', rosaD = '#b85a7a';
+  b.ellipse(16, 30, 13, 2, '#3a8fd5');                  // a água em volta
+  // corpo arqueado, saltando
+  b.ellipse(15, 20, 11, 7, rosa);
+  b.ellipse(15, 23, 8, 3, rosaL);                       // barriga clara
+  b.tri(24, 16, 31, 10, 29, 22, rosa);                  // cauda subindo
+  b.tri(27, 9, 31, 6, 31, 13, rosaD);                   // nadadeira da cauda
+  b.tri(14, 13, 19, 7, 20, 14, rosaD);                  // nadadeira de cima
+  // cabeça com o bico comprido e o "melão" na testa
+  b.ellipse(7, 17, 5, 5, rosa);
+  b.ellipse(6, 13, 3, 2, rosaL);
+  b.rect(0, 18, 5, 2, rosa);
+  b.line(0, 20, 4, 20, rosaD);
+  olho(b, 7, 16, 2, -1);
+  // brilho de luz em volta
+  for (const [x, y] of [[3, 5], [12, 3], [25, 25], [2, 26]] as const) {
+    b.set(x, y, '#fffbe0'); b.set(x + 1, y, '#fff6b0'); b.set(x, y + 1, '#fff6b0');
+  }
+  return b.outline(P.ink);
+}
+
+/* ---------------- BOTO-ENCANTADO (Água/Luz, evolução do Boto) ---------------- */
+export function botoEncantado(): Buf {
+  const b = new Buf(40, 40);
+  const rosa = '#e07898', rosaL = '#f6bfd0', rosaD = '#a84a6a', linho = '#f4f0e6', linhoD = '#cfc8b8';
+  b.ellipse(20, 38, 17, 2, '#3a8fd5');
+  // corpo de gente, de terno de linho branco
+  b.rect(13, 22, 14, 14, linho);
+  b.rect(13, 34, 5, 4, linhoD); b.rect(22, 34, 5, 4, linhoD);   // pernas
+  b.line(20, 22, 20, 33, linhoD);
+  b.ellipse(10, 27, 3, 6, linho); b.ellipse(30, 27, 3, 6, linho); // braços
+  b.ellipse(10, 33, 2, 2, rosa); b.ellipse(30, 33, 2, 2, rosa);   // mãos rosadas
+  b.rect(18, 22, 4, 3, '#d8455a');                     // gravata
+  // cabeça de boto, com o bico e o chapéu branco
+  b.ellipse(20, 15, 7, 7, rosa);
+  b.ellipse(20, 18, 4, 2, rosaL);
+  b.rect(12, 16, 4, 3, rosa); b.line(9, 18, 13, 18, rosaD); b.rect(9, 16, 4, 2, rosa);
+  olho(b, 18, 13, 2, -1);
+  b.ellipse(21, 8, 11, 2, linho);                      // aba do chapéu
+  b.rect(15, 2, 12, 6, linho);
+  b.rect(15, 6, 12, 1, '#d8455a');                     // fita
+  // brilho em volta
+  for (const [x, y] of [[4, 6], [35, 4], [36, 20], [3, 22]] as const) {
+    b.set(x, y, '#fffbe0'); b.set(x + 1, y, '#fff6b0'); b.set(x, y + 1, '#fff6b0');
+  }
+  return b.outline(P.ink);
+}
+
 export const ARTE_CRIATURAS: Record<string, () => Buf> = {
+  boto, botoEncantado,
   boitatinha, boitatao, iarinha, iaraMae, curupinho, curupira,
   piragua, sacizinho, caiporinha,
   cabritinha, cabraCabriola, mulinha, mulaSemCabeca, salamanca, maeDoOuro,

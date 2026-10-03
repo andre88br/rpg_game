@@ -47,6 +47,7 @@ export interface EstadoJogo {
   flags: Record<string, boolean>;
   vistos: string[];                 // espécies já encontradas
   capturados: string[];             // espécies já presas num patuá
+  raros: string[];                  // espécies já presas na cor rara
 }
 
 /* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
@@ -68,6 +69,7 @@ export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
     flags: {},
     vistos: [],
     capturados: [],
+    raros: [],
   };
   adicionar(est.mochila, 'patua', 10);
   adicionar(est.mochila, 'garrafada', 5);
@@ -91,6 +93,7 @@ export function curarTime(e: EstadoJogo): void {
    Devolve true quando entrou no time. */
 export function guardar(e: EstadoJogo, bicho: Encantado): boolean {
   registrar(e, bicho.especie, true);
+  if (bicho.raro && !e.raros.includes(bicho.especie)) e.raros.push(bicho.especie);
   if (e.time.length < TAMANHO_TIME) { e.time.push(bicho); return true; }
   e.caixa.push(bicho);
   return false;

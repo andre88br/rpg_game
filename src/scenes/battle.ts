@@ -18,6 +18,7 @@ import { P, infoTipo, type TipoGolpe } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { variante } from '../art/raro.ts';
 import { golpeEfeito, QUADROS_EFEITO, TAM_EFEITO } from '../art/effects.ts';
 import { fundoBatalha, POSTO_ALIADO, POSTO_INIMIGO, type Cenario } from '../art/battlebg.ts';
 import { Batalha, type AcaoJogador, type Evento, type Lado, type Resultado, type Treinador } from '../battle/engine.ts';
@@ -181,8 +182,8 @@ export class CenaBatalha implements Cena {
   /* fotografia do Encantado no momento em que ele ENTRA em campo */
   private instantaneo(e: Encantado): Visual {
     return {
-      arte: ficha(e).arte,
-      nome: nome(e),
+      arte: ficha(e).arte + (e.raro ? '*' : ''),
+      nome: nome(e) + (e.raro ? ' *' : ''),
       nivel: e.nivel,
       max: hpMaximo(e),
       hp: e.hp,
@@ -206,9 +207,12 @@ export class CenaBatalha implements Cena {
     let a = this.sprites.get(chave);
     if (a) return a;
 
-    const desenho = ARTE_CRIATURAS[arte];
-    if (!desenho) throw new Error(`sem arte para ${arte}`);
-    let cru = desenho();
+    // a chave termina em '*' quando é o de cor rara
+    const raro = arte.endsWith('*');
+    const idArte = raro ? arte.slice(0, -1) : arte;
+    const desenho = ARTE_CRIATURAS[idArte];
+    if (!desenho) throw new Error(`sem arte para ${idArte}`);
+    let cru = raro ? variante(desenho(), idArte) : desenho();
     if (espelhar) {
       const virado = new Buf(cru.w, cru.h);
       virado.blit(cru, 0, 0, { flipX: true });
@@ -376,8 +380,8 @@ export class CenaBatalha implements Cena {
         v.hp += novoMax - v.max;
         v.alvoHp += novoMax - v.max;
         v.max = novoMax;
-        v.arte = ficha(enc).arte;
-        v.nome = nome(enc);
+        v.arte = ficha(enc).arte + (enc.raro ? '*' : '');
+        v.nome = nome(enc) + (enc.raro ? ' *' : '');
         this.brilho = 1.1;
         this.espera = 1.15;
         Som.efeito('evoluir');

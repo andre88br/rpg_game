@@ -47,6 +47,7 @@ import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo, regiaoDoMapa } from '../data/mundo.ts';
 import { chegada, destinosDaCanoa, motivoParaNaoViajar } from '../game/viagem.ts';
+import { talvezRaro } from '../game/raro.ts';
 import { periodo, sortearClima, tabelaDoMomento, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
@@ -1269,7 +1270,7 @@ export class CenaMundo implements Cena {
 
     const agora = tabelaDoMomento(tabela, periodo(), this.climaAqui());
     this.op.aoBatalhar({
-      oponentes: [sortearSelvagem(agora, acaso)],
+      oponentes: [talvezRaro(sortearSelvagem(agora, acaso), this.op.estado, acaso)],
       cenario: this.def.cenario ?? 'praia',
       clima: this.climaAqui(),
     });

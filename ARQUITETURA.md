@@ -20,6 +20,8 @@ src/
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
 │             ceu (a cor da hora e a chuva, o vento, a neblina e o clarão)
+│             raro (a cor rara: giro de matiz por espécie, e um banho de
+│             cor nos bichos quase cinzas)
 │             cenas (fundos e peças das cutscenes da Foz e da Mata, e o
 │             que todo fundo usa: degradê, morro, árvore, moldura de lembrança)
 │             fundos/ (os fundos de cada região da Serra em diante, um
@@ -45,6 +47,7 @@ src/
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
+│             raro.ts (a chance da cor rara e o Amuleto do Brilho)
 │             viagem.ts (a Canoa: abrigo de cada cidade, destinos pelas
 │             flags `visitou_`, a chegada e quando não dá para remar)
 │             tempo.ts (período do dia, clima por região, o mato do

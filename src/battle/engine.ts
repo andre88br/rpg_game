@@ -213,6 +213,7 @@ export class Batalha {
     const ev: Evento[] = [];
     if (this.selvagem) {
       ev.push({ k: 'texto', t: `Um ${nome(this.inimigo.enc)} selvagem apareceu!` });
+      if (this.inimigo.enc.raro) ev.push({ k: 'texto', t: 'Esse brilha diferente... é de cor rara!' });
     } else {
       const t = this.treinador!;
       ev.push({ k: 'texto', t: `${t.classe} ${t.nome} quer lutar!` });

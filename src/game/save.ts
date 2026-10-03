@@ -123,6 +123,7 @@ function bicho(v: unknown): Encantado | null {
     golpes,
     selvagem: false,
   };
+  if (o['raro'] === true) e.raro = true;
   e.hp = inteiro(o['hp'], hpMaximo(e), 0, hpMaximo(e));
   return e;
 }
@@ -173,6 +174,7 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
     flags,
     vistos: listaDeTexto(j['vistos'], (s2) => ESPECIES[s2] !== undefined),
     capturados: listaDeTexto(j['capturados'], (s2) => ESPECIES[s2] !== undefined),
+    raros: listaDeTexto(j['raros'], (s2) => ESPECIES[s2] !== undefined),
   };
 }
 

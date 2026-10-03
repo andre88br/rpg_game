@@ -28,6 +28,8 @@ export interface Encantado {
   turnosStatus: number;    // só o sono usa: quantos turnos ainda faltam
   golpes: GolpeAprendido[];
   selvagem: boolean;
+  /* de cor rara (um em 256 no mato): só muda a cor, nunca a força */
+  raro?: boolean;
 }
 
 /* ------------------------------------------------------------------ ficha */
@@ -107,6 +109,7 @@ export interface OpcoesCriar {
   selvagem?: boolean;
   golpes?: readonly string[];
   xp?: number;
+  raro?: boolean;
 }
 
 export function criar(idEspecie: string, nivel: number, op: OpcoesCriar = {}): Encantado {
@@ -123,6 +126,7 @@ export function criar(idEspecie: string, nivel: number, op: OpcoesCriar = {}): E
     golpes: ids.map(novoGolpe),
     selvagem: op.selvagem ?? false,
   };
+  if (op.raro) e.raro = true;
   e.hp = hpMaximo(e);
   return e;
 }

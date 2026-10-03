@@ -123,8 +123,28 @@ export const portoIara: DefMapa = {
       id: 'contador', nome: 'CONTADOR DE BICHOS', estilo: 'aldeao',
       tx: 24, ty: 21, dir: 'esq',
       falas: [
+        /* os prêmios do caderno, por espécies PRESAS no patuá (não só vistas).
+           Cada marca entrega uma vez; a de 45 traz o Boto, o bicho secreto. */
+        { se: ['conta_caderno', 'capturados>=45'], seNao: 'caderno_premio4', liga: 'caderno_premio4',
+          encantado: { especie: 'boto', nivel: 40 }, linhas: [
+          'QUARENTA E CINCO! Eu nunca vi um caderno assim. Nem o meu é assim.',
+          'Então você merece saber: tem um bicho que não está em caderno nenhum.',
+          'Ele me seguiu desde a beira do rio quando eu era menino. Cuida dele, {crianca}: é o Boto.'] },
+        { se: ['conta_caderno', 'capturados>=36'], seNao: 'caderno_premio3', liga: 'caderno_premio3',
+          da: { item: 'amuleto_brilho' }, linhas: [
+          'Trinta e seis no patuá! Toma o meu Amuleto do Brilho.',
+          'Com ele na mochila, bicho de cor rara aparece o dobro. Raro continua raro, viu?'] },
+        { se: ['conta_caderno', 'capturados>=24'], seNao: 'caderno_premio2', liga: 'caderno_premio2',
+          cantiga: 'cantiga_sol', linhas: [
+          'Vinte e quatro presos! Isso merece a cantiga que minha avó cantava ao meio-dia.',
+          'É a Cantiga do Sol a Pino. Ensina a Luz, Fogo, Planta e Vento, e não se gasta.'] },
+        { se: ['conta_caderno', 'capturados>=12'], seNao: 'caderno_premio1', liga: 'caderno_premio1',
+          da: { item: 'patua_mestre', n: 5 }, linhas: [
+          'Doze bichos presos no patuá! Pra quem prende assim, só Patuá de Mestre.',
+          'Toma cinco. E volta quando tiver vinte e quatro.'] },
         { se: 'conta_caderno', linhas: [
-          'Quatro bichos anotados com a sua letra. O caderno agradece, {crianca}.'] },
+          'Quatro bichos anotados com a sua letra. O caderno agradece, {crianca}.',
+          'Você já prendeu {capturados}. A cada 12, 24, 36 e 45 presos no patuá eu tenho um presente.'] },
         { se: ['tem_caderno', 'vistos>=4'], liga: 'conta_caderno', paga: 500, linhas: [
           'Deixa eu ver... um, dois, três, QUATRO. Os quatro da região, todos anotados.',
           'Serviço é serviço: acendi uma conta da guia pra você. E toma um trocado.'] },

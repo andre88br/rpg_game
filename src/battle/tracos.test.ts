@@ -260,3 +260,9 @@ test('na chuva a água bate mais e o fogo menos, e a abertura avisa', () => {
   const b = new Batalha({ time: [criar('mulinha', 30)], oponentes: [neutro()], clima: 'chuva' });
   assert.ok(b.abrir().some((e) => e.k === 'texto' && e.t === 'Está chovendo.'));
 });
+
+test('o bicho de cor rara é anunciado ao aparecer', () => {
+  const dele = criar('lobinho', 5, { selvagem: true, raro: true });
+  const ev = new Batalha({ time: [criar('mulinha', 10)], oponentes: [dele] }).abrir();
+  assert.ok(ev.some((e) => e.k === 'texto' && /cor rara/.test(e.t)));
+});

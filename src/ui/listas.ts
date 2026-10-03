@@ -20,7 +20,7 @@ import { ITENS_ORDEM, item as fichaItem, type Mochila } from '../data/items.ts';
    menu de pausa desenham a mesma linha. */
 export function linhaBicho(r: Renderizador, e: Encantado, y: number, selecionado: boolean): void {
   if (selecionado) r.texto('=', 12, y, P.uiAccD!);
-  r.texto(nome(e), 22, y, P.uiInk!);
+  r.texto(nome(e) + (e.raro ? ' *' : ''), 22, y, P.uiInk!);
   const nv = 'NV' + e.nivel;
   r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
 }
@@ -64,6 +64,8 @@ export function listaTime(r: Renderizador, time: readonly Encantado[], sel: numb
     if (i === peguei) r.retangulo(10, y - 1, LARGURA - 20, 19, P.uiBg2!);
     if (i === sel) r.texto('=', 12, y + 3, P.uiAccD!);
     r.texto(nome(e), 22, y, caido ? P.hpRed! : P.uiInk!);
+    // a estrela da cor rara, logo depois do nome
+    if (e.raro) r.texto('*', 22 + r.larguraTexto(nome(e)) + 3, y, P.uiAccD!);
     // alinhado à direita, colado na barra: NV100 em diante também cabe
     const nv = 'NV' + e.nivel;
     r.texto(nv, 131 - r.larguraTexto(nv), y, P.uiInk!);

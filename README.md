@@ -25,7 +25,9 @@ nele, a Lua Cheia do Lobisomem pesa mais à noite...). O céu segue o
 relógio do aparelho — manhã, dia, tarde e noite — e cada região tem o seu
 tempo (chuva na Foz e na Mata, ventania no Campo, tempestade em Tupã,
 neblina no Bairro), que muda quem aparece no mato e a força de alguns golpes.
-Depois da primeira medalha, a **Canoa Encantada** da Dona Firmina leva de
+Um em 256 bichos do mato nasce de **cor rara**, e o Contador de Bichos
+premia quem prende muitas espécies — o último prêmio é o **Boto**, o
+Encantado secreto. Depois da primeira medalha, a **Canoa Encantada** da Dona Firmina leva de
 volta a qualquer cidade onde você já esteve. Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de

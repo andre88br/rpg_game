@@ -46,7 +46,7 @@ test('ensinar: com vaga entra; sem vaga troca o escolhido; sem escolha não ensi
 
 test('toda cantiga ensina um golpe que existe, a alguma espécie', () => {
   const cantigas = Object.values(ITENS).filter((i) => i.efeito.k === 'cantiga');
-  assert.equal(cantigas.length, 11);
+  assert.equal(cantigas.length, 12);
   for (const c of cantigas) {
     const ef = c.efeito as Extract<typeof c.efeito, { k: 'cantiga' }>;
     assert.ok(GOLPES[ef.golpe], `${c.id}: golpe ${ef.golpe}`);

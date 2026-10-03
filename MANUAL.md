@@ -218,6 +218,25 @@ exemplo). Bicho selvagem continua lutando como sempre.
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.
 
+**Cor rara.** Um em cada 256 bichos do mato alto nasce de outra cor — a luta
+avisa ("Esse brilha diferente... é de cor rara!") e o nome ganha uma
+estrela. É só a cor: atributos, golpes e traço são os de sempre. No time, na
+caixa e no Caderno a estrela fica. O Amuleto do Brilho, na mochila, dobra a
+chance (um em 128).
+
+**Prêmios do Caderno.** Depois da conta do caderno, o Contador de Bichos
+(Porto Iara) dá um presente a cada marca de espécies **presas no patuá**:
+
+| presas | prêmio |
+|---|---|
+| 12 | Patuá de Mestre ×5 |
+| 24 | Cantiga do Sol a Pino (ensina Sol a Pino a Luz, Fogo, Planta ou Vento) |
+| 36 | Amuleto do Brilho |
+| 45 | o **Boto** (Água/Luz), o bicho secreto, no nível 40 |
+
+O Boto vira **Boto-Encantado** no nível 50. O traço dos dois é o **Encanto
+do Boto**: ao chegar, o poder do adversário cai. São 53 espécies no Caderno.
+
 **Benzimento.** Cura de graça, e é onde a partida recomeça se seu time apagar:
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
 na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia

@@ -731,6 +731,8 @@ export class MenuPausa {
       if (idx === this.selCaderno) r.texto('=', 12, y, P.uiAccD!);
       r.texto(vista ? especie(id).nome.toUpperCase() : '? ? ?', 22, y,
               vista ? P.uiInk! : P.uiBg3!);
+      // a estrela: já prendeu um desses na cor rara
+      if (est.raros.includes(id)) r.texto('*', 22 + r.larguraTexto(especie(id).nome.toUpperCase()) + 3, y, P.uiAccD!);
     }
     if (this.topoCaderno > 0) r.texto('...', 96, 30, P.uiBg3!);
     if (this.topoCaderno + CADERNO_LINHAS_VISIVEIS < ESPECIES_ORDEM.length) {

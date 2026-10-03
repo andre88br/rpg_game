@@ -780,6 +780,36 @@ const LISTA: readonly Especie[] = [
       { nv: 72, golpe: 'afiar' }, { nv: 74, golpe: 'sol_a_pino' },
     ],
   },
+  /* -------- o secreto: o Contador de Bichos dá a quem encher o caderno -------- */
+  {
+    id: 'boto', nome: 'Boto', tipos: ['agua', 'luz'],
+    base: { hp: 70, atq: 60, def: 65, esp: 85, vel: 80 },
+    taxaCaptura: 3, xpBase: 180, crescimento: 'lento',
+    arte: 'boto', categoria: 'Boto Cor-de-Rosa',
+    sobre: 'Sobe o rio nas noites de festa. Quem dança com ele não lembra direito do caminho de volta.',
+    aprende: [
+      { nv: 1, golpe: 'bolha' }, { nv: 1, golpe: 'clarao' },
+      { nv: 8, golpe: 'jato_agua' }, { nv: 14, golpe: 'agua_cheiro' },
+      { nv: 20, golpe: 'correnteza' }, { nv: 26, golpe: 'lampejo' },
+      { nv: 32, golpe: 'mare_cheia' }, { nv: 38, golpe: 'prece' },
+      { nv: 44, golpe: 'feixe' },
+    ],
+    evolui: { em: 'botoEncantado', nv: 50 },
+  },
+  {
+    id: 'botoEncantado', nome: 'Boto-Encantado', tipos: ['agua', 'luz'],
+    base: { hp: 95, atq: 75, def: 85, esp: 120, vel: 105 },
+    taxaCaptura: 3, xpBase: 240, crescimento: 'lento',
+    arte: 'botoEncantado', categoria: 'Boto Cor-de-Rosa',
+    sobre: 'De chapéu branco e roupa de linho, ninguém diz que é bicho. Só tira o chapéu quando a festa acaba.',
+    aprende: [
+      { nv: 1, golpe: 'bolha' }, { nv: 1, golpe: 'clarao' },
+      { nv: 1, golpe: 'jato_agua' }, { nv: 1, golpe: 'correnteza' },
+      { nv: 50, golpe: 'cachoeira' }, { nv: 54, golpe: 'aurora' },
+      { nv: 58, golpe: 'tromba_agua' }, { nv: 62, golpe: 'benzecao' },
+      { nv: 66, golpe: 'sol_a_pino' }, { nv: 70, golpe: 'folego' },
+    ],
+  },
 ];
 
 export const ESPECIES: Record<string, Especie> =
