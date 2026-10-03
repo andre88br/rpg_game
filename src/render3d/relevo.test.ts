@@ -50,7 +50,9 @@ test('toda construção da Foz vira prédio, com as cores do telhado do mapa pla
     }
   }
   assert.equal(modeloDe('farol'), 'farol');
-  assert.equal(modeloDe('placa'), 'recorte');
+  assert.equal(modeloDe('placa'), 'objeto');
+  assert.equal(modeloDe('ladrilho'), 'recorte');
+  assert.equal(modeloDe('veu'), 'translucido');
 });
 
 test('a luz: noite é mais escura que dia, chuva apaga o sol, neblina aproxima a névoa', () => {

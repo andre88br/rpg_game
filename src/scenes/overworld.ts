@@ -17,7 +17,7 @@
      game/avisos.ts      o que placa, tranca e guia dizem ao A
      game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
-import { vista3D } from '../render3d/carregar.ts';
+import { forcado3D, vista3D } from '../render3d/carregar.ts';
 import { EM_3D } from '../render3d/relevo.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
@@ -1387,7 +1387,8 @@ export class CenaMundo implements Cena {
         mapa: this.mapa, tempo: this.tempoAnim,
         alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
         atores: this.atoresNaTela().map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
-        periodo: periodo(), clima: this.climaAqui(), regiao: regiaoDoMapa(this.def.id)?.tipo ?? null,
+        periodo: periodo(), clima: this.climaAqui(), regiao: regiaoDoMapa(lugarNoMundo(this.def.id, MAPAS) ?? this.def.id)?.tipo ?? null,
+        pedras: this.pedras, feixe: this.feixe,
       });
     } else {
       this.pintor.plano(r, {
@@ -1405,7 +1406,7 @@ export class CenaMundo implements Cena {
 
   /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
   private vistaDo(id: string): Vista3D | null {
-    if (!obterVisao3D() || !EM_3D.has(id)) return null;
+    if (!obterVisao3D() || (!EM_3D.has(id) && !forcado3D())) return null;
     return vista3D();
   }
 

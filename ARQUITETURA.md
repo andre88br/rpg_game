@@ -60,6 +60,9 @@ src/
 ├─ render3d/  relevo.ts (o que cada uma das 27 letras do chão vira, o modelo
 │             de cada tipo de objeto, a luz de cada região e hora) + teste
 │             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
+│             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
+│             as árvores de cada bioma · casas.ts: a construção de cada região ·
+│             objetos.ts: placa, guia, espelho, lampião...) + modelos.test.ts
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
 │             plano; `fimDoQuadro3D` esconde o canvas quando ninguém o usou)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
@@ -145,6 +148,22 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   recortado. Do lado do mar, só o mar.
 - **Câmera.** Persegue o jogador com amortecimento (salta ao trocar de mapa),
   com altura e recuo próprios para rua, casa e caverna.
+- **Modelos** (`render3d/modelos/`). Tudo gerado por código: cada peça é uma
+  geometria simples pintada com cor por vértice, posta no lugar e fundida
+  (`juntar`) — um modelo, uma chamada de desenho. As árvores são escolhidas
+  por região (`ARVORES_DA_REGIAO`: coqueiro perto do mar na Foz, mata alta na
+  Mata, pinheiro na Serra, ipê no Campo e no Sol, cacto nas Minas, árvore seca
+  no Bairro) e repetidas com InstancedMesh. A construção segue o estilo da
+  região (`ESTILO_DA_REGIAO`, a mesma ideia de `art/predios.ts`), com a porta
+  na coluna de `colunaPorta`; benzimento, loja, forja e moinho ganham o
+  detalhe deles. Os objetos de mecânica olham o mesmo estado do desenho plano
+  (`vazio`, `inclinacao`, as contas da guia) — a vista remonta o mapa quando o
+  `Mundo` devolve um mapa novo. Véu e cortina de luz são paredes translúcidas;
+  ladrilho e buraco continuam como recorte deitado. A grama muda de cor por
+  região (`relevoNaRegiao`), e por dentro o terreiro tem a parede da região.
+  As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
+  que brilha. `window.jogo.forcar3D(true)` liga o 3D em qualquer mapa (para
+  testar), e `window.jogo.info3D()` mostra as chamadas de desenho.
 
 ## Som feito por código
 

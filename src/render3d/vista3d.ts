@@ -26,12 +26,13 @@
 import * as THREE from 'three';
 import { Buf, assar, larguraDe, alturaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA } from '../core/renderer.ts';
-import { objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
-import * as T from '../art/tiles.ts';
-import { P } from '../art/palette.ts';
+import { contasDo, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
 import { texto, larguraTexto } from '../art/font.ts';
+import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
+import { objeto3D } from './modelos/objetos.ts';
+import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
-  DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, PREDIOS, luzDe, modeloDe, relevoDe,
+  DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, luzDe, modeloDe, relevoDe, relevoNaRegiao,
   type ClimaLuz, type PeriodoLuz, type Relevo,
 } from './relevo.ts';
 
@@ -59,6 +60,9 @@ export interface Quadro3D {
   periodo?: PeriodoLuz;
   clima?: ClimaLuz;
   regiao?: string | null;
+  /* as pedras de empurrar e os tiles por onde passa o feixe de luz */
+  pedras?: readonly { tx: number; ty: number }[];
+  feixe?: readonly (readonly [number, number])[];
 }
 
 /* textura com cara de pixel: nada de borrar ao ampliar */
@@ -148,6 +152,15 @@ export class Vista3D {
   private largura = 0;
   private altura = 0;
   private aguaMat: THREE.ShaderMaterial | null = null;
+  /* a região do mapa montado: escolhe árvore, mato e casa */
+  private regiao: string | null = null;
+  /* um material por tipo de modelo low-poly: cor por vértice, face plana */
+  private matModelo: THREE.MeshLambertMaterial | null = null;
+  /* as pedras de empurrar (deslizam até a casa nova) e o feixe de luz */
+  private pedras: THREE.InstancedMesh | null = null;
+  private pedrasPos: { x: number; z: number }[] = [];
+  private feixe: THREE.InstancedMesh | null = null;
+  private chaveFeixe = '';
 
   /* a luz de agora (só recalcula quando a chave muda) */
   private chaveLuz = '';
@@ -198,13 +211,20 @@ export class Vista3D {
     this.ajustarTamanho();
     ctx.clearRect(0, 0, LARGURA, ALTURA);
     const novo = q.mapa !== this.mapaAtual;
-    if (novo) this.montar(q.mapa);
+    if (novo) this.montar(q.mapa, q.regiao ?? null);
+    this.posicionarPedras(q.pedras ?? [], q.tempo);
+    this.desenharFeixe(q.feixe ?? []);
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
     this.posicionarAtores(q.atores);
     this.vento.value = q.tempo;
     if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
     this.renderer.render(this.cena, this.camera);
+  }
+
+  /* para medir: quantas chamadas de desenho e triângulos o último quadro teve */
+  info(): { chamadas: number; triangulos: number } {
+    return { chamadas: this.renderer.info.render.calls, triangulos: this.renderer.info.render.triangles };
   }
 
   /* chamado uma vez por quadro (carregar.ts): quem não desenhou, some */
@@ -365,11 +385,17 @@ export class Vista3D {
 
   /* ------------------------------------------------------------ montagem */
 
-  private montar(mapa: Mapa): void {
+  private montar(mapa: Mapa, regiao: string | null): void {
+    this.regiao = regiao;
     if (this.grupo) this.cena.remove(this.grupo);
     for (const d of this.descartaveis) d.dispose();
     this.descartaveis = [];
     this.aguaMat = null;
+    this.pedras = null;
+    this.pedrasPos = [];
+    this.feixe = null;
+    this.chaveFeixe = '';
+    this.matModelo = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), 0) as THREE.MeshLambertMaterial);
     this.mapaAtual = mapa;
     this.chaveLuz = '';
 
@@ -386,8 +412,12 @@ export class Vista3D {
     this.alturas = new Float32Array(this.largura * this.altura);
     for (let y = 0; y < this.altura; y++) {
       for (let x = 0; x < this.largura; x++) {
-        const r = { ...(relevoDe(def.chao[y]![x]!) ?? relevoDe('.')!) };
+        const r = { ...(relevoNaRegiao(def.chao[y]![x]!, regiao) ?? relevoDe('.')!) };
         if (r.bloco && dentro && y === this.altura - 1) r.altura = PAREDE_CORTADA;
+        // dentro do terreiro, a parede é a da região (pedra na Serra, adobe nas Minas...)
+        if (r.enfeite === 'parede' && def.id.startsWith('terreiro') && regiao) {
+          r.cor = ESTILO_DA_REGIAO[regiao]?.parede ?? r.cor;
+        }
         rel.push(r);
         this.alturas[y * this.largura + x] = r.agua ? NIVEL_AGUA : r.altura;
       }
@@ -551,7 +581,7 @@ export class Vista3D {
       if (mar) return;
       const corBorda = new THREE.Color(0, 0, 0);
       let n = 0;
-      for (const c of l.borda) { const r = relevoDe(c); if (r && !r.agua) { corBorda.add(new THREE.Color(r.bloco ? '#5e9e4c' : r.cor)); n++; } }
+      for (const c of l.borda) { const r = relevoNaRegiao(c, this.regiao); if (r && !r.agua) { corBorda.add(new THREE.Color(r.bloco ? relevoNaRegiao('.', this.regiao)!.cor : r.cor)); n++; } }
       corBorda.multiplyScalar(1 / Math.max(1, n)).multiplyScalar(0.92);
       const p = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(l.w, l.d)),
         this.guardar(new THREE.MeshLambertMaterial({ color: corBorda })));
@@ -661,29 +691,44 @@ export class Vista3D {
       m.setMatrixAt(i, o.matrix);
     };
 
-    // árvore: tronco e três copas de icosaedro, em tons de verde diferentes
-    const dentro = onde('arvore').map(([x, y]) => [x + 0.5 + (sorte(x, y, 1) - 0.5) * 0.15, y + 0.5] as [number, number]);
-    const todas = [...dentro, ...fora];
-    const tronco = repetido(new THREE.CylinderGeometry(0.09, 0.14, 1, 6), plano('#6b4a2e'), todas.length);
-    const copa = repetido(new THREE.IcosahedronGeometry(0.5, 0), this.balancando(
-      this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), 0.05), todas.length * 2);
-    const verdes = ['#2f7a36', '#3f8f3e', '#2a6a30', '#4f9a40'];
-    todas.forEach(([x, z], i) => {
-      const h = 0.75 + sorte(x, z) * 0.55;
-      const s = 0.95 + sorte(x, z, 2) * 0.35;
-      pôr(tronco, i, x, h / 2, z, 1, 0, h);
-      pôr(copa, i * 2, x, h + 0.25, z, s, sorte(x, z, 3) * 6, s * 1.05);
-      pôr(copa, i * 2 + 1, x + (sorte(x, z, 4) - 0.5) * 0.3, h + 0.75, z + (sorte(x, z, 5) - 0.5) * 0.3, s * 0.72, sorte(x, z, 6) * 6);
-      copa.setColorAt(i * 2, new THREE.Color(verdes[Math.floor(sorte(x, z, 7) * 4)]!));
-      copa.setColorAt(i * 2 + 1, new THREE.Color(verdes[Math.floor(sorte(x, z, 8) * 4)]!).multiplyScalar(1.12));
-    });
+    // árvores: o modelo da região, sorteado por tile (coqueiro perto do mar
+    // na Foz); uma InstancedMesh por modelo, com giro e tamanho por tile
+    const ehAgua = (x: number, y: number) => {
+      const ch = this.mapaAtual!.def.chao[y]?.[x];
+      return ch === '~' || ch === 'a';
+    };
+    const pertoDoMar = (x: number, y: number) => {
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (ehAgua(x + dx, y + dy)) return true;
+      return false;
+    };
+    const porModelo = new Map<Arvore, [number, number][]>();
+    const juntarArvore = (a: Arvore, x: number, z: number) => {
+      const l = porModelo.get(a) ?? [];
+      l.push([x, z]);
+      porModelo.set(a, l);
+    };
+    for (const [x, y] of onde('arvore')) {
+      juntarArvore(arvoreDoTile(this.regiao, x, y, pertoDoMar(x, y)), x + 0.5 + (sorte(x, y, 1) - 0.5) * 0.15, y + 0.5);
+    }
+    for (const [x, z] of fora) juntarArvore(arvoreDoTile(this.regiao, Math.round(x * 3), Math.round(z * 3), false), x, z);
+    for (const [a, lugares] of porModelo) {
+      const mat = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }),
+        a === 'cacto' || a === 'seca' ? 0.01 : 0.035));
+      const arv = repetido(modeloArvore(a), mat, lugares.length);
+      lugares.forEach(([x, z], i) => {
+        const s = 0.9 + sorte(x, z, 2) * 0.4;
+        pôr(arv, i, x, 0, z, s, sorte(x, z, 3) * 6, s * (0.9 + sorte(x, z, 4) * 0.25));
+        arv.setColorAt(i, new THREE.Color(1, 1, 1).multiplyScalar(0.88 + sorte(x, z, 5) * 0.24));
+      });
+    }
 
     const pedras = onde('pedra');
     const pedra = repetido(new THREE.DodecahedronGeometry(0.42, 0), plano('#9a9488'), pedras.length);
     pedras.forEach(([x, y], i) => pôr(pedra, i, x + 0.5, 0.25, y + 0.5, 1, sorte(x, y) * 6, 0.8));
 
-    // mato e capim: tufos finos que balançam
-    for (const [qual, cores] of [['mato', ['#3f8a3a', '#5aa44a']], ['capim', ['#c8a84a', '#e0c060']]] as const) {
+    // mato e capim: tufos finos que balançam, na cor da região
+    const corMato = MATO_DA_REGIAO[this.regiao ?? 'fora'] ?? MATO_DA_REGIAO['fora']!;
+    for (const [qual, cores] of [['mato', corMato], ['capim', ['#c8a84a', '#e0c060']]] as const) {
       const lugares = onde(qual);
       if (!lugares.length) continue;
       const tufos = cores.map((c) => repetido(new THREE.ConeGeometry(0.08, 0.55, 4),
@@ -738,6 +783,17 @@ export class Vista3D {
     const modelo = modeloDe(o.tipo);
     if (modelo === 'predio') { this.predio(g, o); return; }
     if (modelo === 'farol') { this.farol(g, o); return; }
+    if (modelo === 'translucido') { this.translucido(g, o); return; }
+    if (modelo === 'objeto') {
+      const geo = objeto3D(o, contasDo(o, mapa.ctx));
+      if (geo) {
+        const m = new THREE.Mesh(this.guardar(geo), this.matModelo!);
+        m.position.set(o.tx, this.chaoEm(o.tx + 0.5, o.ty + 0.5), o.ty);
+        m.castShadow = m.receiveShadow = true;
+        g.add(m);
+        return;
+      }
+    }
     const { sprite, deslocY } = spriteDoObjeto(o, mapa.ctx);
     if (!sprite) return;
     const w = sprite.w / 16, h = sprite.h / 16;
@@ -783,68 +839,91 @@ export class Vista3D {
     return this.guardar(texturaDe(assar(b)));
   }
 
+  /* a construção com a cara da região (modelos/casas.ts) e o letreiro */
   private predio(g: THREE.Group, o: DefObjeto): void {
-    const cfg = PREDIOS[o.tipo]!;
     const w = o.larg ?? 4, alt = o.alt ?? 3;
-    const d = alt - 0.45, h = o.tipo === 'terreiro' || o.tipo === 'arena' ? 2.5 : 1.8;
-    const cx = o.tx + w / 2, cz = o.ty + 0.05 + d / 2;
-    const frente = cz + d / 2;
-    const mat = (c: string) => this.guardar(new THREE.MeshLambertMaterial({ color: c, flatShading: true }));
-    const caixa = (bw: number, bh: number, bd: number, m: THREE.Material, x: number, y: number, z: number, sombra = true) => {
-      const b = new THREE.Mesh(this.guardar(new THREE.BoxGeometry(bw, bh, bd)), m);
-      b.position.set(x, y, z);
-      b.castShadow = sombra;
-      b.receiveShadow = true;
-      g.add(b);
-      return b;
-    };
-
-    caixa(w - 0.1, h, d, mat('#efe4c8'), cx, h / 2, cz);
-    caixa(w + 0.1, 0.22, d + 0.1, mat('#8a6a4a'), cx, 0.11, cz);
-
-    // telhado de duas águas, de frente para a câmera
-    const f = new THREE.Shape();
-    f.moveTo(-d / 2 - 0.35, 0); f.lineTo(0, h * 0.6); f.lineTo(d / 2 + 0.35, 0); f.lineTo(-d / 2 - 0.35, 0);
-    const tg = this.guardar(new THREE.ExtrudeGeometry(f, { depth: w + 0.4, bevelEnabled: false }));
-    const telhado = new THREE.Mesh(tg, [
-      this.guardar(new THREE.MeshLambertMaterial({ color: cfg.escuro, flatShading: true })),
-      this.guardar(new THREE.MeshLambertMaterial({ color: cfg.telhado, flatShading: true })),
-    ]);
-    telhado.rotation.y = Math.PI / 2;
-    telhado.position.set(cx - w / 2 - 0.2, h, cz);
-    telhado.castShadow = telhado.receiveShadow = true;
-    g.add(telhado);
-
-    // porta na mesma coluna do mapa plano; janelas longe dela
-    const col = T.colunaPorta(w, o.portaCol);
-    const px = o.tx + col + 0.5, largPorta = o.tipo === 'terreiro' ? 1.1 : 0.75;
-    caixa(largPorta, 1.15, 0.06, mat(o.trancada ? '#5a3e24' : '#6b4a2e'), px, 0.6, frente + 0.02, false);
-    for (let i = 0; i < w; i++) {
-      if (Math.abs(i - col) < 1.5 || i === 0 || i === w - 1) continue;
-      caixa(0.55, 0.5, 0.05, mat('#7ec8e8'), o.tx + i + 0.5, 1.05, frente + 0.02, false);
-    }
-    if (w >= 4) for (const s of [0.55, w - 0.55]) caixa(0.5, 0.5, 0.05, mat('#7ec8e8'), o.tx + s, 1.05, frente + 0.02, false);
-
-    if (cfg.letreiro) {
-      const t = this.letreiro(cfg.letreiro, cfg.escuro);
-      const lw = Math.min(w - 0.5, (larguraTexto(cfg.letreiro) + 8) / 16 * 1.4);
-      const placa = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(lw, lw * 11 / (larguraTexto(cfg.letreiro) + 8))),
+    const p = predio3D(this.regiao, o.tipo, w, alt, o.portaCol);
+    const m = new THREE.Mesh(this.guardar(p.geo), this.matModelo!);
+    m.position.set(o.tx, 0, o.ty);
+    m.castShadow = m.receiveShadow = true;
+    g.add(m);
+    if (p.letreiro) {
+      const l = p.letreiro;
+      const t = this.letreiro(l.texto, l.cor);
+      const proporcao = 11 / (larguraTexto(l.texto) + 8);
+      const placa = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(l.larg, l.larg * proporcao)),
                                    this.guardar(new THREE.MeshLambertMaterial({ map: t })));
-      placa.position.set(cx, h - 0.32, frente + 0.06);
+      placa.position.set(o.tx + l.x, l.y, o.ty + l.z);
       g.add(placa);
     }
+  }
 
-    // o mastro com a bandeira do terreiro, como no mapa plano
-    if (o.tipo === 'terreiro') {
-      caixa(0.06, 1.6, 0.06, mat(P.ink!), o.tx + 0.9, h + 0.3, cz, true);
-      const bf = new THREE.Shape();
-      bf.moveTo(0, 0); bf.lineTo(0.9, -0.25); bf.lineTo(0, -0.5);
-      const bandeira = new THREE.Mesh(this.guardar(new THREE.ShapeGeometry(bf)),
-        this.balancando(this.guardar(new THREE.MeshLambertMaterial({ color: P.water!, side: THREE.DoubleSide })), 0.15));
-      bandeira.position.set(o.tx + 0.93, h + 1.05, cz);
-      bandeira.castShadow = true;
-      g.add(bandeira);
+  /* véu de sombra e cortina de luz: paredes translúcidas que ondulam */
+  private translucido(g: THREE.Group, o: DefObjeto): void {
+    const w = o.larg ?? 1;
+    const veu = o.tipo === 'veu';
+    const mat = this.guardar(this.balancando(new THREE.MeshLambertMaterial({
+      color: veu ? '#2a1a3a' : '#fff4b0', emissive: veu ? '#120818' : '#a89040',
+      transparent: true, opacity: veu ? 0.82 : 0.6, depthWrite: false, side: THREE.DoubleSide,
+    }), 0.06));
+    for (let i = 0; i < w; i++) {
+      const p = new THREE.Mesh(this.guardar(new THREE.BoxGeometry(1, 1.8, 0.25, 1, 4, 1)), mat);
+      p.position.set(o.tx + i + 0.5, this.chaoEm(o.tx + i + 0.5, o.ty + 0.5) + 0.9, o.ty + 0.5);
+      g.add(p);
     }
+  }
+
+  /* as pedras de empurrar: rochas que deslizam até a casa nova */
+  private posicionarPedras(pedras: readonly { tx: number; ty: number }[], tempo: number): void {
+    const g = this.grupo;
+    if (!g) return;
+    if (!this.pedras || this.pedras.count !== pedras.length) {
+      if (this.pedras) g.remove(this.pedras);
+      this.pedras = null;
+      if (!pedras.length) return;
+      this.pedras = new THREE.InstancedMesh(this.guardar(modeloPedra()), this.matModelo!, pedras.length);
+      this.pedras.castShadow = this.pedras.receiveShadow = true;
+      g.add(this.pedras);
+      this.pedrasPos = pedras.map((p) => ({ x: p.tx + 0.5, z: p.ty + 0.5 }));
+    }
+    const o = new THREE.Object3D();
+    const dt = 1 / 30;
+    pedras.forEach((p, i) => {
+      const atual = this.pedrasPos[i]!;
+      atual.x += (p.tx + 0.5 - atual.x) * Math.min(1, dt * 12);
+      atual.z += (p.ty + 0.5 - atual.z) * Math.min(1, dt * 12);
+      o.position.set(atual.x, this.chaoEm(atual.x, atual.z), atual.z);
+      o.rotation.set(0, i * 1.3, 0);
+      o.updateMatrix();
+      this.pedras!.setMatrixAt(i, o.matrix);
+    });
+    this.pedras.instanceMatrix.needsUpdate = true;
+    void tempo;
+  }
+
+  /* o feixe de luz: um tubo que brilha, tile a tile */
+  private desenharFeixe(feixe: readonly (readonly [number, number])[]): void {
+    const g = this.grupo;
+    if (!g) return;
+    const chave = feixe.map(([x, y]) => `${x},${y}`).join(';');
+    if (chave === this.chaveFeixe) return;
+    this.chaveFeixe = chave;
+    if (this.feixe) g.remove(this.feixe);
+    this.feixe = null;
+    if (!feixe.length) return;
+    this.feixe = new THREE.InstancedMesh(this.guardar(new THREE.CylinderGeometry(0.09, 0.09, 1, 6)),
+      this.guardar(new THREE.MeshBasicMaterial({ color: '#fff6b0', transparent: true, opacity: 0.85 })), feixe.length);
+    const o = new THREE.Object3D();
+    feixe.forEach(([x, y], i) => {
+      const prox = feixe[i + 1] ?? feixe[i - 1] ?? [x + 1, y];
+      const deitado = prox[1] === y;
+      o.position.set(x + 0.5, this.chaoEm(x + 0.5, y + 0.5) + 0.7, y + 0.5);
+      o.rotation.set(deitado ? 0 : Math.PI / 2, 0, deitado ? Math.PI / 2 : 0);
+      o.scale.set(1, 1.05, 1);
+      o.updateMatrix();
+      this.feixe!.setMatrixAt(i, o.matrix);
+    });
+    g.add(this.feixe);
   }
 
   private farol(g: THREE.Group, o: DefObjeto): void {

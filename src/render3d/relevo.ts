@@ -80,6 +80,28 @@ const TABELA: Record<string, Relevo> = {
 
 export function relevoDe(ch: string): Relevo | null { return TABELA[ch] ?? null; }
 
+/* A grama de cada região: o mesmo chão, outra estação — seca nas Minas,
+   queimada na Serra, roxa de sombra no Bairro, dourada no Sol. */
+const GRAMA = new Set(['.', ',', '#', 'o', 'f']);
+const GRAMA_DA_REGIAO: Record<string, string> = {
+  agua: '#72b35a', planta: '#5a9c46', fogo: '#8f9a58', vento: '#9cc45e', raio: '#68a852',
+  terra: '#bda866', sombra: '#5f7258', luz: '#a6c85c',
+};
+
+/* o relevo do tile, com a cor da região quando é grama */
+export function relevoNaRegiao(ch: string, regiao: string | null): Relevo | null {
+  const r = TABELA[ch];
+  if (!r) return null;
+  const cor = regiao && GRAMA.has(ch) ? GRAMA_DA_REGIAO[regiao] : undefined;
+  return cor ? { ...r, cor: ch === ',' ? escurecer(cor, 0.88) : cor } : r;
+}
+
+function escurecer(cor: string, k: number): string {
+  const n = parseInt(cor.slice(1), 16);
+  const c = (s: number) => Math.round(((n >> s) & 255) * k);
+  return `#${((c(16) << 16) | (c(8) << 8) | c(0)).toString(16).padStart(6, '0')}`;
+}
+
 export const LETRAS_COM_RELEVO: readonly string[] = Object.keys(TABELA);
 
 export const NIVEL_AGUA = AGUA;
@@ -94,9 +116,10 @@ export const EM_3D: ReadonlySet<string> = new Set([
   'lojaPortoIara', 'benzimentoPortoIara', 'terreiroPortoIara',
 ]);
 
-/* o modelo de cada objeto: construção de verdade, farol, ou o próprio
-   desenho do jogo recortado e posto de pé (placa, guia, estante, baú...) */
-export type Modelo = 'predio' | 'farol' | 'recorte';
+/* o modelo de cada objeto: construção da região (modelos/casas.ts), farol,
+   objeto low-poly (modelos/objetos.ts), parede translúcida (véu, cortina de
+   luz), ou o próprio desenho do jogo, deitado no chão (ladrilho, buraco) */
+export type Modelo = 'predio' | 'farol' | 'objeto' | 'translucido' | 'recorte';
 
 export const PREDIOS: Partial<Record<TipoObjeto, { telhado: string; escuro: string; letreiro?: string }>> = {
   casa: { telhado: '#c2493f', escuro: '#93312c' },
@@ -107,21 +130,21 @@ export const PREDIOS: Partial<Record<TipoObjeto, { telhado: string; escuro: stri
   forja: { telhado: '#7a3a2a', escuro: '#582719', letreiro: 'FORJA' },
   moinho: { telhado: '#c9a85a', escuro: '#9c7f3e', letreiro: 'MOINHO' },
   arena: { telhado: '#c9a227', escuro: '#8a6a14', letreiro: 'ARENA' },
+  balao: { telhado: '#e84a3a', escuro: '#a83a2a' },
 };
 
 /* todo tipo de objeto, um modelo — o Record obriga a não esquecer nenhum */
 const MODELO: Record<TipoObjeto, Modelo> = {
   casa: 'predio', loja: 'predio', benzimento: 'predio', terreiro: 'predio', posto: 'predio',
-  forja: 'predio', moinho: 'predio', arena: 'predio',
+  forja: 'predio', moinho: 'predio', arena: 'predio', balao: 'predio',
   farol: 'farol',
-  placa: 'recorte', barreira: 'recorte', monteFolhas: 'recorte', portao: 'recorte',
-  achado: 'recorte', cova: 'recorte', entulho: 'recorte',
-  paraRaio: 'recorte', cercaRaio: 'recorte', pedraRachada: 'recorte',
-  enterrado: 'recorte', desvio: 'recorte', alavanca: 'recorte', monteTerra: 'recorte',
-  ladrilho: 'recorte', veu: 'recorte',
-  espelho: 'recorte', fonteLuz: 'recorte', cristal: 'recorte', lampiao: 'recorte', cortinaLuz: 'recorte',
-  balao: 'recorte',
-  balcao: 'recorte', gamela: 'recorte', estante: 'recorte', mesa: 'recorte', patuas: 'recorte', bau: 'recorte',
+  placa: 'objeto', barreira: 'objeto', monteFolhas: 'objeto', portao: 'objeto',
+  achado: 'objeto', cova: 'recorte', entulho: 'objeto',
+  paraRaio: 'objeto', cercaRaio: 'objeto', pedraRachada: 'objeto',
+  enterrado: 'recorte', desvio: 'recorte', alavanca: 'objeto', monteTerra: 'objeto',
+  ladrilho: 'recorte', veu: 'translucido',
+  espelho: 'objeto', fonteLuz: 'objeto', cristal: 'objeto', lampiao: 'objeto', cortinaLuz: 'translucido',
+  balcao: 'recorte', gamela: 'recorte', estante: 'objeto', mesa: 'recorte', patuas: 'recorte', bau: 'objeto',
 };
 
 export function modeloDe(tipo: TipoObjeto): Modelo { return MODELO[tipo]; }
