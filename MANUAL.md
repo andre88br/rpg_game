@@ -165,6 +165,13 @@ anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico
 | Fogo Brando | Lamparina, Fogo-Fátuo | contato: 30% de queimar quem bateu |
 | Fases da Lua | Jaci, Eclipse | de dia, Luz bate 20% mais; à noite, Sombra |
 
+**Treinadores.** Treinador não desperdiça golpe: não tenta queimar quem é de
+Fogo, pôr no sono quem já dorme ou baixar o que já está no fundo, e com os
+dois por um fio usa o golpe que sai primeiro. Da Serra em diante, os mais
+fortes também trocam de Encantado quando o seu leva vantagem — e mandam
+quem aguenta melhor o seu golpe (um Piraguá contra golpe de Água, por
+exemplo). Bicho selvagem continua lutando como sempre.
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.

@@ -259,6 +259,12 @@ export class Batalha {
     return f;
   }
 
+  /* ninguém queima um Encantado de Fogo nem trava um de Raio */
+  private imunePorTipo(c: Combatente, s: Status): boolean {
+    return (s === 'queimado' && tipos(c.enc).includes('fogo' as Tipo))
+        || (s === 'paralisado' && tipos(c.enc).includes('raio' as Tipo));
+  }
+
   /* o traço de quem recebe barra este estado? */
   private imuneAoStatus(c: Combatente, s: Status): boolean {
     const im = this.traco(c).imune;
@@ -729,10 +735,7 @@ export class Batalha {
       ev.push({ k: 'texto', t: `${nome(c.enc)} já está ${STATUS[c.enc.status].nome}.` });
       return;
     }
-    // ninguém queima um Encantado de Fogo nem eletrocuta um de Raio
-    const imune = (s === 'queimado' && tipos(c.enc).includes('fogo' as Tipo))
-               || (s === 'paralisado' && tipos(c.enc).includes('raio' as Tipo));
-    if (imune) { ev.push({ k: 'texto', t: 'Mas não adiantou nada.' }); return; }
+    if (this.imunePorTipo(c, s)) { ev.push({ k: 'texto', t: 'Mas não adiantou nada.' }); return; }
     if (this.imuneAoStatus(c, s)) {
       this.anunciar(lado, `${nome(c.enc)} não ficou ${STATUS[s].nome}!`, ev);
       return;
@@ -937,10 +940,12 @@ export class Batalha {
     return null;
   }
 
-  /* troca quando o ativo leva 2x do tipo do time do jogador, tem para onde
-     ir sem levar 2x de novo, e não está prestes a derrubar o jogador agora.
-     Só para treinador `esperta` — todo o resto do jogo (regiões 1 e 2
-     incluídas) continua com a IA de sempre, que nunca troca. */
+  /* troca quando o ativo leva 2x de algum golpe do jogador ou cairia neste
+     turno, tem para onde ir, não está prestes a derrubar o jogador agora e
+     não acumulou força (+2 de ataque e poder somados). Vai para a reserva de
+     MENOR perigo que não leve 2x — com os traços na conta: quem bebe o golpe
+     do jogador tem perigo zero. Só para treinador `esperta` — todo o resto
+     do jogo (regiões 1 e 2 incluídas) continua com a IA que nunca troca. */
   private trocaDaIA(): number {
     if (this.selvagem || !this.treinador?.esperta) return -1;
     const reservas = this.oponentes
@@ -948,18 +953,24 @@ export class Batalha {
       .filter((i) => i >= 0);
     if (reservas.length === 0) return -1;
 
-    const ameaca = Math.max(...this.aliado.enc.golpes
-      .map((g) => eficacia(fichaGolpe(g.id).tipo, tipos(this.inimigo.enc))));
-    if (ameaca < 2) return -1;
+    const leva2x = (e: Encantado): boolean => this.aliado.enc.golpes
+      .some((g) => fichaGolpe(g.id).categoria !== 'estado'
+                   && eficacia(fichaGolpe(g.id).tipo, tipos(e)) >= 2);
+    const perigoAgora = this.perigo(this.inimigo);
+    if (!leva2x(this.inimigo.enc) && perigoAgora < 1) return -1;
 
     const melhor = Math.max(...this.inimigo.enc.golpes
       .map((_, i) => this.notaGolpe(i, this.inimigo, this.aliado)));
     if (melhor >= this.aliado.enc.hp) return -1;   // pode derrubar agora: fica
+    if (this.inimigo.estagios.atq + this.inimigo.estagios.esp >= 2) return -1;
 
-    const bom = reservas.find((i) => Math.max(...this.aliado.enc.golpes
-      .map((g) => eficacia(fichaGolpe(g.id).tipo, tipos(this.oponentes[i]!)))) < 2);
-    if (bom === undefined) return -1;
-    return this.rnd.chance(CHANCE_TROCA_IA) ? bom : -1;
+    const opcoes = reservas
+      .filter((i) => !leva2x(this.oponentes[i]!))
+      .map((i) => ({ i, p: this.perigo(envolver(this.oponentes[i]!)) }))
+      .filter((o) => o.p < perigoAgora)
+      .sort((a, b) => a.p - b.p);
+    if (opcoes.length === 0) return -1;
+    return this.rnd.chance(CHANCE_TROCA_IA) ? opcoes[0]!.i : -1;
   }
 
   /* o golpe de melhor nota para o lado do jogador, com a mesma conta da IA —
@@ -970,28 +981,13 @@ export class Batalha {
     return Math.max(0, notas.indexOf(melhor));
   }
 
-  private notaGolpe(indice: number, eu: Combatente, alvo: Combatente): number {
-    const aprendido = eu.enc.golpes[indice];
-    if (!aprendido || aprendido.pp <= 0) return 0;
-    const g = fichaGolpe(aprendido.id);
-    const mira = miraOponente(g) ? this.traco(alvo).miraTorta ?? 1 : 1;
-    const precisao = g.precisao <= 0 ? 1 : Math.min(1, (g.precisao * mira) / 100);
-    // golpe que o traço do outro bebe não vale nada
-    if (g.categoria !== 'estado' && this.traco(alvo).absorve?.tipo === g.tipo) return 0;
-
-    if (g.categoria === 'estado') {
-      // golpe de estado só vale quando ainda tem efeito a aplicar
-      const ef = g.efeito;
-      let nota = 12;
-      // fechar o corpo só aperta quando a vida já está curta — e nunca seguido
-      if (ef?.protege) nota = eu.ultimoProtege === this.turno ? 0 : eu.enc.hp < hpMaximo(eu.enc) * 0.35 ? 20 : 3;
-      else if (ef?.curar) nota = eu.enc.hp < hpMaximo(eu.enc) * 0.5 ? 45 : 2;
-      else if (ef?.status) nota = alvo.enc.status || this.imuneAoStatus(alvo, ef.status) ? 1 : 30;
-      else if (ef?.feitico) nota = alvo.feitico > 0 || this.traco(alvo).semQuebranto ? 1 : 26;
-      else if (ef?.mod) nota = 18;
-      return nota * precisao;
-    }
-
+  /* quanto um golpe de dano tiraria, sem sorteio nem precisão: tipo,
+     afinidade, estágios, queimado, várias pancadas, dano fixo e traço */
+  private danoEstimado(g: Golpe, eu: Combatente, alvo: Combatente): number {
+    if (g.categoria === 'estado') return 0;
+    const ef = g.efeito;
+    if (this.traco(alvo).absorve?.tipo === g.tipo) return 0;
+    if (ef?.danoFixo) return eu.enc.nivel;
     const stEu = atributos(eu.enc);
     const stAlvo = atributos(alvo.enc);
     const fisico = g.categoria === 'fisico';
@@ -1002,26 +998,103 @@ export class Batalha {
     const defesa = fisico
       ? aplicarEstagio(stAlvo.def, alvo.estagios.def)
       : aplicarEstagio(stAlvo.esp, alvo.estagios.esp);
+    const pot = ef?.dobraSeStatus && alvo.enc.status ? g.pot * 2 : g.pot;
+    const bruto = Math.floor(
+      (Math.floor((2 * eu.enc.nivel) / 5 + 2) * pot * (ataque / Math.max(1, defesa))) / 50,
+    ) + 2;
+    const efic = eficacia(g.tipo, tipos(alvo.enc));
+    const afin = temAfinidade(g.tipo, tipos(eu.enc)) ? 1.5 : 1;
+    // várias pancadas: conta a média (três e pouco)
+    const vezes = ef?.multi ? (ef.multi[0] + ef.multi[1]) / 2 : 1;
+    return bruto * efic * afin * vezes * this.fatorTraco(g, eu, alvo);
+  }
 
-    const ef = g.efeito;
-    let dano: number;
-    if (ef?.danoFixo) {
-      dano = eu.enc.nivel * precisao;
-    } else {
-      const pot = ef?.dobraSeStatus && alvo.enc.status ? g.pot * 2 : g.pot;
-      const bruto = Math.floor(
-        (Math.floor((2 * eu.enc.nivel) / 5 + 2) * pot * (ataque / Math.max(1, defesa))) / 50,
-      ) + 2;
-      const efic = eficacia(g.tipo, tipos(alvo.enc));
-      const afin = temAfinidade(g.tipo, tipos(eu.enc)) ? 1.5 : 1;
-      // várias pancadas: conta a média (três e pouco)
-      const vezes = ef?.multi ? (ef.multi[0] + ef.multi[1]) / 2 : 1;
-      dano = bruto * efic * afin * precisao * vezes * this.fatorTraco(g, eu, alvo);
+  /* o maior dano que `de` tira de `contra` com os golpes que ainda têm PP */
+  private ameaca(de: Combatente, contra: Combatente): number {
+    const usaveis = de.enc.golpes.filter((g) => g.pp > 0);
+    const golpes = usaveis.length ? usaveis.map((g) => fichaGolpe(g.id)) : [fichaGolpe('esforco')];
+    return Math.max(0, ...golpes.map((g) => this.danoEstimado(g, de, contra)));
+  }
+
+  /* fração da vida que o jogador tira deste Encantado num golpe (1 = cai) */
+  private perigo(c: Combatente): number {
+    return this.ameaca(this.aliado, c) / Math.max(1, c.enc.hp);
+  }
+
+  /* o golpe sai antes do adversário? a mesma regra do `ordenar`, sem o
+     sorteio do empate: prioridade, e depois velocidade */
+  private ageAntes(g: Golpe, eu: Combatente, alvo: Combatente): boolean {
+    const pri = g.prioridade ?? 0;
+    if (pri !== 0) return pri > 0;
+    return this.velocidade(eu) > this.velocidade(alvo);
+  }
+
+  private notaGolpe(indice: number, eu: Combatente, alvo: Combatente): number {
+    const aprendido = eu.enc.golpes[indice];
+    if (!aprendido || aprendido.pp <= 0) return 0;
+    const g = fichaGolpe(aprendido.id);
+    const mira = miraOponente(g) ? this.traco(alvo).miraTorta ?? 1 : 1;
+    const precisao = g.precisao <= 0 ? 1 : Math.min(1, (g.precisao * mira) / 100);
+    // golpe que o traço do outro bebe não vale nada
+    if (g.categoria !== 'estado' && this.traco(alvo).absorve?.tipo === g.tipo) return 0;
+    // treinador pensa um pouco mais; o bicho do mato escolhe como sempre
+    const esperto = !this.selvagem && eu === this.inimigo;
+
+    if (g.categoria === 'estado') {
+      const nota = esperto ? this.notaEstadoEsperta(g, eu, alvo) : this.notaEstado(g, eu, alvo);
+      return nota * precisao;
     }
 
-    // derrubar agora vale mais que qualquer outra consideração
-    if (dano >= alvo.enc.hp) return dano * 3;
+    const dano = this.danoEstimado(g, eu, alvo) * precisao;
+    // derrubar agora vale mais que qualquer outra consideração — e derrubar
+    // ANTES de ser derrubado vale ainda mais
+    if (dano >= alvo.enc.hp) {
+      if (!esperto) return dano * 3;
+      // para o treinador, todo golpe que derruba vale o mesmo (o que sobra
+      // de dano não importa), pesado só pela precisão e por quem age antes
+      const certo = alvo.enc.hp * precisao;
+      return this.ageAntes(g, eu, alvo) && this.ameaca(alvo, eu) >= eu.enc.hp ? certo * 5 : certo * 3;
+    }
     // o golpe que cobra um turno de fôlego só compensa quando derruba
-    return ef?.recarga ? dano * 0.6 : dano;
+    return g.efeito?.recarga ? dano * 0.6 : dano;
+  }
+
+  /* a nota de sempre de um golpe de estado (o bicho selvagem usa esta) */
+  private notaEstado(g: Golpe, eu: Combatente, alvo: Combatente): number {
+    const ef = g.efeito;
+    // fechar o corpo só aperta quando a vida já está curta — e nunca seguido
+    if (ef?.protege) return eu.ultimoProtege === this.turno ? 0 : eu.enc.hp < hpMaximo(eu.enc) * 0.35 ? 20 : 3;
+    if (ef?.curar) return eu.enc.hp < hpMaximo(eu.enc) * 0.5 ? 45 : 2;
+    if (ef?.status) return alvo.enc.status || this.imuneAoStatus(alvo, ef.status) ? 1 : 30;
+    if (ef?.feitico) return alvo.feitico > 0 || this.traco(alvo).semQuebranto ? 1 : 26;
+    if (ef?.mod) return 18;
+    return 12;
+  }
+
+  /* a do treinador: golpe que não teria efeito vale zero, e nada de golpe de
+     estado quando o jogador derruba ele neste turno */
+  private notaEstadoEsperta(g: Golpe, eu: Combatente, alvo: Combatente): number {
+    const ef = g.efeito;
+    if (ef?.protege) return this.notaEstado(g, eu, alvo);
+    if (this.ameaca(alvo, eu) >= eu.enc.hp) return 0;
+    if (ef?.curar) {
+      const max = hpMaximo(eu.enc);
+      return eu.enc.hp >= max ? 0 : eu.enc.hp < max * 0.5 ? 45 : 2;
+    }
+    if (ef?.status) {
+      const inutil = alvo.enc.status || this.imunePorTipo(alvo, ef.status) || this.imuneAoStatus(alvo, ef.status);
+      return inutil ? 0 : 30;
+    }
+    if (ef?.feitico) return alvo.feitico > 0 || this.traco(alvo).semQuebranto ? 0 : 26;
+    if (ef?.mod) {
+      const proprio = ef.mod.alvo === 'proprio';
+      const atual = (proprio ? eu : alvo).estagios[ef.mod.stat];
+      const novo = atual + ef.mod.passos;
+      if (novo > ESTAGIO_MAX && atual >= ESTAGIO_MAX) return 0;
+      if (novo < ESTAGIO_MIN && atual <= ESTAGIO_MIN) return 0;
+      // já forte o bastante: fortalecer mais rende pouco
+      return proprio && ef.mod.passos > 0 && atual >= 2 ? 9 : 18;
+    }
+    return 12;
   }
 }

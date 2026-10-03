@@ -27,6 +27,7 @@ src/
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
 │             tracos.test.ts (um caso por gancho de traço)
+│             ia.test.ts (o que o treinador escolhe e quando troca)
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
 │             pedras.ts (empurrar, e o BFS que prova que a sala tem solução)
 │             mapas.test.ts (coerência geral: saídas, alcance, encontros,
@@ -342,6 +343,19 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
   e derrubar o oponente naquele turno vale mais que qualquer outra coisa. Golpe
   de várias pancadas conta a média; golpe com recarga só compensa se derruba;
   o Fecha-Corpo só aparece com a vida curta, e nunca dois turnos seguidos.
+  O dano sai de `danoEstimado` (com traços; quem absorve aquele tipo vale 0).
+  O bicho selvagem fica nisso. O **treinador** pensa mais
+  (`notaEstadoEsperta`): golpe de estado sem efeito vale zero (alvo já com
+  estado, imune pelo tipo — `imunePorTipo`, a mesma regra da `aplicarStatus`
+  — ou pelo traço; atributo no limite; cura de vida cheia), não gasta golpe de
+  estado quando o jogador o derruba neste turno, e entre golpes que derrubam
+  prefere o mais certeiro e o que sai antes (`ageAntes`: prioridade, depois
+  velocidade) quando ele mesmo está para cair. O treinador **`esperta`**
+  também troca (`trocaDaIA`): quando leva 2× ou cairia neste turno
+  (`perigo`: o maior dano do jogador sobre a vida atual), não derruba o
+  jogador agora e não somou +2 de ataque e poder, vai para a reserva de menor
+  perigo que não leve 2× — com 55% de chance, para não ficar previsível.
+  `ia.test.ts` cobre cada regra.
 
 ## O mundo
 
