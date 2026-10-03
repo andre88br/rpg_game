@@ -48,6 +48,8 @@ export interface EstadoJogo {
   vistos: string[];                 // espécies já encontradas
   capturados: string[];             // espécies já presas num patuá
   raros: string[];                  // espécies já presas na cor rara
+  /* a Romaria do Círculo: a sequência de agora e a melhor de todas */
+  romaria: { seq: number; recorde: number };
 }
 
 /* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
@@ -70,6 +72,7 @@ export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
     vistos: [],
     capturados: [],
     raros: [],
+    romaria: { seq: 0, recorde: 0 },
   };
   adicionar(est.mochila, 'patua', 10);
   adicionar(est.mochila, 'garrafada', 5);

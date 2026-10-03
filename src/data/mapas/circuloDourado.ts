@@ -48,7 +48,7 @@ export const circuloDourado: DefMapa = {
     '#....................==....................#', // 30
     '#..........................................#', // 31
     '#.##....................................##.#', // 32
-    '#..........................................#', // 33
+    '...........................................#', // 33
     '#..........................................#', // 34
     '############################################', // 35
   ],
@@ -61,6 +61,11 @@ export const circuloDourado: DefMapa = {
       falas: [{ linhas: ['Um balão listrado, preso por quatro cordas. Quem pilota é o Baloeiro, ali do lado.'] }] },
     { tipo: 'placa', tx: 24, ty: 10,
       placa: 'CÍRCULO DOURADO. Seis lutas seguidas, sem benzimento entre elas. Perdeu, recomeça do primeiro.' },
+    { tipo: 'casa', tx: 34, ty: 27, larg: 5, alt: 4, placa: 'ROMARIA' },     // porta (36,30)
+    /* a oeste, a gruta da Cobra Norato: fechada até o campeonato */
+    { tipo: 'barreira', tx: 1, ty: 33, seNao: 'campeao' },
+    { tipo: 'placa', tx: 2, ty: 34,
+      placa: 'A oeste, o Remanso. Dizem que mora lá uma cobra que é o rio inteiro.' },
     { tipo: 'placa', tx: 40, ty: 16,
       placa: 'A leste, a Estrada Dourada e a Aldeia Catavento.' },
   ],
@@ -90,13 +95,14 @@ export const circuloDourado: DefMapa = {
       tx: 11, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'iaraMae', nivel: 60 }, { especie: 'piragua', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'iaraMae', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'A Maré voltou mais alta. Vamos ver se você ainda nada nela.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_mariana', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_mariana', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -105,13 +111,14 @@ export const circuloDourado: DefMapa = {
       tx: 14, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'curupira', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'curupira', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A mata cresceu desde a Raiz. Eu também.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_tie', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_tie', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -120,13 +127,14 @@ export const circuloDourado: DefMapa = {
       tx: 17, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'boitatao', nivel: 60 }, { especie: 'mulaSemCabeca', nivel: 60 }, { especie: 'salamanca', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A forja ficou mais quente. Aguenta?',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_bras', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_bras', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -135,13 +143,14 @@ export const circuloDourado: DefMapa = {
       tx: 26, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'saci', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'matinta', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }],
         falaInicio: 'O redemoinho gira pro outro lado agora.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_perere', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_perere', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -150,13 +159,14 @@ export const circuloDourado: DefMapa = {
       tx: 29, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'relampo', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'minhocao', nivel: 60 }],
         falaInicio: 'O trovão aprendeu uns truques novos.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_guaraci', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_guaraci', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -165,13 +175,14 @@ export const circuloDourado: DefMapa = {
       tx: 32, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'mapinguari', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }],
         falaInicio: 'A pedra não esquece quem passou por ela.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_ubirajara', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_ubirajara', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -180,13 +191,14 @@ export const circuloDourado: DefMapa = {
       tx: 26, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'cuca', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }],
         falaInicio: 'No breu eu te vi chegar. Agora eu te vejo voltar.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_morgana', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_morgana', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -195,13 +207,14 @@ export const circuloDourado: DefMapa = {
       tx: 29, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
+        escala: { piso: 60, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'estrelaDalva', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'lamparina', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'O sol nasceu de novo. A luta também.',
         falaDerrota: 'Campeão é campeão. Volta quando quiser.',
       },
       falas: [
-        { se: 'venceu_revanche_solano', linhas: ['Foi bonita essa. A gente se vê na próxima volta da trilha.'] },
+        { se: 'venceu_revanche_solano', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
         { batalha: true, linhas: ['Vim ao Círculo só para a revanche. Seis contra seis, sem pena.'] },
       ],
     },
@@ -215,6 +228,8 @@ export const circuloDourado: DefMapa = {
     { tx: 21, ty: 9,  para: 'arenaDourada',     destino: { tx: 7,  ty: 45, dir: 'cima' } },
     { tx: 6,  ty: 14, para: 'benzimentoCirculo', destino: { tx: 7, ty: 8,  dir: 'cima' } },
     { tx: 37, ty: 14, para: 'lojaCirculo',      destino: { tx: 7,  ty: 8,  dir: 'cima' } },
+    { tx: 36, ty: 30, para: 'romariaCirculo',   destino: { tx: 8,  ty: 9,  dir: 'cima' } },
+    { tx: 0,  ty: 33, para: 'remansoNorato',    destino: { tx: 22, ty: 7,  dir: 'esq' } },
   ],
 
   cenario: 'cidade',

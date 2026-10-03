@@ -78,3 +78,43 @@ test('todo balão leva a um mapa que existe, e desce em chão livre', () => {
   const ida = MAPAS['cidadeDoSol']!.npcs.find((n) => n.id === 'baloeiro_sol')!.falas.find((f) => f.leva)!;
   assert.ok([ida.se].flat().includes('medalha:aurora'), 'o balão sobe sem as oito medalhas');
 });
+
+/* ------------------------------------------------- pós-jogo (Fase 11) */
+
+test('o Remanso só abre depois do campeonato, e a Norato pede Visão Noturna e Prisma', () => {
+  const circulo = MAPAS['circuloDourado']!;
+  const praca = (ligada: (c: string) => boolean) =>
+    alcance(new Mapa(circulo, { ...ABERTO, ligada }), circulo.inicio.tx, circulo.inicio.ty);
+  assert.ok(!praca((c) => c !== 'campeao').has('0,33'), 'sem campeonato a saída do Remanso devia fechar');
+  assert.ok(praca(() => true).has('0,33'));
+
+  const def = MAPAS['remansoNorato']!;
+  const cobra = def.npcs.find((n) => n.id === 'cobra_norato')!;
+  const vizinhos = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => `${cobra.tx + dx!},${cobra.ty + dy!}`);
+  const chega = (ligada: (c: string) => boolean) => {
+    const pes = alcance(new Mapa(def, { ...ABERTO, ligada }), def.inicio.tx, def.inicio.ty);
+    return vizinhos.some((v) => pes.has(v));
+  };
+  assert.ok(!chega((c) => c !== 'dom_visao'), 'sem Visão Noturna não devia chegar');
+  assert.ok(!chega((c) => c !== 'dom_prisma'), 'sem Prisma não devia chegar');
+  assert.ok(chega(() => true));
+  assert.equal(cobra.treinador?.time[0]?.especie, 'cobraNorato');
+});
+
+test('as oito revanches crescem com o jogador e podem se repetir', () => {
+  const revanches = MAPAS['circuloDourado']!.npcs.filter((n) => n.id.startsWith('revanche_'));
+  assert.equal(revanches.length, 8);
+  for (const n of revanches) {
+    assert.deepEqual(n.treinador?.escala, { piso: 60, mais: 3 }, n.id);
+    assert.equal(n.treinador?.repete, true, n.id);
+  }
+});
+
+test('a Romaria tem porta, mestre e três barracas', () => {
+  const def = MAPAS['romariaCirculo']!;
+  assert.ok(def.npcs.find((n) => n.id === 'mestre_romaria')!.falas.every((f) => f.romaria));
+  assert.equal(def.npcs.filter((n) => n.id.startsWith('barraca_')).length, 3);
+  const circulo = MAPAS['circuloDourado']!;
+  assert.ok(circulo.saidas!.some((s) => s.para === 'romariaCirculo'));
+  void mapa; void entradas;
+});

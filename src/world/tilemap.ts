@@ -188,6 +188,11 @@ export interface DefTreinador {
      acesa (save de antes dela existir), cai no primeiro par do objeto —
      nunca falha, nunca lança. */
   trunfo?: Record<string, { especie: string; nivel: number }>;
+  /* revanche que cresce: o time vem no nível do melhor Encantado do jogador
+     mais `mais` (nunca abaixo de `piso`), já na forma desse nível */
+  escala?: { piso: number; mais: number };
+  /* pode ser enfrentado de novo depois de vencido */
+  repete?: boolean;
   /* vencer este é o fim da trilha: depois da fala de derrota, os créditos */
   creditos?: boolean;
   /* vencer este toca uma cutscene da história (id em data/cutscenes.ts),

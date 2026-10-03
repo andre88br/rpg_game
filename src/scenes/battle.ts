@@ -87,6 +87,8 @@ export interface OpcoesCenaBatalha {
   cenario?: Cenario;
   /* o tempo que faz onde a luta começou */
   clima?: Clima;
+  /* Modo Desafio: o patuá não pega quando o lugar já teve o seu primeiro */
+  podePrender?: boolean;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -159,6 +161,7 @@ export class CenaBatalha implements Cena {
       mochila: est.mochila,
       noite: periodo() === 'noite',
       clima: this.op.clima ?? 'limpo',
+      podePrender: this.op.podePrender,
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
 

@@ -84,6 +84,7 @@ function lutar(p: PedidoBatalha): void {
     itensIA: p.itensIA,
     cenario: p.cenario ?? 'praia',
     clima: p.clima,
+    podePrender: p.podePrender,
     aoTerminar: (resultado, entrouNoTime) => {
       // a cena do mundo aplica o resultado quando volta a ser a cena da vez
       cena.voltouDaBatalha(resultado, entrouNoTime);
@@ -130,8 +131,9 @@ function comecar(modo: Comeco, slot: number): void {
   // jogo novo: a cutscene de abertura toca, depois a escolha de quem vai andar a
   // trilha — só então o mundo existe de verdade
   cenas.trocar(new CenaCutscene(CUTSCENES['intro']!, () => {
-    cenas.trocar(new CenaPersonagem((personagem, nome) => {
+    cenas.trocar(new CenaPersonagem((personagem, nome, desafio) => {
       estado = novoJogo(nome, personagem);
+      if (desafio) estado.flags['desafio'] = true;
       iniciarMundo();
     }));
   }));

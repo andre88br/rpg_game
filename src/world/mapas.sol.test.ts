@@ -107,7 +107,8 @@ test('a Medalha Aurora vem com o Dom Prisma, e as cortinas de luz só se abrem c
   assert.equal(falas.find((f) => f.medalha === 'aurora')?.dom, 'prisma');
   let cortinas = 0;
   for (const [id, def] of entradas) {
-    if (!def.objetos.some((o) => o.tipo === 'cortinaLuz')) continue;
+    // o Remanso da Norato também tem cortina, mas sem esconderijo: tem teste dele
+    if (!def.objetos.some((o) => o.tipo === 'cortinaLuz') || !def.objetos.some((o) => o.placa === 'ESCONDERIJO')) continue;
     cortinas++;
     const esconderijo = def.objetos.find(
       (o) => o.tipo === 'achado' && o.placa === 'ESCONDERIJO' && o.seNao !== undefined)!;

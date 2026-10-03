@@ -132,6 +132,8 @@ export interface OpcoesBatalha {
   noite?: boolean;
   /* o tempo que faz no mapa (game/tempo.ts): mexe na força de alguns tipos */
   clima?: Clima;
+  /* Modo Desafio: falso quando este não é o primeiro bicho do lugar */
+  podePrender?: boolean;
 }
 
 /* abaixo desta fração de HP a IA considera curar; acima, nunca gasta item */
@@ -155,6 +157,7 @@ export class Batalha {
   readonly podeFugir: boolean;
   readonly noite: boolean;
   readonly clima: Clima;
+  readonly podePrender: boolean;
 
   aliado: Combatente;
   inimigo: Combatente;
@@ -179,6 +182,7 @@ export class Batalha {
     this.podeFugir = op.podeFugir ?? this.selvagem;
     this.noite = op.noite ?? false;
     this.clima = op.clima ?? 'limpo';
+    this.podePrender = op.podePrender ?? true;
 
     this.iAliado = this.time.findIndex((e) => !desmaiado(e));
     if (this.iAliado < 0) this.iAliado = 0;
@@ -382,6 +386,10 @@ export class Batalha {
     if (lado === 'inimigo') return this.acaoItemIA(id, ev);
 
     const it = fichaItem(id);
+    if (it.efeito.k === 'patua' && this.selvagem && !this.podePrender) {
+      ev.push({ k: 'texto', t: 'Desafio: neste lugar, só o primeiro bicho podia ir para o patuá.' });
+      return;
+    }
     if (!consumir(this.mochila, id)) return;
     ev.push({ k: 'texto', t: `Você usou ${it.nome}.` });
     const ef = it.efeito;

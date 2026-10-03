@@ -1516,8 +1516,36 @@ export function botoEncantado(): Buf {
   return b.outline(P.ink);
 }
 
+/* ---------------- COBRA NORATO (Água/Sombra, lendária escondida) ---------------- */
+export function cobraNorato(): Buf {
+  const b = new Buf(40, 40);
+  const esc = '#1f3a3a', escL = '#2f5a52', escD = '#122424', barriga = '#8aa88a', olhoV = '#f0e050';
+  b.ellipse(20, 38, 19, 2, '#123a5a');                  // o rio escuro
+  // as voltas do corpo, uma atrás da outra
+  b.ellipse(20, 33, 17, 5, esc);
+  b.ellipse(20, 34, 12, 2, barriga);
+  b.ellipse(14, 26, 11, 5, escL);
+  b.ellipse(14, 27, 7, 2, barriga);
+  b.line(4, 30, 36, 30, escD);
+  // o pescoço subindo e a cabeça grande, de lado
+  b.rect(18, 12, 7, 14, esc);
+  b.line(20, 13, 20, 24, barriga);
+  b.ellipse(24, 10, 10, 6, esc);
+  b.ellipse(31, 12, 5, 3, escL);                        // focinho
+  b.set(34, 11, P.ink);                                 // narina
+  b.line(26, 14, 35, 14, escD);                         // boca
+  // olho amarelo de fogo-fátuo, e as escamas brilhando de leve
+  b.ellipse(24, 8, 2, 2, olhoV); b.set(24, 8, P.ink); b.set(25, 7, '#ffffff');
+  for (const [x, y] of [[10, 25], [17, 24], [8, 32], [15, 33], [25, 33], [31, 32], [21, 17]] as const) {
+    b.set(x, y, '#5fa8a0'); b.set(x + 1, y, '#3f8078');
+  }
+  // a pele velha largada no barranco, atrás
+  b.line(1, 20, 6, 15, '#c8c0a0'); b.line(6, 15, 3, 10, '#c8c0a0');
+  return b.outline(P.ink);
+}
+
 export const ARTE_CRIATURAS: Record<string, () => Buf> = {
-  boto, botoEncantado,
+  boto, botoEncantado, cobraNorato,
   boitatinha, boitatao, iarinha, iaraMae, curupinho, curupira,
   piragua, sacizinho, caiporinha,
   cabritinha, cabraCabriola, mulinha, mulaSemCabeca, salamanca, maeDoOuro,

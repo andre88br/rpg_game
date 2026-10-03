@@ -48,6 +48,10 @@ src/
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
 │             raro.ts (a chance da cor rara e o Amuleto do Brilho)
+│             escala.ts (a revanche que cresce: nível e forma no nível)
+│             romaria.ts (o romeiro sorteado, o tamanho do time, as fichas)
+│             desafio.ts (Modo Desafio: soltar quem desmaia, o primeiro
+│             bicho de cada lugar) + posjogo.test.ts
 │             viagem.ts (a Canoa: abrigo de cada cidade, destinos pelas
 │             flags `visitou_`, a chegada e quando não dá para remar)
 │             tempo.ts (período do dia, clima por região, o mato do

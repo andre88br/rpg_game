@@ -217,6 +217,7 @@ test('a Caiporinha evolui para a Caipora', () => {
 test('toda linhagem evolui: nenhuma espécie fica sozinha', () => {
   const alvos = new Set(ESPECIES_ORDEM.map((id) => especie(id).evolui?.em).filter(Boolean));
   for (const id of ESPECIES_ORDEM) {
+    if (especie(id).lendario) continue;      // a Cobra Norato é uma só
     assert.ok(especie(id).evolui || alvos.has(id), `${id} não evolui nem vem de ninguém`);
   }
 });

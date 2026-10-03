@@ -68,6 +68,8 @@ import { terreiroAurora } from './terreiroAurora.ts';
 import { estradaDourada } from './estradaDourada.ts';
 import { circuloDourado } from './circuloDourado.ts';
 import { lojaCirculo } from './lojaCirculo.ts';
+import { romariaCirculo } from './romariaCirculo.ts';
+import { remansoNorato } from './remansoNorato.ts';
 import { benzimentoCirculo } from './benzimentoCirculo.ts';
 import { arenaDourada } from './arenaDourada.ts';
 
@@ -138,6 +140,8 @@ export const MAPAS: Record<string, DefMapa> = {
   estradaDourada,
   circuloDourado,
   lojaCirculo,
+  romariaCirculo,
+  remansoNorato,
   benzimentoCirculo,
   arenaDourada,
 };

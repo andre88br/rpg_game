@@ -27,6 +27,8 @@ import { criar } from '../battle/encantado.ts';
      'contas>=5'         a guia do Terreiro de Água tem cinco contas acesas
      'contas:planta>=3'  o mesmo, mas na guia de outro terreiro
      'medalha:mare'      já tem essa medalha
+     'capturado:boto'    já prendeu um dessa espécie
+     'romaria_andando'   há uma sequência da Romaria em curso
      'dinheiro>=200'     tem esse tanto no bolso
 */
 export function ligada(e: EstadoJogo, cond: string): boolean {
@@ -38,6 +40,8 @@ export function ligada(e: EstadoJogo, cond: string): boolean {
 
   if (chave.startsWith('item:')) return quantidade(e.mochila, chave.slice(5)) >= minimo;
   if (chave.startsWith('medalha:')) return e.medalhas.includes(chave.slice(8));
+  if (chave.startsWith('capturado:')) return e.capturados.includes(chave.slice(10));
+  if (chave === 'romaria_andando') return e.romaria.seq > 0;
   if (chave.startsWith('contas:')) return contasAcesasDe(e, chave.slice(7)) >= minimo;
   if (chave === 'vistos') return e.vistos.length >= minimo;
   if (chave === 'capturados') return e.capturados.length >= minimo;
@@ -73,6 +77,7 @@ export interface Fala {
   escolher?: boolean;       // abre a escolha do Encantado inicial
   caixa?: boolean;          // abre a caixa da benzedeira
   rezador?: boolean;        // abre o Rezador: lembrar golpe esquecido, a dinheiro
+  romaria?: boolean;        // manda o próximo romeiro da Romaria do Círculo
   /* entrega esta cantiga, se ainda não estiver na mochila (ela não se gasta;
      uma basta) — é como os serviços opcionais pagam com golpe */
   cantiga?: string;
@@ -126,6 +131,7 @@ export interface EfeitoFala {
   escolher: boolean;
   caixa: boolean;
   rezador: boolean;
+  romaria: boolean;
   deu: string | null;        // item recebido, para anunciar
   levou: string | null;      // item entregue
   medalha: string | null;    // medalha conquistada agora
@@ -137,7 +143,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   consumir: (id: string, n: number) => boolean;
 }): EfeitoFala {
   const efeito: EfeitoFala = {
-    curou: false, batalha: false, loja: false, escolher: false, caixa: false, rezador: false,
+    curou: false, batalha: false, loja: false, escolher: false, caixa: false, rezador: false, romaria: false,
     deu: null, levou: null, medalha: null, encantado: null,
   };
 
@@ -176,6 +182,7 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   efeito.escolher = f.escolher === true;
   efeito.caixa = f.caixa === true;
   efeito.rezador = f.rezador === true;
+  efeito.romaria = f.romaria === true;
   return efeito;
 }
 
@@ -223,6 +230,8 @@ export function preencher(e: EstadoJogo, linha: string): string {
       case 'servico': return contasFaltando(e)[0] ?? 'nada';
       case 'vistos': return String(e.vistos.length);
       case 'capturados': return String(e.capturados.length);
+      case 'romaria': return String(e.romaria.seq);
+      case 'recorde': return String(e.romaria.recorde);
       case 'dinheiro': return String(e.dinheiro);
       case 'medalhas': return String(e.medalhas.length);
       /* concordância de gênero: quem escolheu Bento não quer ouvir "menina" */

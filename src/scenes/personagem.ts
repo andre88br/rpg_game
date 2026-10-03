@@ -25,21 +25,23 @@ const TECLAS: readonly string[] = [
 const COLS = 7;
 
 export class CenaPersonagem implements Cena {
-  private tela: 'personagem' | 'nome' = 'personagem';
+  private tela: 'personagem' | 'nome' | 'modo' = 'personagem';
+  private desafio = false;         // o modo escolhido na última tela
   private sel = 0;                 // 0 ou 1, qual protagonista
   private cursor = 0;              // índice na grade do teclado
   private nome = '';
   private retratos = new Map<string, Assado>();
   private moldura!: Assado;
-  private aoEscolher: (id: string, nome: string) => void;
+  private aoEscolher: (id: string, nome: string, desafio: boolean) => void;
 
-  constructor(aoEscolher: (id: string, nome: string) => void) { this.aoEscolher = aoEscolher; }
+  constructor(aoEscolher: (id: string, nome: string, desafio: boolean) => void) { this.aoEscolher = aoEscolher; }
 
   entrar(): void {
     this.tela = 'personagem';
     this.sel = 0;
     this.cursor = 0;
     this.nome = '';
+    this.desafio = false;
     this.moldura ??= assar(UI.caixa(LARGURA - 16, ALTURA - 16));
   }
 
@@ -53,6 +55,7 @@ export class CenaPersonagem implements Cena {
 
   atualizar(_dt: number, entrada: Entrada): void {
     if (this.tela === 'personagem') { this.naEscolha(entrada); return; }
+    if (this.tela === 'modo') { this.noModo(entrada); return; }
     this.noNome(entrada);
   }
 
@@ -77,12 +80,20 @@ export class CenaPersonagem implements Cena {
     if (!entrada.apertou('a')) return;
     const tecla = TECLAS[this.cursor];
     if (tecla === APAGAR) { this.nome = this.nome.slice(0, -1); return; }
-    if (tecla === 'OK') {
-      const padrao = PROTAGONISTAS[this.sel]!.nome;
-      this.aoEscolher(PROTAGONISTAS[this.sel]!.id, this.nome.length > 0 ? this.nome : padrao);
-      return;
-    }
+    if (tecla === 'OK') { this.tela = 'modo'; return; }
     if (tecla && this.nome.length < MAX_NOME) this.nome += tecla;
+  }
+
+  /* NORMAL ou DESAFIO: quem desmaia é solto, e só o primeiro bicho de cada
+     lugar vai para o patuá (game/desafio.ts) */
+  private noModo(entrada: Entrada): void {
+    if (entrada.apertou('b')) { this.tela = 'nome'; return; }
+    if (entrada.apertou('cima') || entrada.apertou('baixo') || entrada.apertou('esq') || entrada.apertou('dir')) {
+      this.desafio = !this.desafio;
+    }
+    if (!entrada.apertou('a')) return;
+    const padrao = PROTAGONISTAS[this.sel]!.nome;
+    this.aoEscolher(PROTAGONISTAS[this.sel]!.id, this.nome.length > 0 ? this.nome : padrao, this.desafio);
   }
 
   /* troca de linha mantendo a coluna, presa dentro do total de teclas
@@ -97,6 +108,7 @@ export class CenaPersonagem implements Cena {
   desenhar(r: Renderizador): void {
     r.limpar('#101018');
     if (this.tela === 'personagem') this.desenharEscolha(r);
+    else if (this.tela === 'modo') this.desenharModo(r);
     else this.desenharNome(r);
   }
 
@@ -117,6 +129,25 @@ export class CenaPersonagem implements Cena {
     });
 
     r.texto('< >  ESCOLHER    A  CONFIRMAR', 16, ALTURA - 20, P.uiBg3!);
+  }
+
+  private desenharModo(r: Renderizador): void {
+    r.sprite(this.moldura, 8, 8);
+    const titulo = 'COMO VAI SER A TRILHA?';
+    r.texto(titulo, (LARGURA - r.larguraTexto(titulo)) / 2, 20, P.uiAccD!);
+    r.retangulo(16, 32, LARGURA - 32, 1, P.uiBg3!);
+    const opcoes = [
+      { nome: 'NORMAL', linhas: ['O jogo de sempre.'] },
+      { nome: 'DESAFIO', linhas: ['Quem desmaia vai embora.', 'Só o primeiro bicho de cada', 'lugar vai para o patuá.'] },
+    ];
+    opcoes.forEach((o, i) => {
+      const y = 42 + i * 36;
+      const escolhido = (i === 1) === this.desafio;
+      if (escolhido) r.retangulo(16, y - 3, LARGURA - 32, 15 + o.linhas.length * 9, P.uiBg2!);
+      r.texto(o.nome, 24, y, escolhido ? P.uiInk! : P.uiBg3!);
+      o.linhas.forEach((l, j) => r.texto(l, 32, y + 11 + j * 9, P.uiBg3!));
+    });
+    r.texto('A CONFIRMAR   B VOLTAR', 16, ALTURA - 20, P.uiBg3!);
   }
 
   private desenharNome(r: Renderizador): void {

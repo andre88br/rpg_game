@@ -267,7 +267,7 @@ test('objeto e NPC condicionais só usam condição que alguém liga', () => {
     [se, seNao].flat()
       .filter((c): c is string => typeof c === 'string')
       .map((c) => c.replace(/^!/, '').split('>=')[0]!)
-      .filter((c) => !c.startsWith('item:') && !c.startsWith('medalha:'));
+      .filter((c) => !c.startsWith('item:') && !c.startsWith('medalha:') && !c.startsWith('capturado:'));
 
   for (const [id, def] of entradas) {
     for (const o of def.objetos) {

@@ -126,6 +126,9 @@ const LISTA: readonly Traco[] = [
   { id: 'encanto_do_boto', nome: 'Encanto do Boto',
     descricao: 'Ao chegar, encanta quem está do outro lado: o poder dele cai.',
     aoEntrar: { stat: 'esp', passos: -1 } },
+  { id: 'escama_velha', nome: 'Escama Velha',
+    descricao: 'A pele de cobra velha segura feitiço: golpe especial machuca 25% menos.',
+    couro: { fator: 0.75, categoria: 'especial' } },
   { id: 'fases_da_lua', nome: 'Fases da Lua',
     descricao: 'De dia, a luz bate 20% mais; à noite, a sombra.',
     forca: [{ fator: 1.2, tipo: 'luz', dia: true }, { fator: 1.2, tipo: 'sombra', noite: true }] },
@@ -169,6 +172,7 @@ export const TRACO_DA_ESPECIE: Readonly<Record<string, string>> = {
   lamparina: 'fogo_brando', fogoFatuo: 'fogo_brando',
   jaci: 'fases_da_lua', eclipse: 'fases_da_lua',
   boto: 'encanto_do_boto', botoEncantado: 'encanto_do_boto',
+  cobraNorato: 'escama_velha',
 };
 
 export function tracoDaEspecie(especie: string): Traco {

@@ -48,6 +48,9 @@ import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo, regiaoDoMapa } from '../data/mundo.ts';
 import { chegada, destinosDaCanoa, motivoParaNaoViajar } from '../game/viagem.ts';
 import { talvezRaro } from '../game/raro.ts';
+import { formaNoNivel, nivelEscalado } from '../game/escala.ts';
+import { BENZE_A_CADA, fichasDaVitoria, gerarRomeiro, nivelDaRomaria } from '../game/romaria.ts';
+import { gastarEncontro, podePrenderAqui, soltarDesmaiados } from '../game/desafio.ts';
 import { periodo, sortearClima, tabelaDoMomento, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
@@ -117,6 +120,8 @@ export interface PedidoBatalha {
   itensIA?: Record<string, number>;
   /* o tempo que faz onde a luta começou */
   clima?: Clima;
+  /* Modo Desafio: falso quando o primeiro bicho do lugar já passou */
+  podePrender?: boolean;
 }
 
 export interface OpcoesCenaMundo {
@@ -167,6 +172,11 @@ export class CenaMundo implements Cena {
   private duelo: Duelo | null = null;
   /* o tempo que faz, sorteado ao chegar numa região (não vai para o save) */
   private clima: Clima = 'limpo';
+  /* a luta de agora é da Romaria; e o lugar do bicho do mato (Desafio) */
+  private naRomaria = false;
+  private lugarDoEncontro: string | null = null;
+  /* recados que esperam a tela livre (os soltos do Desafio, o fim da Romaria) */
+  private recados: { quem: string; linhas: string[] }[] = [];
   private regiaoDoTempo: string | null = null;
   private menu: MenuPausa | null = null;
   private loja: Loja | null = null;
@@ -289,6 +299,8 @@ export class CenaMundo implements Cena {
     this.mapa = this.op.mundo.obter(id, this.contexto());
     this.def = this.op.mundo.def(id);
     Som.musica(temaDoMapa(this.def));       // o mesmo tema não recomeça
+    /* sair do salão da Romaria encerra a sequência */
+    if (id !== 'romariaCirculo' && this.op.estado.romaria.seq > 0) this.op.estado.romaria.seq = 0;
     this.talvezMudarTempo();
     this.marcarVisita(id);
     this.dialogo.conversa = null;
@@ -531,6 +543,7 @@ export class CenaMundo implements Cena {
     }
     if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
     if (efeito.rezador) { this.emRezador = true; this.telaRezador!.abrir(); }
+    if (efeito.romaria) { this.lutarNaRomaria(); return; }
     /* um Encantado que acaba de entrar por fala é a mesma oferta de reordenar
        que uma captura dá — só que sem passar pela tela de batalha. Se ele
        chega com cutscene (a Mãe-do-Ouro descendo do teto), a oferta ficaria
@@ -642,7 +655,12 @@ export class CenaMundo implements Cena {
     this.duelo = { npc, fase: 'lutando', t: 0 };
     /* bicho não é treinador: sem painel de treinador, e o patuá funciona.
        Prender o Boitatá do farol vale tanto quanto derrubá-lo. */
-    const oponentes = t.time.map((c) => criar(c.especie, c.nivel, { selvagem: t.selvagem }));
+    /* a revanche que cresce vem no nível do melhor do time do jogador */
+    const nv = (c: { nivel: number }) => (t.escala ? nivelEscalado(this.op.estado, t.escala) : c.nivel);
+    const oponentes = t.time.map((c) => {
+      const nivel = nv(c);
+      return criar(t.escala ? formaNoNivel(c.especie, nivel) : c.especie, nivel, { selvagem: t.selvagem });
+    });
     if (t.trunfo) {
       const e = this.op.estado;
       const chave = Object.keys(t.trunfo).find((esp) => e.flags[`inicial_${esp}`] === true);
@@ -675,6 +693,15 @@ export class CenaMundo implements Cena {
     this.pendente = null;
     this.pendenteEntrouNoTime = false;
     if (r === null) return;
+
+    const e0 = this.op.estado;
+    /* Desafio: quem caiu é solto, e o lugar do bicho do mato fica gasto */
+    const soltos = soltarDesmaiados(e0);
+    if (soltos.length) {
+      this.recados.push({ quem: 'DESAFIO', linhas: [`${soltos.join(', ')} ${soltos.length > 1 ? 'desmaiaram e foram soltos' : 'desmaiou e foi solto'}. Boa viagem.`] });
+    }
+    if (this.lugarDoEncontro) { gastarEncontro(e0, this.lugarDoEncontro); this.lugarDoEncontro = null; }
+    if (this.naRomaria) { this.naRomaria = false; this.fimDaLutaDaRomaria(r); }
 
     const d = this.duelo;
     this.duelo = null;
@@ -840,7 +867,7 @@ export class CenaMundo implements Cena {
     const fala = escolherFala(this.op.estado, npc.def.falas);
     if (!fala) return;                         // NPC sem nada a dizer agora
     // treinador já vencido repete a fala, mas não o desafio
-    if (fala.batalha && this.venceu(npc)) {
+    if (fala.batalha && this.venceu(npc) && !npc.def.treinador?.repete) {
       this.abrirConversa(npc.def.nome, fala.linhas);
       return;
     }
@@ -941,6 +968,10 @@ export class CenaMundo implements Cena {
     }
 
     // o campeão caiu: os créditos entram assim que a fala dele fecha
+    if (this.recados.length && !this.falando && !this.indo && !this.duelo && !this.creditosPendentes) {
+      const rec = this.recados.shift()!;
+      this.abrirConversa(rec.quem, rec.linhas);
+    }
     if (this.creditosPendentes && !this.falando && !this.indo && !this.duelo) {
       this.creditosPendentes = false;
       this.op.aoCreditos?.();
@@ -1229,6 +1260,50 @@ export class CenaMundo implements Cena {
     if (this.fade >= FADE * 2) { this.indo = null; this.fade = 0; }
   }
 
+  /* ------------------------------------------------------------ Romaria */
+
+  private lutarNaRomaria(): void {
+    const e = this.op.estado;
+    this.duelo = null;
+    if (!temTimeEmPe(e)) {
+      this.abrirConversa('MESTRE DA ROMARIA', ['Com o time caído não tem romaria. Vá se benzer primeiro.']);
+      return;
+    }
+    const { nome, time } = gerarRomeiro(acaso, nivelDaRomaria(e), e.romaria.seq);
+    this.naRomaria = true;
+    this.op.aoBatalhar({
+      oponentes: time,
+      treinador: { nome, classe: 'ROMEIRO', esperta: true,
+                   falaDerrota: 'Vai com Deus, que a romaria segue.' },
+      cenario: this.def.cenario ?? 'cidade',
+      musica: 'batalhaTreinador',
+      clima: 'limpo',
+    });
+  }
+
+  private fimDaLutaDaRomaria(r: Resultado): void {
+    const e = this.op.estado;
+    const ro = e.romaria;
+    if (r === 'vitoria') {
+      ro.seq++;
+      ro.recorde = Math.max(ro.recorde, ro.seq);
+      const f = fichasDaVitoria(ro.seq);
+      adicionar(e.mochila, 'ficha_romaria', f);
+      const linhas = [`${ro.seq} vitória${ro.seq > 1 ? 's' : ''} seguida${ro.seq > 1 ? 's' : ''}! ${f} ficha${f > 1 ? 's' : ''} para você.`];
+      if (ro.seq % BENZE_A_CADA === 0) {
+        curarTime(e);
+        linhas.push(`${BENZE_A_CADA} de uma vez: benzi o seu time. A romaria segue!`);
+      }
+      this.recados.push({ quem: 'MESTRE DA ROMARIA', linhas });
+    } else {
+      const fez = ro.seq;
+      ro.seq = 0;
+      this.recados.push({ quem: 'MESTRE DA ROMARIA',
+                          linhas: [`A romaria acabou em ${fez} vitória${fez === 1 ? '' : 's'}. O recorde é ${ro.recorde}.`] });
+    }
+    salvar(e);
+  }
+
   /* a Canoa Encantada: escurece como numa porta e clareia dentro do
      benzimento da cidade escolhida */
   private remar(cidade: string | null): void {
@@ -1269,7 +1344,11 @@ export class CenaMundo implements Cena {
     if (!acaso.chance(100 / media)) return;
 
     const agora = tabelaDoMomento(tabela, periodo(), this.climaAqui());
+    const lugar = lugarNoMundo(this.def.id, MAPAS) ?? this.def.id;
+    const podePrender = podePrenderAqui(this.op.estado, lugar);
+    this.lugarDoEncontro = lugar;
     this.op.aoBatalhar({
+      podePrender,
       oponentes: [talvezRaro(sortearSelvagem(agora, acaso), this.op.estado, acaso)],
       cenario: this.def.cenario ?? 'praia',
       clima: this.climaAqui(),

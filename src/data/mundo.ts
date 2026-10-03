@@ -52,7 +52,7 @@ export const REGIOES: readonly Regiao[] = [
     mapas: ['caminhoAurora', 'cidadeDoSol', 'lojaSol', 'benzimentoSol', 'casaOraculo',
             'jardimEspelhos', 'picoAurora', 'terreiroAurora',
             // o Círculo Dourado: o torneio das oito medalhas, no meio do mundo
-            'estradaDourada', 'circuloDourado', 'lojaCirculo', 'benzimentoCirculo', 'arenaDourada'] },
+            'estradaDourada', 'circuloDourado', 'lojaCirculo', 'benzimentoCirculo', 'arenaDourada', 'romariaCirculo', 'remansoNorato'] },
 ];
 
 /* a casinha de cada lugar ao ar livre: [coluna, linha] numa grade 10×7.

@@ -33,6 +33,8 @@ export interface Especie {
   crescimento: Crescimento;
   aprende: readonly Aprendizado[];
   evolui?: { em: string; nv: number };
+  /* o lendário: um só no mundo, não evolui nem vem de ninguém */
+  lendario?: boolean;
   arte: string;                   // chave em art/creatures.ts
   categoria: string;              // linha de sabor no Caderno
   sobre: string;
@@ -808,6 +810,20 @@ const LISTA: readonly Especie[] = [
       { nv: 50, golpe: 'cachoeira' }, { nv: 54, golpe: 'aurora' },
       { nv: 58, golpe: 'tromba_agua' }, { nv: 62, golpe: 'benzecao' },
       { nv: 66, golpe: 'sol_a_pino' }, { nv: 70, golpe: 'folego' },
+    ],
+  },
+  /* -------- o lendário escondido, no Remanso, depois do campeonato -------- */
+  {
+    id: 'cobraNorato', nome: 'Cobra Norato', tipos: ['agua', 'sombra'],
+    base: { hp: 115, atq: 110, def: 100, esp: 115, vel: 95 },
+    taxaCaptura: 3, xpBase: 270, crescimento: 'lento', lendario: true,
+    arte: 'cobraNorato', categoria: 'Cobra Grande',
+    sobre: 'Filho de mulher, nasceu cobra. Toda noite tira a pele no barranco e anda de gente; de dia, é o rio inteiro.',
+    aprende: [
+      { nv: 1, golpe: 'mare_cheia' }, { nv: 1, golpe: 'sombra_fria' },
+      { nv: 1, golpe: 'correnteza' }, { nv: 1, golpe: 'mau_olhado' },
+      { nv: 64, golpe: 'tromba_agua' }, { nv: 68, golpe: 'arrepio' },
+      { nv: 72, golpe: 'mau_sonho' }, { nv: 76, golpe: 'cachoeira' },
     ],
   },
 ];

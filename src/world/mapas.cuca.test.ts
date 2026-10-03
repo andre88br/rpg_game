@@ -128,7 +128,8 @@ test('a Medalha Breu vem com o Dom Visão Noturna, e os véus só caem com ele',
   assert.equal(falas.find((f) => f.medalha === 'breu')?.dom, 'visao');
   let veus = 0;
   for (const [id, def] of entradas) {
-    if (!def.objetos.some((o) => o.tipo === 'veu')) continue;
+    // o Remanso da Norato também tem véu, mas sem esconderijo: tem teste dele
+    if (!def.objetos.some((o) => o.tipo === 'veu') || !def.objetos.some((o) => o.placa === 'ESCONDERIJO')) continue;
     veus++;
     const esconderijo = def.objetos.find(
       (o) => o.tipo === 'achado' && o.placa === 'ESCONDERIJO' && o.seNao !== undefined)!;

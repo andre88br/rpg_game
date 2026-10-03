@@ -175,6 +175,10 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
     vistos: listaDeTexto(j['vistos'], (s2) => ESPECIES[s2] !== undefined),
     capturados: listaDeTexto(j['capturados'], (s2) => ESPECIES[s2] !== undefined),
     raros: listaDeTexto(j['raros'], (s2) => ESPECIES[s2] !== undefined),
+    romaria: {
+      seq: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['seq'], 0, 0, 9999),
+      recorde: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['recorde'], 0, 0, 9999),
+    },
   };
 }
 

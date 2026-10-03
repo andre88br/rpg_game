@@ -242,7 +242,10 @@ tudo de novo.
   começar. A primeira é a **Região da Foz**: Vila Aurora → Rota da Foz → Porto Iara.
 - **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas:
   quatro Guardiões de dois tipos cada, o Zeca e o campeão Anhangá. Fica no meio
-  do continente; depois dele, créditos e revanches.
+  do continente; depois dele, créditos, revanches que crescem com o seu time,
+  a **Romaria** (lutas em sequência, com recorde) e a **Cobra Norato** escondida.
+- **Modo Desafio**, escolhido no novo jogo: quem desmaia é solto, e só o
+  primeiro bicho de cada lugar vai para o patuá.
 - **8 tipos:** Fogo → Planta → Água → Fogo · Terra → Raio → Vento → Terra · Luz ↔ Sombra.
 
 | # | Cidade | Tipo | Quem manda no terreiro | Medalha | Dom de Campo |

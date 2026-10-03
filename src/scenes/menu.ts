@@ -15,6 +15,7 @@ import { ficha, nome, MAX_GOLPES, type Encantado } from '../battle/encantado.ts'
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import { tracoDaEspecie } from '../data/tracos.ts';
 import { NOME_CLIMA, NOME_PERIODO, periodo, type Clima } from '../game/tempo.ts';
+import { emDesafio } from '../game/desafio.ts';
 import { compatibilidade, ensinar } from '../game/golpes.ts';
 import { EscolhaEsquecer } from '../ui/esquecer.ts';
 import * as L from '../ui/listas.ts';
@@ -532,7 +533,8 @@ export class MenuPausa {
 
     // a hora e o tempo, no canto de cima à esquerda
     const c = this.op.clima?.() ?? 'limpo';
-    const hora = c === 'limpo' ? NOME_PERIODO[periodo()] : `${NOME_PERIODO[periodo()]} - ${NOME_CLIMA[c]}`;
+    const tempo = c === 'limpo' ? NOME_PERIODO[periodo()] : `${NOME_PERIODO[periodo()]} - ${NOME_CLIMA[c]}`;
+    const hora = emDesafio(this.op.estado) ? `${tempo} - DESAFIO` : tempo;
     const w = r.larguraTexto(hora) + 10;
     r.retangulo(6, 6, w, 13, P.ink!);
     r.retangulo(7, 7, w - 2, 11, P.uiBg!);

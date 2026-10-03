@@ -1597,8 +1597,33 @@ recomeçar a arena não repete nenhuma.
 
 - A arena continua aberta, e os seis voltam com **times mais fortes**
   (seis Encantados cada, todos no 60).
-- Na praça aparecem os **oito donos de terreiro**, cada um com seis
-  Encantados no 60, para uma **revanche**.
+- Na praça aparecem os **oito donos de terreiro** para uma **revanche** que
+  **cresce com você**: o time deles vem no nível do seu Encantado mais forte
+  mais 3 (nunca abaixo do 60), cada bicho já na forma desse nível e com os
+  golpes dele. Dá para repetir quantas vezes quiser (8000 réis cada).
+- **Romaria do Círculo** (a casa ROMARIA, no sudeste da praça): o Mestre manda
+  um romeiro atrás do outro, com time sorteado entre todas as espécies, no
+  nível do seu melhor Encantado mais 2. Três Encantados no começo, um a mais
+  a cada 7 vitórias, até seis. **Benzimento só a cada 7 vitórias.** Perder,
+  ou sair do salão, encerra a sequência; o recorde fica guardado. Cada vitória
+  vale 1 ficha (a sétima, 5); as barracas trocam: 5 fichas → 3 Patuás de
+  Mestre; 12 → 3 Águas Bentas; 30 → Cantiga do Rasante.
+- **O Remanso da Norato**, a oeste da praça (a saída abre depois do
+  campeonato): uma gruta no breu, com um véu (Visão Noturna) e uma cortina de
+  luz (Prisma) no caminho. No fundo, a **Cobra Norato** (Água/Sombra, nível
+  70, traço **Escama Velha**: golpe especial machuca 25% menos). É uma só no
+  mundo e não evolui; vencida sem ser presa, volta para o mesmo lugar.
+
+### Modo Desafio
+
+No NOVO JOGO, depois do nome, escolha **NORMAL** ou **DESAFIO**. No
+Desafio:
+- quem **desmaia é solto** ao fim da luta (o último Encantado que sobrar
+  fica, para o jogo não travar; sem ninguém no time, o primeiro da caixa vem);
+- em cada lugar, só o **primeiro bicho do mato** pode ir para o patuá —
+  ganhando, fugindo ou perdendo dele, o lugar fica gasto. Os bichos-chefe
+  (Boitatá do farol, Curupira, Mula...) não contam.
+O menu mostra DESAFIO no canto.
 
 ---
 
@@ -1705,4 +1730,5 @@ Estrela-d'Alva no cume → terreiro (2 espelhos · 2 guardas) → Solano →
 
 **Círculo Dourado** — balão da Cidade do Sol (ou a Estrada Dourada, a oeste
 da Aldeia Catavento) → garrafadas na loja → Iracema · Itaberá · Ybytu ·
-Jacira · Zeca · **Anhangá** sem sair da arena → créditos → revanches.
+Jacira · Zeca · **Anhangá** sem sair da arena → créditos → revanches que
+crescem · Romaria · Remanso da Norato.
