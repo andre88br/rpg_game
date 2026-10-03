@@ -26,6 +26,7 @@ src/
 │             paradas: rede, carta, pote de carvão, sino, pena, balão...)
 ├─ battle/    engine.ts (máquina de turnos) · typechart · damage · status
 │             capture · encantado.ts (nível, XP, evolução) + *.test.ts
+│             tracos.test.ts (um caso por gancho de traço)
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
 │             pedras.ts (empurrar, e o BFS que prova que a sala tem solução)
 │             mapas.test.ts (coerência geral: saídas, alcance, encontros,
@@ -42,6 +43,7 @@ src/
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
+│             tempo.ts (é noite? pelo relógio do aparelho)
 │             + *.test.ts (puros)
 ├─ render3d/  relevo.ts (o que cada letra do chão vira, e em que mapas) + teste
 │             vista3d.ts (a maquete em three.js: chão, casas, mar, sprites de pé)
@@ -65,6 +67,7 @@ src/
 │             creditos.ts (o fim do Círculo Dourado)
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
+│             tracos.ts (os 24 traços e o de cada espécie) + teste
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             roteiros/ (da Serra em diante, um arquivo de roteiros por
 │             região, e o torneio; comum.ts guarda o arco das oito medalhas)
@@ -318,6 +321,19 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
   `Fala.cantiga` entrega uma se ainda não estiver na mochila, e a de loja tem
   `medalha` (só aparece no balcão depois dela, `aVendaPara`) e máximo de uma
   (`maximoNaMochila`).
+- **Traços.** `data/tracos.ts` é uma ficha por traço, declarativa como o
+  `efeito` dos golpes, e o mapa `TRACO_DA_ESPECIE` (fora da ficha da
+  espécie, para ficar tudo num lugar; a linha de evolução divide o traço).
+  O motor lê os campos nos ganchos: `aoEntrar` (no `abrir`, nas trocas e no
+  inimigo que entra), `fatorTraco` (força de quem bate × couro de quem
+  apanha, passado como `fator` ao `calcularDano`; a IA usa a mesma conta),
+  `absorve`, `semCritico`/`criticoExtra`, `contato` (depois de golpe físico
+  que tirou HP), `imune`/`semQuebranto`/`semRecuo`, `miraTorta`,
+  `tracoFimDeTurno`, captura, fuga e `achar` (Rodamoinho, que põe o item
+  direto na mochila viva). Quando um traço age sai o evento
+  `{ k: 'traco', lado, nome }`, que a cena mostra como uma faixa junto do
+  painel. A noite vem de `OpcoesBatalha.noite`, que a cena preenche com
+  `game/tempo.ts` (`ehNoite`, pelo relógio do aparelho).
 - **Captura.** Chance cresce com o dano levado, com o estado alterado e com a
   qualidade do patuá. Os quatro balanços da animação são a mesma chance dividida
   em quatro sorteios: se balançar as quatro vezes, pegou.

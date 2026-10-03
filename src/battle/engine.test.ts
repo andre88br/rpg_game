@@ -486,7 +486,8 @@ test('a IA não troca quando pode derrubar o jogador agora', () => {
     criar('piragua', 20, { golpes: ['jato_agua'] }),
   ];
   const b = montar({
-    meu: [criar('boitatinha', 20, { golpes: ['brasa'] })],
+    // a Mulinha, e não a Boitatinha: com 1 de HP a Chama Viva derrubaria a Caiporinha antes
+    meu: [criar('mulinha', 20, { golpes: ['brasa'] })],
     dele, treinador: true, esperta: true, semente: 6,
   });
   b.aliado.enc.hp = 1;      // qualquer golpe da caiporinha derruba agora
@@ -607,7 +608,8 @@ test('recarga: trocar de Encantado zera a dívida de fôlego', () => {
 });
 
 test('Fecha-Corpo: o golpe do outro não pega; seguido, falha', () => {
-  const meu = criar('curupinho', 30, { golpes: ['fecha_corpo'] });
+  // não o Curupinho: os Pés Trocados fariam a pancada do segundo turno errar
+  const meu = criar('cabritinha', 30, { golpes: ['fecha_corpo'] });
   const dele = criar('piragua', 30, { golpes: ['investida'], selvagem: true });
   const b = montar({ meu: [meu], dele: [dele] });
   const hp = meu.hp;

@@ -23,6 +23,7 @@ import {
 } from './damage.ts';
 import { eficacia, fraseEficacia } from './typechart.ts';
 import { tentarCaptura } from './capture.ts';
+import { tracoDaEspecie, type Traco } from '../data/tracos.ts';
 import {
   CHANCE_AUTO_GOLPE, CHANCE_TRAVAR_PARALISADO, DANO_POR_TURNO,
   FATOR_ATAQUE_QUEIMADO, FATOR_VELOCIDADE_PARALISADO, POTENCIA_AUTO_GOLPE,
@@ -52,6 +53,7 @@ export type Evento =
   | { k: 'aprender'; golpe: string }
   | { k: 'esquecer'; golpe: string }        // precisa de escolha do jogador
   | { k: 'trocarForcado' }                  // seu Encantado caiu: escolha outro
+  | { k: 'traco'; lado: Lado; nome: string }   // o traço de quem está nesse lado agiu
   | { k: 'fim'; resultado: Resultado };
 
 export type Resultado = 'vitoria' | 'derrota' | 'fuga' | 'captura';
@@ -125,6 +127,8 @@ export interface OpcoesBatalha {
   itensIA?: Mochila;
   semente?: number;
   podeFugir?: boolean;
+  /* é de noite? (a Lua Cheia e as Fases da Lua leem isto) */
+  noite?: boolean;
 }
 
 /* abaixo desta fração de HP a IA considera curar; acima, nunca gasta item */
@@ -146,6 +150,7 @@ export class Batalha {
   readonly itensIA: Mochila;
   readonly rnd: Aleatorio;
   readonly podeFugir: boolean;
+  readonly noite: boolean;
 
   aliado: Combatente;
   inimigo: Combatente;
@@ -168,6 +173,7 @@ export class Batalha {
     this.itensIA = { ...(op.itensIA ?? {}) };
     this.rnd = new Aleatorio(op.semente);
     this.podeFugir = op.podeFugir ?? this.selvagem;
+    this.noite = op.noite ?? false;
 
     this.iAliado = this.time.findIndex((e) => !desmaiado(e));
     if (this.iAliado < 0) this.iAliado = 0;
@@ -209,7 +215,54 @@ export class Batalha {
       ev.push({ k: 'texto', t: `${t.nome} mandou ${nome(this.inimigo.enc)}!` });
     }
     ev.push({ k: 'texto', t: `Vai lá, ${nome(this.aliado.enc)}!` });
+    this.aoEntrar('aliado', ev);
+    this.aoEntrar('inimigo', ev);
     return ev;
+  }
+
+  /* ===================================================================
+     TRAÇOS
+     =================================================================== */
+
+  traco(c: Combatente): Traco { return tracoDaEspecie(c.enc.especie); }
+
+  /* a faixa com o nome do traço, e a frase que explica o que ele fez */
+  private anunciar(lado: Lado, t: string, ev: Evento[]): void {
+    ev.push({ k: 'traco', lado, nome: this.traco(this.lado(lado)).nome });
+    ev.push({ k: 'texto', t });
+  }
+
+  /* chegou em campo: o Agouro baixa o ataque do outro lado */
+  private aoEntrar(lado: Lado, ev: Evento[]): void {
+    const c = this.lado(lado);
+    const t = this.traco(c);
+    const outro = this.lado(this.oposto(lado));
+    if (!t.aoEntrar || desmaiado(c.enc) || desmaiado(outro.enc)) return;
+    this.anunciar(lado, `${t.nome} de ${nome(c.enc)}!`, ev);
+    this.mexerEstagio(this.oposto(lado), outro, t.aoEntrar.stat, t.aoEntrar.passos, ev);
+  }
+
+  /* quanto o traço dos dois lados muda o dano deste golpe: a força de quem
+     bate vezes o couro de quem apanha. A IA usa a mesma conta. */
+  fatorTraco(g: Golpe, eu: Combatente, alvo: Combatente): number {
+    let f = 1;
+    for (const c of this.traco(eu).forca ?? []) {
+      if (c.tipo && c.tipo !== g.tipo) continue;
+      if (c.hpAbaixo !== undefined && eu.enc.hp > hpMaximo(eu.enc) * c.hpAbaixo) continue;
+      if (c.noite && !this.noite) continue;
+      if (c.dia && this.noite) continue;
+      if (c.alvoDormindo && alvo.enc.status !== 'dormindo') continue;
+      f *= c.fator;
+    }
+    const couro = this.traco(alvo).couro;
+    if (couro && couro.categoria === g.categoria) f *= couro.fator;
+    return f;
+  }
+
+  /* o traço de quem recebe barra este estado? */
+  private imuneAoStatus(c: Combatente, s: Status): boolean {
+    const im = this.traco(c).imune;
+    return im === 'todos' || (!!im && im.includes(s));
   }
 
   /* ===================================================================
@@ -289,6 +342,7 @@ export class Batalha {
     ev.push({ k: 'texto',
               t: lado === 'aliado' ? `Vai lá, ${nome(alvo)}!`
                                     : `${this.treinador!.nome} mandou ${nome(alvo)}!` });
+    this.aoEntrar(lado, ev);
   }
 
   /* troca obrigatória depois que o seu Encantado desmaia */
@@ -299,10 +353,12 @@ export class Batalha {
     this.aguardandoTroca = false;
     this.iAliado = indice;
     this.aliado = envolver(alvo);
-    return [
+    const ev: Evento[] = [
       { k: 'entrar', lado: 'aliado', indice },
       { k: 'texto', t: `Vai lá, ${nome(alvo)}!` },
     ];
+    this.aoEntrar('aliado', ev);
+    return ev;
   }
 
   /* ------------------------------------------------------------ item */
@@ -320,7 +376,7 @@ export class Batalha {
         ev.push({ k: 'texto', t: 'Não se prende o Encantado dos outros!' });
         return;
       }
-      const r = tentarCaptura(this.inimigo.enc, ef.bonus, this.rnd);
+      const r = tentarCaptura(this.inimigo.enc, ef.bonus * (this.traco(this.aliado).captura ?? 1), this.rnd);
       ev.push({ k: 'patua', balancos: r.balancos, capturado: r.capturado });
       if (r.capturado) {
         ev.push({ k: 'texto', t: `${nome(this.inimigo.enc)} foi preso no patuá!` });
@@ -389,6 +445,12 @@ export class Batalha {
       return;
     }
     this.tentativasFuga++;
+    if (this.traco(this.aliado).fugaCerta) {
+      this.anunciar('aliado', `${nome(this.aliado.enc)} cavou um buraco e sumiu!`, ev);
+      this.resultado = 'fuga';
+      ev.push({ k: 'fim', resultado: 'fuga' });
+      return;
+    }
     const meu = this.velocidade(this.aliado);
     const dele = Math.max(1, this.velocidade(this.inimigo));
     // mais rápido foge quase sempre; mais lento melhora a cada tentativa
@@ -426,7 +488,9 @@ export class Batalha {
     ev.push({ k: 'golpe', lado, golpe: g.id });
     ev.push({ k: 'texto', t: `${nome(eu.enc)} usou ${g.nome}!` });
 
-    if (!acertou(g.precisao, this.rnd)) {
+    // Pés Trocados: quem mira nele erra mais (golpe que nunca erra continua)
+    const mira = miraOponente(g) && g.precisao > 0 ? this.traco(alvo).miraTorta ?? 1 : 1;
+    if (!acertou(g.precisao * mira, this.rnd)) {
       ev.push({ k: 'errou', lado });
       ev.push({ k: 'texto', t: 'Mas errou!' });
       return;
@@ -451,6 +515,16 @@ export class Batalha {
       return;
     }
 
+    // Água Funda: golpe daquele tipo vira cura
+    const absorve = this.traco(alvo).absorve;
+    if (absorve && absorve.tipo === g.tipo && g.categoria !== 'estado' && !desmaiado(alvo.enc)) {
+      const antes = alvo.enc.hp;
+      curar(alvo.enc, Math.max(1, Math.floor(hpMaximo(alvo.enc) * absorve.cura)));
+      this.anunciar(alvoLado, `${nome(alvo.enc)} bebeu o golpe!`, ev);
+      if (alvo.enc.hp > antes) ev.push({ k: 'cura', lado: alvoLado, de: antes, para: alvo.enc.hp });
+      return;
+    }
+
     let causado = 0;
     if (g.categoria !== 'estado') {
       const multi = g.efeito?.multi;
@@ -469,9 +543,26 @@ export class Batalha {
     }
 
     if (g.efeito) this.aplicarEfeito(g, lado, eu, alvoLado, alvo, causado, ev);
+    if (g.categoria === 'fisico' && causado > 0) this.contato(lado, eu, alvoLado, alvo, ev);
 
     if (desmaiado(alvo.enc)) this.derrubar(alvoLado, ev);
     else if (desmaiado(eu.enc)) this.derrubar(lado, ev);
+  }
+
+  /* bateu de perto: o traço de quem apanhou pode castigar quem bateu */
+  private contato(lado: Lado, eu: Combatente, alvoLado: Lado, alvo: Combatente, ev: Evento[]): void {
+    const c = this.traco(alvo).contato;
+    if (!c || desmaiado(eu.enc)) return;
+    if (c.status && (eu.enc.status || this.imuneAoStatus(eu, c.status))) return;
+    if (c.feitico && (eu.feitico > 0 || this.traco(eu).semQuebranto)) return;
+    if (!this.rnd.chance(c.chance)) return;
+    ev.push({ k: 'traco', lado: alvoLado, nome: this.traco(alvo).nome });
+    if (c.status) this.aplicarStatus(lado, eu, c.status, ev);
+    else {
+      eu.feitico = this.rnd.inteiro(TURNOS_FEITICO[0], TURNOS_FEITICO[1]);
+      ev.push({ k: 'quebranto', lado, ativo: true });
+      ev.push({ k: 'texto', t: `${nome(eu.enc)} pegou quebranto!` });
+    }
   }
 
   /* trava do turno: sono, paralisia e feitiço acontecem ANTES do golpe */
@@ -552,7 +643,9 @@ export class Batalha {
       potencia,
       afinidade: temAfinidade(g.tipo, tipos(eu.enc)),
       eficacia: efic,
-      bonusCritico: g.efeito?.critico ?? 0,
+      bonusCritico: (g.efeito?.critico ?? 0) + (this.traco(eu).criticoExtra ?? 0),
+      fator: this.fatorTraco(g, eu, alvo),
+      semCritico: this.traco(alvo).semCritico,
     }, this.rnd);
 
     const antes = alvo.enc.hp;
@@ -588,7 +681,7 @@ export class Batalha {
       ev.push({ k: 'cura', lado, de: antes, para: eu.enc.hp });
       ev.push({ k: 'texto', t: `${nome(eu.enc)} sugou energia!` });
     }
-    if (e.recuo && causado > 0) {
+    if (e.recuo && causado > 0 && !this.traco(eu).semRecuo) {
       const antes = eu.enc.hp;
       eu.enc.hp = Math.max(0, eu.enc.hp - Math.max(1, Math.floor(causado * e.recuo)));
       ev.push({ k: 'dano', lado, de: antes, para: eu.enc.hp, critico: false, eficacia: 1 });
@@ -607,7 +700,9 @@ export class Batalha {
 
     // enfeitiçar
     if (e.feitico && !desmaiado(alvo.enc) && this.rnd.chance(e.feitico)) {
-      if (alvo.feitico > 0) {
+      if (this.traco(alvo).semQuebranto) {
+        this.anunciar(alvoLado, `${nome(alvo.enc)} não pega quebranto!`, ev);
+      } else if (alvo.feitico > 0) {
         if (estado) ev.push({ k: 'texto', t: 'Mas não adiantou nada.' });
       } else {
         alvo.feitico = this.rnd.inteiro(TURNOS_FEITICO[0], TURNOS_FEITICO[1]);
@@ -638,6 +733,10 @@ export class Batalha {
     const imune = (s === 'queimado' && tipos(c.enc).includes('fogo' as Tipo))
                || (s === 'paralisado' && tipos(c.enc).includes('raio' as Tipo));
     if (imune) { ev.push({ k: 'texto', t: 'Mas não adiantou nada.' }); return; }
+    if (this.imuneAoStatus(c, s)) {
+      this.anunciar(lado, `${nome(c.enc)} não ficou ${STATUS[s].nome}!`, ev);
+      return;
+    }
 
     c.enc.status = s;
     c.enc.turnosStatus = s === 'dormindo'
@@ -672,6 +771,10 @@ export class Batalha {
     this.aliado.protegido = false;
     this.inimigo.protegido = false;
     for (const lado of ['aliado', 'inimigo'] as Lado[]) {
+      this.tracoFimDeTurno(lado, ev);
+      if (this.terminou || this.aguardandoTroca) return;
+    }
+    for (const lado of ['aliado', 'inimigo'] as Lado[]) {
       const c = this.lado(lado);
       if (desmaiado(c.enc) || !c.enc.status) continue;
       const fracao = DANO_POR_TURNO[c.enc.status];
@@ -683,6 +786,28 @@ export class Batalha {
       ev.push({ k: 'texto', t: `${nome(c.enc)} ${STATUS[c.enc.status].aoSofrer}` });
       if (desmaiado(c.enc)) this.derrubar(lado, ev);
       if (this.terminou || this.aguardandoTroca) return;
+    }
+  }
+
+  /* Canto que Cura regenera; Peso no Peito castiga o outro que dorme */
+  private tracoFimDeTurno(lado: Lado, ev: Evento[]): void {
+    const c = this.lado(lado);
+    const f = this.traco(c).fimDoTurno;
+    if (!f || desmaiado(c.enc)) return;
+    if (f.cura && c.enc.hp < hpMaximo(c.enc)) {
+      const antes = c.enc.hp;
+      curar(c.enc, Math.max(1, Math.floor(hpMaximo(c.enc) * f.cura)));
+      this.anunciar(lado, `${nome(c.enc)} cantou e recuperou fôlego.`, ev);
+      ev.push({ k: 'cura', lado, de: antes, para: c.enc.hp });
+    }
+    const outroLado = this.oposto(lado);
+    const outro = this.lado(outroLado);
+    if (f.pesadelo && !desmaiado(outro.enc) && outro.enc.status === 'dormindo') {
+      const antes = outro.enc.hp;
+      outro.enc.hp = Math.max(0, antes - Math.max(1, Math.floor(hpMaximo(outro.enc) * f.pesadelo)));
+      this.anunciar(lado, `${nome(c.enc)} sentou no peito de ${nome(outro.enc)}!`, ev);
+      ev.push({ k: 'dano', lado: outroLado, de: antes, para: outro.enc.hp, critico: false, eficacia: 1 });
+      if (desmaiado(outro.enc)) this.derrubar(outroLado, ev);
     }
   }
 
@@ -705,6 +830,7 @@ export class Batalha {
             ev.push({ k: 'texto', t: this.treinador.falaDerrota });
           }
         }
+        if (this.selvagem) this.achar(ev);
         this.resultado = 'vitoria';
         ev.push({ k: 'fim', resultado: 'vitoria' });
       } else {
@@ -713,6 +839,7 @@ export class Batalha {
         ev.push({ k: 'entrar', lado: 'inimigo', indice: prox });
         ev.push({ k: 'texto',
                   t: `${this.treinador!.nome} mandou ${nome(this.inimigo.enc)}!` });
+        this.aoEntrar('inimigo', ev);
       }
       return;
     }
@@ -726,6 +853,15 @@ export class Batalha {
       this.resultado = 'derrota';
       ev.push({ k: 'fim', resultado: 'derrota' });
     }
+  }
+
+  /* Rodamoinho: venceu um selvagem com ele em campo, às vezes acha um item */
+  private achar(ev: Evento[]): void {
+    const a = this.traco(this.aliado).achado;
+    if (!a || desmaiado(this.aliado.enc) || !this.rnd.chance(a.chance)) return;
+    const id = this.rnd.escolher(a.itens);
+    this.mochila[id] = (this.mochila[id] ?? 0) + 1;
+    this.anunciar('aliado', `${nome(this.aliado.enc)} achou ${fichaItem(id).nome} no rodamoinho!`, ev);
   }
 
   /* ---------------------------------------------------------------- XP */
@@ -838,7 +974,10 @@ export class Batalha {
     const aprendido = eu.enc.golpes[indice];
     if (!aprendido || aprendido.pp <= 0) return 0;
     const g = fichaGolpe(aprendido.id);
-    const precisao = g.precisao <= 0 ? 1 : g.precisao / 100;
+    const mira = miraOponente(g) ? this.traco(alvo).miraTorta ?? 1 : 1;
+    const precisao = g.precisao <= 0 ? 1 : Math.min(1, (g.precisao * mira) / 100);
+    // golpe que o traço do outro bebe não vale nada
+    if (g.categoria !== 'estado' && this.traco(alvo).absorve?.tipo === g.tipo) return 0;
 
     if (g.categoria === 'estado') {
       // golpe de estado só vale quando ainda tem efeito a aplicar
@@ -847,8 +986,8 @@ export class Batalha {
       // fechar o corpo só aperta quando a vida já está curta — e nunca seguido
       if (ef?.protege) nota = eu.ultimoProtege === this.turno ? 0 : eu.enc.hp < hpMaximo(eu.enc) * 0.35 ? 20 : 3;
       else if (ef?.curar) nota = eu.enc.hp < hpMaximo(eu.enc) * 0.5 ? 45 : 2;
-      else if (ef?.status) nota = alvo.enc.status ? 1 : 30;
-      else if (ef?.feitico) nota = alvo.feitico > 0 ? 1 : 26;
+      else if (ef?.status) nota = alvo.enc.status || this.imuneAoStatus(alvo, ef.status) ? 1 : 30;
+      else if (ef?.feitico) nota = alvo.feitico > 0 || this.traco(alvo).semQuebranto ? 1 : 26;
       else if (ef?.mod) nota = 18;
       return nota * precisao;
     }
@@ -877,7 +1016,7 @@ export class Batalha {
       const afin = temAfinidade(g.tipo, tipos(eu.enc)) ? 1.5 : 1;
       // várias pancadas: conta a média (três e pouco)
       const vezes = ef?.multi ? (ef.multi[0] + ef.multi[1]) / 2 : 1;
-      dano = bruto * efic * afin * precisao * vezes;
+      dano = bruto * efic * afin * precisao * vezes * this.fatorTraco(g, eu, alvo);
     }
 
     // derrubar agora vale mais que qualquer outra consideração

@@ -47,6 +47,9 @@ export interface EntradaDano {
   afinidade: boolean;
   eficacia: number;    // 1, 2 ou 4, vindo de typechart.ts
   bonusCritico?: number;
+  /* os traços: multiplicador do dano e o casco que não deixa acertar em cheio */
+  fator?: number;
+  semCritico?: boolean;
 }
 
 export interface ResultadoDano {
@@ -69,9 +72,10 @@ export function danoBase(e: EntradaDano): number {
    exatamente o mesmo resultado, mas a diferença nunca vira sorte pura. */
 export function calcularDano(e: EntradaDano, rnd: Aleatorio): ResultadoDano {
   if (e.potencia <= 0) return { dano: 0, critico: false };
-  const critico = rnd.chance(CHANCE_CRITICO + (e.bonusCritico ?? 0));
+  const sorteio = rnd.chance(CHANCE_CRITICO + (e.bonusCritico ?? 0));
+  const critico = sorteio && !e.semCritico;
   const variacao = 0.85 + rnd.proximo() * 0.15;
-  const bruto = danoBase(e) * (critico ? MULT_CRITICO : 1) * variacao;
+  const bruto = danoBase(e) * (critico ? MULT_CRITICO : 1) * variacao * (e.fator ?? 1);
   return { dano: Math.max(1, Math.floor(bruto)), critico };
 }
 

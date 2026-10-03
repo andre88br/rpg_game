@@ -13,6 +13,7 @@ import * as UI from '../art/ui.ts';
 import { MEDALHAS, medalha } from '../art/badges.ts';
 import { ficha, nome, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
+import { tracoDaEspecie } from '../data/tracos.ts';
 import { compatibilidade, ensinar } from '../game/golpes.ts';
 import { EscolhaEsquecer } from '../ui/esquecer.ts';
 import * as L from '../ui/listas.ts';
@@ -87,6 +88,8 @@ export class MenuPausa {
   /* cursor e rolagem do Caderno de Bichos */
   private selCaderno = 0;
   private topoCaderno = 0;
+  /* a direita do Caderno mostra o que o Contador anotou ou o traço (← →) */
+  private cadernoTraco = false;
 
   /* o Mapa do Mundo: o lugar apontado, a planta aberta e o relógio do pisca */
   private selMundo: string | null = null;
@@ -306,6 +309,7 @@ export class MenuPausa {
     if (this.pagina === 'caderno') {
       this.selCaderno = this.andar(entrada, this.selCaderno, ESPECIES_ORDEM.length);
       this.ajustarJanelaCaderno();
+      if (entrada.apertou('dir') || entrada.apertou('esq')) this.cadernoTraco = !this.cadernoTraco;
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'mochila';
       return 'aberto';
     }
@@ -630,6 +634,8 @@ export class MenuPausa {
     if (!e) return;
     const f = ficha(e);
     r.texto(`${nome(e)} — ${f.nome}`, 14, ALTURA - 32, P.uiBg3!);
+    const t = tracoDaEspecie(e.especie).nome.toUpperCase();
+    r.texto(t, LARGURA - 14 - r.larguraTexto(t), ALTURA - 32, P.uiAccD!);
   }
 
   /* lista à esquerda, com o nome trocado por "? ? ?" para quem ainda não
@@ -637,7 +643,7 @@ export class MenuPausa {
   private desenharCaderno(r: Renderizador): void {
     const est = this.op.estado;
     L.telaCheia(r, this.caixaCheia, 'CADERNO DE BICHOS',
-                `B VOLTAR    ${est.vistos.length} DE ${ESPECIES_ORDEM.length}`);
+                `B VOLTAR  ${this.cadernoTraco ? '< SOBRE' : '> TRAÇO'}  ${est.vistos.length} DE ${ESPECIES_ORDEM.length}`);
 
     for (let i = 0; i < CADERNO_LINHAS_VISIVEIS; i++) {
       const idx = this.topoCaderno + i;
@@ -662,8 +668,20 @@ export class MenuPausa {
     }
     const esp = especie(idSel);
     r.sprite(this.spriteCaderno(esp.arte), 160, 26);
-    r.texto(esp.categoria, 120, 64, P.uiAccD!);
-    L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiBg3!);
+    if (!this.cadernoTraco) {
+      r.texto(esp.categoria, 120, 64, P.uiAccD!);
+      L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiBg3!);
+      return;
+    }
+    // o traço só fica anotado depois de ter um no patuá
+    if (!est.capturados.includes(idSel)) {
+      r.texto('TRAÇO: ?', 120, 64, P.uiAccD!);
+      L.paragrafo(r, 'Só se conhece o jeito de um bicho depois de ter um no patuá.', 120, 76, 112, 5, P.uiBg3!);
+      return;
+    }
+    const t = tracoDaEspecie(idSel);
+    r.texto(t.nome.toUpperCase(), 120, 64, P.uiAccD!);
+    L.paragrafo(r, t.descricao, 120, 76, 112, 5, P.uiBg3!);
   }
 
   private spriteCaderno(arte: string): Assado {

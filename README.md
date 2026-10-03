@@ -18,7 +18,10 @@ troca, XP, nível e evolução. São 92 golpes — alguns batem várias vezes, o
 cobram um turno de fôlego, e as formas finais mais conhecidas têm um golpe
 próprio, aprendido só por elas no fim da trilha. Golpe esquecido volta com o **Rezador**
 de qualquer benzimento, e as **Cantigas** — prêmio dos serviços opcionais e
-das lojas do fim — ensinam golpe fora do nível, sem se gastar. Não há nível máximo: o Encantado continua
+das lojas do fim — ensinam golpe fora do nível, sem se gastar. Cada espécie
+tem um **traço** que age sozinho na luta (24 ao todo: o Agouro da Matinta
+baixa o ataque de quem chega, a Pele Elétrica do Relampo trava quem bate
+nele, a Lua Cheia do Lobisomem pesa mais à noite...). Não há nível máximo: o Encantado continua
 subindo enquanto ganhar XP, mesmo depois do 60 dos treinadores mais fortes.
 Todo Encantado evolui, e os três iniciais evoluem duas vezes: as formas de
 cima (Mboitatá, Ipupiara, Anhangá, Boiúna, Eclipse…) chegam depois do 55,

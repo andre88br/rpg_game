@@ -31,6 +31,7 @@ import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
+import { ehNoite } from '../game/tempo.ts';
 
 /* ------------------------------------------------------------ constantes */
 
@@ -122,6 +123,8 @@ export class CenaBatalha implements Cena {
   private queda: Record<Lado, number> = { aliado: 0, inimigo: 0 };
   private entradaSprite: Record<Lado, number> = { aliado: 1, inimigo: 1 };
   private brilho = 0;
+  /* a faixa com o nome do traço que acabou de agir, junto do painel do lado */
+  private faixa: Record<Lado, { nome: string; t: number } | null> = { aliado: null, inimigo: null };
   private patuaAnim = -1;
   private patuaBalancos = 0;
   private relogio = 0;
@@ -150,6 +153,7 @@ export class CenaBatalha implements Cena {
       treinador: this.op.treinador ?? null,
       itensIA: this.op.itensIA,
       mochila: est.mochila,
+      noite: ehNoite(),
     });
     for (const o of this.op.oponentes) registrar(est, o.especie);
 
@@ -287,6 +291,11 @@ export class CenaBatalha implements Cena {
         Som.golpe(fichaGolpe(e.golpe).tipo);
         break;
       case 'errou': this.espera = 0.12; Som.efeito('errou'); break;
+      case 'traco':
+        this.faixa[e.lado] = { nome: e.nome.toUpperCase(), t: 1.6 };
+        this.espera = 0.3;
+        Som.efeito('subir');
+        break;
 
       case 'dano':
         this.vis[e.lado].alvoHp = e.para;
@@ -463,6 +472,8 @@ export class CenaBatalha implements Cena {
       v.xp += Math.sign(dxp) * Math.min(Math.abs(dxp), 0.9 * dt);
 
       this.tremor[lado] = Math.max(0, this.tremor[lado] - dt);
+      const f = this.faixa[lado];
+      if (f && (f.t -= dt) <= 0) this.faixa[lado] = null;
       this.avanco[lado] = Math.max(0, this.avanco[lado] - dt);
       this.queda[lado] = Math.max(0, this.queda[lado] - dt);
       this.entradaSprite[lado] = Math.min(1, this.entradaSprite[lado] + dt / 0.3);
@@ -611,6 +622,8 @@ export class CenaBatalha implements Cena {
     this.desenharProjetil(r);
     this.desenharPainel(r, 'inimigo');
     this.desenharPainel(r, 'aliado');
+    this.desenharFaixa(r, 'inimigo');
+    this.desenharFaixa(r, 'aliado');
 
     if (this.brilho > 0) {          // clarão da evolução
       r.ctx.globalAlpha = Math.min(1, this.brilho);
@@ -704,6 +717,19 @@ export class CenaBatalha implements Cena {
     const y = de.y + (para.y - de.y) * t;
     const quadro = Math.floor(p.t * 16) % QUADROS_EFEITO;
     r.sprite(this.efeitoImg(p.tipo, quadro), x - TAM_EFEITO / 2, y - TAM_EFEITO / 2);
+  }
+
+  /* embaixo do painel do inimigo, em cima do painel do aliado */
+  private desenharFaixa(r: Renderizador, lado: Lado): void {
+    const f = this.faixa[lado];
+    if (!f) return;
+    const p = lado === 'inimigo' ? PAINEL_INI : PAINEL_ALI;
+    const w = larguraTexto(f.nome) + 10;
+    const y = lado === 'inimigo' ? p.y + p.h + 2 : p.y - 13;
+    const x = lado === 'inimigo' ? p.x : p.x + PAINEL_W - w;
+    r.retangulo(x, y, w, 11, P.uiInk!);
+    r.retangulo(x + 1, y + 1, w - 2, 9, P.uiAccD!);
+    r.texto(f.nome, x + 5, y + 2, P.white!);
   }
 
   private desenharPainel(r: Renderizador, lado: Lado): void {

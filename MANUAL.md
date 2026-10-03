@@ -132,6 +132,39 @@ lista mostra PODE, NÃO PODE e JÁ SABE).
 Quem já tinha feito o serviço antes das cantigas existirem recebe a dele
 falando de novo com quem pagou o serviço.
 
+**Traços.** Todo Encantado tem um traço, o jeito de ser da espécie, que age
+sozinho na batalha; a linha de evolução inteira divide o mesmo. Quando ele
+age, uma faixa com o nome aparece junto do painel. O traço aparece no rodapé
+do menu → TIME e no Caderno (→ troca a página para o traço, que só fica
+anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico.
+
+| traço | quem | o que faz |
+|---|---|---|
+| Chama Viva | Boitatinha, Boitatão, Mboitatá | com a vida abaixo de 1/3, golpe de Fogo bate 50% mais |
+| Canto da Iara | Iarinha, Iara-Mãe, Ipupiara | contato: 30% de pôr no sono quem bateu |
+| Pés Trocados | Curupinho, Curupirá, Anhangá | quem mira nele erra mais (precisão ×0,85) |
+| Água Funda | Piraguá, Piraguaçu | golpe de Água não machuca: cura 1/4 da vida |
+| Rodamoinho | Sacizinho, Saci | vencendo um selvagem com ele em campo, 25% de achar Garrafada, Patuá ou Erva-Doce |
+| Dona da Mata | Caiporinha, Caipora | com ela em campo, o patuá pega 50% mais fácil |
+| Cabeçuda | Cabritinha, Cabra-Cabriola | não se machuca com o recuo |
+| Sem Cabeça | Mulinha, Mula-sem-Cabeça | não pega quebranto |
+| Carbúnculo | Salamanca, Teiniaguá | acerta em cheio bem mais vezes |
+| Pele de Ouro | Mãe-do-Ouro, Eldorado | não pega peçonha |
+| Agouro | Matinta, Matinta-Perera | ao entrar, o ataque do adversário cai |
+| Canto que Cura | Uirapuru, Uirapuru-Rei | no fim do turno, recupera 1/16 da vida |
+| Pele Elétrica | Faisquinha, Relampo | contato: 30% de travar quem bateu |
+| Carapaça | Tatu-Trovão, Tatuaçu | nunca leva acerto em cheio |
+| Sete Cores | Arco-da-Velha, Boiúna | não pega nenhum estado alterado |
+| Cavador | Minhoquinha, Minhocão | a fuga nunca falha |
+| Couro Grosso | Mapinguari, Juma | pancada física machuca 25% menos |
+| Lua Cheia | Lobinho, Lobisomem | à noite (18h às 6h, pelo relógio do aparelho), bate 30% mais |
+| Assombrado | Corpo-Seco, Alma-Penada | contato: 30% de quebranto em quem bateu |
+| Acalanto | Cuca, Cuca-Rainha | bate 50% mais em quem está no sono |
+| Peso no Peito | Pisadeira, Pesadelo | no fim do turno, o adversário no sono perde 1/8 da vida |
+| Vigia | Luzeiro, Estrela-d'Alva | não pega no sono |
+| Fogo Brando | Lamparina, Fogo-Fátuo | contato: 30% de queimar quem bateu |
+| Fases da Lua | Jaci, Eclipse | de dia, Luz bate 20% mais; à noite, Sombra |
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.
