@@ -175,6 +175,7 @@ Object.assign(window as unknown as Record<string, unknown>, {
     hora: (h: number | null) => fixarHora(h),
     forcar3D: (v: boolean) => forcar3D(v),
     info3D: () => vista3D()?.info() ?? null,
+    vitrine3D: (v = true) => { const x = vista3D(); if (x) x.vitrine = v; },
     clima: (c: Clima) => mundo?.forcarClima(c),
     get estado() { return estado; },
     get mundo() { return mundo; },

@@ -29,6 +29,12 @@ import { LARGURA, ALTURA } from '../core/renderer.ts';
 import { contasDo, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
 import { texto, larguraTexto } from '../art/font.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
+import { GIRO_DA_DIRECAO, animarPessoa, pessoa3D } from './modelos/humanoide.ts';
+import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
+import { ESTILOS, type Direcao } from '../art/people.ts';
+import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { variante } from '../art/raro.ts';
+import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
@@ -47,6 +53,13 @@ export interface Ator3D {
   x: number;
   y: number;
   nadando: boolean;
+  /* o estilo (art/people.ts, ou `bicho:<espécie>`): com ele, o ator vira
+     modelo 3D; sem ele (ou desconhecido), continua o desenho de pé */
+  estilo?: string;
+  dir?: Direcao;
+  movendo?: boolean;
+  fasePasso?: number;
+  raro?: boolean;
 }
 
 export interface Quadro3D {
@@ -176,6 +189,13 @@ export class Vista3D {
   private readonly texturas = new Map<Assado, THREE.SpriteMaterial>();
   private readonly cabecas = new Map<Assado, Assado>();
   private readonly figuras: THREE.Sprite[] = [];
+  /* os bonecos 3D, um por lugar do pool (null = ainda desenho de pé) */
+  private readonly bonecos: ({ chave: string; obj: THREE.Group; bicho: boolean } | null)[] = [];
+  private readonly modelos3D = new Map<string, THREE.Group | null>();
+  private readonly matFigura = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+  private ultimoAtor = -1;
+  /* atalho de depuração: todas as espécies em fila, em volta do jogador */
+  vitrine = false;
   private readonly sombras: THREE.Mesh[] = [];
   private readonly sombraGeo = new THREE.CircleGeometry(0.3, 14);
   private readonly sombraMat = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
@@ -216,7 +236,7 @@ export class Vista3D {
     this.desenharFeixe(q.feixe ?? []);
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
-    this.posicionarAtores(q.atores);
+    this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
     this.vento.value = q.tempo;
     if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
     this.renderer.render(this.cena, this.camera);
@@ -357,7 +377,39 @@ export class Vista3D {
     return c;
   }
 
-  private posicionarAtores(atores: readonly Ator3D[]): void {
+  private comVitrine(q: Quadro3D): Ator3D[] {
+    const img = q.atores[0]?.img;
+    if (!img) return [...q.atores];
+    const lista = ESPECIES_ORDEM.map((id, i): Ator3D => ({
+      img, nadando: false, estilo: `bicho:${id}`, dir: 'baixo',
+      x: q.alvoX - 7.5 + (i % 10) * 1.6, y: q.alvoY - 4 + Math.floor(i / 10) * 1.7,
+    }));
+    return [...q.atores, ...lista];
+  }
+
+  /* o modelo 3D de um estilo — pessoa ou Encantado —, montado uma vez e
+     clonado para cada ator (geometria e material divididos); null quando o
+     estilo não tem modelo (aí o ator continua o desenho de pé) */
+  private modeloDoEstilo(estilo: string, raro: boolean): THREE.Group | null {
+    const chave = estilo + (raro ? '*' : '');
+    let m = this.modelos3D.get(chave);
+    if (m === undefined) {
+      m = null;
+      if (estilo.startsWith('bicho:')) {
+        const id = estilo.slice(6);
+        const arte = ESPECIES[id] ? ARTE_CRIATURAS[ESPECIES[id]!.arte] : undefined;
+        if (arte) m = encantado3D(id, raro ? variante(arte(), id) : arte(), this.matFigura);
+      } else if (ESTILOS[estilo]) {
+        m = pessoa3D(ESTILOS[estilo]!, this.matFigura);
+      }
+      this.modelos3D.set(chave, m);
+    }
+    return m ? m.clone() : null;
+  }
+
+  private posicionarAtores(atores: readonly Ator3D[], tempo: number): void {
+    const dt = this.ultimoAtor < 0 ? 0 : Math.max(0, Math.min(0.1, tempo - this.ultimoAtor));
+    this.ultimoAtor = tempo;
     while (this.figuras.length < atores.length) {
       const s = new THREE.Sprite();
       s.center.set(0.5, 0);
@@ -365,21 +417,53 @@ export class Vista3D {
       sombra.rotation.x = -Math.PI / 2;
       this.figuras.push(s);
       this.sombras.push(sombra);
+      this.bonecos.push(null);
       this.cena.add(s, sombra);
     }
     this.figuras.forEach((s, i) => {
       const a = atores[i];
-      s.visible = this.sombras[i]!.visible = a !== undefined;
-      if (!a) return;
+      const sombra = this.sombras[i]!;
+      sombra.visible = a !== undefined && !a.nadando;
+      // o boneco 3D deste lugar do pool: troca quando o estilo muda
+      const chave = a?.estilo ? a.estilo + (a.raro ? '*' : '') : '';
+      let b = this.bonecos[i] ?? null;
+      if (b && b.chave !== chave) { this.cena.remove(b.obj); b = null; this.bonecos[i] = null; }
+      if (!b && a?.estilo) {
+        const obj = this.modeloDoEstilo(a.estilo, a.raro === true);
+        if (obj) {
+          b = { chave, obj, bicho: a.estilo.startsWith('bicho:') };
+          this.bonecos[i] = b;
+          this.cena.add(obj);
+          obj.rotation.y = GIRO_DA_DIRECAO[a.dir ?? 'baixo'];
+        }
+      }
+      if (!a) { s.visible = false; if (b) b.obj.visible = false; return; }
+      const cx = a.x + 0.5, cz = a.y + 0.5;
+      const chao = a.nadando ? NIVEL_AGUA - 0.2 : this.chaoEm(cx, cz);
+      sombra.position.set(cx, chao + 0.02, cz + 0.05);
+      if (b) {
+        s.visible = false;
+        b.obj.visible = true;
+        b.obj.position.set(cx, a.nadando ? NIVEL_AGUA + 0.05 : chao, cz);
+        if (b.bicho) {
+          const alvo = GIRO_DA_DIRECAO[a.dir ?? 'baixo'];
+          let d = alvo - b.obj.rotation.y;
+          while (d > Math.PI) d -= Math.PI * 2;
+          while (d < -Math.PI) d += Math.PI * 2;
+          b.obj.rotation.y += d * Math.min(1, dt * 10);
+          animarEncantado(b.obj, a.movendo ? 'andar' : 'parado', 0, tempo + i * 0.7);
+        } else {
+          animarPessoa(b.obj, { dir: a.dir ?? 'baixo', movendo: a.movendo === true,
+                                fasePasso: a.fasePasso ?? 0, nadando: a.nadando }, tempo + i * 0.5, dt);
+        }
+        return;
+      }
+      s.visible = true;
       const img = a.nadando ? this.cabecaDe(a.img) : a.img;
       s.material = this.materialDe(img);
       s.scale.set(larguraDe(a.img) / 16, (a.nadando ? ALTURA_NADANDO : alturaDe(a.img)) / 16, 1);
-      const cx = a.x + 0.5, cz = a.y + 0.5;
-      const chao = a.nadando ? NIVEL_AGUA - 0.2 : this.chaoEm(cx, cz);
       // um fio para frente: o pé fica na frente de quem está no tile de trás
       s.position.set(cx, chao + 0.01, cz + 0.1);
-      this.sombras[i]!.visible = !a.nadando;
-      this.sombras[i]!.position.set(cx, chao + 0.02, cz + 0.05);
     });
   }
 

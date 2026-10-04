@@ -266,6 +266,7 @@ export class CenaMundo implements Cena {
 
     const pos = this.op.estado.posicao;
     this.jogador = new Ator(this.folhaDe(this.op.estado.personagem), pos.tx, pos.ty, pos.dir);
+    this.jogador.estilo = this.op.estado.personagem;
     this.montarMapa(pos.mapa, { gravar: false });
     // quem gravou dentro da arena já foi mandado para a entrada dela
     if (!this.def.zeraAoEntrar) this.jogador.teleportar(pos.tx, pos.ty, pos.dir);
@@ -310,7 +311,7 @@ export class CenaMundo implements Cena {
       .filter((d) => serve(this.op.estado, d))
       .map((d) => ({
         def: d,
-        ator: new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir),
+        ator: Object.assign(new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir), { estilo: d.estilo }),
         folego: d.fujao?.folego ?? FOLEGO_PADRAO,
         rondaI: 0,
         rondaT: 0,
@@ -439,7 +440,7 @@ export class CenaMundo implements Cena {
     const [dx, dy] = DELTAS[this.jogador.dir];
     let tx = this.jogador.tx - dx, ty = this.jogador.ty - dy;
     if (this.mapa.solido(tx, ty)) { tx = this.jogador.tx; ty = this.jogador.ty; }
-    this.seguidor = new Ator(this.folhaDe(d.estilo), tx, ty, this.jogador.dir);
+    this.seguidor = Object.assign(new Ator(this.folhaDe(d.estilo), tx, ty, this.jogador.dir), { estilo: d.estilo });
     this.seguidorId = d.id;
   }
 
@@ -1386,7 +1387,10 @@ export class CenaMundo implements Cena {
       vista.desenhar(r.ctx, {
         mapa: this.mapa, tempo: this.tempoAnim,
         alvoX: this.jogador.px / TS + 0.5, alvoY: this.jogador.py / TS + 0.5,
-        atores: this.atoresNaTela().map((a) => ({ img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty) })),
+        atores: this.atoresNaTela().map((a) => ({
+          img: a.quadro(), x: a.px / TS, y: a.py / TS, nadando: this.mapa.agua(a.tx, a.ty),
+          estilo: a.estilo, dir: a.dir, movendo: a.movendo, fasePasso: a.fasePasso,
+        })),
         periodo: periodo(), clima: this.climaAqui(), regiao: regiaoDoMapa(lugarNoMundo(this.def.id, MAPAS) ?? this.def.id)?.tipo ?? null,
         pedras: this.pedras, feixe: this.feixe,
       });

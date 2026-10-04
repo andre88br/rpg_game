@@ -62,7 +62,9 @@ src/
 │             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
 │             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
 │             as árvores de cada bioma · casas.ts: a construção de cada região ·
-│             objetos.ts: placa, guia, espelho, lampião...) + modelos.test.ts
+│             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
+│             gente, com braço e perna que andam · encantado3d.ts: os bichos,
+│             por arquétipo, com as cores do desenho 2D) + modelos.test.ts
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
 │             plano; `fimDoQuadro3D` esconde o canvas quando ninguém o usou)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
@@ -164,6 +166,18 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
   que brilha. `window.jogo.forcar3D(true)` liga o 3D em qualquer mapa (para
   testar), e `window.jogo.info3D()` mostra as chamadas de desenho.
+- **Gente e Encantados.** O `Ator` guarda o `estilo` e dá a `fasePasso`; a
+  vista monta um modelo por estilo e clona para cada ator. Gente
+  (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
+  perna em grupos de pivô na junta: anda balançando, respira parada e nada
+  do peito para cima. Encantado (`encantado3d.ts`) sai de um arquétipo
+  (serpente, quadrúpede, ave, peixe, humanoide, espírito) mais umas partes
+  por espécie (`CORPO_DA_ESPECIE`); as cores vêm de `coresDoDesenho`, que
+  conta as cores do sprite 2D — o raro usa o desenho raro — e o tamanho, da
+  linha de evolução. `animarEncantado` tem parado, andar, atacar, dano e
+  desmaio (as três últimas para a batalha). Estilo sem modelo continua o
+  desenho de pé. `window.jogo.vitrine3D()` põe as 54 espécies em volta do
+  jogador, para revisar.
 
 ## Som feito por código
 

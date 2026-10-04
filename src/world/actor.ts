@@ -51,6 +51,9 @@ export class Ator {
   ty: number;
   dir: Direcao;
   movendo = false;
+  /* o nome do estilo (de art/people.ts, ou `bicho:<espécie>`): a vista 3D
+     monta o modelo por ele. Quem cria o ator preenche. */
+  estilo?: string;
 
   private deX = 0; private deY = 0;
   private progresso = 0;
@@ -61,6 +64,13 @@ export class Ator {
   constructor(readonly folha: FolhaAssada, tx: number, ty: number, dir: Direcao = 'baixo') {
     this.tx = tx; this.ty = ty; this.dir = dir;
     this.deX = tx; this.deY = ty;
+  }
+
+  /* de 0 a 1 dentro do passo, e de 1 a 2 no passo do outro pé: é o que a
+     vista 3D usa para balançar braço e perna */
+  get fasePasso(): number {
+    if (!this.movendo) return 0;
+    return this.progresso + (this.pe ? 1 : 0);
   }
 
   /* posicao em pixels, interpolada durante o passo */
