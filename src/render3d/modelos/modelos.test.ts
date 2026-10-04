@@ -67,7 +67,7 @@ import { ESTILOS } from '../../art/people.ts';
 import { ARTE_CRIATURAS } from '../../art/creatures.ts';
 import { ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { animarPessoa, pessoa3D } from './humanoide.ts';
-import { CORPO_DA_ESPECIE, animarEncantado, coresDoDesenho, encantado3D, tamanhoDe } from './encantado3d.ts';
+import { animarEncantado, encantado3D, tamanhoDe } from './encantado3d.ts';
 
 const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
 
@@ -88,16 +88,35 @@ test('todo estilo de gente vira boneco, com braços e pernas que se mexem', () =
   assert.equal(g.getObjectByName('pernaE')!.visible, false, 'nadando, as pernas somem');
 });
 
-test('toda espécie tem corpo, cores do próprio desenho e modelo', () => {
+/* as cores de vértice de todo o modelo, em hex */
+function coresDoModelo(g: THREE.Object3D): Set<string> {
+  const cores = new Set<string>();
+  g.traverse((o) => {
+    const m = o as THREE.Mesh;
+    const a = m.isMesh ? m.geometry.getAttribute('color') : null;
+    if (!a) return;
+    for (let k = 0; k < a.count; k += 3) cores.add('#' + new THREE.Color(a.getX(k), a.getY(k), a.getZ(k)).getHexString());
+  });
+  return cores;
+}
+
+test('todo Encantado 3D sai do próprio desenho: as cores dele, de pé, do tamanho certo', () => {
   for (const id of ESPECIES_ORDEM) {
-    assert.ok(CORPO_DA_ESPECIE[id], `${id} sem corpo`);
     const b = ARTE_CRIATURAS[especie(id).arte]!();
-    const c = coresDoDesenho(b);
-    for (const k of [c.principal, c.secundaria, c.destaque]) assert.match(k, /^#[0-9a-f]{6}$/, id);
-    assert.notEqual(c.principal, '#191221', `${id}: a cor principal é o contorno`);
-    const g = encantado3D(id, b, mat);
+    // as duas cores que mais aparecem no desenho (sem o contorno)
+    const conta = new Map<string, number>();
+    for (const c of b.d) if (c && c !== '#191221' && c.length === 7) conta.set(c.toLowerCase(), (conta.get(c.toLowerCase()) ?? 0) + 1);
+    const maiores = [...conta.entries()].sort((x, y) => y[1] - x[1]).slice(0, 2).map(([c]) => c);
+    const g = encantado3D(id, false, mat);
     assert.ok(g.getObjectByName('corpo'), id);
-    const t = tamanhoDe(id);
+    const cores = coresDoModelo(g);
+    for (const c of maiores) assert.ok(cores.has(c), `${id}: falta a cor ${c} do desenho`);
+    const caixa = new THREE.Box3().setFromObject(g);
+    const alto = caixa.max.y - caixa.min.y, t = tamanhoDe(id);
+    assert.ok(alto > 0.5 * t && alto < 1.6 * t, `${id}: altura ${alto.toFixed(2)}`);
+    assert.ok(caixa.min.y > -0.05, `${id}: afunda no chão (${caixa.min.y.toFixed(2)})`);
+    const raro = coresDoModelo(encantado3D(id, true, mat));
+    assert.ok([...raro].some((c) => !cores.has(c)), `${id}: o raro tem as mesmas cores`);
     assert.ok(t >= 0.8 && t <= 1.4, `${id}: tamanho ${t}`);
   }
   assert.ok(tamanhoDe('mboitata') > tamanhoDe('boitatinha'), 'a forma de cima é maior');
@@ -105,7 +124,7 @@ test('toda espécie tem corpo, cores do próprio desenho e modelo', () => {
 });
 
 test('o desmaio deixa o Encantado deitado; o ataque avança', () => {
-  const g = encantado3D('lobinho', ARTE_CRIATURAS['lobinho']!(), mat);
+  const g = encantado3D('lobinho', false, mat);
   const corpo = g.getObjectByName('corpo')!;
   animarEncantado(g, 'atacar', 0.22, 0);
   assert.ok(corpo.position.z > 0.3);

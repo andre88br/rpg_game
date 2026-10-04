@@ -63,8 +63,9 @@ src/
 │             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
 │             as árvores de cada bioma · casas.ts: a construção de cada região ·
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
-│             gente, com braço e perna que andam · encantado3d.ts: os bichos,
-│             por arquétipo, com as cores do desenho 2D) + modelos.test.ts
+│             gente, com braço e perna que andam · desenho3d.ts: o desenho
+│             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
+│             cada espécie · encantado3d.ts: monta e anima) + modelos.test.ts
 │             arena.ts (a arena da batalha por cenário e região, as câmeras
 │             e `focoDaCena`) + teste · batalha3d.ts (a batalha em 3D)
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
@@ -172,14 +173,29 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   vista monta um modelo por estilo e clona para cada ator. Gente
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
   perna em grupos de pivô na junta: anda balançando, respira parada e nada
-  do peito para cima. Encantado (`encantado3d.ts`) sai de um arquétipo
-  (serpente, quadrúpede, ave, peixe, humanoide, espírito) mais umas partes
-  por espécie (`CORPO_DA_ESPECIE`); as cores vêm de `coresDoDesenho`, que
-  conta as cores do sprite 2D — o raro usa o desenho raro — e o tamanho, da
-  linha de evolução. `animarEncantado` tem parado, andar, atacar, dano e
-  desmaio (as três últimas para a batalha). Estilo sem modelo continua o
-  desenho de pé. `window.jogo.vitrine3D()` põe as 54 espécies em volta do
-  jogador, para revisar.
+  do peito para cima.
+- **Encantados: o próprio desenho 2D, em sólidos** (`desenho3d.ts`). Cada
+  desenho de `art/creatures.ts` é feito de primitivas — elipse, triângulo,
+  retângulo, linha, pixel — numa ordem. `gravar` roda a função de desenho
+  com o `Buf` grampeado e anota as primitivas que ELA chamou; cada uma vira
+  um sólido low-poly (elipse → elipsoide, triângulo → bipirâmide inflada,
+  retângulo → caixa, linha → bastão; pixels seguidos da mesma cor fundem em
+  caixas), com a MESMA cor. A ordem vira profundidade: cada peça encosta a
+  frente um fio adiante da frente do que já estava ali (o corpo no meio, a
+  barriga e o rosto por cima, o olho por cima do rosto). Um contorno escuro
+  (as peças um tico maiores, pintadas por dentro) faz o papel do contorno do
+  desenho, e o material (`MAT_BICHO`) tem um fio de luz própria para o bicho
+  escuro não virar mancha. O raro troca as cores pela mesma regra de
+  `art/raro.ts`. O que o desenho não diz vem de `bichos.ts`, uma linha por
+  espécie: desenhado de lado (`perfil`, que gira o modelo para a frente e
+  repete olho e detalhe dos dois lados; as pernas em `pares`), a grossura,
+  peças atrás, o cabelo nas costas (`extras`), as asas que batem (`partes`)
+  e quem flutua. `animarEncantado` tem parado, andar, atacar, dano e
+  desmaio, e mexe as partes que existirem. Para revisar,
+  `tools/bichos3d.html` (no `npm run dev`) põe cada espécie numa linha: o
+  desenho 2D ao lado do 3D de frente, em três quartos, de costas e de lado
+  (`?num=1` numera as peças para os ajustes, `?raro=1` mostra o raro), e
+  `window.jogo.vitrine3D()` põe as 54 espécies em volta do jogador.
 - **Batalha em 3D** (`batalha3d.ts`). Quando a luta sai de um mapa desenhado
   em 3D, o `PedidoBatalha` vem com `em3D` (e o tipo da região), e a
   `CenaBatalha` troca o fundo, os sprites e o projétil 2D por

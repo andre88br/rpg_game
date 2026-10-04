@@ -15,13 +15,13 @@ import * as THREE from 'three';
 import { infoTipo, type TipoGolpe } from '../art/palette.ts';
 import type { Cenario } from '../art/battlebg.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
-import { variante } from '../art/raro.ts';
 import { ESPECIES } from '../data/creatures.ts';
 import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
 import { animarEncantado, encantado3D, tamanhoDe } from './modelos/encantado3d.ts';
 import { arvoreDoTile, modeloArvore, modeloPedra } from './modelos/vegetacao.ts';
 import { predio3D } from './modelos/casas.ts';
+import { AJUSTES } from './modelos/bichos.ts';
 
 export type LadoB = 'aliado' | 'inimigo';
 
@@ -97,11 +97,20 @@ export class CenaBatalha3D {
       const l = q[lado];
       const arte = ESPECIES[l.especie] ? ARTE_CRIATURAS[ESPECIES[l.especie]!.arte] : undefined;
       if (!arte) { this.bichos[lado] = null; continue; }
-      const g = encantado3D(l.especie, l.raro ? variante(arte(), l.especie) : arte(), this.mat);
+      const g = encantado3D(l.especie, l.raro);
       const [x, , z] = POSTO_3D[lado];
       const [ox, , oz] = POSTO_3D[lado === 'aliado' ? 'inimigo' : 'aliado'];
       g.position.set(x, 0.18, z);
-      g.rotation.y = Math.atan2(ox - x, oz - z);
+      // de frente um para o outro, mas virados um pouco para a câmera: o
+      // inimigo quase de frente (como no 2D) e o aliado de costas, em três quartos
+      const [cx, , cz] = CAMERAS.geral.pos;
+      const paraOutro = Math.atan2(ox - x, oz - z), paraCamera = Math.atan2(cx - x, cz - z);
+      let dif = paraCamera - paraOutro;
+      while (dif > Math.PI) dif -= Math.PI * 2;
+      while (dif < -Math.PI) dif += Math.PI * 2;
+      // (quem foi desenhado de perfil mostra mais o lado, que é o desenho dele)
+      const deLado = AJUSTES[l.especie]?.perfil !== undefined;
+      g.rotation.y = paraOutro + dif * (lado === 'inimigo' ? (deLado ? 0.3 : 0.65) : 0.2);
       // na batalha, todo mundo maior que no mapa: é o palco deles
       g.scale.multiplyScalar(1.6);
       g.userData['tamanho'] = tamanhoDe(l.especie) * 1.6;

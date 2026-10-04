@@ -33,7 +33,6 @@ import { GIRO_DA_DIRECAO, animarPessoa, pessoa3D } from './modelos/humanoide.ts'
 import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
-import { variante } from '../art/raro.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
@@ -421,7 +420,7 @@ export class Vista3D {
       if (estilo.startsWith('bicho:')) {
         const id = estilo.slice(6);
         const arte = ESPECIES[id] ? ARTE_CRIATURAS[ESPECIES[id]!.arte] : undefined;
-        if (arte) m = encantado3D(id, raro ? variante(arte(), id) : arte(), this.matFigura);
+        if (arte) m = encantado3D(id, raro);
       } else if (ESTILOS[estilo]) {
         m = pessoa3D(ESTILOS[estilo]!, this.matFigura);
       }
