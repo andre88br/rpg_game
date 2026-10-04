@@ -86,6 +86,8 @@ function lutar(p: PedidoBatalha): void {
     cenario: p.cenario ?? 'praia',
     clima: p.clima,
     podePrender: p.podePrender,
+    em3D: p.em3D,
+    regiao: p.regiao ?? null,
     aoTerminar: (resultado, entrouNoTime) => {
       // a cena do mundo aplica o resultado quando volta a ser a cena da vez
       cena.voltouDaBatalha(resultado, entrouNoTime);

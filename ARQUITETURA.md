@@ -65,6 +65,8 @@ src/
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
 │             gente, com braço e perna que andam · encantado3d.ts: os bichos,
 │             por arquétipo, com as cores do desenho 2D) + modelos.test.ts
+│             arena.ts (a arena da batalha por cenário e região, as câmeras
+│             e `focoDaCena`) + teste · batalha3d.ts (a batalha em 3D)
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
 │             plano; `fimDoQuadro3D` esconde o canvas quando ninguém o usou)
 ├─ audio/     partitura.ts (a notação e o compilador: melodia + acordes →
@@ -178,6 +180,22 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   desmaio (as três últimas para a batalha). Estilo sem modelo continua o
   desenho de pé. `window.jogo.vitrine3D()` põe as 54 espécies em volta do
   jogador, para revisar.
+- **Batalha em 3D** (`batalha3d.ts`). Quando a luta sai de um mapa desenhado
+  em 3D, o `PedidoBatalha` vem com `em3D` (e o tipo da região), e a
+  `CenaBatalha` troca o fundo, os sprites e o projétil 2D por
+  `vista.desenharBatalha(ctx, quadro)`: outra cena three.js no mesmo
+  renderer e canvas. O quadro leva os MESMOS relógios que animam os sprites
+  (avanço, tremor, queda, entrada, o projétil), e eles viram pose
+  (`animarEncantado`), câmera e partículas — a lógica e a interface não
+  mudam. A arena (`arena.ts: arenaDe`) tem chão, duas plataformas e, por
+  cenário, mar e coqueiros, árvores da região, casas ou rochas; a luz é a
+  mesma `luzDe` do mundo. A câmera (`CAMERAS`, achadas por busca numérica
+  para cada um cair onde o sprite 2D ficava) segue `focoDaCena`: quem ataca
+  ou tem golpe voando, quem entra, ou o geral, e treme no acerto. O golpe é
+  uma nuvem de partículas na cor do tipo, cada tipo com seu jeito (brasa
+  sobe, água em arco, raio em zigue-zague...), uma explosão e um clarão no
+  alvo. O patuá continua 2D, na posição do inimigo projetada
+  (`projetarBatalha`), e o bicho encolhe para dentro dele.
 
 ## Som feito por código
 

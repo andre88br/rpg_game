@@ -35,6 +35,7 @@ import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { variante } from '../art/raro.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
+import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
@@ -240,6 +241,28 @@ export class Vista3D {
     this.vento.value = q.tempo;
     if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
     this.renderer.render(this.cena, this.camera);
+  }
+
+  /* ------------------------------------------------------------ batalha */
+
+  /* a batalha em 3D: outra cena, no mesmo renderer e no mesmo canvas */
+  private batalha: CenaBatalha3D | null = null;
+
+  desenharBatalha(ctx: CanvasRenderingContext2D, q: QuadroBatalha): void {
+    this.usada = true;
+    this.canvas.style.display = 'block';
+    this.ajustarTamanho();
+    ctx.clearRect(0, 0, LARGURA, ALTURA);
+    const b = (this.batalha ??= new CenaBatalha3D());
+    const aspecto = this.larguraTela / Math.max(1, this.alturaTela);
+    if (b.camera.aspect !== aspecto) { b.camera.aspect = aspecto; b.camera.updateProjectionMatrix(); }
+    b.atualizar(q);
+    this.renderer.render(b.cena, b.camera);
+  }
+
+  /* onde o inimigo da batalha 3D cai na tela de 240x160 (o patuá mira nele) */
+  projetarBatalha(): { x: number; y: number } | null {
+    return this.batalha ? this.batalha.projetarInimigo(LARGURA, ALTURA) : null;
   }
 
   /* para medir: quantas chamadas de desenho e triângulos o último quadro teve */

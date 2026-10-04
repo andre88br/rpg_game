@@ -122,6 +122,10 @@ export interface PedidoBatalha {
   clima?: Clima;
   /* Modo Desafio: falso quando o primeiro bicho do lugar já passou */
   podePrender?: boolean;
+  /* a luta saiu de um mapa desenhado em 3D: a arena também é 3D */
+  em3D?: boolean;
+  /* o tipo da região (render3d: a grama, as árvores e a luz da arena) */
+  regiao?: string | null;
 }
 
 export interface OpcoesCenaMundo {
@@ -668,7 +672,7 @@ export class CenaMundo implements Cena {
       const escolhido = (chave ? t.trunfo[chave] : undefined) ?? Object.values(t.trunfo)[0]!;
       oponentes.push(criar(escolhido.especie, escolhido.nivel));
     }
-    this.op.aoBatalhar({
+    this.batalhar({
       oponentes,
       treinador: t.selvagem ? null : {
         nome: npc.def.nome, classe: t.classe,
@@ -1272,7 +1276,7 @@ export class CenaMundo implements Cena {
     }
     const { nome, time } = gerarRomeiro(acaso, nivelDaRomaria(e), e.romaria.seq);
     this.naRomaria = true;
-    this.op.aoBatalhar({
+    this.batalhar({
       oponentes: time,
       treinador: { nome, classe: 'ROMEIRO', esperta: true,
                    falaDerrota: 'Vai com Deus, que a romaria segue.' },
@@ -1348,7 +1352,7 @@ export class CenaMundo implements Cena {
     const lugar = lugarNoMundo(this.def.id, MAPAS) ?? this.def.id;
     const podePrender = podePrenderAqui(this.op.estado, lugar);
     this.lugarDoEncontro = lugar;
-    this.op.aoBatalhar({
+    this.batalhar({
       podePrender,
       oponentes: [talvezRaro(sortearSelvagem(agora, acaso), this.op.estado, acaso)],
       cenario: this.def.cenario ?? 'praia',
@@ -1406,6 +1410,15 @@ export class CenaMundo implements Cena {
   /* quem anda pelo mapa agora: o jogador, os NPCs à vista e o escoltado */
   private atoresNaTela(): Ator[] {
     return [this.jogador, ...this.visiveis().map((n) => n.ator), ...(this.seguidor ? [this.seguidor] : [])];
+  }
+
+  /* toda luta sai por aqui: leva junto se o lugar é 3D, e de que região */
+  private batalhar(p: PedidoBatalha): void {
+    this.op.aoBatalhar({
+      ...p,
+      em3D: this.vistaDo(this.def.id) !== null,
+      regiao: regiaoDoMapa(lugarNoMundo(this.def.id, MAPAS) ?? this.def.id)?.tipo ?? null,
+    });
   }
 
   /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */

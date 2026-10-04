@@ -34,6 +34,8 @@ import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
 import { periodo, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
+import { vista3D } from '../render3d/carregar.ts';
+import type { LadoBatalha3D, QuadroBatalha } from '../render3d/batalha3d.ts';
 
 /* ------------------------------------------------------------ constantes */
 
@@ -66,6 +68,7 @@ type Tela = 'comando' | 'golpes' | 'mochila' | 'time' | 'esquecer' | 'rodando';
    ========================================================================= */
 interface Visual {
   arte: string;              // chave em ARTE_CRIATURAS (muda ao evoluir)
+  especie: string;           // id da espécie (o modelo 3D; muda ao evoluir)
   nome: string;
   nivel: number;
   max: number;
@@ -89,6 +92,10 @@ export interface OpcoesCenaBatalha {
   clima?: Clima;
   /* Modo Desafio: o patuá não pega quando o lugar já teve o seu primeiro */
   podePrender?: boolean;
+  /* a luta saiu de um mapa 3D: arena e Encantados em 3D (render3d/batalha3d) */
+  em3D?: boolean;
+  /* o tipo da região de onde a luta saiu (a grama e a luz da arena) */
+  regiao?: string | null;
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -186,6 +193,7 @@ export class CenaBatalha implements Cena {
   private instantaneo(e: Encantado): Visual {
     return {
       arte: ficha(e).arte + (e.raro ? '*' : ''),
+      especie: e.especie,
       nome: nome(e) + (e.raro ? ' *' : ''),
       nivel: e.nivel,
       max: hpMaximo(e),
@@ -384,6 +392,7 @@ export class CenaBatalha implements Cena {
         v.alvoHp += novoMax - v.max;
         v.max = novoMax;
         v.arte = ficha(enc).arte + (enc.raro ? '*' : '');
+        v.especie = enc.especie;
         v.nome = nome(enc) + (enc.raro ? ' *' : '');
         this.brilho = 1.1;
         this.espera = 1.15;
@@ -627,12 +636,23 @@ export class CenaBatalha implements Cena {
      =================================================================== */
 
   desenhar(r: Renderizador): void {
-    r.sprite(this.fundo, 0, 0);
-    tingir(r, periodo(), true);
-    desenharClima(r, this.op.clima ?? 'limpo', this.relogio);
-    this.desenharCombatente(r, 'inimigo');
-    this.desenharCombatente(r, 'aliado');
-    this.desenharProjetil(r);
+    const vista = this.op.em3D ? vista3D() : null;
+    if (vista) {
+      // a arena e os dois em 3D, no canvas de trás; a luz da hora já vem nela
+      vista.desenharBatalha(r.ctx, this.quadro3D());
+      desenharClima(r, this.op.clima ?? 'limpo', this.relogio);
+      if (this.patuaAnim >= 0) {
+        const p = vista.projetarBatalha();
+        if (p) this.desenharPatua(r, { cx: p.x, base: p.y + 14 });
+      }
+    } else {
+      r.sprite(this.fundo, 0, 0);
+      tingir(r, periodo(), true);
+      desenharClima(r, this.op.clima ?? 'limpo', this.relogio);
+      this.desenharCombatente(r, 'inimigo');
+      this.desenharCombatente(r, 'aliado');
+      this.desenharProjetil(r);
+    }
     this.desenharPainel(r, 'inimigo');
     this.desenharPainel(r, 'aliado');
     this.desenharFaixa(r, 'inimigo');
@@ -685,12 +705,36 @@ export class CenaBatalha implements Cena {
     if (this.patuaAnim >= 0 && lado === 'inimigo') this.desenharPatua(r, posto);
   }
 
+  /* o que a batalha 3D precisa saber neste quadro: os mesmos relógios que
+     animam os sprites viram pose e câmera lá (render3d/batalha3d.ts) */
+  private quadro3D(): QuadroBatalha {
+    const lado = (l: Lado): LadoBatalha3D => {
+      const v = this.vis[l];
+      // o patuá chega (0,4 s) e o bicho encolhe para dentro; se escapar, volta
+      const preso = l === 'inimigo' && this.patuaAnim >= 0
+        ? Math.max(0, Math.min(1, (this.patuaAnim - 0.35) / 0.15)) : 0;
+      return {
+        especie: v.especie, raro: v.arte.endsWith('*'),
+        avanco: this.avanco[l], tremor: this.tremor[l],
+        caido: v.caido, queda: this.queda[l],
+        entrada: this.entradaSprite[l], preso,
+      };
+    };
+    return {
+      cenario: this.op.cenario ?? 'praia', regiao: this.op.regiao ?? null,
+      periodo: periodo(), clima: this.op.clima ?? 'limpo', tempo: this.relogio,
+      aliado: lado('aliado'), inimigo: lado('inimigo'),
+      projetil: this.projetil ? { ...this.projetil } : null,
+    };
+  }
+
   /* o patuá subindo, balançando e (talvez) abrindo */
   private desenharPatua(r: Renderizador, posto: { cx: number; base: number }): void {
     const t = this.patuaAnim;
     const voo = Math.min(1, t / 0.4);
     const x = 70 + (posto.cx - 70) * voo;
-    const y = 96 - Math.sin(voo * Math.PI) * 45 - (posto.base - 96) * voo;
+    // sai da mão (70, 96) e cai em arco no meio do corpo do bicho
+    const y = 96 + (posto.base - 14 - 96) * voo - Math.sin(voo * Math.PI) * 45;
     const balanco = t > 0.45
       ? Math.sin((t - 0.45) * 14) * Math.max(0, this.patuaBalancos - (t - 0.45) / 0.35) * 1.2
       : 0;
