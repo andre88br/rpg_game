@@ -64,6 +64,7 @@ fica sempre bem na frente da porta do terreiro:
 | Aldeia Tupã | Aldeia Tupã, no pátio do Terreiro do Trovão, (8-14,12) |
 | Minas da Caipora | Arraial da Caipora, no pátio do Terreiro da Pedra, (8-14,12) |
 | Bairro da Cuca | Bairro da Cuca, no pátio do Terreiro do Breu, (8-14,12) |
+| Cidade do Sol | Cidade do Sol, no pátio do Terreiro da Aurora, (8-14,12) |
 
 **Tipos.** São só três regras, e elas decidem quase toda batalha:
 
@@ -113,7 +114,7 @@ nível dele, nesta forma ou na de antes (o Curupirá lembra a Raiz Sugadora do
 tempo de Curupinho). **800 réis por reza.** Com quatro golpes, ele pergunta
 qual esquecer.
 
-**Cantigas.** Ensinam um golpe fora do nível e **não se gastam**: uma basta
+**Cantigas.** São 12. Ensinam um golpe fora do nível e **não se gastam**: uma basta
 para ensinar a quantos quiser (menu → MOCHILA → a cantiga → quem aprende; a
 lista mostra PODE, NÃO PODE e JÁ SABE).
 
@@ -125,6 +126,7 @@ lista mostra PODE, NÃO PODE e JÁ SABE).
 | Cantiga da Pedra | Terremoto | Terra, Fogo, Raio | Ourives, Arraial da Caipora (os 3 diamantes) |
 | Cantiga do Retrato | Mau Sonho | Sombra, Vento, Água, Luz | Velha do Bairro, Bairro da Cuca (os 3 retratos) |
 | Cantiga do Cristal | Feixe | Luz, Fogo, Raio, Água | Joalheira, Cidade do Sol (os 3 cristais) |
+| Cantiga do Sol a Pino | Sol a Pino | Luz, Fogo, Planta, Vento | Contador de Bichos, Porto Iara (24 espécies presas) |
 | Cantiga do Pisão | Pisão | qualquer um | qualquer loja, depois da Medalha Breu (3000) |
 | Cantiga da Cachoeira | Cachoeira | Água, Planta, Vento, Sombra | qualquer loja, depois da Medalha Aurora (4000) |
 | Cantiga do Tronco | Tronco | Planta, Terra, Luz | qualquer loja, depois da Medalha Aurora (4000) |
@@ -134,7 +136,7 @@ lista mostra PODE, NÃO PODE e JÁ SABE).
 Quem já tinha feito o serviço antes das cantigas existirem recebe a dele
 falando de novo com quem pagou o serviço.
 
-**Traços.** Todo Encantado tem um traço, o jeito de ser da espécie, que age
+**Traços.** São 26. Todo Encantado tem um traço, o jeito de ser da espécie, que age
 sozinho na batalha; a linha de evolução inteira divide o mesmo. Quando ele
 age, uma faixa com o nome aparece junto do painel. O traço aparece no rodapé
 do menu → TIME e no Caderno (→ troca a página para o traço, que só fica
@@ -166,6 +168,8 @@ anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico
 | Vigia | Luzeiro, Estrela-d'Alva | não pega no sono |
 | Fogo Brando | Lamparina, Fogo-Fátuo | contato: 30% de queimar quem bateu |
 | Fases da Lua | Jaci, Eclipse | de dia, Luz bate 20% mais; à noite, Sombra |
+| Encanto do Boto | Boto, Boto-Encantado | ao entrar, o poder do adversário cai |
+| Escama Velha | Cobra Norato | golpe especial machuca 25% menos |
 
 **Viagem rápida: a Canoa Encantada.** Depois da Medalha Maré, a Dona
 Firmina entrega a carta para a Tiê e, na conversa seguinte, a **Canoa
@@ -237,13 +241,16 @@ chance (um em 128).
 | 45 | o **Boto** (Água/Luz), o bicho secreto, no nível 40 |
 
 O Boto vira **Boto-Encantado** no nível 50. O traço dos dois é o **Encanto
-do Boto**: ao chegar, o poder do adversário cai. São 53 espécies no Caderno.
+do Boto**: ao chegar, o poder do adversário cai. São 54 espécies no Caderno,
+contando a Cobra Norato do pós-jogo.
 
 **Benzimento.** Cura de graça, e é onde a partida recomeça se seu time apagar:
 Porto Iara na região 1, Casa da Encruzilhada na região 2, Casa de Dona Izilda
 na região 3 (Vila Fornalha), Casa de Dona Cacilda na região 4 (Aldeia
 Catavento), Casa de Dona Jurema na região 5 (Aldeia Tupã), Casa de Dona Zefa na região
-6 (Arraial da Caipora), Casa de Dona Benta na região 7 (Bairro da Cuca). **Na Trilha da Brasa e na Ventania Funda não tem benzimento
+6 (Arraial da Caipora), Casa de Dona Benta na região 7 (Bairro da Cuca), Casa
+de Dona Clara na região 8 (Cidade do Sol) e Casa de Dona Dourada no Círculo
+Dourado. **Na Trilha da Brasa e na Ventania Funda não tem benzimento
 nenhum:** quem apagar lá volta para o último benzimento de antes.
 
 **Bichos que fogem.** Sacizinhos e Caiporinhas com item na mão fogem quando
@@ -1604,12 +1611,23 @@ recomeçar a arena não repete nenhuma.
   mais 3 (nunca abaixo do 60), cada bicho já na forma desse nível e com os
   golpes dele. Dá para repetir quantas vezes quiser (8000 réis cada).
 - **Romaria do Círculo** (a casa ROMARIA, no sudeste da praça): o Mestre manda
-  um romeiro atrás do outro, com time sorteado entre todas as espécies, no
-  nível do seu melhor Encantado mais 2. Três Encantados no começo, um a mais
-  a cada 7 vitórias, até seis. **Benzimento só a cada 7 vitórias.** Perder,
-  ou sair do salão, encerra a sequência; o recorde fica guardado. Cada vitória
-  vale 1 ficha (a sétima, 5); as barracas trocam: 5 fichas → 3 Patuás de
-  Mestre; 12 → 3 Águas Bentas; 30 → Cantiga do Rasante.
+  um romeiro atrás do outro, com time sorteado entre todas as espécies (menos
+  o Boto e a Cobra Norato), cada bicho já na forma do nível. **Benzimento só
+  a cada 7 vitórias.** Perder, ou sair do salão, encerra a sequência; o
+  recorde fica guardado.
+
+  | | |
+  |---|---|
+  | nível dos romeiros | o do seu Encantado mais forte + 2 (até 100) |
+  | tamanho do time | 3 no começo, +1 a cada 7 vitórias, até 6 |
+  | benzimento | a cada 7 vitórias |
+  | fichas por vitória | 1 (cada sétima vitória vale 5) |
+
+  | barraca | custa | dá |
+  |---|---|---|
+  | patuás | 5 fichas | 3 Patuás de Mestre |
+  | água benta | 12 fichas | 3 Águas Bentas |
+  | cantiga | 30 fichas | Cantiga do Rasante |
 - **O Remanso da Norato**, a oeste da praça (a saída abre depois do
   campeonato): uma gruta no breu, com um véu (Visão Noturna) e uma cortina de
   luz (Prisma) no caminho. No fundo, a **Cobra Norato** (Água/Sombra, nível
@@ -1661,6 +1679,7 @@ nível máximo, é a recompensa por continuar treinando.
 | Luzeiro → Estrela-d'Alva (50) | — |
 | Lamparina → **Fogo-Fátuo** (62) | Luz/Fogo |
 | Jaci → **Eclipse** (66) | Luz/Sombra |
+| Boto → **Boto-Encantado** (50) | Água/Luz |
 
 Em negrito, as evoluções novas. O código A B A B ↑ ↑ A sobe um degrau por
 vez: um inicial precisa do código duas vezes para chegar à última forma.

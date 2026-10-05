@@ -3,8 +3,10 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
-**Estado: as oito regiões fechadas.** A **Região da Foz**
-dá para jogar do começo ao fim: escolhe-se o Encantado inicial na mesa da Dona
+**Estado: completo** — as oito regiões, o torneio do Círculo Dourado e o
+pós-jogo, com **54 Encantados**, **92 golpes**, **26 traços** e **12
+cantigas** (as tabelas estão no [MANUAL](MANUAL.md)). A **Região da Foz**
+abre a trilha: escolhe-se o Encantado inicial na mesa da Dona
 Firmina, acendem-se as cinco contas da guia — o recado, o Zeca na estrada, o
 caderno do Contador, as três redes e o bicho do farol —, atravessa-se o salão
 alagado do terreiro e ganha-se a **Medalha Maré** com o Dom de **Nadar**, que
@@ -19,7 +21,7 @@ cobram um turno de fôlego, e as formas finais mais conhecidas têm um golpe
 próprio, aprendido só por elas no fim da trilha. Golpe esquecido volta com o **Rezador**
 de qualquer benzimento, e as **Cantigas** — prêmio dos serviços opcionais e
 das lojas do fim — ensinam golpe fora do nível, sem se gastar. Cada espécie
-tem um **traço** que age sozinho na luta (24 ao todo: o Agouro da Matinta
+tem um **traço** que age sozinho na luta (26 ao todo: o Agouro da Matinta
 baixa o ataque de quem chega, a Pele Elétrica do Relampo trava quem bate
 nele, a Lua Cheia do Lobisomem pesa mais à noite...). O céu segue o
 relógio do aparelho — manhã, dia, tarde e noite — e cada região tem o seu
@@ -241,8 +243,8 @@ tudo de novo.
   região**, que não travam a guia mas pagam item raro e Encantado exclusivo.
   Cinco contas acesas abrem a guia; derrotar o líder dá a medalha e um
   **Dom de Campo**, que remove o obstáculo da estrada para a região seguinte.
-- **Uma região por vez.** Cada região sai completa e jogável antes de a seguinte
-  começar. A primeira é a **Região da Foz**: Vila Aurora → Rota da Foz → Porto Iara.
+- **Oito regiões em fila.** Cada Dom de Campo abre a estrada da seguinte, da
+  **Região da Foz** (Vila Aurora → Rota da Foz → Porto Iara) até a Cidade do Sol.
 - **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas:
   quatro Guardiões de dois tipos cada, o Zeca e o campeão Anhangá. Fica no meio
   do continente; depois dele, créditos, revanches que crescem com o seu time,
@@ -264,13 +266,15 @@ tudo de novo.
 
 Elenco: Tainá / Bento (protagonista) · Zeca "Redemoinho" (rival) · Dona Firmina
 (mentora) · Companhia Mata-Seca (antagonistas) · Anhangá (campeão).
-Iniciais: **Boitatinha** (Fogo) → Boitatão · **Iarinha** (Água) → Iara-Mãe ·
-**Curupinho** (Planta) → Curupirá.
+Iniciais: **Boitatinha** (Fogo) → Boitatão → Mboitatá · **Iarinha** (Água) →
+Iara-Mãe → Ipupiara · **Curupinho** (Planta) → Curupirá → Anhangá.
+Da Foz e da Mata: **Piraguá** (Água) → Piraguaçu · **Caiporinha** (Planta) →
+Caipora.
 Da Serra Boitatá: **Cabritinha** (Terra) → Cabra-Cabriola · **Mulinha** (Fogo)
 → Mula-sem-Cabeça · **Salamanca** (Fogo/Terra) · **Mãe-do-Ouro** (Fogo/Luz),
 exclusiva de quem faz os dois serviços opcionais da região.
-Do Campo do Saci: **Sacizinho** (Vento) → **Saci** · **Matinta** (Vento, sem
-evolução) · **Uirapuru** (Vento), exclusivo de quem faz os dois serviços
+Do Campo do Saci: **Sacizinho** (Vento) → **Saci** · **Matinta** (Vento) →
+**Matinta-Perera** · **Uirapuru** (Vento), exclusivo de quem faz os dois serviços
 opcionais da região.
 Da Aldeia Tupã: **Faisquinha** (Raio) → **Relampo** · **Tatu-Trovão**
 (Raio/Terra) · **Arco-da-Velha** (Raio/Luz), exclusivo de quem faz os dois
@@ -284,6 +288,8 @@ de quem faz os dois serviços opcionais da região.
 Da Cidade do Sol: **Luzeiro** (Luz) → **Estrela-d'Alva** · **Lamparina**
 (Luz/Fogo) · **Jaci** (Luz/Sombra), exclusiva de quem faz os dois serviços
 opcionais da região.
+Escondidos: **Boto** (Água/Luz) → Boto-Encantado, o último prêmio do Contador
+de Bichos · **Cobra Norato** (Água/Sombra), a lendária do pós-jogo.
 
 ## Por dentro
 

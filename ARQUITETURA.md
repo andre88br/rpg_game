@@ -89,7 +89,8 @@ src/
 │             creditos.ts (o fim do Círculo Dourado)
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
-│             tracos.ts (os 24 traços e o de cada espécie) + teste
+│             tracos.ts (os 26 traços e o de cada espécie) + teste
+│             documentacao.test.ts (MANUAL e README conferidos contra os dados)
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             roteiros/ (da Serra em diante, um arquivo de roteiros por
 │             região, e o torneio; comum.ts guarda o arco das oito medalhas)
@@ -871,7 +872,7 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
   - [x] **Etapa 3 — a fase fecha.** Escolha do inicial na mesa da Dona Firmina,
         os cinco desafios completos, o salão alagado que escorrega, o farol e o
         bicho que mora nele, Dona Mariana, a Medalha Maré e o Dom "Nadar".
-- [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
+- [x] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
   - [x] **Mata do Curupira.** A guia e as contas viraram um sistema por
         terreiro (`TERREIROS` em `quests.ts`, uma chave por tipo), para caber
         mais de uma região aberta ao mesmo tempo. A segunda carta da Dona
@@ -995,11 +996,27 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
       **créditos** (`scenes/creditos.ts`); depois, os seis voltam com times
       mais fortes e os oito donos de terreiro esperam revanche na praça.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
+- [x] **7 — Melhorias depois do jogo fechado**, em treze fases, cada uma
+      publicada ao fim:
+  1. a cena do mundo dividida em `scenes/mundo/` e os testes de mapa em pedaços;
+  2. exportar e importar o save, o jogo instalável e offline (service worker)
+     e a caixa pelo menu;
+  3. música no mundo e nas batalhas (`audio/temas.ts`);
+  4. de 43 para 92 golpes, com os efeitos várias pancadas, recarga,
+     Fecha-Corpo, dano fixo e dobra com estado;
+  5. o Rezador e as Cantigas (`game/golpes.ts`);
+  6. os traços passivos (`data/tracos.ts`);
+  7. a IA de treinador que não desperdiça golpe e troca melhor;
+  8. dia, noite e clima (`game/tempo.ts`, `art/ceu.ts`);
+  9. a Canoa Encantada (`game/viagem.ts`);
+  10. cor rara, prêmios do Caderno e o Boto;
+  11. o pós-jogo: revanches que crescem, Romaria, Cobra Norato e Modo Desafio;
+  12. o mundo, a gente, os Encantados e a batalha em 3D low-poly, com a
+      opção de qualidade ALTA/LEVE;
+  13. README, MANUAL e esta arquitetura revisados contra os dados.
 
 ### Pontas soltas conhecidas
 
-- Quem nada continua andando em pé na água: não existe sprite de nado. O Dom
-  funciona, mas a pose é a mesma da terra firme.
 - O `premio` do treinador é pago pela cena do mundo, não pelo motor de batalha:
   é lá que mora o bolso do jogador.
 - Um toque curto numa direção só VIRA o personagem, como no gênero. No salão
@@ -1007,7 +1024,8 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
 - Os iniciais evoluem no 18 e de novo no 55. As formas de cima de cada
-  linhagem só aparecem por evolução: nenhum treinador nem mato alto as usa.
+  linhagem não aparecem no mato alto: só por evolução, nas revanches do
+  Círculo e na Romaria (`formaNoNivel`).
 - A Serra Boitatá usa `cenario: 'caverna'` nas batalhas da caverna e da
   cumeeira: não existe fundo de montanha próprio, e a trilha e a vila caem no
   fundo de mata mesmo.
