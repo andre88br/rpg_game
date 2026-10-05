@@ -43,6 +43,21 @@ test('toda construção de todo mapa vira modelo, com a porta na coluna do mapa 
       // só o moinho tem pás à parte (a vista gira), e elas ficam na frente dele
       assert.equal(p.pas !== undefined, o.tipo === 'moinho', `${id}: pás de ${o.tipo}`);
       if (p.pas) assert.ok(p.pas.x > 0 && p.pas.x < w && p.pas.y > 1, `${id}: eixo do moinho fora do lugar`);
+      // o letreiro: todo prédio de serviço tem, cabe na fachada e fica na
+      // frente de tudo o que passa pelo vão dele (senão a câmera não o vê)
+      const comLetreiro = ['terreiro', 'benzimento', 'loja', 'posto', 'forja', 'moinho', 'arena'].includes(o.tipo);
+      assert.equal(p.letreiro !== undefined, comLetreiro, `${id}: letreiro de ${o.tipo}`);
+      if (p.letreiro && o.tipo !== 'arena') {
+        const l = p.letreiro;
+        assert.ok(l.x - l.larg / 2 >= 0 && l.x + l.larg / 2 <= w, `${id}: letreiro de ${o.tipo} sai da fachada`);
+        p.geo.computeBoundingBox();
+        const pos = p.geo.getAttribute('position');
+        for (let i = 0; i < pos.count; i++) {
+          if (Math.abs(pos.getX(i) - l.x) < l.larg / 2 && pos.getY(i) > l.y) {
+            assert.ok(pos.getZ(i) < l.z, `${id}: ${o.tipo} tem peça na frente do letreiro`);
+          }
+        }
+      }
       p.geo.dispose();
       p.pas?.geo.dispose();
     }

@@ -161,7 +161,10 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   no Bairro) e repetidas com InstancedMesh. A construção segue o estilo da
   região (`ESTILO_DA_REGIAO`, a mesma ideia de `art/predios.ts`), com a porta
   na coluna de `colunaPorta`; benzimento, loja, forja e moinho ganham o
-  detalhe deles. Os objetos de mecânica olham o mesmo estado do desenho plano
+  detalhe deles. O letreiro (terreiro, benzimento, loja, posto, forja,
+  moinho) fica logo acima da porta, com letra do mesmo tamanho em todo
+  prédio, e na frente do que passa pelo vão dele — beiral de palha, cúpula,
+  colunas, totem —, calculado pelas caixas das peças (`frenteEm`). Os objetos de mecânica olham o mesmo estado do desenho plano
   (`vazio`, `inclinacao`, as contas da guia) — a vista remonta o mapa quando o
   `Mundo` devolve um mapa novo. Véu e cortina de luz são paredes translúcidas;
   ladrilho e buraco continuam como recorte deitado. A grama muda de cor por

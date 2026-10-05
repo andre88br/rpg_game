@@ -21,6 +21,7 @@ import * as THREE from 'three';
 import type { TipoObjeto } from '../../world/tilemap.ts';
 import { colunaPorta } from '../../art/tiles.ts';
 import { PREDIOS } from '../relevo.ts';
+import { larguraTexto } from '../../art/font.ts';
 import { bola, caixa, cilindro, cone, juntar, peca, prismaTelhado } from './base.ts';
 
 export type Forma = 'cal' | 'taipa' | 'pedra' | 'gameleira' | 'oca' | 'adobe' | 'sobrado' | 'templo';
@@ -218,10 +219,37 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
     pas = { geo: juntar(lam), x: cx, y: h * 0.7, z: frente + 0.12 };
   }
 
-  const letra = cfg?.letreiro && tipo !== 'terreiro' && tipo !== 'casa'
-    ? { texto: cfg.letreiro, cor: cfg.escuro, x: cx, y: Math.min(h - 0.25, altPorta + 0.55), z: frente + 0.07, larg: Math.min(w - 0.5, 2.4) }
-    : undefined;
+  /* O letreiro, logo acima da porta, com letra do mesmo tamanho em todo
+     prédio. Ele vai na frente de tudo o que sai da fachada naquele vão —
+     beiral de palha, cúpula da oca, colunas, totem —, senão a câmera, que
+     olha de cima, não o via. */
+  let letra: Predio3D['letreiro'];
+  if (cfg?.letreiro && tipo !== 'casa') {
+    const prop = 11 / (larguraTexto(cfg.letreiro) + 8);
+    const larg = Math.min(w - 0.3, ALTURA_LETREIRO / prop);
+    const alto = larg * prop;
+    const x = Math.min(w - larg / 2 - 0.15, Math.max(larg / 2 + 0.15, px));
+    const y = 0.2 + altPorta + 0.04 + alto / 2;
+    const z = frenteEm(pecas, x - larg / 2, x + larg / 2, y - alto / 2) + 0.04;
+    letra = { texto: cfg.letreiro, cor: cfg.escuro, x, y, z, larg };
+  }
   return { geo: juntar(pecas), letreiro: letra, portaCol: col, pas };
+}
+
+/* a altura da placa do letreiro, em tiles */
+const ALTURA_LETREIRO = 0.46;
+
+/* o z mais à frente das peças que passam pelo vão [x0, x1] dali para cima
+   (pela caixa de cada peça: o telhado só tem vértice nos cantos, e o beiral
+   passa por cima do vão sem nenhum vértice dentro dele) */
+export function frenteEm(pecas: readonly THREE.BufferGeometry[], x0: number, x1: number, y0: number): number {
+  let z = -Infinity;
+  for (const g of pecas) {
+    if (!g.boundingBox) g.computeBoundingBox();
+    const b = g.boundingBox!;
+    if (b.max.x >= x0 && b.min.x <= x1 && b.max.y >= y0) z = Math.max(z, b.max.z);
+  }
+  return z;
 }
 
 /* a arena do Círculo: um anel dourado, com bandeiras no alto */
