@@ -9,7 +9,7 @@ rodar estão no [`README.md`](README.md); o passo a passo de cada região, no
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
 o que mantém o pacote pequeno e elimina qualquer questão de licenciamento. A
 única biblioteca é o **three.js**, e só para a vista 3D: ela vem num arquivo à
-parte, baixado na primeira vez que alguém entra na Foz com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
+parte, baixado na primeira vez que alguém entra no mundo com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
 ```
@@ -167,8 +167,25 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   ladrilho e buraco continuam como recorte deitado. A grama muda de cor por
   região (`relevoNaRegiao`), e por dentro o terreiro tem a parede da região.
   As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
-  que brilha. `window.jogo.forcar3D(true)` liga o 3D em qualquer mapa (para
-  testar), e `window.jogo.info3D()` mostra as chamadas de desenho.
+  que brilha. A corrente de vento (`V`) tem riscos claros correndo rente ao
+  chão (um shader no tempo do vento, cada risco num sentido, como no tile);
+  as pás do moinho vêm à parte (`Predio3D.pas`) e giram. O prédio entre a
+  câmera e o jogador fica translúcido (`esconderPredios`). A água de
+  interior e de caverna recebe menos luz, para não brilhar mais que o chão,
+  e no mapa escuro o círculo de luz 2D vai onde a câmera 3D põe o jogador
+  (`projetar`). `window.jogo.info3D()` mostra as chamadas de desenho.
+- **Mundo inteiro.** Todo mapa registrado tem vista 3D (`relevo.test.ts`
+  confere letras, objetos e prédios de todos); a cena do mundo só pergunta
+  se a VISÃO está ligada (`vista()`), e a batalha e o corte da guia seguem
+  a mesma resposta.
+- **Qualidade** (`game/config.ts`: `obterQualidade`, ALTA ou LEVE; sem
+  escolha gravada, `palpiteQualidade` olha toque, tela, núcleos e memória).
+  A vista confere a cada quadro (`aplicarQualidade`), sem recriar o
+  renderer: LEVE desliga as sombras (e marca os materiais para recompilar),
+  usa densidade 1 (0,75 em tela de alta densidade, e o canvas estica), põe
+  `uLeve` na água (sem onda, risco nem brilho), para o vento e o moinho,
+  tira a corrente e remonta o mapa com metade da mata e dos morros de fora.
+  `window.jogo.qualidade('leve')` troca pelo console.
 - **Gente e Encantados.** O `Ator` guarda o `estilo` e dá a `fasePasso`; a
   vista monta um modelo por estilo e clona para cada ator. Gente
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
@@ -777,6 +794,8 @@ multiplicador entra em dois lugares só: quanto texto revela por segundo
 (diálogo e batalha) e a duração do passo do `Ator` — ambos dividem o valor de
 sempre pelo multiplicador, então nenhum outro código precisa saber que a
 velocidade existe. A opção mora no menu de pausa, junto de TIME e MOCHILA.
+Ao lado dela moram a VISÃO (3D ou plana) e a QUALIDADE do 3D (ALTA ou
+LEVE, com palpite pelo aparelho na primeira vez — ver "O mundo em 3D").
 
 Três coisas pequenas que valem a pena entender juntas, porque moram todas em
 `game/state.ts` e `scenes/menu.ts`:

@@ -34,6 +34,7 @@ import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
+import { obterQualidade, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
@@ -99,12 +100,14 @@ function sorte(x: number, y: number, k = 0): number {
 
 const AGUA_VERTICE = /* glsl */`
   uniform float uTempo;
+  uniform float uLeve;
   varying vec2 vMundo;
   varying float vDist;
   varying float vOnda;
   void main() {
     vec4 m = modelMatrix * vec4(position, 1.0);
-    float o = sin(m.x * 1.3 + uTempo * 1.6) * 0.5 + sin(m.z * 1.7 - uTempo * 1.2) * 0.5;
+    // na qualidade LEVE a água fica lisa: sem onda, sem risco, sem brilho
+    float o = (sin(m.x * 1.3 + uTempo * 1.6) * 0.5 + sin(m.z * 1.7 - uTempo * 1.2) * 0.5) * (1.0 - uLeve);
     m.y += o * 0.035;
     vOnda = o;
     vMundo = m.xz;
@@ -125,18 +128,19 @@ const AGUA_FRAGMENTO = /* glsl */`
   uniform float uLonge;
   uniform sampler2D uMargem;
   uniform vec2 uTam;
+  uniform float uLeve;
   varying vec2 vMundo;
   varying float vDist;
   varying float vOnda;
   void main() {
     // a textura tem uma borda de mar aberto em volta: fora do mapa, margem zero
     float marg = texture2D(uMargem, (vMundo + 1.0) / (uTam + 2.0)).r;
-    float risco = sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5);
+    float risco = sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5) * (1.0 - uLeve);
     // a espuma é uma linha: só onde a margem passa (entre a terra e a água)
     float m = marg + 0.06 * risco;
     float espuma = smoothstep(0.6, 0.72, m) * (1.0 - smoothstep(0.8, 0.9, m)) * 0.85;
     vec3 cor = mix(uFundo, uRaso, clamp(marg * 1.5 + vOnda * 0.08, 0.0, 1.0));
-    float brilho = pow(max(0.0, sin(vMundo.x * 2.1 + uTempo) * sin(vMundo.y * 2.7 - uTempo * 1.3)), 14.0) * 0.4;
+    float brilho = pow(max(0.0, sin(vMundo.x * 2.1 + uTempo) * sin(vMundo.y * 2.7 - uTempo * 1.3)), 14.0) * 0.4 * (1.0 - uLeve);
     cor = cor * uLuz + espuma * uEspuma * uLuz + brilho * uLuz;
     cor = mix(cor, uNevoa, smoothstep(uPerto, uLonge, vDist));
     gl_FragColor = vec4(cor, 0.86 + espuma * 0.14);
@@ -154,6 +158,9 @@ export class Vista3D {
   private readonly ceu: THREE.HemisphereLight;
   private larguraTela = 0;
   private alturaTela = 0;
+  /* a qualidade com que a vista está montada (game/config.ts: ALTA ou LEVE) */
+  private qualidade: Qualidade | null = null;
+  private get leve(): boolean { return this.qualidade === 'leve'; }
   /* desenhada neste quadro? se não, o canvas some (carregar.ts) */
   private usada = false;
 
@@ -174,6 +181,11 @@ export class Vista3D {
   private pedrasPos: { x: number; z: number }[] = [];
   private feixe: THREE.InstancedMesh | null = null;
   private chaveFeixe = '';
+  /* as pás dos moinhos, que giram com o tempo */
+  private giram: THREE.Mesh[] = [];
+  /* os prédios, para ficarem translúcidos quando o jogador passa atrás */
+  private predios: { pecas: THREE.Mesh[]; x0: number; x1: number; y0: number; y1: number; fantasma: boolean }[] = [];
+  private matFantasma: THREE.MeshLambertMaterial | null = null;
 
   /* a luz de agora (só recalcula quando a chave muda) */
   private chaveLuz = '';
@@ -228,6 +240,7 @@ export class Vista3D {
   desenhar(ctx: CanvasRenderingContext2D, q: Quadro3D): void {
     this.usada = true;
     this.canvas.style.display = 'block';
+    this.aplicarQualidade();
     this.ajustarTamanho();
     ctx.clearRect(0, 0, LARGURA, ALTURA);
     const novo = q.mapa !== this.mapaAtual;
@@ -236,9 +249,12 @@ export class Vista3D {
     this.desenharFeixe(q.feixe ?? []);
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
+    this.esconderPredios(q.alvoX, q.alvoY);
     this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
-    this.vento.value = q.tempo;
-    if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
+    // na LEVE o vento para: árvore, mato e corrente ficam quietos
+    this.vento.value = this.leve ? 0 : q.tempo;
+    for (const p of this.giram) p.rotation.z = this.leve ? 0.3 : q.tempo * 1.2;
+    if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = this.leve ? 0 : q.tempo;
     this.renderer.render(this.cena, this.camera);
   }
 
@@ -250,6 +266,7 @@ export class Vista3D {
   desenharBatalha(ctx: CanvasRenderingContext2D, q: QuadroBatalha): void {
     this.usada = true;
     this.canvas.style.display = 'block';
+    this.aplicarQualidade();
     this.ajustarTamanho();
     ctx.clearRect(0, 0, LARGURA, ALTURA);
     const b = (this.batalha ??= new CenaBatalha3D());
@@ -275,6 +292,34 @@ export class Vista3D {
     this.usada = false;
   }
 
+  /* A qualidade mudou no menu (ou é o primeiro quadro): liga ou desliga as
+     sombras, refaz a resolução e remonta o mapa, que põe menos mata em
+     volta e água lisa na LEVE. Nada de recriar o renderer. */
+  private aplicarQualidade(): void {
+    const q = obterQualidade();
+    if (q === this.qualidade) return;
+    const primeira = this.qualidade === null;
+    this.qualidade = q;
+    this.renderer.shadowMap.enabled = q === 'alta';
+    this.larguraTela = 0;
+    if (primeira) return;
+    const refazer = (o: THREE.Object3D) => o.traverse((x) => {
+      const m = (x as THREE.Mesh).material;
+      for (const mat of Array.isArray(m) ? m : m ? [m] : []) mat.needsUpdate = true;
+    });
+    refazer(this.cena);
+    if (this.batalha) refazer(this.batalha.cena);
+    this.mapaAtual = null;
+  }
+
+  /* a densidade de pixels: até 2 na ALTA; na LEVE, 1, e 0,75 nas telas de
+     alta densidade (o canvas estica, e o celular agradece) */
+  private densidade(): number {
+    const dpr = window.devicePixelRatio || 1;
+    if (!this.leve) return Math.min(DPR_MAX, dpr);
+    return dpr >= 2 ? 0.75 : 1;
+  }
+
   /* o canvas de trás acompanha o tamanho do canvas do jogo, na resolução real */
   private ajustarTamanho(): void {
     const ref = document.getElementById('jogo');
@@ -283,7 +328,7 @@ export class Vista3D {
     this.larguraTela = w; this.alturaTela = h;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.renderer.setPixelRatio(Math.min(DPR_MAX, window.devicePixelRatio || 1));
+    this.renderer.setPixelRatio(this.densidade());
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -326,8 +371,10 @@ export class Vista3D {
 
     if (this.aguaMat) {
       const u = this.aguaMat.uniforms;
+      // dentro de casa, e mais ainda no escuro, a água não brilha mais que o chão
+      const baixa = def.escuro !== undefined ? 0.35 : dentro ? 0.55 : 1;
       const luz = new THREE.Color(l.hemiCima).multiplyScalar(l.hemi * 0.45)
-        .add(new THREE.Color(l.sol).multiplyScalar(l.solForca * 0.14));
+        .add(new THREE.Color(l.sol).multiplyScalar(l.solForca * 0.14)).multiplyScalar(baixa);
       u['uLuz']!.value = luz;
       u['uNevoa']!.value = new THREE.Color(l.nevoa);
       u['uPerto']!.value = dentro ? 999 : l.nevoaPerto;
@@ -501,6 +548,11 @@ export class Vista3D {
     this.pedrasPos = [];
     this.feixe = null;
     this.chaveFeixe = '';
+    this.giram = [];
+    this.predios = [];
+    this.matFantasma = this.guardar(new THREE.MeshLambertMaterial({
+      vertexColors: true, flatShading: true, transparent: true, opacity: 0.35, depthWrite: false,
+    }));
     this.matModelo = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), 0) as THREE.MeshLambertMaterial);
     this.mapaAtual = mapa;
     this.chaveLuz = '';
@@ -678,6 +730,8 @@ export class Vista3D {
       { x: W, z: 0, w: M, d: H, borda: def.chao.map((l) => l[W - 1]).join(''), arvore: (k) => [W + 1 + sorte(k, 7) ** 2 * 9, sorte(k, 8) * H] },
     ];
     const arvores: [number, number][] = [];
+    // na LEVE, metade da mata e dos morros de fora: ninguém olha para lá
+    const densidade = this.leve ? 0.5 : 1;
     const morros = new THREE.InstancedMesh(this.guardar(new THREE.ConeGeometry(1, 1, 6)),
       this.guardar(new THREE.MeshLambertMaterial({ flatShading: true })), 60);
     let nMorros = 0;
@@ -696,9 +750,9 @@ export class Vista3D {
       p.receiveShadow = true;
       g.add(p);
       const comprimento = li < 2 ? W : H;
-      for (let k = 0; k < Math.round(comprimento * 1.6); k++) arvores.push(l.arvore(k + li * 1000));
+      for (let k = 0; k < Math.round(comprimento * 1.6 * densidade); k++) arvores.push(l.arvore(k + li * 1000));
       // morros ao longe, que a névoa apaga devagar
-      for (let k = 0; k < 12 && nMorros < 60; k++, nMorros++) {
+      for (let k = 0; k < 12 * densidade && nMorros < 60; k++, nMorros++) {
         const [ax, az] = l.arvore(k + li * 500 + 77);
         const longe = 14 + sorte(k, li, 9) * 10;
         const px = li === 2 ? ax - longe : li === 3 ? ax + longe : ax;
@@ -760,6 +814,7 @@ export class Vista3D {
         uLonge: { value: 52 },
         uMargem: { value: margem },
         uTam: { value: new THREE.Vector2(W, H) },
+        uLeve: { value: this.leve ? 1 : 0 },
       },
     }));
     this.aguaMat = mat;
@@ -881,6 +936,42 @@ export class Vista3D {
         petalas.setColorAt(i * 4 + k, new THREE.Color(cores[k]!));
       }
     });
+
+    // a corrente de vento: riscos claros correndo rente ao chão, cada um
+    // num sentido, como no desenho do tile; na LEVE não aparecem
+    const correntes = rel.flatMap((_, i) => (this.mapaAtual!.def.chao[Math.floor(i / W)]![i % W] === 'V' ? [i] : []));
+    if (correntes.length && !this.leve) {
+      const risco = repetido(new THREE.BoxGeometry(0.42, 0.02, 0.035), this.correndo(), correntes.length * 3, false);
+      correntes.forEach((t, i) => {
+        const x = t % W, y = Math.floor(t / W);
+        for (let k = 0; k < 3; k++) {
+          // a escala em x diz o sentido (o shader anda para onde ela aponta)
+          o.position.set(x + 0.5, 0.06, y + 0.2 + k * 0.3 + (sorte(x, y, k) - 0.5) * 0.1);
+          o.rotation.set(0, 0, 0);
+          o.scale.set((x + y + k) % 2 ? 1 : -1, 1, 1);
+          o.updateMatrix();
+          risco.setMatrixAt(i * 3 + k, o.matrix);
+        }
+      });
+    }
+  }
+
+  /* o material do risco de vento: cada risco corre o próprio tile, some na
+     borda e volta do outro lado, no tempo do vento */
+  private correndo(): THREE.Material {
+    const mat = this.guardar(new THREE.MeshBasicMaterial({ color: '#f2fbf4', transparent: true, opacity: 0.85, depthWrite: false }));
+    mat.onBeforeCompile = (s) => {
+      s.uniforms['uTempo'] = this.vento;
+      s.vertexShader = 'uniform float uTempo;\nvarying float vSumir;\n' + s.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        vec3 baseV = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
+        float sentido = sign(instanceMatrix[0][0]);
+        float f = fract(uTempo * 0.9 + baseV.z * 1.7 + baseV.x * 0.37);
+        transformed.x += (f - 0.5) * 0.8 * sentido / max(abs(instanceMatrix[0][0]), 0.001);
+        vSumir = 1.0 - abs(f - 0.5) * 2.0;`);
+      s.fragmentShader = 'varying float vSumir;\n' + s.fragmentShader.replace('#include <opaque_fragment>',
+        '#include <opaque_fragment>\n        gl_FragColor.a *= smoothstep(0.0, 0.35, vSumir);');
+    };
+    return mat;
   }
 
   /* ------------------------------------------------------------ objetos */
@@ -953,6 +1044,17 @@ export class Vista3D {
     m.position.set(o.tx, 0, o.ty);
     m.castShadow = m.receiveShadow = true;
     g.add(m);
+    const pecas = [m];
+    if (p.pas) {
+      const pas = new THREE.Mesh(this.guardar(p.pas.geo), this.matModelo!);
+      pas.position.set(o.tx + p.pas.x, p.pas.y, o.ty + p.pas.z);
+      pas.castShadow = true;
+      g.add(pas);
+      this.giram.push(pas);
+      pecas.push(pas);
+    }
+    // da frente do prédio até três tiles atrás dele, ele tapa quem está ali
+    this.predios.push({ pecas, x0: o.tx - 0.3, x1: o.tx + w + 0.3, y0: o.ty - 3, y1: o.ty + alt - 0.5, fantasma: false });
     if (p.letreiro) {
       const l = p.letreiro;
       const t = this.letreiro(l.texto, l.cor);
@@ -961,6 +1063,25 @@ export class Vista3D {
                                    this.guardar(new THREE.MeshLambertMaterial({ map: t })));
       placa.position.set(o.tx + l.x, l.y, o.ty + l.z);
       g.add(placa);
+      pecas.push(placa);
+    }
+  }
+
+  /* O prédio entre a câmera e o jogador fica translúcido: a câmera olha do
+     sul, e um terreiro alto tampava quem anda atrás dele. */
+  private esconderPredios(x: number, y: number): void {
+    for (const p of this.predios) {
+      const tapa = x > p.x0 && x < p.x1 && y > p.y0 && y < p.y1;
+      if (tapa === p.fantasma) continue;
+      p.fantasma = tapa;
+      for (const m of p.pecas) {
+        if (m.material === this.matModelo || m.material === this.matFantasma) {
+          m.material = tapa ? this.matFantasma! : this.matModelo!;
+        } else {
+          const mat = m.material as THREE.MeshLambertMaterial;
+          mat.transparent = tapa; mat.opacity = tapa ? 0.35 : 1; mat.needsUpdate = true;
+        }
+      }
     }
   }
 

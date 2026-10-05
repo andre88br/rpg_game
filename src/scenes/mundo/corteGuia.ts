@@ -69,11 +69,11 @@ export class CorteDaGuia {
     } else if (c.fase === 'sai' && c.t >= CUT_FADE) { this.corte = null; }
   }
 
-  /* `vistaDo` diz se o mapa da guia se desenha em 3D */
-  desenhar(r: Renderizador, vistaDo: (id: string) => Vista3D | null): void {
+  /* `vista3d` dá a vista 3D, quando ela está ligada e carregada */
+  desenhar(r: Renderizador, vista3d: () => Vista3D | null): void {
     const c = this.corte!;
     r.limpar('#101018');
-    const vista = vistaDo(c.mapa.id);
+    const vista = vista3d();
     if (vista) {
       vista.desenhar(r.ctx, { mapa: c.mapa, tempo: c.t, atores: [],
                              alvoX: (c.cam.x + LARGURA / 2) / TS, alvoY: (c.cam.y + ALTURA / 2) / TS });

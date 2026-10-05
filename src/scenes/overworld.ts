@@ -17,8 +17,7 @@
      game/avisos.ts      o que placa, tranca e guia dizem ao A
      game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
-import { forcado3D, vista3D } from '../render3d/carregar.ts';
-import { EM_3D } from '../render3d/relevo.ts';
+import { vista3D } from '../render3d/carregar.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
 import { assar, type Assado } from '../core/buf.ts';
@@ -1383,10 +1382,10 @@ export class CenaMundo implements Cena {
   /* ------------------------------------------------------------- desenho */
 
   desenhar(r: Renderizador): void {
-    if (this.corte.ativo) { this.corte.desenhar(r, (id) => this.vistaDo(id)); return; }
+    if (this.corte.ativo) { this.corte.desenhar(r, () => this.vista()); return; }
 
     r.limpar('#101018');
-    const vista = this.vistaDo(this.def.id);
+    const vista = this.vista();
     if (vista) {
       vista.desenhar(r.ctx, {
         mapa: this.mapa, tempo: this.tempoAnim,
@@ -1416,14 +1415,14 @@ export class CenaMundo implements Cena {
   private batalhar(p: PedidoBatalha): void {
     this.op.aoBatalhar({
       ...p,
-      em3D: this.vistaDo(this.def.id) !== null,
+      em3D: this.vista() !== null,
       regiao: regiaoDoMapa(lugarNoMundo(this.def.id, MAPAS) ?? this.def.id)?.tipo ?? null,
     });
   }
 
-  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
-  private vistaDo(id: string): Vista3D | null {
-    if (!obterVisao3D() || (!EM_3D.has(id) && !forcado3D())) return null;
+  /* a vista 3D, quando ela está ligada e já carregou (todo mapa tem uma) */
+  private vista(): Vista3D | null {
+    if (!obterVisao3D()) return null;
     return vista3D();
   }
 
@@ -1434,7 +1433,7 @@ export class CenaMundo implements Cena {
     if (this.def.escuro) this.desenharEscuridao(r);
     if (this.ceuAberto()) {
       // no 3D a hora já está na luz da cena; no plano, um filtro de cor
-      if (!this.vistaDo(this.def.id)) tingir(r, periodo());
+      if (!this.vista()) tingir(r, periodo());
       desenharClima(r, this.clima, this.tempoAnim);
     }
 
@@ -1469,7 +1468,7 @@ export class CenaMundo implements Cena {
     const a = this.duelo!.npc.ator;
     let x = a.px - this.camera.x + 4;
     let y = a.py - this.camera.y - 14;
-    const vista = this.vistaDo(this.def.id);
+    const vista = this.vista();
     if (vista) {
       // no 3D, o balão vai acima da cabeça, onde quer que ela caia na tela
       const p = vista.projetar(a.px / TS + 0.5, a.py / TS + 0.6, 1.5);
@@ -1488,6 +1487,16 @@ export class CenaMundo implements Cena {
   private desenharEscuridao(r: Renderizador): void {
     const def = this.def.escuro!;
     const raio = def.fixo ? (def.raio ?? RAIO_SEM_LUZ) : raioDaLuz(this.op.estado);
+    const vista = this.vista();
+    if (vista) {
+      // no 3D a luz vai onde a câmera 3D põe o jogador, e o raio acompanha o
+      // tamanho do tile na tela (a câmera 3D chega mais perto que a plana)
+      const x = this.jogador.px / TS + 0.5, y = this.jogador.py / TS + 0.5;
+      const c = vista.projetar(x, y, 0.5), lado = vista.projetar(x + 1, y, 0.5);
+      const escala = Math.hypot(lado.x - c.x, lado.y - c.y) / TS;
+      this.pintor.escuridao(r, Math.round(raio * escala), c.x, c.y);
+      return;
+    }
     this.pintor.escuridao(r, raio, this.jogador.px - this.camera.x + TS / 2,
                           this.jogador.py - this.camera.y + TS / 2);
   }

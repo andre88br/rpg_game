@@ -40,7 +40,11 @@ test('toda construção de todo mapa vira modelo, com a porta na coluna do mapa 
       const p = predio3D(reg, o.tipo, w, alt, o.portaCol);
       assert.ok(p.geo.getAttribute('position').count > 30, `${id}: ${o.tipo} vazio`);
       if (o.tipo !== 'balao') assert.equal(p.portaCol, colunaPorta(w, o.portaCol), `${id}: porta de ${o.tipo}`);
+      // só o moinho tem pás à parte (a vista gira), e elas ficam na frente dele
+      assert.equal(p.pas !== undefined, o.tipo === 'moinho', `${id}: pás de ${o.tipo}`);
+      if (p.pas) assert.ok(p.pas.x > 0 && p.pas.x < w && p.pas.y > 1, `${id}: eixo do moinho fora do lugar`);
       p.geo.dispose();
+      p.pas?.geo.dispose();
     }
   }
 });

@@ -1,7 +1,8 @@
 /* Ponto de entrada: monta o renderizador, a entrada e o laço, e liga os
    botões de toque da página às mesmas ações do teclado. */
-import { fimDoQuadro3D, forcar3D, vista3D } from './render3d/carregar.ts';
+import { fimDoQuadro3D, vista3D } from './render3d/carregar.ts';
 import { fixarHora, type Clima } from './game/tempo.ts';
+import { definirQualidade, type Qualidade } from './game/config.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
@@ -175,7 +176,7 @@ Object.assign(window as unknown as Record<string, unknown>, {
     r, entrada, cenas, laco, regiao, lutar, LARGURA, ALTURA,
     musica: () => Som.tocandoAgora(),
     hora: (h: number | null) => fixarHora(h),
-    forcar3D: (v: boolean) => forcar3D(v),
+    qualidade: (q: Qualidade) => definirQualidade(q),
     info3D: () => vista3D()?.info() ?? null,
     vitrine3D: (v = true) => { const x = vista3D(); if (x) x.vitrine = v; },
     clima: (c: Clima) => mundo?.forcarClima(c),
