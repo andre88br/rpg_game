@@ -115,16 +115,18 @@ export const PAREDE_CORTADA = 0.3;
    luz), ou o próprio desenho do jogo, deitado no chão (ladrilho, buraco) */
 export type Modelo = 'predio' | 'farol' | 'objeto' | 'translucido' | 'recorte';
 
-export const PREDIOS: Partial<Record<TipoObjeto, { telhado: string; escuro: string; letreiro?: string }>> = {
-  casa: { telhado: '#c2493f', escuro: '#93312c' },
-  benzimento: { telhado: '#c25d8f', escuro: '#95406a', letreiro: 'BENZIMENTO' },
-  loja: { telhado: '#3f8f6f', escuro: '#2b6b52', letreiro: 'LOJA' },
-  terreiro: { telhado: '#3f6fa8', escuro: '#2b4d79', letreiro: 'TERREIRO' },
-  posto: { telhado: '#8a6a3f', escuro: '#654d2e', letreiro: 'ENCRUZILHADA' },
-  forja: { telhado: '#7a3a2a', escuro: '#582719', letreiro: 'FORJA' },
-  moinho: { telhado: '#c9a85a', escuro: '#9c7f3e', letreiro: 'MOINHO' },
-  arena: { telhado: '#c9a227', escuro: '#8a6a14', letreiro: 'ARENA' },
-  balao: { telhado: '#e84a3a', escuro: '#a83a2a' },
+/* as cores do telhado (escuro, meio e cumeeira clara) e da placa de cada
+   construção: as mesmas do desenho plano (world/tilemap.ts: spriteDoObjeto) */
+export const PREDIOS: Partial<Record<TipoObjeto, { telhado: string; escuro: string; clara: string; letreiro?: string; fundo: string }>> = {
+  casa: { telhado: '#c2493f', escuro: '#93312c', clara: '#e06a5a', fundo: '#f4ead0' },
+  benzimento: { telhado: '#c25d8f', escuro: '#95406a', clara: '#e089b4', letreiro: 'BENZIMENTO', fundo: '#f0b6d2' },
+  loja: { telhado: '#3f8f6f', escuro: '#2b6b52', clara: '#5fb894', letreiro: 'LOJA', fundo: '#7fd9b4' },
+  terreiro: { telhado: '#3f6fa8', escuro: '#2b4d79', clara: '#5f96d0', letreiro: 'TERREIRO', fundo: '#c9a227' },
+  posto: { telhado: '#8a6a3f', escuro: '#654d2e', clara: '#a8895c', letreiro: 'ENCRUZILHADA', fundo: '#e0c090' },
+  forja: { telhado: '#7a3a2a', escuro: '#582719', clara: '#a0553f', letreiro: 'FORJA', fundo: '#e8a870' },
+  moinho: { telhado: '#c9a85a', escuro: '#9c7f3e', clara: '#e8cf8a', letreiro: 'MOINHO', fundo: '#f0e4b8' },
+  arena: { telhado: '#c9a227', escuro: '#8a6a14', clara: '#e8c860', letreiro: 'ARENA', fundo: '#fff3c4' },
+  balao: { telhado: '#e84a3a', escuro: '#a83a2a', clara: '#f07a6a', fundo: '#f4ead0' },
 };
 
 /* todo tipo de objeto, um modelo — o Record obriga a não esquecer nenhum */

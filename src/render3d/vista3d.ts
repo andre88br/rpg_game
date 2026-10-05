@@ -28,6 +28,7 @@ import { Buf, assar, larguraDe, alturaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA } from '../core/renderer.ts';
 import { contasDo, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
 import { texto, larguraTexto } from '../art/font.ts';
+import { P } from '../art/palette.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
 import { GIRO_DA_DIRECAO, animarPessoa, pessoa3D } from './modelos/humanoide.ts';
 import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
@@ -181,8 +182,6 @@ export class Vista3D {
   private pedrasPos: { x: number; z: number }[] = [];
   private feixe: THREE.InstancedMesh | null = null;
   private chaveFeixe = '';
-  /* as pás dos moinhos, que giram com o tempo */
-  private giram: THREE.Mesh[] = [];
   /* os prédios, para ficarem translúcidos quando o jogador passa atrás */
   private predios: { pecas: THREE.Mesh[]; x0: number; x1: number; y0: number; y1: number; fantasma: boolean }[] = [];
   private matFantasma: THREE.MeshLambertMaterial | null = null;
@@ -253,7 +252,6 @@ export class Vista3D {
     this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
     // na LEVE o vento para: árvore, mato e corrente ficam quietos
     this.vento.value = this.leve ? 0 : q.tempo;
-    for (const p of this.giram) p.rotation.z = this.leve ? 0.3 : q.tempo * 1.2;
     if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = this.leve ? 0 : q.tempo;
     this.renderer.render(this.cena, this.camera);
   }
@@ -548,7 +546,6 @@ export class Vista3D {
     this.pedrasPos = [];
     this.feixe = null;
     this.chaveFeixe = '';
-    this.giram = [];
     this.predios = [];
     this.matFantasma = this.guardar(new THREE.MeshLambertMaterial({
       vertexColors: true, flatShading: true, transparent: true, opacity: 0.35, depthWrite: false,
@@ -1028,15 +1025,18 @@ export class Vista3D {
     g.add(p);
   }
 
-  private letreiro(txt: string, cor: string): THREE.CanvasTexture {
-    const b = new Buf(larguraTexto(txt) + 8, 11);
-    b.rect(0, 0, b.w, b.h, '#5a3e24');
-    b.rect(1, 1, b.w - 2, b.h - 2, '#f4ead0');
-    texto(b, txt, 4, 2, cor);
+  /* a placa como a do 2D (art/predios.ts: placa): borda escura, o fundo
+     da cor do prédio, a faixa branca no alto e o texto escuro */
+  private letreiro(txt: string, fundo: string): THREE.CanvasTexture {
+    const b = new Buf(larguraTexto(txt) + 8, 13);
+    b.rect(0, 0, b.w, b.h, P.ink!);
+    b.rect(1, 1, b.w - 2, b.h - 2, fundo);
+    b.rect(1, 1, b.w - 2, 2, '#ffffff');
+    texto(b, txt, 4, 3, P.ink!);
     return this.guardar(texturaDe(assar(b)));
   }
 
-  /* a construção com a cara da região (modelos/casas.ts) e o letreiro */
+  /* a construção (modelos/casas.ts) e o letreiro */
   private predio(g: THREE.Group, o: DefObjeto): void {
     const w = o.larg ?? 4, alt = o.alt ?? 3;
     const p = predio3D(this.regiao, o.tipo, w, alt, o.portaCol);
@@ -1045,20 +1045,12 @@ export class Vista3D {
     m.castShadow = m.receiveShadow = true;
     g.add(m);
     const pecas = [m];
-    if (p.pas) {
-      const pas = new THREE.Mesh(this.guardar(p.pas.geo), this.matModelo!);
-      pas.position.set(o.tx + p.pas.x, p.pas.y, o.ty + p.pas.z);
-      pas.castShadow = true;
-      g.add(pas);
-      this.giram.push(pas);
-      pecas.push(pas);
-    }
     // da frente do prédio até três tiles atrás dele, ele tapa quem está ali
     this.predios.push({ pecas, x0: o.tx - 0.3, x1: o.tx + w + 0.3, y0: o.ty - 3, y1: o.ty + alt - 0.5, fantasma: false });
     if (p.letreiro) {
       const l = p.letreiro;
-      const t = this.letreiro(l.texto, l.cor);
-      const proporcao = 11 / (larguraTexto(l.texto) + 8);
+      const t = this.letreiro(l.texto, l.fundo);
+      const proporcao = 13 / (larguraTexto(l.texto) + 8);
       const placa = new THREE.Mesh(this.guardar(new THREE.PlaneGeometry(l.larg, l.larg * proporcao)),
                                    this.guardar(new THREE.MeshLambertMaterial({ map: t })));
       placa.position.set(o.tx + l.x, l.y, o.ty + l.z);

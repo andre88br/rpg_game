@@ -2,16 +2,17 @@
    As construções low-poly, com a cara de cada região — a mesma ideia de
    art/predios.ts, agora de pé:
      água    cal com barrado azul, telhado de telha
-     planta  taipa e palha; o terreiro é uma oca de troncos
-     fogo    pedra e ardósia, com chaminé; o terreiro tem brasa na base
+     planta  taipa e palha
+     fogo    pedra e ardósia, com chaminé
      vento   tábua, com a gameleira por cima e as raízes descendo
-     raio    oca redonda do Xingu; o terreiro tem o totem da ave do trovão
+     raio    oca redonda do Xingu
      terra   adobe de teto plano, com platibanda e vigas
-     sombra  sobrado torto de dois andares; o terreiro tem torre
-     luz     cal e ouro; o terreiro tem colunas e cúpula
-   Benzimento, loja, posto, forja e moinho usam a forma da região com a cor
-   e o detalhe deles (a cruz, o toldo, a bigorna, as pás). A arena e o balão
-   têm modelo próprio.
+     sombra  sobrado torto de dois andares
+     luz     cal e ouro
+   O terreiro de cada região é o desenho 2D dela, em sólidos (terreiros.ts).
+   Benzimento, loja, posto, forja e moinho são, como no 2D, a mesma
+   construção em todo lugar (construcao3D). A arena e o balão têm modelo
+   próprio.
 
    O modelo fica em coordenadas do objeto: x de 0 à largura (em tiles), z de
    0 até a frente, y para cima. A porta cai na coluna de `colunaPorta`, a
@@ -22,7 +23,9 @@ import type { TipoObjeto } from '../../world/tilemap.ts';
 import { colunaPorta } from '../../art/tiles.ts';
 import { PREDIOS } from '../relevo.ts';
 import { larguraTexto } from '../../art/font.ts';
+import { P } from '../../art/palette.ts';
 import { bola, caixa, cilindro, cone, juntar, peca, prismaTelhado } from './base.ts';
+import { FUNDO_PLACA_TERREIRO, MADEIRA, TERREIRO_3D, duasAguas, janelaCruz, lote, porta } from './terreiros.ts';
 
 export type Forma = 'cal' | 'taipa' | 'pedra' | 'gameleira' | 'oca' | 'adobe' | 'sobrado' | 'templo';
 
@@ -49,13 +52,10 @@ export const ESTILO_DA_REGIAO: Record<string, Estilo> = {
 
 export interface Predio3D {
   geo: THREE.BufferGeometry;
-  /* o letreiro sobre a porta (a vista desenha o texto) */
-  letreiro?: { texto: string; cor: string; x: number; y: number; z: number; larg: number };
+  /* o letreiro sobre a porta (a vista desenha a placa como a do 2D) */
+  letreiro?: { texto: string; fundo: string; x: number; y: number; z: number; larg: number };
   /* a coluna da porta, em tiles a partir da esquerda */
   portaCol: number;
-  /* as pás do moinho, à parte para a vista girá-las: a geometria vem
-     centrada no eixo, e (x, y, z) é onde o eixo fica */
-  pas?: { geo: THREE.BufferGeometry; x: number; y: number; z: number };
 }
 
 const JANELA = '#8ed0ec', JANELA_ACESA = '#f4d070', MOLDURA = '#5a3e24';
@@ -64,16 +64,27 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
                          portaCol?: number): Predio3D {
   if (tipo === 'arena') return arena(w, alt, portaCol);
   if (tipo === 'balao') return { geo: balao(w), portaCol: 0 };
-  const base = ESTILO_DA_REGIAO[regiao ?? 'fora'] ?? ESTILO_DA_REGIAO['fora']!;
-  const cfg = PREDIOS[tipo];
-  // casa e terreiro usam as cores da região; os outros, as cores deles
-  const est: Estilo = tipo === 'casa' || tipo === 'terreiro' || !cfg
-    ? base
-    : { ...base, telhado: cfg.telhado, telhadoEscuro: cfg.escuro };
-  const terreiro = tipo === 'terreiro';
-  const d = alt - 0.45, z0 = 0.05, frente = z0 + d, cx = w / 2, cz = z0 + d / 2;
-  const h = terreiro ? 2.4 : est.forma === 'sobrado' ? 2.6 : 1.7;
   const col = colunaPorta(w, portaCol);
+  const cfg = PREDIOS[tipo];
+  // o terreiro de cada região é o desenho dela (terreiros.ts)
+  const construtor = tipo === 'terreiro' && regiao ? TERREIRO_3D[regiao] : undefined;
+  if (construtor) {
+    const pecas: THREE.BufferGeometry[] = [];
+    const l = lote(w, alt, col, pecas);
+    const topo = construtor(l);
+    return { geo: juntar(pecas), portaCol: col,
+             letreiro: letreiro(pecas, w, l.px, topo, 'TERREIRO', FUNDO_PLACA_TERREIRO[regiao!]!) };
+  }
+  // loja, benzimento, posto, forja e moinho: a construção única do 2D
+  if (tipo !== 'casa' && cfg) return construcao3D(w, alt, col, cfg);
+  return casa(regiao, w, alt, col);
+}
+
+/* a casa comum, com a cara da região */
+function casa(regiao: string | null, w: number, alt: number, col: number): Predio3D {
+  const est: Estilo = ESTILO_DA_REGIAO[regiao ?? 'fora'] ?? ESTILO_DA_REGIAO['fora']!;
+  const d = alt - 0.45, z0 = 0.05, frente = z0 + d, cx = w / 2, cz = z0 + d / 2;
+  const h = est.forma === 'sobrado' ? 2.6 : 1.7;
   const px = col + 0.5;
   const pecas: THREE.BufferGeometry[] = [];
   const p = (g: THREE.BufferGeometry, cor: string, x: number, y: number, z: number,
@@ -89,14 +100,6 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
     const domo = new THREE.SphereGeometry(1, 9, 5, 0, Math.PI * 2, 0, Math.PI / 2);
     p(domo, est.telhado, cx, 0.15, cz, {}, [w / 2 + 0.15, h * 1.15, d / 2 + 0.15]);
     p(new THREE.SphereGeometry(1, 9, 2, 0, Math.PI * 2, 0, Math.PI / 6), est.telhadoEscuro, cx, 0.15 + h * 0.75, cz, {}, [w / 4, h * 0.5, d / 4]);
-  } else if (terreiro && est.forma === 'taipa') {
-    // oca de troncos: estacas em volta, e o cone de palha alto
-    for (let i = 0; i <= Math.round(w * 2); i++) {
-      const x = (i / Math.round(w * 2)) * w;
-      if (Math.abs(x - px) < 0.55) continue;
-      p(cilindro(0.11, 0.12, h, 6), i % 2 ? '#7a5a3a' : '#8a6a44', x, h / 2, frente - 0.1);
-    }
-    p(caixa(w - 0.1, h, d - 0.25), '#6b4a2e', cx, h / 2, cz - 0.1);
   } else {
     p(caixa(w - 0.1, h, d), est.parede, cx, h / 2, cz);
     if (est.forma === 'cal') p(caixa(w - 0.04, 0.35, d + 0.04), est.base, cx, 0.32, cz);
@@ -113,8 +116,8 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
       case 'taipa': {
         // telhado de quatro águas de palha, bem saído
         const r = Math.max(w, d) * 0.78;
-        p(cone(1, 1, 4), est.telhado, cx, h + (terreiro ? 1.1 : 0.55), cz, { y: Math.PI / 4 },
-          [r * (w / Math.max(w, d)), terreiro ? 2.2 : 1.1, r * (d / Math.max(w, d))]);
+        p(cone(1, 1, 4), est.telhado, cx, h + 0.55, cz, { y: Math.PI / 4 },
+          [r * (w / Math.max(w, d)), 1.1, r * (d / Math.max(w, d))]);
         break;
       }
       case 'adobe':
@@ -139,8 +142,8 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
   }
 
   /* ---------------------------------------------------------- porta e janelas */
-  const largPorta = terreiro ? 1.0 : 0.72;
-  const altPorta = terreiro ? 1.4 : 1.1;
+  const largPorta = 0.72;
+  const altPorta = 1.1;
   p(caixa(largPorta + 0.12, altPorta + 0.08, 0.05), MOLDURA, px, altPorta / 2 + 0.2, frente + 0.02);
   p(caixa(largPorta, altPorta, 0.06), est.porta, px, altPorta / 2 + 0.2, frente + 0.04);
   if (est.forma !== 'oca') {
@@ -164,76 +167,41 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
       p(cilindro(0.025, 0.04, h + 0.6, 4), '#7a5a3a', rx + (k - 1) * 0.12, (h + 0.6) / 2, frente + 0.05 - k * 0.1);
     }
   }
-  if (est.forma === 'sobrado' && terreiro) {
-    p(caixa(1.1, h + 1.6, 1.1), est.parede, w - 0.7, (h + 1.6) / 2, z0 + 0.6);
-    p(cone(0.9, 1.2, 4), est.telhado, w - 0.7, h + 2.2, z0 + 0.6, { y: Math.PI / 4 });
-    p(bola(0.22), '#f4e8b0', w - 0.7, h + 1.2, z0 + 1.16, {}, [1, 1, 0.3]);
-  }
-  if (est.forma === 'templo' && (terreiro || tipo === 'benzimento')) {
-    p(new THREE.SphereGeometry(1, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), est.base, cx, h + 0.18, cz, {}, [w * 0.22, w * 0.22, w * 0.22]);
-    if (terreiro) for (const x of [0.4, w - 0.4, px - 0.85, px + 0.85]) p(cilindro(0.13, 0.15, h, 8), '#fffaf0', x, h / 2, frente + 0.25);
-  }
-  if (terreiro && est.forma === 'oca') {
-    // o totem da ave do trovão, ao lado da porta
-    const tx = px + 1.3 > w ? px - 1.3 : px + 1.3;
-    p(cilindro(0.12, 0.14, h + 1.4, 6), '#8a5a3a', tx, (h + 1.4) / 2, frente + 0.3);
-    p(caixa(1.4, 0.12, 0.25), '#c84a3a', tx, h + 1.1, frente + 0.3);
-    p(cone(0.18, 0.4, 4), '#f0c040', tx, h + 1.55, frente + 0.3);
-  }
-  if (terreiro && est.forma === 'pedra') {
-    for (let i = 0; i < w; i += 1) p(caixa(0.25, 0.15, 0.25), '#ff7a2a', i + 0.5, 0.28, frente + 0.25, { y: i });
-  }
-  if (terreiro && est.forma === 'cal') {
-    // o mastro com a bandeira azul
-    p(cilindro(0.04, 0.04, 1.8, 5), '#2a2430', 0.9, h + 0.9, cz);
-    p(caixa(0.9, 0.5, 0.03), '#3a8fd5', 1.36, h + 1.5, cz);
-  }
-  if (terreiro && est.forma === 'adobe') {
-    // o penhasco vermelho atrás, de onde o terreiro foi esculpido
-    p(caixa(w + 1.2, h + 1.2, 0.8), '#a85a3a', cx, (h + 1.2) / 2, z0 - 0.3);
-  }
+  return { geo: juntar(pecas), portaCol: col };
+}
 
-  /* ---------------------------------------------------------- o detalhe do tipo */
-  if (tipo === 'benzimento') {
-    const topo = est.forma === 'oca' ? h * 1.15 + 0.15 : h + (est.forma === 'taipa' ? 1.1 : est.forma === 'adobe' || est.forma === 'templo' ? 0.2 : h * 0.55);
-    p(caixa(0.08, 0.5, 0.08), '#f4ead0', cx, topo + 0.25, cz);
-    p(caixa(0.3, 0.08, 0.08), '#f4ead0', cx, topo + 0.32, cz);
-  }
-  if (tipo === 'loja') {
-    // o toldo listrado sobre a porta
-    for (let i = 0; i < 4; i++) {
-      p(caixa(0.3, 0.05, 0.7), i % 2 ? '#f4f0e8' : est.telhado, px - 0.45 + i * 0.3, altPorta + 0.42, frente + 0.3, { x: 0.35 });
-    }
-  }
-  if (tipo === 'forja') {
-    p(caixa(0.4, 1.4, 0.4), '#5a524a', 0.5, h + 0.5, cz);
-    p(caixa(0.45, 0.25, 0.25), '#3a3a42', w - 0.7, 0.45, frente + 0.4);
-    p(caixa(0.2, 0.3, 0.2), '#3a3a42', w - 0.7, 0.2, frente + 0.4);
-  }
-  let pas: Predio3D['pas'];
-  if (tipo === 'moinho') {
-    const lam: THREE.BufferGeometry[] = [peca(cilindro(0.1, 0.1, 0.12, 8), '#6b4a2e', 0, 0, 0.02, { x: Math.PI / 2 })];
-    for (let k = 0; k < 4; k++) {
-      lam.push(peca(caixa(0.18, 1.5, 0.04), '#f4ead0', 0, 0, 0, { z: k * Math.PI / 2 }));
-    }
-    pas = { geo: juntar(lam), x: cx, y: h * 0.7, z: frente + 0.12 };
-  }
+/* O letreiro, logo acima da porta, com letra do mesmo tamanho em todo
+   prédio. Ele vai na frente de tudo o que sai da fachada naquele vão —
+   beiral de palha, cúpula da oca, colunas, totem —, senão a câmera, que
+   olha de cima, não o via. `topoPorta` é o y do alto da porta. */
+function letreiro(pecas: readonly THREE.BufferGeometry[], w: number, px: number, topoPorta: number,
+                  texto: string, fundo: string): NonNullable<Predio3D['letreiro']> {
+  const prop = 13 / (larguraTexto(texto) + 8);
+  const larg = Math.min(w - 0.3, ALTURA_LETREIRO / prop);
+  const alto = larg * prop;
+  const x = Math.min(w - larg / 2 - 0.15, Math.max(larg / 2 + 0.15, px));
+  const y = topoPorta + 0.06 + alto / 2;
+  const z = frenteEm(pecas, x - larg / 2, x + larg / 2, y - alto / 2) + 0.04;
+  return { texto, fundo, x, y, z, larg };
+}
 
-  /* O letreiro, logo acima da porta, com letra do mesmo tamanho em todo
-     prédio. Ele vai na frente de tudo o que sai da fachada naquele vão —
-     beiral de palha, cúpula da oca, colunas, totem —, senão a câmera, que
-     olha de cima, não o via. */
-  let letra: Predio3D['letreiro'];
-  if (cfg?.letreiro && tipo !== 'casa') {
-    const prop = 11 / (larguraTexto(cfg.letreiro) + 8);
-    const larg = Math.min(w - 0.3, ALTURA_LETREIRO / prop);
-    const alto = larg * prop;
-    const x = Math.min(w - larg / 2 - 0.15, Math.max(larg / 2 + 0.15, px));
-    const y = 0.2 + altPorta + 0.04 + alto / 2;
-    const z = frenteEm(pecas, x - larg / 2, x + larg / 2, y - alto / 2) + 0.04;
-    letra = { texto: cfg.letreiro, cor: cfg.escuro, x, y, z, larg };
-  }
-  return { geo: juntar(pecas), letreiro: letra, portaCol: col, pas };
+/* Loja, benzimento, posto, forja e moinho: no 2D são a mesma construção
+   em todo lugar (tiles.ts: construcao), mudando só a cor do telhado e a
+   placa — e assim ficam no 3D: parede creme de faixas escuras nas pontas,
+   duas águas com a cumeeira clara e o beiral escuro, a porta de madeira e
+   as duas janelas de cruz. */
+function construcao3D(w: number, alt: number, col: number, cfg: NonNullable<(typeof PREDIOS)[TipoObjeto]>): Predio3D {
+  const pecas: THREE.BufferGeometry[] = [];
+  const l = lote(w, alt, col, pecas);
+  const { p, d, frente, cx, cz } = l, h = 1.7;
+  p(caixa(w + 0.1, 0.2, d + 0.1), P.wallD!, cx, 0.1, cz);
+  p(caixa(w - 0.2, h, d), P.wall!, cx, h / 2, cz);
+  for (const x of [0.22, w - 0.22]) p(caixa(0.2, h, 0.06), P.wallD!, x, h / 2, frente + 0.01);
+  duasAguas(l, 0, w, h, h * 0.62, { l: cfg.clara, m: cfg.telhado, d: cfg.escuro });
+  const topo = porta(l, 0.75, 1.15, MADEIRA);
+  for (const x of [0.69, w - 0.69]) janelaCruz(l, x, 1.2, 0.62, 0.56, P.win!, P.wallD!);
+  return { geo: juntar(pecas), portaCol: col,
+           letreiro: cfg.letreiro ? letreiro(pecas, w, l.px, topo, cfg.letreiro, cfg.fundo) : undefined };
 }
 
 /* a altura da placa do letreiro, em tiles */
@@ -268,7 +236,7 @@ function arena(w: number, alt: number, portaCol?: number): Predio3D {
     pecas.push(peca(cilindro(0.03, 0.03, 1.0, 4), '#3a3020', x, 3.3, z));
     pecas.push(peca(caixa(0.5, 0.3, 0.03), k % 2 ? '#c84a3a' : '#3a8fd5', x + 0.25, 3.65, z));
   }
-  return { geo: juntar(pecas), portaCol: col, letreiro: { texto: 'ARENA', cor: '#8a6a14', x: col + 0.5, y: 2.3, z: frente + 0.27, larg: 1.6 } };
+  return { geo: juntar(pecas), portaCol: col, letreiro: { texto: 'ARENA', fundo: '#fff3c4', x: col + 0.5, y: 2.3, z: frente + 0.27, larg: 1.6 } };
 }
 
 /* o balão listrado, preso por quatro cordas, com o cesto no chão */

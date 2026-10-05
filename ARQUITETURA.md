@@ -61,7 +61,9 @@ src/
 │             de cada tipo de objeto, a luz de cada região e hora) + teste
 │             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
 │             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
-│             as árvores de cada bioma · casas.ts: a construção de cada região ·
+│             as árvores de cada bioma · casas.ts: a casa da região e a
+│             construção das lojas · terreiros.ts: o terreiro de cada
+│             região, copiado do 2D ·
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
 │             gente, com braço e perna que andam · desenho3d.ts: o desenho
 │             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
@@ -159,21 +161,32 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   (`juntar`) — um modelo, uma chamada de desenho. As árvores são escolhidas
   por região (`ARVORES_DA_REGIAO`: coqueiro perto do mar na Foz, mata alta na
   Mata, pinheiro na Serra, ipê no Campo e no Sol, cacto nas Minas, árvore seca
-  no Bairro) e repetidas com InstancedMesh. A construção segue o estilo da
-  região (`ESTILO_DA_REGIAO`, a mesma ideia de `art/predios.ts`), com a porta
-  na coluna de `colunaPorta`; benzimento, loja, forja e moinho ganham o
-  detalhe deles. O letreiro (terreiro, benzimento, loja, posto, forja,
-  moinho) fica logo acima da porta, com letra do mesmo tamanho em todo
-  prédio, e na frente do que passa pelo vão dele — beiral de palha, cúpula,
-  colunas, totem —, calculado pelas caixas das peças (`frenteEm`). Os objetos de mecânica olham o mesmo estado do desenho plano
+  no Bairro) e repetidas com InstancedMesh. As construções seguem o
+  desenho plano, com a porta na coluna de `colunaPorta`: a casa comum tem a
+  forma da região (`ESTILO_DA_REGIAO`); o **terreiro** de cada região é o
+  desenho dela em `art/predios.ts` refeito em sólidos, peça por peça e com
+  as mesmas cores (`modelos/terreiros.ts`: o telhado azul de espuma, a gota
+  e a concha da Foz; a oca de palha e troncos da Mata; a pedra escura de
+  chaminés acesas da Serra; a gameleira do Campo; a oca e o totem de Tupã;
+  o templo no penhasco das Minas; o sobrado de torre e lua do Bairro; o
+  templo de colunas e cúpula do Sol); e **loja, benzimento, posto, forja e
+  moinho** são, como no 2D (`tiles.ts: construcao`), a mesma construção em
+  todo lugar (`construcao3D`), mudando só a cor do telhado e a placa. Um
+  teste confere que as cores principais de cada terreiro 2D estão no 3D, e
+  `tools/predios3d.html` (no `npm run dev`) põe o 2D ao lado do 3D para
+  revisar. O letreiro fica logo acima da porta, com letra do mesmo tamanho
+  em todo prédio, pintado como a placa do 2D (borda escura, fundo da cor do
+  prédio, faixa branca), e na frente do que passa pelo vão dele — beiral,
+  cúpula, colunas, totem —, calculado pelas caixas das peças (`frenteEm`).
+  Os objetos de mecânica olham o mesmo estado do desenho plano
   (`vazio`, `inclinacao`, as contas da guia) — a vista remonta o mapa quando o
   `Mundo` devolve um mapa novo. Véu e cortina de luz são paredes translúcidas;
   ladrilho e buraco continuam como recorte deitado. A grama muda de cor por
   região (`relevoNaRegiao`), e por dentro o terreiro tem a parede da região.
   As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
   que brilha. A corrente de vento (`V`) tem riscos claros correndo rente ao
-  chão (um shader no tempo do vento, cada risco num sentido, como no tile);
-  as pás do moinho vêm à parte (`Predio3D.pas`) e giram. O prédio entre a
+  chão (um shader no tempo do vento, cada risco num sentido, como no tile).
+  O prédio entre a
   câmera e o jogador fica translúcido (`esconderPredios`). A água de
   interior e de caverna recebe menos luz, para não brilhar mais que o chão,
   e no mapa escuro o círculo de luz 2D vai onde a câmera 3D põe o jogador
@@ -187,7 +200,7 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   A vista confere a cada quadro (`aplicarQualidade`), sem recriar o
   renderer: LEVE desliga as sombras (e marca os materiais para recompilar),
   usa densidade 1 (0,75 em tela de alta densidade, e o canvas estica), põe
-  `uLeve` na água (sem onda, risco nem brilho), para o vento e o moinho,
+  `uLeve` na água (sem onda, risco nem brilho), para o vento,
   tira a corrente e remonta o mapa com metade da mata e dos morros de fora.
   `window.jogo.qualidade('leve')` troca pelo console.
 - **Gente e Encantados.** O `Ator` guarda o `estilo` e dá a `fasePasso`; a
