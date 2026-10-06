@@ -60,6 +60,7 @@ export class CenaBatalha3D {
   private readonly sol = new THREE.DirectionalLight('#ffffff', 2);
   private readonly ceu = new THREE.HemisphereLight('#ffffff', '#555555', 1);
   private readonly clarao = new THREE.PointLight('#ffffff', 0, 6);
+  private readonly nevoa = new THREE.Fog('#ffffff', 14, 34);
   private readonly particulas: THREE.InstancedMesh;
   private readonly matParticula = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.95 });
   private olhar = new THREE.Vector3(0, 0.6, 0);
@@ -83,10 +84,29 @@ export class CenaBatalha3D {
 
   private guardar<X extends { dispose(): void }>(x: X): X { this.descartaveis.push(x); return x; }
 
+  /* a cena vai embora (visão plana): solta arena, bichos e partículas */
+  descartar(): void {
+    for (const d of this.descartaveis) d.dispose();
+    this.descartaveis.length = 0;
+    for (const lado of ['aliado', 'inimigo'] as const) {
+      this.bichos[lado]?.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      this.bichos[lado] = null;
+    }
+    this.particulas.geometry.dispose();
+    this.particulas.dispose();
+    this.matParticula.dispose();
+    this.chave = '';
+  }
+
   /* monta a arena e os dois bichos (só quando muda quem luta ou onde) */
   private montar(q: QuadroBatalha): void {
     for (const d of this.descartaveis) d.dispose();
     this.descartaveis.length = 0;
+    // os bichos de antes: a geometria é deles (o material é dividido, fica)
+    for (const lado of ['aliado', 'inimigo'] as const) {
+      this.bichos[lado]?.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      this.bichos[lado] = null;
+    }
     for (const o of [...this.cena.children]) {
       if (o === this.sol || o === this.sol.target || o === this.ceu || o === this.clarao || o === this.particulas) continue;
       this.cena.remove(o);
@@ -197,13 +217,15 @@ export class CenaBatalha3D {
     const l = luzDe(q.regiao, q.periodo, q.clima, a.interior);
     this.ceu.color.set(l.hemiCima); this.ceu.groundColor.set(l.hemiBaixo); this.ceu.intensity = l.hemi;
     this.sol.color.set(l.sol); this.sol.intensity = l.solForca;
-    if (a.interior) {
-      this.cena.background = new THREE.Color('#141018');
-      this.cena.fog = new THREE.Fog('#141018', 8, 22);
-    } else {
-      this.cena.background = new THREE.Color(l.ceuBase);
-      this.cena.fog = new THREE.Fog(l.nevoa, 14, 34);
-    }
+    // a mesma névoa e o mesmo fundo de um quadro para o outro: trocar o
+    // objeto da névoa faz o three.js recompilar todo material, todo quadro
+    const fundo = a.interior ? '#141018' : l.ceuBase;
+    if (!(this.cena.background instanceof THREE.Color)) this.cena.background = new THREE.Color();
+    (this.cena.background as THREE.Color).set(fundo);
+    this.nevoa.color.set(a.interior ? '#141018' : l.nevoa);
+    this.nevoa.near = a.interior ? 8 : 14;
+    this.nevoa.far = a.interior ? 22 : 34;
+    if (this.cena.fog !== this.nevoa) this.cena.fog = this.nevoa;
   }
 
   /* um quadro: monta se preciso, põe a luz, posa os bichos, os golpes e a câmera */

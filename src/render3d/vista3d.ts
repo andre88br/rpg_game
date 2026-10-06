@@ -35,7 +35,7 @@ import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
-import { obterQualidade, type Qualidade } from '../game/config.ts';
+import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
@@ -158,6 +158,7 @@ export class Vista3D {
   private readonly sol: THREE.DirectionalLight;
   private readonly ceu: THREE.HemisphereLight;
   private larguraTela = 0;
+  private dprTela = 0;
   private alturaTela = 0;
   /* a qualidade com que a vista está montada (game/config.ts: ALTA ou LEVE) */
   private qualidade: Qualidade | null = null;
@@ -286,8 +287,54 @@ export class Vista3D {
 
   /* chamado uma vez por quadro (carregar.ts): quem não desenhou, some */
   fimDoQuadro(): void {
-    if (!this.usada) this.canvas.style.display = 'none';
+    if (!this.usada) {
+      this.canvas.style.display = 'none';
+      // a VISÃO PLANA: depois de um tempinho sem uso, o 3D larga a memória
+      // (o mapa, os bonecos, a batalha); ligar de novo remonta tudo
+      if (!obterVisao3D() && ++this.semUso === 90) this.liberar();
+    } else this.semUso = 0;
     this.usada = false;
+  }
+  private semUso = 0;
+
+  private soltarSombras(): void {
+    for (const cena of [this.cena, this.batalha?.cena]) {
+      cena?.traverse((o) => {
+        const luz = o as THREE.DirectionalLight;
+        if (luz.isDirectionalLight && luz.shadow.map) { luz.shadow.map.dispose(); luz.shadow.map = null; }
+      });
+    }
+  }
+
+  /* solta tudo o que ocupa a placa de vídeo; o próximo desenho remonta */
+  liberar(): void {
+    if (this.grupo) this.cena.remove(this.grupo);
+    for (const d of this.descartaveis) d.dispose();
+    this.descartaveis = [];
+    this.grupo = null;
+    this.mapaAtual = null;
+    this.aguaMat = null;
+    if (this.pedras) { this.pedras.geometry.dispose(); this.pedras.dispose(); this.pedras = null; }
+    if (this.feixe) {
+      this.feixe.geometry.dispose(); (this.feixe.material as THREE.Material).dispose(); this.feixe.dispose(); this.feixe = null;
+    }
+    this.chaveFeixe = '';
+    this.predios = [];
+    // os bonecos: tira da cena e solta a geometria dos modelos guardados
+    for (const b of this.bonecos) if (b) this.cena.remove(b.obj);
+    this.bonecos.fill(null);
+    for (const m of this.modelos3D.values()) m?.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+    this.modelos3D.clear();
+    for (const m of this.texturas.values()) { m.map?.dispose(); m.dispose(); }
+    this.texturas.clear();
+    this.batalha?.descartar();
+    this.batalha = null;
+    this.fundo?.dispose();
+    this.fundo = null;
+    this.cena.background = null;
+    this.chaveLuz = '';
+    this.soltarSombras();
+    this.renderer.renderLists.dispose();
   }
 
   /* A qualidade mudou no menu (ou é o primeiro quadro): liga ou desliga as
@@ -300,6 +347,8 @@ export class Vista3D {
     this.qualidade = q;
     this.renderer.shadowMap.enabled = q === 'alta';
     this.larguraTela = 0;
+    // na LEVE, o mapa de sombras também sai da placa de vídeo
+    if (q === 'leve') this.soltarSombras();
     if (primeira) return;
     const refazer = (o: THREE.Object3D) => o.traverse((x) => {
       const m = (x as THREE.Mesh).material;
@@ -322,8 +371,10 @@ export class Vista3D {
   private ajustarTamanho(): void {
     const ref = document.getElementById('jogo');
     const w = ref?.clientWidth || LARGURA * 3, h = ref?.clientHeight || ALTURA * 3;
-    if (w === this.larguraTela && h === this.alturaTela) return;
-    this.larguraTela = w; this.alturaTela = h;
+    // a densidade conta também: arrastar a janela para outro monitor a muda
+    const dpr = window.devicePixelRatio || 1;
+    if (w === this.larguraTela && h === this.alturaTela && dpr === this.dprTela) return;
+    this.larguraTela = w; this.alturaTela = h; this.dprTela = dpr;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
     this.renderer.setPixelRatio(this.densidade());
@@ -1097,16 +1148,18 @@ export class Vista3D {
     const g = this.grupo;
     if (!g) return;
     if (!this.pedras || this.pedras.count !== pedras.length) {
-      if (this.pedras) g.remove(this.pedras);
+      if (this.pedras) { g.remove(this.pedras); this.pedras.geometry.dispose(); this.pedras.dispose(); }
       this.pedras = null;
       if (!pedras.length) return;
-      this.pedras = new THREE.InstancedMesh(this.guardar(modeloPedra()), this.matModelo!, pedras.length);
+      this.pedras = new THREE.InstancedMesh(modeloPedra(), this.matModelo!, pedras.length);
       this.pedras.castShadow = this.pedras.receiveShadow = true;
       g.add(this.pedras);
       this.pedrasPos = pedras.map((p) => ({ x: p.tx + 0.5, z: p.ty + 0.5 }));
     }
     const o = new THREE.Object3D();
-    const dt = 1 / 30;
+    // o deslize anda pelo tempo de verdade, não por quadro (igual em 30 e 120 FPS)
+    const dt = this.ultimaPedra < 0 ? 0 : Math.max(0, Math.min(0.1, tempo - this.ultimaPedra));
+    this.ultimaPedra = tempo;
     pedras.forEach((p, i) => {
       const atual = this.pedrasPos[i]!;
       atual.x += (p.tx + 0.5 - atual.x) * Math.min(1, dt * 12);
@@ -1117,8 +1170,8 @@ export class Vista3D {
       this.pedras!.setMatrixAt(i, o.matrix);
     });
     this.pedras.instanceMatrix.needsUpdate = true;
-    void tempo;
   }
+  private ultimaPedra = -1;
 
   /* o feixe de luz: um tubo que brilha, tile a tile */
   private desenharFeixe(feixe: readonly (readonly [number, number])[]): void {
@@ -1127,11 +1180,17 @@ export class Vista3D {
     const chave = feixe.map(([x, y]) => `${x},${y}`).join(';');
     if (chave === this.chaveFeixe) return;
     this.chaveFeixe = chave;
-    if (this.feixe) g.remove(this.feixe);
+    // o feixe de antes sai da placa de vídeo: girar espelho não acumula memória
+    if (this.feixe) {
+      g.remove(this.feixe);
+      this.feixe.geometry.dispose();
+      (this.feixe.material as THREE.Material).dispose();
+      this.feixe.dispose();
+    }
     this.feixe = null;
     if (!feixe.length) return;
-    this.feixe = new THREE.InstancedMesh(this.guardar(new THREE.CylinderGeometry(0.09, 0.09, 1, 6)),
-      this.guardar(new THREE.MeshBasicMaterial({ color: '#fff6b0', transparent: true, opacity: 0.85 })), feixe.length);
+    this.feixe = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.09, 0.09, 1, 6),
+      new THREE.MeshBasicMaterial({ color: '#fff6b0', transparent: true, opacity: 0.85 }), feixe.length);
     const o = new THREE.Object3D();
     feixe.forEach(([x, y], i) => {
       const prox = feixe[i + 1] ?? feixe[i - 1] ?? [x + 1, y];

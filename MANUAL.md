@@ -220,6 +220,11 @@ fortes também trocam de Encantado quando o seu leva vantagem — e mandam
 quem aguenta melhor o seu golpe (um Piraguá contra golpe de Água, por
 exemplo). Bicho selvagem continua lutando como sempre.
 
+**Itens na batalha.** Garrafada, Erva-Doce e Água Benta perguntam em quem
+usar: dá para curar ou reviver quem está esperando no time, não só quem está
+em campo. Item que não faria efeito (garrafada em quem está com o fôlego
+cheio, patuá em bicho de treinador) só avisa: não é gasto e a vez não passa.
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
 Treinador não se captura.

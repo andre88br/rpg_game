@@ -147,12 +147,32 @@ cenas.definir(new CenaTitulo(comecar));
 
 /* ---- laço ---- */
 const laco = new Laco((dt) => {
-  cenas.atualizar(dt, entrada);
-  somDeInterface();
-  cenas.desenhar(r);
-  fimDoQuadro3D();
-  entrada.virarQuadro();
-});
+  try {
+    cenas.atualizar(dt, entrada);
+    somDeInterface();
+    cenas.desenhar(r);
+    fimDoQuadro3D();
+  } finally {
+    entrada.virarQuadro();          // um erro no quadro não deixa tecla presa
+  }
+}, avisarErro);
+
+/* um erro num quadro: o jogo continua, e uma faixa discreta avisa (com a
+   mensagem, para quem for contar o que aconteceu) */
+function avisarErro(e: unknown): void {
+  let faixa = document.getElementById('aviso-erro');
+  if (!faixa) {
+    faixa = document.createElement('div');
+    faixa.id = 'aviso-erro';
+    faixa.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;padding:8px 12px;background:#2b2436;'
+      + 'color:#fbf1de;font:12px monospace;border:2px solid #c9a227;z-index:99;cursor:pointer';
+    faixa.title = 'toque para fechar';
+    faixa.addEventListener('click', () => faixa?.remove());
+    document.body.appendChild(faixa);
+  }
+  const msg = e instanceof Error ? e.message : String(e);
+  faixa.textContent = `Algo deu errado (${msg}). O jogo continua; se algo travar, salve e recarregue a página.`;
+}
 laco.iniciar();
 
 /* O jogo subiu: libera a rede de segurança do index.html para uma próxima

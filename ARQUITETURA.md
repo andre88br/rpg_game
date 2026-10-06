@@ -422,6 +422,18 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
 
 ## Como funciona a batalha
 
+- **O turno.** As duas ações são escolhidas antes, e só quem as escolheu as
+  faz: o reserva que entra no lugar de um derrubado não herda o golpe do
+  outro. O fim do turno (brasa, peçonha, traços, o Fecha-Corpo desfeito)
+  corre mesmo com o seu caído, só para quem estava em campo. Um golpe que
+  derruba os dois (o recuo leva quem bateu) derruba os dois de verdade.
+- **Itens.** `motivoItem` diz se um item serve agora (garrafada em quem está
+  cheio, patuá em bicho de treinador não servem); a cena pergunta antes e
+  só avisa, sem gastar o item nem a vez. Cura, limpeza e reviver perguntam em
+  quem (`Batalha.precisaAlvo`), como a troca.
+- **Subir de nível.** `ganharXP` evolui no próprio nível da evolução, dentro
+  do salto: os níveis seguintes já usam a forma nova (e a segunda evolução
+  acontece no mesmo salto), e a forma nova aprende o golpe daquele nível.
 - **Tipos.** Dois triângulos e um par, e nada mais: `Fogo → Planta → Água → Fogo`,
   `Terra → Raio → Vento → Terra`, `Luz ↔ Sombra`. Quem ataca com vantagem causa
   2x; o resto é neutro. Golpe do próprio tipo rende +50% (afinidade).

@@ -425,3 +425,17 @@ test('toda cantiga de prêmio tem quem a entregue, e a de loja tem medalha', () 
     else assert.ok(it.preco > 0 && it.medalha, `${it.id}: cantiga de loja sem preço ou medalha`);
   }
 });
+
+test('quem entra por uma porta aparece ao lado da saída que leva de volta', () => {
+  // a porta do Terreiro do Rodamoinho levava ao meio do salão, pulando duas
+  // guardas: o destino de uma porta fica a no máximo 3 tiles da volta
+  for (const [a, def] of Object.entries(MAPAS)) {
+    for (const s of def.saidas ?? []) {
+      if (s.para === a) continue;
+      const volta = (MAPAS[s.para]?.saidas ?? []).filter((v) => v.para === a);
+      if (!volta.length) continue;
+      const perto = volta.some((v) => Math.abs(v.tx - s.destino.tx) + Math.abs(v.ty - s.destino.ty) <= 3);
+      assert.ok(perto, `${a} (${s.tx},${s.ty}) leva a ${s.para} (${s.destino.tx},${s.destino.ty}), longe da saída de volta`);
+    }
+  }
+});

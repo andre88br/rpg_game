@@ -137,17 +137,20 @@ export interface SubidaNivel {
   nivel: number;
   aprendeu: string[];          // golpes que entraram sozinhos (havia vaga)
   naoCoube: string[];          // golpes que precisam substituir algum
-  evoluiEm: string | null;     // espécie para a qual deve evoluir
+  /* a espécie em que ele evoluiu NESTE nível (já evoluído), e a de antes */
+  evoluiEm: string | null;
+  evoluiDe: string | null;
 }
 
-/* Soma XP e devolve UMA entrada por nível ganho. Quem chama decide como
-   mostrar isso (a cena de batalha enfileira as mensagens). */
+/* Soma XP e devolve UMA entrada por nível ganho. A evolução acontece aqui
+   mesmo, no nível dela: os níveis seguintes do mesmo salto já usam a lista
+   de golpes da forma nova (e podem trazer a evolução seguinte), e a forma
+   nova aprende o golpe do próprio nível da evolução. Quem chama só mostra. */
 export function ganharXP(e: Encantado, quanto: number): SubidaNivel[] {
-  const c = ficha(e).crescimento;
   e.xp += Math.max(0, Math.floor(quanto));
   const subidas: SubidaNivel[] = [];
 
-  while (e.xp >= xpDoNivel(e.nivel + 1, c)) {
+  while (e.xp >= xpDoNivel(e.nivel + 1, ficha(e).crescimento)) {
     const hpAntes = hpMaximo(e);
     e.nivel += 1;
     // subir de nível aumenta o HP máximo; o ganho entra como HP de verdade
@@ -155,19 +158,32 @@ export function ganharXP(e: Encantado, quanto: number): SubidaNivel[] {
 
     const aprendeu: string[] = [];
     const naoCoube: string[] = [];
-    for (const a of ficha(e).aprende) {
-      if (a.nv !== e.nivel) continue;
-      if (e.golpes.some((g) => g.id === a.golpe)) continue;
-      if (e.golpes.length < MAX_GOLPES) { e.golpes.push(novoGolpe(a.golpe)); aprendeu.push(a.golpe); }
-      else naoCoube.push(a.golpe);
-    }
+    const aprender = () => {
+      for (const a of ficha(e).aprende) {
+        if (a.nv !== e.nivel) continue;
+        if (e.golpes.some((g) => g.id === a.golpe) || aprendeu.includes(a.golpe) || naoCoube.includes(a.golpe)) continue;
+        if (e.golpes.length < MAX_GOLPES) { e.golpes.push(novoGolpe(a.golpe)); aprendeu.push(a.golpe); }
+        else naoCoube.push(a.golpe);
+      }
+    };
+    aprender();
 
+    let evoluiEm: string | null = null, evoluiDe: string | null = null;
     const ev = ficha(e).evolui;
-    subidas.push({
-      nivel: e.nivel,
-      aprendeu, naoCoube,
-      evoluiEm: ev && e.nivel >= ev.nv ? ev.em : null,
-    });
+    if (ev && e.nivel >= ev.nv) {
+      evoluiDe = e.especie;
+      evoluiEm = ev.em;
+      // o XP que sobra do salto vai junto, na mesma proporção da curva nova
+      const cVelha = ficha(e).crescimento;
+      const baseVelha = xpDoNivel(e.nivel, cVelha), vaoVelho = xpDoNivel(e.nivel + 1, cVelha) - baseVelha;
+      const sobra = e.xp - baseVelha;
+      evoluir(e, ev.em);
+      const cNova = ficha(e).crescimento;
+      const baseNova = xpDoNivel(e.nivel, cNova), vaoNovo = xpDoNivel(e.nivel + 1, cNova) - baseNova;
+      e.xp = baseNova + Math.floor(sobra * vaoNovo / Math.max(1, vaoVelho));
+      aprender();                      // o golpe da forma nova neste nível
+    }
+    subidas.push({ nivel: e.nivel, aprendeu, naoCoube, evoluiEm, evoluiDe });
   }
   return subidas;
 }

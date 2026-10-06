@@ -14,8 +14,8 @@ import type { Tipo } from '../art/palette.ts';
 import { golpe as fichaGolpe, type Golpe, type ChaveStat } from '../data/moves.ts';
 import { item as fichaItem, consumir, type Mochila } from '../data/items.ts';
 import {
-  atributos, curar, desmaiado, ficha, ganharXP, hpMaximo, nome, reviver,
-  semPP, tipos, xpPorDerrotar, evoluir, type Encantado,
+  atributos, curar, desmaiado, ganharXP, hpMaximo, nome, reviver,
+  semPP, tipos, xpPorDerrotar, type Encantado,
 } from './encantado.ts';
 import {
   aplicarEstagio, calcularDano, acertou, temAfinidade,
@@ -24,6 +24,7 @@ import {
 import { eficacia, fraseEficacia } from './typechart.ts';
 import { tentarCaptura } from './capture.ts';
 import { tracoDaEspecie, type Traco } from '../data/tracos.ts';
+import { especie } from '../data/creatures.ts';
 import { FRASE_CLIMA, fatorClima, type Clima } from '../game/tempo.ts';
 import {
   CHANCE_AUTO_GOLPE, CHANCE_TRAVAR_PARALISADO, DANO_POR_TURNO,
@@ -296,13 +297,17 @@ export class Batalha {
     const minha: AcaoInterna = { ...acao, lado: 'aliado' } as AcaoInterna;
     const dele: AcaoInterna = { ...this.decidirIA(), lado: 'inimigo' } as AcaoInterna;
 
+    // quem escolheu a ação é quem a faz: o reserva que entra no lugar de um
+    // derrubado não herda o golpe escolhido para o outro
+    const quem = { aliado: this.aliado, inimigo: this.inimigo };
     for (const a of this.ordenar(minha, dele)) {
       if (this.terminou || this.aguardandoTroca) break;
-      if (desmaiado(this.lado(a.lado).enc)) continue;
+      if (this.lado(a.lado) !== quem[a.lado] || desmaiado(this.lado(a.lado).enc)) continue;
       this.executarAcao(a, ev);
     }
 
-    if (!this.terminou && !this.aguardandoTroca) this.fimDeTurno(ev);
+    // o fim do turno corre mesmo com o seu caído (o veneno do outro não para)
+    if (!this.terminou) this.fimDeTurno(ev);
     return ev;
   }
 
@@ -386,19 +391,13 @@ export class Batalha {
     if (lado === 'inimigo') return this.acaoItemIA(id, ev);
 
     const it = fichaItem(id);
-    if (it.efeito.k === 'patua' && this.selvagem && !this.podePrender) {
-      ev.push({ k: 'texto', t: 'Desafio: neste lugar, só o primeiro bicho podia ir para o patuá.' });
-      return;
-    }
+    const motivo = this.motivoItem(id, alvo);
+    if (motivo) { ev.push({ k: 'texto', t: motivo }); return; }
     if (!consumir(this.mochila, id)) return;
     ev.push({ k: 'texto', t: `Você usou ${it.nome}.` });
     const ef = it.efeito;
 
     if (ef.k === 'patua') {
-      if (!this.selvagem) {
-        ev.push({ k: 'texto', t: 'Não se prende o Encantado dos outros!' });
-        return;
-      }
       const r = tentarCaptura(this.inimigo.enc, ef.bonus * (this.traco(this.aliado).captura ?? 1), this.rnd);
       ev.push({ k: 'patua', balancos: r.balancos, capturado: r.capturado });
       if (r.capturado) {
@@ -416,7 +415,6 @@ export class Batalha {
     if (!destino) return;
 
     if (ef.k === 'cura') {
-      if (desmaiado(destino)) { ev.push({ k: 'texto', t: 'Não adiantou nada.' }); return; }
       const antes = destino.hp;
       const ganho = curar(destino, ef.hp);
       if (destino === this.aliado.enc) {
@@ -424,16 +422,46 @@ export class Batalha {
       }
       ev.push({ k: 'texto', t: `${nome(destino)} recuperou ${ganho} de fôlego.` });
     } else if (ef.k === 'limpar') {
-      if (!destino.status) { ev.push({ k: 'texto', t: 'Não adiantou nada.' }); return; }
       destino.status = null;
       destino.turnosStatus = 0;
       if (destino === this.aliado.enc) ev.push({ k: 'status', lado: 'aliado', status: null });
       ev.push({ k: 'texto', t: `${nome(destino)} se sente bem melhor.` });
     } else if (ef.k === 'reviver') {
-      if (!desmaiado(destino)) { ev.push({ k: 'texto', t: 'Não adiantou nada.' }); return; }
       reviver(destino, ef.fracao);
       ev.push({ k: 'texto', t: `${nome(destino)} voltou a si!` });
     }
+  }
+
+  /* Por que este item não serve agora (ou null, se serve): a cena pergunta
+     antes de gastar a vez, e o motor confere de novo antes de gastar o item.
+     `alvo` é o índice no time; sem ele, o Encantado em campo. */
+  motivoItem(id: string, alvo?: number): string | null {
+    const ef = fichaItem(id).efeito;
+    if (ef.k === 'patua') {
+      if (!this.selvagem) return 'Não se prende o Encantado dos outros!';
+      if (!this.podePrender) return 'Desafio: neste lugar, só o primeiro bicho podia ir para o patuá.';
+      return null;
+    }
+    const destino = this.time[alvo ?? this.iAliado];
+    if (!destino) return 'Não tem ninguém aí.';
+    if (ef.k === 'cura') {
+      if (desmaiado(destino)) return `${nome(destino)} está desmaiado: garrafada não acorda ninguém.`;
+      if (destino.hp >= hpMaximo(destino)) return `${nome(destino)} já está com o fôlego cheio.`;
+    } else if (ef.k === 'limpar') {
+      if (desmaiado(destino) || !destino.status) return `${nome(destino)} não tem nada para curar.`;
+      if (ef.status !== 'todos' && !ef.status.includes(destino.status)) return `Isso não cura o que ${nome(destino)} tem.`;
+    } else if (ef.k === 'reviver') {
+      if (!desmaiado(destino)) return `${nome(destino)} não está desmaiado.`;
+    } else {
+      return 'Isso não se usa em batalha.';
+    }
+    return null;
+  }
+
+  /* quem precisa escolher em quem usar: cura, limpeza e reviver */
+  static precisaAlvo(id: string): boolean {
+    const k = fichaItem(id).efeito.k;
+    return k === 'cura' || k === 'limpar' || k === 'reviver';
   }
 
   /* o treinador inimigo usa item do PRÓPRIO bolso (itensIA), sempre no
@@ -568,8 +596,10 @@ export class Batalha {
     if (g.efeito) this.aplicarEfeito(g, lado, eu, alvoLado, alvo, causado, ev);
     if (g.categoria === 'fisico' && causado > 0) this.contato(lado, eu, alvoLado, alvo, ev);
 
+    // o golpe pode derrubar os dois (o recuo leva quem bateu junto): cai
+    // primeiro o alvo, depois quem bateu, se a luta ainda não acabou
     if (desmaiado(alvo.enc)) this.derrubar(alvoLado, ev);
-    else if (desmaiado(eu.enc)) this.derrubar(lado, ev);
+    if (!this.terminou && desmaiado(eu.enc) && this.lado(lado) === eu) this.derrubar(lado, ev);
   }
 
   /* bateu de perto: o traço de quem apanhou pode castigar quem bateu */
@@ -790,13 +820,18 @@ export class Batalha {
     // o corpo fechado vale só para o turno em que foi fechado
     this.aliado.protegido = false;
     this.inimigo.protegido = false;
+    // só quem estava em campo no turno sofre o fim dele: o reserva que
+    // acabou de entrar no lugar de um derrubado fica de fora
+    const quem = { aliado: this.aliado, inimigo: this.inimigo };
     for (const lado of ['aliado', 'inimigo'] as Lado[]) {
+      if (this.terminou) return;
+      if (this.lado(lado) !== quem[lado]) continue;
       this.tracoFimDeTurno(lado, ev);
-      if (this.terminou || this.aguardandoTroca) return;
     }
     for (const lado of ['aliado', 'inimigo'] as Lado[]) {
+      if (this.terminou) return;
       const c = this.lado(lado);
-      if (desmaiado(c.enc) || !c.enc.status) continue;
+      if (c !== quem[lado] || desmaiado(c.enc) || !c.enc.status) continue;
       const fracao = DANO_POR_TURNO[c.enc.status];
       if (!fracao) continue;
       const dano = Math.max(1, Math.floor(hpMaximo(c.enc) * fracao));
@@ -805,7 +840,6 @@ export class Batalha {
       ev.push({ k: 'dano', lado, de: antes, para: c.enc.hp, critico: false, eficacia: 1 });
       ev.push({ k: 'texto', t: `${nome(c.enc)} ${STATUS[c.enc.status].aoSofrer}` });
       if (desmaiado(c.enc)) this.derrubar(lado, ev);
-      if (this.terminou || this.aguardandoTroca) return;
     }
   }
 
@@ -851,6 +885,7 @@ export class Batalha {
           }
         }
         if (this.selvagem) this.achar(ev);
+        this.aguardandoTroca = false;
         this.resultado = 'vitoria';
         ev.push({ k: 'fim', resultado: 'vitoria' });
       } else {
@@ -893,22 +928,24 @@ export class Batalha {
     ev.push({ k: 'xp', ganho });
     ev.push({ k: 'texto', t: `${nome(vivo)} ganhou ${ganho} de experiência!` });
 
+    // o nome muda no meio do salto quando ele evolui (sem apelido)
+    let quem = nome(vivo);
     for (const s of ganharXP(vivo, ganho)) {
       ev.push({ k: 'nivel', nivel: s.nivel });
-      ev.push({ k: 'texto', t: `${nome(vivo)} chegou ao nível ${s.nivel}!` });
+      ev.push({ k: 'texto', t: `${quem} chegou ao nível ${s.nivel}!` });
+      if (s.evoluiEm && s.evoluiDe) {
+        ev.push({ k: 'evoluir', de: s.evoluiDe, para: s.evoluiEm });
+        const novo = vivo.apelido ?? especie(s.evoluiEm).nome;
+        ev.push({ k: 'texto', t: `${quem} virou ${especie(s.evoluiEm).nome}!` });
+        quem = novo;
+      }
       for (const g of s.aprendeu) {
         ev.push({ k: 'aprender', golpe: g });
-        ev.push({ k: 'texto', t: `${nome(vivo)} aprendeu ${fichaGolpe(g).nome}!` });
+        ev.push({ k: 'texto', t: `${quem} aprendeu ${fichaGolpe(g).nome}!` });
       }
       for (const g of s.naoCoube) {
         this.pendentesAprender.push({ indice: this.iAliado, golpe: g });
         ev.push({ k: 'esquecer', golpe: g });
-      }
-      if (s.evoluiEm) {
-        const de = ficha(vivo).nome;
-        evoluir(vivo, s.evoluiEm);
-        ev.push({ k: 'evoluir', de: ficha(vivo).id, para: s.evoluiEm });
-        ev.push({ k: 'texto', t: `${de} virou ${ficha(vivo).nome}!` });
       }
     }
   }

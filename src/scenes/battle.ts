@@ -28,6 +28,8 @@ import {
 } from '../battle/encantado.ts';
 import { STATUS, SIGLA_QUEBRANTO, type Status } from '../battle/status.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
+import { especie } from '../data/creatures.ts';
+import { item as fichaItem } from '../data/items.ts';
 import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
@@ -125,6 +127,8 @@ export class CenaBatalha implements Cena {
   private espera = 0;
   private tela: Tela = 'rodando';
   private trocaForcada = false;
+  /* item de cura escolhido na mochila, esperando a escolha de em quem usar */
+  private itemPendente: string | null = null;
   private encerrando = false;
   private despediu = false;
   private entrouNoTime = false;
@@ -391,9 +395,12 @@ export class CenaBatalha implements Cena {
         v.hp += novoMax - v.max;
         v.alvoHp += novoMax - v.max;
         v.max = novoMax;
-        v.arte = ficha(enc).arte + (enc.raro ? '*' : '');
-        v.especie = enc.especie;
-        v.nome = nome(enc) + (enc.raro ? ' *' : '');
+        // num salto de vários níveis ele pode evoluir duas vezes: o desenho
+        // é o da forma DESTE evento, não o da forma final
+        const forma = especie(e.para);
+        v.arte = forma.arte + (enc.raro ? '*' : '');
+        v.especie = e.para;
+        v.nome = (enc.apelido ?? forma.nome) + (enc.raro ? ' *' : '');
         this.brilho = 1.1;
         this.espera = 1.15;
         Som.efeito('evoluir');
@@ -582,12 +589,36 @@ export class CenaBatalha implements Cena {
     if (!entrada.apertou('a')) return;
     const id = this.itensUsaveis[this.selItem];
     if (!id) return;
-    this.agir({ tipo: 'item', item: id });
+    // cura, limpeza e reviver: escolhe em quem, como na troca
+    if (Batalha.precisaAlvo(id)) {
+      this.itemPendente = id;
+      this.trocaForcada = false;
+      this.selTime = this.b.iAliado;
+      this.tela = 'time';
+      return;
+    }
+    this.usarItem(id, undefined);
+  }
+
+  /* item que não serve (patuá em treinador, garrafada em quem está cheio...)
+     só avisa: nem gasta o item nem a vez */
+  private usarItem(id: string, alvo: number | undefined): void {
+    const motivo = this.b.motivoItem(id, alvo);
+    if (motivo) { this.enfileirar([{ k: 'texto', t: motivo }]); return; }
+    this.agir({ tipo: 'item', item: id, alvo });
   }
 
   private navegarTime(entrada: Entrada): void {
     const time = this.op.estado.time;
     this.selTime = this.mover(entrada, this.selTime, Math.max(1, time.length), 1);
+    if (this.itemPendente) {
+      if (entrada.apertou('b')) { this.itemPendente = null; this.tela = 'mochila'; return; }
+      if (!entrada.apertou('a')) return;
+      const id = this.itemPendente;
+      this.itemPendente = null;
+      this.usarItem(id, this.selTime);
+      return;
+    }
     if (entrada.apertou('b') && !this.trocaForcada) { this.tela = 'comando'; return; }
     if (!entrada.apertou('a')) return;
 
@@ -886,8 +917,8 @@ export class CenaBatalha implements Cena {
   }
 
   private desenharTime(r: Renderizador): void {
-    this.telaCheia(r, 'SEU TIME',
-                   this.trocaForcada ? 'A ESCOLHER' : 'A TROCAR   B VOLTAR');
+    this.telaCheia(r, this.itemPendente ? `USAR ${fichaItem(this.itemPendente).nome.toUpperCase()} EM QUEM?` : 'SEU TIME',
+                   this.trocaForcada ? 'A ESCOLHER' : this.itemPendente ? 'A USAR   B VOLTAR' : 'A TROCAR   B VOLTAR');
     L.listaTime(r, this.op.estado.time, this.selTime, { emCampo: this.b.iAliado });
   }
 
