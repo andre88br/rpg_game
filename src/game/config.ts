@@ -32,7 +32,7 @@ function loja(): Armazem | null {
 
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazemConfig(a: Armazem | null): void {
-  armazem = a; velocidade = undefined; visao3d = undefined; volumes = {}; qualidade = undefined;
+  armazem = a; velocidade = undefined; visao3d = undefined; volumes = {};
 }
 
 let velocidade: Velocidade | undefined;
@@ -69,54 +69,6 @@ export function obterVisao3D(): boolean {
 export function definirVisao3D(v: boolean): void {
   visao3d = v;
   try { loja()?.setItem(CHAVE_VISAO, v ? 'sim' : 'nao'); } catch { /* nada a fazer */ }
-}
-
-/* A qualidade do 3D: ALTA (sombras, densidade da tela, água com ondas) ou
-   LEVE (sem sombras, resolução menor, água parada) para o celular fraco.
-   Sem escolha gravada, o palpite vem do aparelho. */
-export type Qualidade = 'alta' | 'leve';
-const CHAVE_QUALIDADE = 'encantados:config:qualidade:v1';
-let qualidade: Qualidade | undefined;
-
-export interface Aparelho {
-  toque: boolean;            // tela de toque
-  ladoMenor: number;         // em px CSS
-  nucleos?: number;          // navigator.hardwareConcurrency
-  memoria?: number;          // navigator.deviceMemory (GB)
-}
-
-export function palpiteQualidade(a: Aparelho): Qualidade {
-  if (a.toque && a.ladoMenor < 900) return 'leve';
-  if (a.nucleos !== undefined && a.nucleos <= 4) return 'leve';
-  if (a.memoria !== undefined && a.memoria <= 4) return 'leve';
-  return 'alta';
-}
-
-function aparelhoAtual(): Aparelho {
-  const g = globalThis as { navigator?: { maxTouchPoints?: number; hardwareConcurrency?: number; deviceMemory?: number };
-                            screen?: { width: number; height: number } };
-  return {
-    toque: (g.navigator?.maxTouchPoints ?? 0) > 0,
-    ladoMenor: g.screen ? Math.min(g.screen.width, g.screen.height) : 1080,
-    nucleos: g.navigator?.hardwareConcurrency,
-    memoria: g.navigator?.deviceMemory,
-  };
-}
-
-export function obterQualidade(): Qualidade {
-  if (qualidade !== undefined) return qualidade;
-  let lida: Qualidade | null = null;
-  try {
-    const v = loja()?.getItem(CHAVE_QUALIDADE);
-    if (v === 'alta' || v === 'leve') lida = v;
-  } catch { /* fica no palpite */ }
-  qualidade = lida ?? palpiteQualidade(aparelhoAtual());
-  return qualidade;
-}
-
-export function definirQualidade(q: Qualidade): void {
-  qualidade = q;
-  try { loja()?.setItem(CHAVE_QUALIDADE, q); } catch { /* nada a fazer */ }
 }
 
 /* Som: a música e os efeitos têm volumes separados, de DESLIGADO a ALTO —

@@ -9,8 +9,8 @@
    cima. Parede, rocha e paredão de caverna são BLOCOS: não entram na média
    e sobem retos.
 
-   A vista 3D cobre o mundo inteiro: a tabela tem as 27 letras e todo tipo
-   de objeto que aparece nos mapas.
+   Por enquanto a vista 3D cobre a Região da Foz (`EM_3D`); o resto do mundo
+   continua no desenho plano. A tabela já cobre todas as 27 letras.
 
    Puro. Teste em relevo.test.ts.
    ========================================================================= */
@@ -109,6 +109,12 @@ export const NIVEL_AGUA = AGUA;
 /* A parede de baixo de um interior fica baixinha, como numa maquete
    cortada: senão ela tampava a sala inteira da câmera, que olha do sul. */
 export const PAREDE_CORTADA = 0.3;
+
+/* os mapas que já têm vista 3D: a Região da Foz inteira */
+export const EM_3D: ReadonlySet<string> = new Set([
+  'vilaAurora', 'casaTaina', 'casaFirmina', 'rotaFoz', 'portoIara',
+  'lojaPortoIara', 'benzimentoPortoIara', 'terreiroPortoIara',
+]);
 
 /* o modelo de cada objeto: construção da região (modelos/casas.ts), farol,
    objeto low-poly (modelos/objetos.ts), parede translúcida (véu, cortina de

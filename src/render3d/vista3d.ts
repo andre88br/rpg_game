@@ -26,7 +26,6 @@
 import * as THREE from 'three';
 import { Buf, assar, larguraDe, alturaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA } from '../core/renderer.ts';
-import { obterQualidade, type Qualidade } from '../game/config.ts';
 import { contasDo, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
 import { texto, larguraTexto } from '../art/font.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
@@ -175,10 +174,6 @@ export class Vista3D {
   private pedrasPos: { x: number; z: number }[] = [];
   private feixe: THREE.InstancedMesh | null = null;
   private chaveFeixe = '';
-  /* as pás dos moinhos, que giram */
-  private giram: THREE.Mesh[] = [];
-  /* a corrente de vento (V): riscos que correm por cima dos tiles */
-  private vento3d: { malha: THREE.InstancedMesh; tiles: [number, number][] } | null = null;
 
   /* a luz de agora (só recalcula quando a chave muda) */
   private chaveLuz = '';
@@ -233,7 +228,6 @@ export class Vista3D {
   desenhar(ctx: CanvasRenderingContext2D, q: Quadro3D): void {
     this.usada = true;
     this.canvas.style.display = 'block';
-    this.aplicarQualidade();
     this.ajustarTamanho();
     ctx.clearRect(0, 0, LARGURA, ALTURA);
     const novo = q.mapa !== this.mapaAtual;
@@ -243,12 +237,8 @@ export class Vista3D {
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
     this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
-    for (const p of this.giram) p.rotation.z = -q.tempo * 1.2;
-    this.animarCorrente(q.tempo);
-    // na LEVE, a água e o vento ficam parados
-    const t = this.qualidade === 'leve' ? 0 : q.tempo;
-    this.vento.value = t;
-    if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = t;
+    this.vento.value = q.tempo;
+    if (this.aguaMat) this.aguaMat.uniforms['uTempo']!.value = q.tempo;
     this.renderer.render(this.cena, this.camera);
   }
 
@@ -260,7 +250,6 @@ export class Vista3D {
   desenharBatalha(ctx: CanvasRenderingContext2D, q: QuadroBatalha): void {
     this.usada = true;
     this.canvas.style.display = 'block';
-    this.aplicarQualidade();
     this.ajustarTamanho();
     ctx.clearRect(0, 0, LARGURA, ALTURA);
     const b = (this.batalha ??= new CenaBatalha3D());
@@ -286,28 +275,6 @@ export class Vista3D {
     this.usada = false;
   }
 
-  /* ALTA: sombras e a densidade da tela (até 2). LEVE: sem sombras, uma
-     densidade só, o entorno com metade das árvores e a água parada. Lida a
-     cada quadro (o menu pode trocar no meio do jogo); só refaz o que mudou. */
-  private qualidade: Qualidade | null = null;
-
-  private aplicarQualidade(): void {
-    const q = obterQualidade();
-    if (q === this.qualidade) return;
-    const antes = this.qualidade;
-    this.qualidade = q;
-    this.renderer.shadowMap.enabled = q === 'alta';
-    // sombra liga e desliga no shader: os materiais precisam recompilar
-    const recompilar = (o: THREE.Object3D) => o.traverse((x) => {
-      const m = (x as THREE.Mesh).material;
-      for (const mm of Array.isArray(m) ? m : m ? [m] : []) mm.needsUpdate = true;
-    });
-    recompilar(this.cena);
-    if (this.batalha) recompilar(this.batalha.cena);
-    this.larguraTela = 0;                       // refaz o tamanho com a densidade nova
-    if (antes) this.mapaAtual = null;           // refaz o entorno
-  }
-
   /* o canvas de trás acompanha o tamanho do canvas do jogo, na resolução real */
   private ajustarTamanho(): void {
     const ref = document.getElementById('jogo');
@@ -316,7 +283,7 @@ export class Vista3D {
     this.larguraTela = w; this.alturaTela = h;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.renderer.setPixelRatio(Math.min(this.qualidade === 'leve' ? 1 : DPR_MAX, window.devicePixelRatio || 1));
+    this.renderer.setPixelRatio(Math.min(DPR_MAX, window.devicePixelRatio || 1));
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -534,8 +501,6 @@ export class Vista3D {
     this.pedrasPos = [];
     this.feixe = null;
     this.chaveFeixe = '';
-    this.giram = [];
-    this.vento3d = null;
     this.matModelo = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), 0) as THREE.MeshLambertMaterial);
     this.mapaAtual = mapa;
     this.chaveLuz = '';
@@ -566,7 +531,6 @@ export class Vista3D {
 
     this.montarChao(g, rel);
     this.montarBlocos(g, rel);
-    this.montarCorrente(g);
     const fora = dentro ? [] : this.montarEntorno(g, rel);
     if (rel.some((r) => r.agua)) this.montarAgua(g, rel);
     this.montarEnfeites(g, rel, fora);
@@ -732,10 +696,9 @@ export class Vista3D {
       p.receiveShadow = true;
       g.add(p);
       const comprimento = li < 2 ? W : H;
-      const densidade = this.qualidade === 'leve' ? 0.8 : 1.6;
-      for (let k = 0; k < Math.round(comprimento * densidade); k++) arvores.push(l.arvore(k + li * 1000));
+      for (let k = 0; k < Math.round(comprimento * 1.6); k++) arvores.push(l.arvore(k + li * 1000));
       // morros ao longe, que a névoa apaga devagar
-      for (let k = 0; k < (this.qualidade === 'leve' ? 6 : 12) && nMorros < 60; k++, nMorros++) {
+      for (let k = 0; k < 12 && nMorros < 60; k++, nMorros++) {
         const [ax, az] = l.arvore(k + li * 500 + 77);
         const longe = 14 + sorte(k, li, 9) * 10;
         const px = li === 2 ? ax - longe : li === 3 ? ax + longe : ax;
@@ -982,42 +945,6 @@ export class Vista3D {
     return this.guardar(texturaDe(assar(b)));
   }
 
-  /* a corrente de vento: dois riscos claros por tile, correndo em laço */
-  private montarCorrente(g: THREE.Group): void {
-    const tiles: [number, number][] = [];
-    const def = this.mapaAtual!.def;
-    for (let y = 0; y < this.altura; y++) for (let x = 0; x < this.largura; x++) {
-      if (def.chao[y]![x] === 'V') tiles.push([x, y]);
-    }
-    if (!tiles.length) return;
-    const malha = new THREE.InstancedMesh(this.guardar(new THREE.BoxGeometry(0.55, 0.035, 0.035)),
-      this.guardar(new THREE.MeshBasicMaterial({ color: '#f4fffb', transparent: true, opacity: 0.7, depthWrite: false })),
-      tiles.length * 2);
-    malha.frustumCulled = false;
-    g.add(malha);
-    this.vento3d = { malha, tiles };
-  }
-
-  private animarCorrente(t: number): void {
-    const v = this.vento3d;
-    if (!v) return;
-    v.malha.visible = this.qualidade !== 'leve';
-    if (!v.malha.visible) return;
-    const o = new THREE.Object3D();
-    v.tiles.forEach(([x, y], i) => {
-      for (let j = 0; j < 2; j++) {
-        const s = sorte(x, y, j + 3);
-        const k = (t * 0.9 + s) % 1;
-        o.position.set(x + k, this.chaoEm(x + 0.5, y + 0.5) + 0.25 + j * 0.3 + Math.sin(t * 3 + s * 6) * 0.06,
-                       y + 0.25 + j * 0.5);
-        o.scale.set(Math.sin(k * Math.PI), 1, 1);
-        o.updateMatrix();
-        v.malha.setMatrixAt(i * 2 + j, o.matrix);
-      }
-    });
-    v.malha.instanceMatrix.needsUpdate = true;
-  }
-
   /* a construção com a cara da região (modelos/casas.ts) e o letreiro */
   private predio(g: THREE.Group, o: DefObjeto): void {
     const w = o.larg ?? 4, alt = o.alt ?? 3;
@@ -1026,13 +953,6 @@ export class Vista3D {
     m.position.set(o.tx, 0, o.ty);
     m.castShadow = m.receiveShadow = true;
     g.add(m);
-    if (p.pas) {
-      const pas = new THREE.Mesh(this.guardar(p.pas.geo), this.matModelo!);
-      pas.position.set(o.tx + p.pas.x, p.pas.y, o.ty + p.pas.z);
-      pas.castShadow = true;
-      g.add(pas);
-      this.giram.push(pas);
-    }
     if (p.letreiro) {
       const l = p.letreiro;
       const t = this.letreiro(l.texto, l.cor);

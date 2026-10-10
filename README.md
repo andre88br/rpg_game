@@ -123,14 +123,11 @@ ao vento no Campo do Saci, as ocas e o totem da ave do trovão em Tupã, adobe
 e o templo esculpido no penhasco vermelho nas Minas, o sobrado torto e o
 casarão de lua no Bairro da Cuca, e cal e ouro na Cidade do Sol.
 
-O **mundo inteiro** também se joga em **3D low-poly**: as oito regiões, as
-casas por dentro, as cavernas e as batalhas saem do papel, com relevo,
-árvores e casas de cada região, água com ondas, luz da hora e do clima, e
-gente e Encantados em 3D (cada Encantado é o próprio desenho dele, refeito
-em volume). Só o desenho muda; conversa, batalha, menu e save são os de
-sempre. Vem ligado; quem prefere o mapa plano troca em **menu → OPÇÕES →
-VISÃO**. Em **QUALIDADE**, **LEVE** tira as sombras e baixa a resolução
-para rodar liso em celular mais fraco (o jogo já começa em LEVE em celular).
+A **Região da Foz** também se joga em **3D**: Vila Aurora, Rota da Foz,
+Porto Iara e as casas saem do papel, com relevo, árvores, casas de telhado,
+mar e farol, e os mesmos personagens em pixel art de pé no cenário. Só o
+desenho do mundo muda; conversa, batalha, menu e save são os de sempre. Vem
+ligado; quem prefere o mapa plano troca em **menu → OPÇÕES → VISÃO**.
 
 O jogo tem **som**. Nas **cutscenes**, a música é trilha de cinema e muda a
 cada momento da história: um acalanto para a avó na fogueira, uma marcha de
