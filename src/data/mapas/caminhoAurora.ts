@@ -77,7 +77,7 @@ export const caminhoAurora: DefMapa = {
       treinador: {
         classe: 'ANDARILHO DA AURORA', visao: 4, premio: 3600,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'luzeiro', nivel: 57 }, { especie: 'lobisomem', nivel: 58 }, { especie: 'relampo', nivel: 58 }],
+        time: [{ especie: 'luzeiro', nivel: 58 }, { especie: 'lobisomem', nivel: 61 }, { especie: 'relampo', nivel: 61 }],
         falaInicio: 'Saindo do escuro, é? Então prova que aguenta a claridade.',
         falaDerrota: 'Aguenta. A cidade fica a leste.',
       },
@@ -92,7 +92,7 @@ export const caminhoAurora: DefMapa = {
       treinador: {
         classe: 'ANDARILHA DA AURORA', visao: 4, premio: 3700,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'lamparina', nivel: 58 }, { especie: 'estrelaDalva', nivel: 58 }],
+        time: [{ especie: 'lamparina', nivel: 61 }, { especie: 'estrelaDalva', nivel: 61 }],
         falaInicio: 'Anda nessa estrada sem chapéu? O sol daqui queima Encantado.',
         falaDerrota: 'Queima pouco. Pode seguir.',
       },
@@ -107,7 +107,7 @@ export const caminhoAurora: DefMapa = {
       treinador: {
         classe: 'ANDARILHO DA AURORA', visao: 4, premio: 3800,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'estrelaDalva', nivel: 58 }, { especie: 'minhocao', nivel: 58 }, { especie: 'cuca', nivel: 59 }],
+        time: [{ especie: 'estrelaDalva', nivel: 61 }, { especie: 'minhocao', nivel: 61 }, { especie: 'cuca', nivel: 63 }],
         falaInicio: 'Última curva antes da cidade. Última luta também.',
         falaDerrota: 'Tá liberado. Bem-vindo à Cidade do Sol.',
       },
@@ -130,10 +130,10 @@ export const caminhoAurora: DefMapa = {
   cenario: 'mata',
   passosPorEncontro: 10,
   encontros: [
-    { especie: 'luzeiro', min: 57, max: 59, peso: 45 },
-    { especie: 'lamparina', min: 57, max: 59, peso: 25 },
-    { especie: 'lobisomem', min: 57, max: 58, peso: 15 },
-    { especie: 'uirapuru', min: 57, max: 58, peso: 5 },
-    { especie: 'relampo', min: 57, max: 59, peso: 10 },
+    { especie: 'luzeiro', min: 58, max: 63, peso: 45 },
+    { especie: 'lamparina', min: 58, max: 63, peso: 25 },
+    { especie: 'lobisomem', min: 58, max: 61, peso: 15 },
+    { especie: 'uirapuru', min: 58, max: 61, peso: 5 },
+    { especie: 'relampo', min: 58, max: 63, peso: 10 },
   ],
 };

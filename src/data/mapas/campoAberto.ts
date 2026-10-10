@@ -213,5 +213,7 @@ export const campoAberto: DefMapa = {
     { especie: 'cabritinha', min: 37, max: 40, peso: 30 },
     { especie: 'saci', min: 38, max: 41, peso: 17 },
     { especie: 'matinta', min: 39, max: 42, peso: 8 },
+    // Raio antes do terreiro do Vento: o Faisquinha zune no campo aberto
+    { especie: 'faisquinha', min: 37, max: 40, peso: 15 },
   ],
 };

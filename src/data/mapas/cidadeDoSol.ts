@@ -169,9 +169,9 @@ export const cidadeDoSol: DefMapa = {
         classe: 'RIVAL DE SEMPRE', visao: 4, premio: 5000, liga: 'conta_zeca8',
         // no primeiro encontro, a cutscene lembra do paredão da Rota da Foz
         apresentacao: 'zeca_sol',
-        time: [{ especie: 'lobisomem', nivel: 59 }, { especie: 'minhocao', nivel: 59 },
-               { especie: 'relampo', nivel: 59 }, { especie: 'saci', nivel: 60 },
-               { especie: 'estrelaDalva', nivel: 60 }, { especie: 'curupira', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 63 }, { especie: 'minhocao', nivel: 63 },
+               { especie: 'relampo', nivel: 63 }, { especie: 'saci', nivel: 66 },
+               { especie: 'estrelaDalva', nivel: 66 }, { especie: 'curupira', nivel: 66 }],
         falaInicio: 'Oito, {crianca}. Da Foz até aqui. Essa é a última, e eu trouxe seis. Sem desculpa dessa vez.',
         falaDerrota: 'Oito a zero... Sabe de uma coisa? Foi a melhor viagem da minha vida. Vai lá, o Pico é seu.',
         esperta: true, itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
@@ -230,8 +230,8 @@ export const cidadeDoSol: DefMapa = {
   },
   passosPorEncontro: 12,
   encontros: [
-    { especie: 'luzeiro', min: 57, max: 59, peso: 55 },
-    { especie: 'lamparina', min: 57, max: 59, peso: 30 },
-    { especie: 'faisquinha', min: 57, max: 58, peso: 15 },
+    { especie: 'luzeiro', min: 58, max: 63, peso: 55 },
+    { especie: 'lamparina', min: 58, max: 63, peso: 30 },
+    { especie: 'faisquinha', min: 58, max: 61, peso: 15 },
   ],
 };

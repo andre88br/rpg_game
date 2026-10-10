@@ -667,13 +667,16 @@ export class CenaMundo implements Cena {
     const nv = (c: { nivel: number }) => (t.escala ? nivelEscalado(this.op.estado, t.escala) : c.nivel);
     const oponentes = t.time.map((c) => {
       const nivel = nv(c);
-      return criar(t.escala ? formaNoNivel(c.especie, nivel) : c.especie, nivel, { selvagem: t.selvagem });
+      // treinador leva cada bicho na forma que ele teria nesse nível (um
+      // Cabritinha no 42 já virou Cabra-Cabriola); o bicho-chefe selvagem
+      // fica como foi desenhado
+      return criar(t.selvagem ? c.especie : formaNoNivel(c.especie, nivel), nivel, { selvagem: t.selvagem });
     });
     if (t.trunfo) {
       const e = this.op.estado;
       const chave = Object.keys(t.trunfo).find((esp) => e.flags[`inicial_${esp}`] === true);
       const escolhido = (chave ? t.trunfo[chave] : undefined) ?? Object.values(t.trunfo)[0]!;
-      oponentes.push(criar(escolhido.especie, escolhido.nivel));
+      oponentes.push(criar(formaNoNivel(escolhido.especie, escolhido.nivel), escolhido.nivel));
     }
     this.batalhar({
       oponentes,
@@ -1370,6 +1373,13 @@ export class CenaMundo implements Cena {
     const tabela = this.def.encontros;
     if (!tabela || tabela.length === 0) return;
     if (!temTimeEmPe(this.op.estado)) return;
+    // o Fumo de Rolo: cada passo no mato gasta um pouco da fumaça
+    const e = this.op.estado;
+    if (e.repelente > 0) {
+      e.repelente--;
+      if (e.repelente === 0) this.abrirConversa('', ['O cheiro do fumo passou. O mato volta a ter bicho.']);
+      return;
+    }
 
     const media = this.def.passosPorEncontro ?? 10;
     if (!acaso.chance(100 / media)) return;

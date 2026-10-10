@@ -21,7 +21,7 @@ import { EscolhaEsquecer } from '../ui/esquecer.ts';
 import * as L from '../ui/listas.ts';
 import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
-import { item, quantidade } from '../data/items.ts';
+import { consumir, item, quantidade } from '../data/items.ts';
 import { especie, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import {
@@ -355,6 +355,15 @@ export class MenuPausa {
     if (id === 'mapa' || id.startsWith('mapa_')) { this.abrirMapa(); return; }
     if (id === 'forquilha') {
       this.avisar(this.op.sondar?.() ?? 'A forquilha só serve com os pés no chão.', 3);
+      return;
+    }
+    const ef = item(id).efeito;
+    if (ef.k === 'repelente') {
+      // não tem alvo: acende o fumo e pronto
+      const e = this.op.estado;
+      if (!consumir(e.mochila, id)) return;
+      e.repelente = ef.passos;
+      this.avisar(`A FUMAÇA ESPANTA O BICHO DO MATO POR ${ef.passos} PASSOS.`, 2.6);
       return;
     }
     if (!usavelForaDeBatalha(id)) { this.avisar('Isso não se usa fora de batalha.'); return; }

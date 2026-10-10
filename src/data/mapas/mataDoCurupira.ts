@@ -140,5 +140,9 @@ export const mataDoCurupira: DefMapa = {
   encontros: [
     { especie: 'caiporinha', min: 13, max: 17, peso: 60 },
     { especie: 'sacizinho', min: 14, max: 18, peso: 40 },
+    { especie: 'cabritinha', min: 14, max: 17, peso: 15 },
+    { especie: 'lobinho', min: 13, max: 17, peso: 15 },      // mais de noite (HORARIO)
+    // a Mulinha que desceu a serra: Fogo para quem enfrenta o terreiro da Planta
+    { especie: 'mulinha', min: 13, max: 16, peso: 10 },
   ],
 };

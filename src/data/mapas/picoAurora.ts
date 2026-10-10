@@ -72,8 +72,8 @@ export const picoAurora: DefMapa = {
       treinador: {
         classe: 'GUIA DO PICO', visao: 4, premio: 4000,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'estrelaDalva', nivel: 59 }, { especie: 'cabraCabriola', nivel: 59 },
-               { especie: 'lamparina', nivel: 59 }],
+        time: [{ especie: 'estrelaDalva', nivel: 63 }, { especie: 'cabraCabriola', nivel: 63 },
+               { especie: 'lamparina', nivel: 63 }],
         falaInicio: 'Subir o pico sem guia? Então me vence e vira seu próprio guia.',
         falaDerrota: 'Vira. A segunda crista abre do lado oeste.',
       },
@@ -88,8 +88,8 @@ export const picoAurora: DefMapa = {
       treinador: {
         classe: 'GUIA DO PICO', visao: 4, premio: 4200,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'lobisomem', nivel: 59 }, { especie: 'estrelaDalva', nivel: 60 },
-               { especie: 'mapinguari', nivel: 59 }],
+        time: [{ especie: 'lobisomem', nivel: 63 }, { especie: 'estrelaDalva', nivel: 66 },
+               { especie: 'mapinguari', nivel: 63 }],
         falaInicio: 'Metade do caminho. Daqui pra cima o ar é fino.',
         falaDerrota: 'Fôlego bom. A última crista abre no leste.',
       },
@@ -104,8 +104,8 @@ export const picoAurora: DefMapa = {
       treinador: {
         classe: 'GUIA DO PICO', visao: 4, premio: 4400,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'estrelaDalva', nivel: 60 }, { especie: 'cuca', nivel: 60 },
-               { especie: 'relampo', nivel: 60 }],
+        time: [{ especie: 'estrelaDalva', nivel: 66 }, { especie: 'cuca', nivel: 66 },
+               { especie: 'relampo', nivel: 66 }],
         falaInicio: 'Última crista antes do cume. Ninguém passa sem provar que merece ver o sol nascer.',
         falaDerrota: 'Merece. O cume é seu.',
       },
@@ -122,7 +122,7 @@ export const picoAurora: DefMapa = {
       encontro: 'estrela', emboscada: true,
       treinador: {
         classe: 'DONA DO CUME', selvagem: true, visao: 4, liga: 'conta_estrela',
-        time: [{ especie: 'estrelaDalva', nivel: 60 }],
+        time: [{ especie: 'estrelaDalva', nivel: 66 }],
         falaInicio: 'O céu clareia antes da hora, e uma estrela desce até a altura dos seus olhos.',
       },
       falas: [
@@ -157,9 +157,9 @@ export const picoAurora: DefMapa = {
   cenario: 'mata',
   passosPorEncontro: 9,
   encontros: [
-    { especie: 'luzeiro', min: 58, max: 60, peso: 40 },
-    { especie: 'estrelaDalva', min: 58, max: 60, peso: 25 },
-    { especie: 'lamparina', min: 58, max: 60, peso: 25 },
-    { especie: 'cabraCabriola', min: 58, max: 59, peso: 10 },
+    { especie: 'luzeiro', min: 61, max: 66, peso: 40 },
+    { especie: 'estrelaDalva', min: 61, max: 66, peso: 25 },
+    { especie: 'lamparina', min: 61, max: 66, peso: 25 },
+    { especie: 'cabraCabriola', min: 61, max: 63, peso: 10 },
   ],
 };

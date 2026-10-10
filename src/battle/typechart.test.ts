@@ -20,10 +20,16 @@ test('luz e sombra são super eficazes uma contra a outra', () => {
   assert.equal(eficacia('sombra', ['luz']), 2);
 });
 
-test('o sentido contrário da seta é neutro, não resistência', () => {
-  assert.equal(eficacia('planta', ['fogo']), 1);
-  assert.equal(eficacia('fogo', ['agua']), 1);
-  assert.equal(eficacia('vento', ['raio']), 1);
+test('o sentido contrário da seta é resistência (½×); Luz e Sombra não resistem', () => {
+  assert.equal(eficacia('planta', ['fogo']), 0.5);
+  assert.equal(eficacia('fogo', ['agua']), 0.5);
+  assert.equal(eficacia('agua', ['planta']), 0.5);
+  assert.equal(eficacia('vento', ['raio']), 0.5);
+  assert.equal(eficacia('raio', ['terra']), 0.5);
+  assert.equal(eficacia('terra', ['vento']), 0.5);
+  assert.equal(eficacia('luz', ['sombra']), 2);
+  assert.equal(eficacia('sombra', ['luz']), 2);
+  assert.equal(fraseEficacia(0.5), 'Não foi muito eficaz...');
 });
 
 test('golpe neutro nunca tem vantagem contra ninguém', () => {
@@ -35,8 +41,9 @@ test('nenhum tipo é super eficaz contra si mesmo', () => {
 });
 
 test('contra dois tipos os multiplicadores se multiplicam', () => {
-  // Fogo bate em Planta mas não em Água: 2x, não 4x
-  assert.equal(eficacia('fogo', ['planta', 'agua']), 2);
+  // Fogo bate em Planta e Água resiste a Fogo: 2 × ½ = 1
+  assert.equal(eficacia('fogo', ['planta', 'agua']), 1);
+  assert.equal(eficacia('fogo', ['planta', 'terra']), 2);
   // ninguém neste jogo é fraco duas vezes ao mesmo tipo, mas a conta aguenta
   assert.equal(eficacia('fogo', ['planta', 'planta']), 4);
   assert.equal(eficacia('luz', ['agua', 'fogo']), 1);

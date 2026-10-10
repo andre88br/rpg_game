@@ -103,7 +103,7 @@ export const ruaDoBreu: DefMapa = {
       treinador: {
         classe: 'MORADORA DO BREU', visao: 4, premio: 3100,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'lobisomem', nivel: 56 }, { especie: 'matinta', nivel: 57 }],
+        time: [{ especie: 'lobisomem', nivel: 56 }, { especie: 'matinta', nivel: 58 }],
         falaInicio: 'Minha janela dá pra rua, e eu vi você chegando. Vamos ver o que traz.',
         falaDerrota: 'Traz coisa boa. Pode passar.',
       },
@@ -118,7 +118,7 @@ export const ruaDoBreu: DefMapa = {
       treinador: {
         classe: 'MORADOR DO BREU', visao: 4, premio: 3200,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'corpoSeco', nivel: 57 }, { especie: 'lobisomem', nivel: 57 }, { especie: 'minhocao', nivel: 57 }],
+        time: [{ especie: 'corpoSeco', nivel: 58 }, { especie: 'lobisomem', nivel: 58 }, { especie: 'minhocao', nivel: 58 }],
         falaInicio: 'Última casa antes do bairro. Ninguém passa sem conversar comigo.',
         falaDerrota: 'Conversou. Pode ir.',
       },
@@ -141,9 +141,11 @@ export const ruaDoBreu: DefMapa = {
   cenario: 'cidade',
   passosPorEncontro: 10,
   encontros: [
-    { especie: 'lobinho', min: 55, max: 57, peso: 45 },
-    { especie: 'corpoSeco', min: 55, max: 57, peso: 25 },
-    { especie: 'matinta', min: 55, max: 57, peso: 20 },
-    { especie: 'lobisomem', min: 56, max: 57, peso: 10 },
+    { especie: 'lobinho', min: 55, max: 58, peso: 45 },
+    { especie: 'corpoSeco', min: 55, max: 58, peso: 25 },
+    { especie: 'matinta', min: 55, max: 58, peso: 20 },
+    { especie: 'lobisomem', min: 56, max: 58, peso: 10 },
+    // uma luz na rua escura: a Lamparina, a resposta ao terreiro da Sombra
+    { especie: 'lamparina', min: 55, max: 58, peso: 10 },
   ],
 };

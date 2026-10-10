@@ -140,8 +140,8 @@ export const bocaDaMina: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRO', visao: 4, premio: 2200,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'minhoquinha', nivel: 52 }, { especie: 'cabraCabriola', nivel: 53 },
-               { especie: 'tatuTrovao', nivel: 53 }],
+        time: [{ especie: 'minhoquinha', nivel: 52 }, { especie: 'cabraCabriola', nivel: 52 },
+               { especie: 'tatuTrovao', nivel: 52 }],
         falaInicio: 'Esse pedaço do riacho é meu. Se quer bateia aqui, bate comigo primeiro.',
         falaDerrota: 'Tá bom, o riacho é de todo mundo. Por hoje.',
       },
@@ -156,7 +156,7 @@ export const bocaDaMina: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRA', visao: 4, premio: 2300,
         esperta: true, itens: { garrafada: 2 },
-        time: [{ especie: 'minhocao', nivel: 53 }, { especie: 'salamanca', nivel: 53 }],
+        time: [{ especie: 'minhocao', nivel: 52 }, { especie: 'salamanca', nivel: 52 }],
         falaInicio: 'Anda no meu mato sem pedir licença? Então prova que merece.',
         falaDerrota: 'Merece. Vai com Deus e com a forquilha.',
       },
@@ -171,8 +171,8 @@ export const bocaDaMina: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRO', visao: 5, premio: 2500,
         esperta: true, itens: { garrafada_forte: 1, erva_doce: 1 },
-        time: [{ especie: 'tatuTrovao', nivel: 53 }, { especie: 'minhocao', nivel: 54 },
-               { especie: 'mulaSemCabeca', nivel: 54 }],
+        time: [{ especie: 'tatuTrovao', nivel: 52 }, { especie: 'minhocao', nivel: 53 },
+               { especie: 'mulaSemCabeca', nivel: 53 }],
         falaInicio: 'Subindo pro arraial? Paga pedágio: uma batalha.',
         falaDerrota: 'Pedágio pago. O arraial é logo ali.',
       },
@@ -195,9 +195,9 @@ export const bocaDaMina: DefMapa = {
   cenario: 'mata',
   passosPorEncontro: 10,
   encontros: [
-    { especie: 'minhoquinha', min: 51, max: 53, peso: 45 },
-    { especie: 'cabraCabriola', min: 51, max: 53, peso: 25 },
-    { especie: 'tatuTrovao', min: 51, max: 53, peso: 20 },
-    { especie: 'salamanca', min: 52, max: 53, peso: 10 },
+    { especie: 'minhoquinha', min: 51, max: 52, peso: 45 },
+    { especie: 'cabraCabriola', min: 51, max: 52, peso: 25 },
+    { especie: 'tatuTrovao', min: 51, max: 52, peso: 20 },
+    { especie: 'salamanca', min: 52, max: 52, peso: 10 },
   ],
 };

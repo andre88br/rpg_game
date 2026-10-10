@@ -78,7 +78,8 @@ const LISTA: readonly Golpe[] = [
   g('investida', 'Investida', 'neutro', 'fisico', 40, 100, 30,
     'Corre e joga o corpo em cima do oponente.'),
   g('arranhao', 'Arranhão', 'neutro', 'fisico', 40, 100, 30,
-    'Passa as unhas de raspão.'),
+    'Passa as unhas de raspão. Pega mais fácil no ponto fraco.',
+    { efeito: { critico: 12 } }),
   g('bote', 'Bote', 'neutro', 'fisico', 30, 100, 30,
     'Ataque curto e veloz: sempre sai primeiro.',
     { prioridade: 1 }),
@@ -142,8 +143,8 @@ const LISTA: readonly Golpe[] = [
     'Cai brasa de duas a cinco vezes.',
     { efeito: { multi: [2, 5] } }),
   g('fogo_mboitata', 'Fogo de Mboitatá', 'fogo', 'especial', 130, 90, 5,
-    'A grande cobra de fogo em pessoa. Depois, um turno para a chama voltar.',
-    { efeito: { recarga: true, status: 'queimado', chanceStatus: 20 } }),
+    'A grande cobra de fogo em pessoa. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25, status: 'queimado', chanceStatus: 20 } }),
   g('coice_mula', 'Coice da Mula', 'fogo', 'fisico', 110, 90, 5,
     'O coice em chamas da Mula-sem-Cabeça; o tranco volta um pouco.',
     { efeito: { recuo: 0.25, status: 'queimado', chanceStatus: 20 } }),
@@ -208,8 +209,8 @@ const LISTA: readonly Golpe[] = [
   g('tronco', 'Tronco', 'planta', 'fisico', 85, 95, 10,
     'Derruba um tronco inteiro em cima do oponente.'),
   g('furia_anhanga', 'Fúria do Anhangá', 'planta', 'especial', 120, 90, 5,
-    'O protetor da caça em fúria. Depois, um turno para a mata respirar.',
-    { efeito: { recarga: true } }),
+    'O protetor da caça em fúria. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25 } }),
 
   /* ---------------- terra ---------------- */
   g('pedrada', 'Pedrada', 'terra', 'fisico', 45, 95, 25,
@@ -220,7 +221,8 @@ const LISTA: readonly Golpe[] = [
   g('tremor', 'Tremor', 'terra', 'especial', 70, 100, 10,
     'Faz o chão inteiro estremecer.'),
   g('desmoronamento', 'Desmoronamento', 'terra', 'fisico', 90, 85, 5,
-    'Derruba o barranco em cima do oponente.'),
+    'Derruba o barranco em cima do oponente. Às vezes amassa a defesa dele.',
+    { efeito: { mod: { alvo: 'oponente', stat: 'def', passos: -1, chance: 30 } } }),
 
   g('pedrinhas', 'Chuva de Pedrinhas', 'terra', 'fisico', 25, 95, 20,
     'Pedrinhas atiradas de duas a cinco vezes.',
@@ -231,8 +233,8 @@ const LISTA: readonly Golpe[] = [
   g('terremoto', 'Terremoto', 'terra', 'fisico', 100, 100, 10,
     'O chão inteiro se abre debaixo do oponente.'),
   g('bocarra', 'Bocarra', 'terra', 'fisico', 120, 90, 5,
-    'A boca na barriga do Mapinguari se abre. Depois, um turno de digestão.',
-    { efeito: { recarga: true } }),
+    'A boca na barriga do Mapinguari se abre. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25 } }),
 
   /* ---------------- vento ---------------- */
   g('rajada', 'Rajada', 'vento', 'especial', 45, 100, 25,
@@ -274,7 +276,7 @@ const LISTA: readonly Golpe[] = [
   g('teia_eletrica', 'Teia Elétrica', 'raio', 'estado', 0, 90, 15,
     'Prende o oponente numa rede de faíscas.',
     { efeito: { status: 'paralisado' } }),
-  g('raio_tupa', 'Raio de Tupã', 'raio', 'especial', 95, 80, 5,
+  g('raio_tupa', 'Raio de Tupã', 'raio', 'especial', 95, 90, 10,
     'Chama o raio do céu, como manda a lenda.',
     { efeito: { status: 'paralisado', chanceStatus: 20 } }),
 
@@ -291,8 +293,8 @@ const LISTA: readonly Golpe[] = [
     'Estala sem chuva, direto na cabeça.',
     { efeito: { status: 'paralisado', chanceStatus: 10 } }),
   g('boiuna_eletrica', 'Boiúna Elétrica', 'raio', 'especial', 120, 90, 5,
-    'A cobra grande do rio, carregada de raio. Depois, um turno para recarregar.',
-    { efeito: { recarga: true, status: 'paralisado', chanceStatus: 20 } }),
+    'A cobra grande do rio, carregada de raio. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25, status: 'paralisado', chanceStatus: 20 } }),
 
   /* ---------------- sombra ---------------- */
   g('sombra_fria', 'Sombra Fria', 'sombra', 'especial', 45, 100, 25,
@@ -318,8 +320,8 @@ const LISTA: readonly Golpe[] = [
     'Unhadas no escuro, de duas a cinco.',
     { efeito: { multi: [2, 5] } }),
   g('uivo_lua', 'Uivo da Lua Cheia', 'sombra', 'fisico', 120, 90, 5,
-    'Na lua cheia o Lobisomem não se segura. Depois, um turno para voltar a si.',
-    { efeito: { recarga: true } }),
+    'Na lua cheia o Lobisomem não se segura. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25 } }),
   g('acalanto_cuca', 'Acalanto da Cuca', 'sombra', 'especial', 80, 100, 5,
     '"Dorme, neném, que a Cuca vem pegar." E vem mesmo.',
     { efeito: { status: 'dormindo', chanceStatus: 30 } }),
@@ -333,7 +335,7 @@ const LISTA: readonly Golpe[] = [
   g('lampejo', 'Lampejo', 'luz', 'especial', 70, 95, 15,
     'Um facho que ofusca e atrapalha a mágica do oponente.',
     { efeito: { mod: { alvo: 'oponente', stat: 'esp', passos: -1, chance: 15 } } }),
-  g('aurora', 'Aurora', 'luz', 'especial', 95, 85, 5,
+  g('aurora', 'Aurora', 'luz', 'especial', 95, 100, 10,
     'O nascer do sol condensado num golpe só.'),
 
   g('raios_sol', 'Raios de Sol', 'luz', 'especial', 20, 100, 20,
@@ -347,8 +349,8 @@ const LISTA: readonly Golpe[] = [
   g('sol_a_pino', 'Sol a Pino', 'luz', 'especial', 120, 80, 5,
     'O sol do meio-dia num golpe só; difícil de mirar.'),
   g('eclipse_total', 'Eclipse Total', 'luz', 'especial', 130, 90, 5,
-    'Sol e lua no mesmo lugar do céu. Depois, um turno de escuro.',
-    { efeito: { recarga: true } }),
+    'Sol e lua no mesmo lugar do céu. O tranco devolve um pouco do golpe.',
+    { efeito: { recuo: 0.25 } }),
 
   /* Último recurso: entra sozinho quando TODOS os PP acabam. Não está em
      nenhuma lista de aprendizado de propósito. */

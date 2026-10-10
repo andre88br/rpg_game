@@ -152,5 +152,7 @@ export const rotaFoz: DefMapa = {
     { especie: 'caiporinha', min: 3, max: 6, peso: 40 },
     { especie: 'piragua', min: 3, max: 6, peso: 35 },
     { especie: 'sacizinho', min: 4, max: 7, peso: 25 },
+    // a Minhoquinha: Terra logo no começo, para quem quer variar o time
+    { especie: 'minhoquinha', min: 3, max: 6, peso: 15 },
   ],
 };

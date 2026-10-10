@@ -95,7 +95,7 @@ export const circuloDourado: DefMapa = {
       tx: 11, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'iaraMae', nivel: 60 }, { especie: 'piragua', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'iaraMae', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'A Maré voltou mais alta. Vamos ver se você ainda nada nela.',
@@ -111,7 +111,7 @@ export const circuloDourado: DefMapa = {
       tx: 14, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'curupira', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'curupira', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A mata cresceu desde a Raiz. Eu também.',
@@ -127,7 +127,7 @@ export const circuloDourado: DefMapa = {
       tx: 17, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'boitatao', nivel: 60 }, { especie: 'mulaSemCabeca', nivel: 60 }, { especie: 'salamanca', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A forja ficou mais quente. Aguenta?',
@@ -143,7 +143,7 @@ export const circuloDourado: DefMapa = {
       tx: 26, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'saci', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'matinta', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }],
         falaInicio: 'O redemoinho gira pro outro lado agora.',
@@ -159,7 +159,7 @@ export const circuloDourado: DefMapa = {
       tx: 29, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'relampo', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'minhocao', nivel: 60 }],
         falaInicio: 'O trovão aprendeu uns truques novos.',
@@ -175,7 +175,7 @@ export const circuloDourado: DefMapa = {
       tx: 32, ty: 22, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'mapinguari', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }],
         falaInicio: 'A pedra não esquece quem passou por ela.',
@@ -191,7 +191,7 @@ export const circuloDourado: DefMapa = {
       tx: 26, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'cuca', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }],
         falaInicio: 'No breu eu te vi chegar. Agora eu te vejo voltar.',
@@ -207,7 +207,7 @@ export const circuloDourado: DefMapa = {
       tx: 29, ty: 27, dir: 'baixo', se: 'campeao',
       treinador: {
         classe: 'REVANCHE DE MESTRE', premio: 8000, esperta: true,
-        escala: { piso: 60, mais: 3 }, repete: true,
+        escala: { piso: 70, mais: 3 }, repete: true,
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'estrelaDalva', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'lamparina', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'O sol nasceu de novo. A luta também.',

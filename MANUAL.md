@@ -74,9 +74,20 @@ Terra → Raio → Vento → Terra         (2x)
 Luz ↔ Sombra                         (2x nos dois sentidos)
 ```
 
+E cada seta dos triângulos, ao contrário, vale **½x**: Planta bate mal em
+Fogo, Água em Planta, Fogo em Água, Raio em Terra, Vento em Raio e Terra em
+Vento ("Não foi muito eficaz..."). Luz e Sombra não resistem uma à outra.
 Todo o resto é 1x. Bicho de dois tipos multiplica: Salamanca (Fogo/Terra) leva
-2x de Água, não 4x, porque Água não bate em Terra. Não existe resistência — um
-golpe nunca vale menos que 1x, então **atacar com o tipo certo é tudo**.
+2x de Água, não 4x, porque Água não bate em Terra; e um Planta/Água leva 1x de
+Fogo (2x de Planta, ½x de Água). **Atacar com o tipo certo — e não com o
+errado — decide a luta.**
+
+**Experiência.** Quem derruba o adversário leva todo o XP; **o resto do time
+que está de pé leva metade**, sem precisar entrar em campo ("O resto do time
+ganhou N de experiência!"). Na reserva também se sobe de nível, se evolui e se
+aprende golpe. Treinador leva cada bicho **na forma do nível dele** (um
+Cabritinha acima do 32 já é Cabra-Cabriola). E o Encantado de presente chega
+perto do nível do seu time (o mais forte menos 2).
 
 **Golpes.** São 92, de 8 a 14 por tipo. Além de dano, estado e mudança de
 atributo, alguns fazem coisas a mais:
@@ -84,7 +95,8 @@ atributo, alguns fazem coisas a mais:
 | efeito | exemplos | o que faz |
 |---|---|---|
 | várias pancadas | Bicadas, Chuva de Brasas, Pingos, Espinhos, Chuva de Pedrinhas, Penas, Faíscas, Unhas da Noite, Raios de Sol | bate de 2 a 5 vezes no mesmo turno; cada pancada pode ser crítica; para se o alvo cair |
-| recarga | Arremetida, Fogo de Mboitatá, Fúria do Anhangá, Bocarra, Boiúna Elétrica, Uivo da Lua Cheia, Eclipse Total | muito forte, mas depois de acertar o Encantado perde a vez seguinte; trocar de Encantado desfaz |
+| recarga | Arremetida | muito forte, mas depois de acertar o Encantado perde a vez seguinte; trocar de Encantado desfaz |
+| recuo | Fogo de Mboitatá, Fúria do Anhangá, Bocarra, Boiúna Elétrica, Uivo da Lua Cheia, Eclipse Total (os golpes próprios) | muito forte, e um quarto do dano volta em quem bateu |
 | Fecha-Corpo | Fecha-Corpo | sai antes de tudo e o golpe do adversário naquele turno não pega; usado dois turnos seguidos, falha |
 | dano fixo | Assombração | tira sempre o nível de quem usa, sem tipo nem crítico |
 | dobra com estado | Brasa Viva, Seiva Amarga, Mau Sonho | potência dobrada se o alvo estiver queimado, envenenado, dormindo ou travado |
@@ -148,7 +160,7 @@ anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico
 | Canto da Iara | Iarinha, Iara-Mãe, Ipupiara | contato: 30% de pôr no sono quem bateu |
 | Pés Trocados | Curupinho, Curupirá, Anhangá | quem mira nele erra mais (precisão ×0,85) |
 | Água Funda | Piraguá, Piraguaçu | golpe de Água não machuca: cura 1/4 da vida |
-| Rodamoinho | Sacizinho, Saci | vencendo um selvagem com ele em campo, 25% de achar Garrafada, Patuá ou Erva-Doce |
+| Rodamoinho | Sacizinho, Saci | ao chegar, a VEL do adversário cai 1; vencendo um selvagem com ele em campo, 25% de achar Garrafada, Patuá ou Erva-Doce |
 | Dona da Mata | Caiporinha, Caipora | com ela em campo, o patuá pega 50% mais fácil |
 | Cabeçuda | Cabritinha, Cabra-Cabriola | não se machuca com o recuo |
 | Sem Cabeça | Mulinha, Mula-sem-Cabeça | não pega quebranto |
@@ -220,13 +232,21 @@ fortes também trocam de Encantado quando o seu leva vantagem — e mandam
 quem aguenta melhor o seu golpe (um Piraguá contra golpe de Água, por
 exemplo). Bicho selvagem continua lutando como sempre.
 
-**Itens na batalha.** Garrafada, Erva-Doce e Água Benta perguntam em quem
+**Itens de cura.** A **Garrafada** devolve um terço do fôlego (no mínimo 20),
+a **Garrafada Forte** dois terços, e a **Garrafada Santa** (1500) enche o
+fôlego e tira qualquer mau-jeito. O **Mel de Jataí** (800) devolve 10 PP de
+cada golpe. O **Fumo de Rolo** (300), aceso pela mochila, espanta o bicho do
+mato por 120 passos. A peçonha (veneno) **piora a cada turno**: 1/16 da vida,
+depois 2/16, 3/16... — tire logo com Erva-Doce.
+
+**Itens na batalha.** Garrafada, Erva-Doce, Água Benta e Mel de Jataí perguntam em quem
 usar: dá para curar ou reviver quem está esperando no time, não só quem está
 em campo. Item que não faria efeito (garrafada em quem está com o fôlego
 cheio, patuá em bicho de treinador) só avisa: não é gasto e a vez não passa.
 
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
-possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200) na loja.
+possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200, só depois da
+Medalha Rodamoinho) na loja.
 Treinador não se captura.
 
 **Cor rara.** Um em cada 256 bichos do mato alto nasce de outra cor — a luta
@@ -245,7 +265,7 @@ chance (um em 128).
 | 36 | Amuleto do Brilho |
 | 45 | o **Boto** (Água/Luz), o bicho secreto, no nível 40 |
 
-O Boto vira **Boto-Encantado** no nível 50. O traço dos dois é o **Encanto
+O Boto vira **Boto-Encantado** no nível 44. O traço dos dois é o **Encanto
 do Boto**: ao chegar, o poder do adversário cai. São 54 espécies no Caderno,
 contando a Cobra Norato do pós-jogo.
 
@@ -414,7 +434,7 @@ Curupira da grota só aparecem depois dela.
 
 No **Igarapé do Curupira**, por volta de (9,15), o **Zeca** (visão 5) fecha o
 caminho para o sul (no primeiro encontro, uma cutscene conta do pai dele) — e há uma barreira em (9,16) que só abre quando ele cai.
-Time: **Sacizinho 20**, **Caiporinha 20**, **Curupinho 22**. Prêmio 1200.
+Time: **Sacizinho 20**, **Caiporinha 20**, **Curupirá 22**. Prêmio 1200.
 
 Três bichos e nível 20+: chegue com time de 20 no mínimo, e leve Fogo para o
 Curupinho.
@@ -465,7 +485,7 @@ justamente para barrar isso.
 
 ## Mestre: Tiê
 
-**Caiporinha 20**, **Curupinho 22**, **Curupirá 25**. Prêmio 1800.
+**Caiporinha 20**, **Curupirá 22**, **Curupirá 25**. Prêmio 1800.
 
 Time todo de Planta — leve **Fogo**, e leve bastante. Um Boitatão nível 24+ com
 golpe de Fogo passa nos três. Sem Fogo no time, capture uma Boitatinha antes
@@ -515,10 +535,10 @@ embaixo, na Mata, ou lá em cima, na Vila.
 
 | # | Quem | Onde | Time | Prêmio |
 |---|---|---|---|---|
-| 1 | TROPEIRO | (6,9) | Cabritinha 24, Sacizinho 25 | 900 |
+| 1 | TROPEIRO | (6,9) | Cabritinha 24, Saci 25 | 900 |
 | 2 | ALMOCREVE | (22,16) | Mulinha 26, Caiporinha 25, Cabritinha 26 | 1000 |
-| 3 | TROPEIRA | (6,23) | Boitatinha 27, Mulinha 27, Cabritinha 28 | 1100 |
-| 4 | **CHEFE DA TROPA** | (4,29) | Cabritinha 29, Mulinha 29, Boitatinha 29, **Boitatão 31** | 2000 |
+| 3 | TROPEIRA | (6,23) | Boitatão 27, Mulinha 27, Cabritinha 28 | 1100 |
+| 4 | **CHEFE DA TROPA** | (4,29) | Cabritinha 29, Mulinha 29, Boitatão 29, **Boitatão 31** | 2000 |
 
 São **12 Encantados numa corrida só**. O Chefe é **esperto**: troca de bicho
 quando está em desvantagem e usa **2 Garrafadas Fortes**. Guarde as suas
@@ -557,7 +577,7 @@ Cabritinha, Mulinha e Boitatinha, e a caverna tem Salamanca.
 Na Vila Fornalha, em (16,32), o **Zeca** volta pela terceira vez e tranca a
 descida para a caverna (barreira em (16,33)).
 
-Time: **Sacizinho 28**, **Piraguá 29**, **Caiporinha 29**, **Curupirá 30**.
+Time: **Saci 28**, **Piraguá 29**, **Caiporinha 29**, **Curupirá 30**.
 Prêmio 1800. Ele é **esperto** e carrega **2 Garrafadas**.
 
 Quatro tipos diferentes — é o treinador mais variado do jogo até aqui. **Fogo**
@@ -592,7 +612,7 @@ Ande colado nas paredes: no escuro é o único jeito de não passar reto. Com os
 No caminho tem dois treinadores plantados (visão 3, aparecem do escuro):
 
 - **MINEIRO DA SERRA**, (12,6): Cabritinha 29, Salamanca 30, Cabra-Cabriola 31. Prêmio 1500.
-- **ACENDEDORA**, (20,11): Mulinha 30, Boitatinha 30, Salamanca 31. Prêmio 1500.
+- **ACENDEDORA**, (20,11): Mula-sem-Cabeça 30, Boitatão 30, Salamanca 31. Prêmio 1500.
 
 Salamanca é **Fogo/Terra**: leva 2x de Água. Cabra-Cabriola é **Terra/Fogo**:
 também 2x de Água e 2x de Vento. Um bicho de Água resolve os dois times quase
@@ -655,7 +675,7 @@ Este terreiro não é um salão: é uma **masmorra de quatro salas em fila**, e
 
 ### Sala 1 — PÁTIO
 
-**ZELADOR DA BRASA**, (7,3), visão 4: **Cabritinha 30**, **Mulinha 31**.
+**ZELADOR DA BRASA**, (7,3), visão 4: **Cabritinha 30**, **Mula-sem-Cabeça 31**.
 Prêmio 1400. Vencê-lo abre a passagem norte em (7,0).
 
 ### Sala 2 — ESCÓRIA (duas pedras)
@@ -700,7 +720,7 @@ inteiro, é aqui que ele ganha o dia.
 **BRÁS, DONO DO TERREIRO.** Prêmio 3500. Esperto, com **2 Garrafadas Fortes e
 1 Erva-Doce**.
 
-Time fixo: **Cabritinha 32**, **Salamanca 33**, **Mula-sem-Cabeça 34**,
+Time fixo: **Cabra-Cabriola 32**, **Salamanca 33**, **Mula-sem-Cabeça 34**,
 **Boitatão 36**.
 
 E mais **um trunfo escolhido contra o seu inicial** — ele sempre tem a resposta
@@ -803,10 +823,10 @@ trecho seguinte, sem como contornar.
 
 | # | Quem | Time | Prêmio |
 |---|---|---|---|
-| 1 | CATADOR DE VENTO | Cabritinha 37, Sacizinho 38 | 1000 |
-| 2 | CATADORA DE VENTO | Saci 39, Sacizinho 38, Cabritinha 39 | 1100 |
-| 3 | CATADOR DE VENTO | Matinta 40, Saci 39, Cabritinha 40 | 1200 |
-| 4 | **CHEFE DOS CATADORES** | Saci 41, Matinta 41, Cabritinha 42, Saci 43 | 2200 |
+| 1 | CATADOR DE VENTO | Cabra-Cabriola 37, Saci 38 | 1000 |
+| 2 | CATADORA DE VENTO | Saci 39, Saci 38, Cabra-Cabriola 39 | 1100 |
+| 3 | CATADOR DE VENTO | Matinta-Perera 40, Saci 39, Cabra-Cabriola 40 | 1200 |
+| 4 | **CHEFE DOS CATADORES** | Saci 41, Matinta-Perera 41, Cabra-Cabriola 42, Saci 43 | 2200 |
 
 Todos **trocam de Encantado e usam item** (o Chefe carrega 2 Garrafadas).
 Cabritinha é Terra (leva 2x de Vento); Saci e Matinta são Vento puro (levam
@@ -849,7 +869,7 @@ travessia é a mesma para todo mundo, com ou sem o Dom Rajada.
 - **Prendedora de Ventos** — conta 3.
 - **Capinzeiro** — serviço opcional dos capins dourados.
 - O **Zeca**, pela quarta vez, guardando a subida para o Topo do Redemoinho:
-  Matinta 41, Saci 42, Cabra-Cabriola 42, Curupirá 43. Prêmio 2200, esperto,
+  Matinta-Perera 41, Saci 42, Cabra-Cabriola 42, Anhangá 43. Prêmio 2200, esperto,
   2 Garrafadas Fortes.
 
 ## Conta 3 — `conta_penas`: seis Encantados presos
@@ -867,7 +887,7 @@ volte no **Moleiro**, no moinho da aldeia: paga **400**.
 ## Conta 5 — `conta_redemoinho`: a Matinta que mora no olho do vento
 
 No **Topo do Redemoinho**, primeiro a **SENTINELA DO VENTO** (visão 5):
-Saci 43, Cabra-Cabriola 43, Matinta 44. Prêmio 2400, esperta, 2 Garrafadas
+Saci 43, Cabra-Cabriola 43, Matinta-Perera 44. Prêmio 2400, esperta, 2 Garrafadas
 Fortes + 1 Erva-Doce.
 
 Mais fundo, no meio de um redemoinho decorativo de correntes (não travam
@@ -891,15 +911,15 @@ errado pisa numa saída disfarçada de chão e devolve pro **início do salão
 inteiro**. Guarda já vencida continua vencida (a barreira dela não volta a
 fechar), mas a corrente em si tem que ser refeita do zero.
 
-1. **Guarda da Correnteza** — Sacizinho 39, Cabritinha 40. Uma forquilha só.
-2. **Guarda do Remoinho** — Matinta 41, Saci 41, Cabra-Cabriola 42. Duas
+1. **Guarda da Correnteza** — Saci 39, Cabra-Cabriola 40. Uma forquilha só.
+2. **Guarda do Remoinho** — Matinta-Perera 41, Saci 41, Cabra-Cabriola 42. Duas
    forquilhas.
 3. **Guarda da Tormenta** — Saci 43, Curupira 44, Cabra-Cabriola 44. Três
    forquilhas — a mais longa das três correntes, bem antes do Pererê.
 
 ### Mestre: Pererê
 
-**Saci 45, Matinta 46, Cabra-Cabriola 46, Saci 47, Matinta 48.** Prêmio
+**Saci 45, Matinta-Perera 46, Cabra-Cabriola 46, Saci 47, Matinta-Perera 48.** Prêmio
 4000. Esperto, com 2 Garrafadas Fortes e 1 Erva-Doce — é o time mais forte
 do jogo até aqui.
 
@@ -963,7 +983,7 @@ benzimento, casa do Pajé e o Terreiro do Trovão. **Cinco contas obrigatórias
 do Redemoinho** (linhas 12-13) — só passa quem tem a Medalha Rodamoinho.
 
 > **Chegue preparado.** Suba com o time perto de 46-48. Espécies novas:
-> **Faisquinha** (Raio) → **Relampo** no 46, **Tatu-Trovão** (Raio/Terra) e,
+> **Faisquinha** (Raio) → **Relampo** no 36, **Tatu-Trovão** (Raio/Terra) e,
 > para quem faz os dois serviços, o **Arco-da-Velha** (Raio/Luz). Raio leva
 > 2x de **Terra** — Cabra-Cabriola e Salamanca da Serra rendem aqui. Mas o
 > Tatu-Trovão é Terra também, e contra ele o melhor é **Vento** (que bate em
@@ -993,10 +1013,10 @@ a ponta. Em cada vão, um tambor e uma tranca que só some quando ele cai.
 
 | # | Quem | Time | Prêmio |
 |---|---|---|---|
-| 1 | TOCADOR DE TAMBOR | Faisquinha 44, Tatu-Trovão 45 | 1400 |
-| 2 | TOCADORA DE TAMBOR | Relampo 45, Faisquinha 45, Cabra-Cabriola 46 | 1600 |
-| 3 | TOCADOR DE TAMBOR | Tatu-Trovão 46, Matinta 46, Relampo 47 | 1800 |
-| 4 | **CHEFE DOS TAMBORES** | Relampo 47, Tatu-Trovão 47, Saci 48, Relampo 48 | 2600 |
+| 1 | TOCADOR DE TAMBOR | Relampo 44, Tatu-Trovão 45 | 1400 |
+| 2 | TOCADORA DE TAMBOR | Relampo 45, Relampo 45, Cabra-Cabriola 46 | 1600 |
+| 3 | TOCADOR DE TAMBOR | Tatuaçu 46, Matinta-Perera 46, Relampo 47 | 1800 |
+| 4 | **CHEFE DOS TAMBORES** | Relampo 47, Tatuaçu 47, Saci 48, Relampo 48 | 2600 |
 
 Vencer o Chefe acende a conta e abre a estrada para a aldeia.
 
@@ -1010,7 +1030,7 @@ Vencer o Chefe acende a conta e abre a estrada para a aldeia.
 
 ## Conta 2 — `conta_zeca5`: o Zeca na subida do morro
 
-Relampo 47, Saci 48, Cabra-Cabriola 48, Tatu-Trovão 48, Curupirá 49. Prêmio
+Relampo 47, Saci 48, Cabra-Cabriola 48, Tatuaçu 48, Anhangá 49. Prêmio
 2600, esperto, 2 Garrafadas Fortes + 1 Erva-Doce. A tranca dele fecha a
 estrada para o Morro do Trovão.
 
@@ -1066,9 +1086,9 @@ ao pé dos vãos (não trancam nada, mas enxergam longe):
 
 | Onde | Time | Prêmio |
 |---|---|---|
-| 1ª crista (oeste) | Tatu-Trovão 47, Relampo 47, Cabra-Cabriola 48 | 2000 |
-| 2ª crista (leste) | Relampo 48, Saci 48, Tatu-Trovão 48, Matinta 48 | 2200 |
-| 3ª crista (oeste) | Relampo 49, Curupirá 48, Tatu-Trovão 49, Relampo 49 | 2400 |
+| 1ª crista (oeste) | Tatuaçu 47, Relampo 47, Cabra-Cabriola 48 | 2000 |
+| 2ª crista (leste) | Relampo 48, Saci 48, Tatuaçu 48, Matinta-Perera 48 | 2200 |
+| 3ª crista (oeste) | Relampo 49, Anhangá 48, Tatuaçu 49, Relampo 49 | 2400 |
 
 No cume, do lado leste, um **Relampo selvagem nível 50**, **de emboscada**:
 só aparece, com cutscene, quando você chega perto. Vencer acende a conta;
@@ -1088,19 +1108,19 @@ duas guardas e, na ponta oeste, o Guaraci.
  (entra)   chave 1: sala SO · chave 2: sala S
 ```
 
-1. **Guarda da Faísca** (saguão) — Faisquinha 47, Tatu-Trovão 48, Relampo 48.
+1. **Guarda da Faísca** (saguão) — Relampo 47, Tatuaçu 48, Relampo 48.
 2. Salas — **quatro toques**: em SO **ligue 1** → NO → N → S; em S **ligue
    2** → SO; em SO **desligue 1** → S; em S **desligue 2** → N → NE.
-3. **Guarda do Relâmpago** (sala NE) — Relampo 49, Saci 49, Tatu-Trovão 49,
+3. **Guarda do Relâmpago** (sala NE) — Relampo 49, Saci 49, Tatuaçu 49,
    Cabra-Cabriola 50.
-4. **Guarda da Trovoada** (corredor do alto) — Relampo 50, Matinta 50,
-   Tatu-Trovão 50, Relampo 51.
+4. **Guarda da Trovoada** (corredor do alto) — Relampo 50, Matinta-Perera 50,
+   Tatuaçu 50, Relampo 51.
 
 ### Mestre: Guaraci
 
-**Relampo 51, Tatu-Trovão 51, Saci 52, Tatu-Trovão 52, Relampo 53** — e um
-**sexto** escolhido contra o seu inicial, como o Brás: Iara-Mãe 52 contra
-Boitatinha, Curupirá 52 contra Iarinha, Boitatão 52 contra Curupinho. Prêmio
+**Relampo 51, Tatuaçu 51, Saci 52, Tatuaçu 52, Relampo 53** — e um
+**sexto** escolhido contra o seu inicial, como o Brás: Ipupiara 52 contra
+Boitatinha, Anhangá 52 contra Iarinha, Mboitatá 52 contra Curupinho. Prêmio
 5000. Esperto, com 2 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
 
 - Relampo é Raio puro: leva 2x de **Terra**. Tatu-Trovão (Raio/Terra) leva
@@ -1156,10 +1176,10 @@ Morro do Trovão ─(norte, Dom Faísca)→ Boca da Mina ─→ Arraial da Caipo
 
 **Como entrar.** No alto do cume do Morro do Trovão, colunas 20-21, duas
 **pedras rachadas** fecham a estrada norte: só o **Dom Faísca** (Medalha
-Trovão) parte. Espécies novas: **Minhoquinha** (Terra) → **Minhocão** no 50,
+Trovão) parte. Espécies novas: **Minhoquinha** (Terra) → **Minhocão** no 40,
 **Mapinguari** (Terra) e, para quem faz os dois serviços, a **Caipora**
 (Terra/Planta). Terra leva 2x de **Vento** — Saci, Matinta e Uirapuru voltam
-a brilhar. Suba com o time perto de 54-56.
+a brilhar. Suba com o time perto de 53-54.
 
 ## Ordem recomendada da região
 
@@ -1250,32 +1270,32 @@ para o fundo da mina** — é preciso buscar de novo.
 
 ## Conta 5 — `conta_mapinguari`: o fundo da Cava Funda
 
-Saída oeste do arraial, trancada pelo **Zeca** (sexta vez): Minhocão 54,
-Relampo 55, Saci 55, Cabra-Cabriola 55, Curupirá 56. Prêmio 3000.
+Saída oeste do arraial, trancada pelo **Zeca** (sexta vez): Minhocão 53,
+Relampo 54, Saci 54, Cabra-Cabriola 54, Anhangá 54. Prêmio 3000.
 
 A Cava Funda é uma **espiral**: três anéis de rocha, cada um com **um vão
 só** — oeste, depois leste, depois oeste. Três garimpeiros no caminho
-(Garimpeiro 55×3, Garimpeira com Mapinguari 55, Garimpeiro com 4 de nível
-56). No fundo, o **Mapinguari selvagem nível 57**, **de emboscada**: só sai
+(Garimpeiro 54×3, Garimpeira com Juma 54, Garimpeiro com 4 de nível
+54). No fundo, o **Mapinguari selvagem nível 55**, **de emboscada**: só sai
 da terra, com cutscene, quando você chega perto. Vencer acende a conta;
 **capturar também vale**.
 
 ## O Terreiro da Pedra — o salão do Ubirajara
 
-1. **Guarda do Cascalho** (saguão) — Minhocão 55, Salamanca 55,
-   Tatu-Trovão 56. Abre a porta da plataforma A.
+1. **Guarda do Cascalho** (saguão) — Minhocão 54, Teiniaguá 54,
+   Tatuaçu 54. Abre a porta da plataforma A.
 2. Na plataforma A, **empurre a alavanca** antes de pisar no trilho: sem
    ela, o desvio desce o vagonete de volta ao saguão.
 3. Na plataforma B, a **Guarda da Charada** não luta: *cai em pé e corre
    deitado?* → **A CHUVA**. Errar só faz ela perguntar de novo.
-4. **Guarda da Rocha** — Mapinguari 56, Minhocão 57, Cabra-Cabriola 57,
-   Relampo 57.
+4. **Guarda da Rocha** — Juma 54, Minhocão 55, Cabra-Cabriola 55,
+   Relampo 55.
 
 ### Mestre: Ubirajara
 
-**Minhocão 57, Mapinguari 57, Cabra-Cabriola 58, Salamanca 58, Minhocão 59**
-e um **sexto** contra o seu inicial (Iara-Mãe 58 contra Boitatinha, Curupirá
-58 contra Iarinha, Boitatão 58 contra Curupinho). Prêmio 6000. Esperto, com
+**Minhocão 55, Juma 55, Cabra-Cabriola 55, Teiniaguá 55, Minhocão 56**
+e um **sexto** contra o seu inicial (Ipupiara 55 contra Boitatinha, Curupirá
+55 contra Iarinha, Mboitatá 55 contra Curupinho). Prêmio 6000. Esperto, com
 3 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
 
 - Quase tudo é Terra: **Vento** bate 2x. Cabra-Cabriola e Salamanca são
@@ -1319,10 +1339,10 @@ Cava Funda ─(oeste, Dom Escavar)→ Rua do Breu ─→ Bairro da Cuca ─(oest
 
 **Como entrar.** Na borda oeste da Cava Funda, linhas 20-21, terra
 desmoronada fecha a estrada: só o **Dom Escavar** (Medalha Pedra) abre.
-Espécies novas: **Lobinho** (Sombra) → **Lobisomem** no 52, **Corpo-Seco**
+Espécies novas: **Lobinho** (Sombra) → **Lobisomem** no 42, **Corpo-Seco**
 (Sombra/Terra), a **Cuca** e, para quem faz os dois serviços, a
 **Pisadeira** (Sombra/Vento). Sombra leva 2x de **Luz** — e só de Luz. Suba
-com o time perto de 57-59.
+com o time perto de 58-61.
 
 ## Ordem recomendada da região
 
@@ -1363,7 +1383,7 @@ Velho Garimpeiro: uma por conversa, errar embaralha tudo de volta.
 
 ## Conta 3 — `conta_zeca7`: o Zeca na porta do Casarão
 
-Lobisomem 57, Minhocão 57, Relampo 58, Saci 58, Curupirá 59. Prêmio 3400,
+Lobisomem 58, Minhocão 58, Relampo 59, Saci 59, Anhangá 61. Prêmio 3400,
 esperto, 2 Garrafadas Fortes + 1 Erva-Doce + 1 Água Benta.
 
 ## Conta 4 — `conta_ladrilhos`: os ladrilhos do Casarão
@@ -1383,7 +1403,7 @@ do canto oeste da sala abre para a ala oeste (e o retrato) e o sótão.
 
 ## Conta 5 — `conta_cuca`: a Cuca do sótão
 
-No sótão do Casarão, uma **Cuca selvagem nível 58**, **de emboscada**: só
+No sótão do Casarão, uma **Cuca selvagem nível 59**, **de emboscada**: só
 aparece, com cutscene, quando você chega perto do berço. Vencer acende a
 conta; **capturar também vale**.
 
@@ -1393,13 +1413,13 @@ No escuro. O salão de entrada tem **três pilares**, e um **VULTO** dá a
 volta em cada um — a mesma ronda do Beco, mas vendo **7 tiles**. Visto,
 volta para a entrada. A porta fica no canto noroeste (4,10).
 
-1. **Guarda da Névoa** — Corpo-Seco 57, Lobisomem 57, Relampo 57.
-2. **Guarda do Luto** — Cuca 58, Lobisomem 58, Mapinguari 58, Corpo-Seco 58.
+1. **Guarda da Névoa** — Alma-Penada 58, Lobisomem 58, Relampo 58.
+2. **Guarda do Luto** — Cuca-Rainha 59, Lobisomem 59, Juma 59, Alma-Penada 59.
 
 ### Mestre: Morgana
 
-**Lobisomem 58, Corpo-Seco 58, Cuca 59, Matinta 59, Lobisomem 60** e um
-**sexto** contra o seu inicial (Iara-Mãe 59, Curupirá 59 ou Boitatão 59).
+**Lobisomem 59, Alma-Penada 59, Cuca-Rainha 61, Matinta-Perera 61, Lobisomem 62** e um
+**sexto** contra o seu inicial (Ipupiara 61, Anhangá 61 ou Mboitatá 61).
 Prêmio 7000. Esperta, com 3 Garrafadas Fortes, 1 Erva-Doce e 1 Água Benta.
 Os vultos somem quando ela cai.
 
@@ -1444,9 +1464,9 @@ Bairro da Cuca ─(sul, véu: Dom Visão Noturna)→ Caminho da Aurora ─→ Ci
 
 **Como entrar.** Na borda sul do Bairro da Cuca, colunas 27-28, um **véu de
 sombra** fecha a passagem: só o **Dom Visão Noturna** (Medalha Breu) desfaz.
-Espécies novas: **Luzeiro** (Luz) → **Estrela-d'Alva** no 50, **Lamparina**
+Espécies novas: **Luzeiro** (Luz) → **Estrela-d'Alva** no 42, **Lamparina**
 (Luz/Fogo) e, para quem faz os dois serviços, a **Jaci** (Luz/Sombra). Luz
-leva 2x de **Sombra**. Suba com o time perto de 58-60.
+leva 2x de **Sombra**. Suba com o time perto de 61-66.
 
 ## Ordem recomendada da região
 
@@ -1509,15 +1529,15 @@ Os outros cinco são só para confundir — deixe-os como estão.
 
 ## Conta 4 — `conta_zeca8`: o Zeca na subida do Pico
 
-Na saída norte da cidade (29,1). Lobisomem 59, Minhocão 59, Relampo 59,
-Saci 60, Estrela-d'Alva 60, Curupirá 60. Prêmio 5000, esperto, 3 Garrafadas
+Na saída norte da cidade (29,1). Lobisomem 63, Minhocão 63, Relampo 63,
+Saci 66, Estrela-d'Alva 66, Anhangá 66. Prêmio 5000, esperto, 3 Garrafadas
 Fortes + 1 Erva-Doce + 1 Água Benta.
 
 ## Conta 5 — `conta_estrela`: a Estrela-d'Alva do cume
 
 O Pico sobe em três cristas, cada uma com uma passagem só (leste, oeste,
 leste), e um **Guia do Pico** em cada uma. No cume (30,4), uma
-**Estrela-d'Alva selvagem nível 60**, **de emboscada**: só desce, com
+**Estrela-d'Alva selvagem nível 66**, **de emboscada**: só desce, com
 cutscene, quando você chega perto. Vencer acende a conta; **capturar também
 vale**.
 
@@ -1528,15 +1548,15 @@ espelhos e um cristal (2,18). **Gire os dois espelhos** — (10,20) e (10,18)
 — e o feixe dá a volta até o cristal: a barreira da porta do meio (14,17)
 some.
 
-1. **Guarda do Orvalho** — Estrela-d'Alva 59, Lamparina 59, Arco-da-Velha 59.
-2. **Guarda do Meio-Dia** — Estrela-d'Alva 60, Mãe-do-Ouro 59, Lamparina 60,
-   Relampo 60.
+1. **Guarda do Orvalho** — Estrela-d'Alva 63, Fogo-Fátuo 63, Boiúna 63.
+2. **Guarda do Meio-Dia** — Estrela-d'Alva 66, Eldorado 63, Fogo-Fátuo 66,
+   Relampo 66.
 
 ### Mestre: Solano
 
-**Estrela-d'Alva 60, Mãe-do-Ouro 60, Lamparina 60, Arco-da-Velha 60,
-Estrela-d'Alva 60** e um **sexto** contra o seu inicial (Iara-Mãe 60,
-Curupirá 60 ou Boitatão 60). Prêmio 9000. Esperto, com 3 Garrafadas Fortes,
+**Estrela-d'Alva 66, Eldorado 66, Fogo-Fátuo 66, Boiúna 66,
+Estrela-d'Alva 66** e um **sexto** contra o seu inicial (Ipupiara 66,
+Anhangá 66 ou Mboitatá 66). Prêmio 9000. Esperto, com 3 Garrafadas Fortes,
 2 Ervas-Doces e 2 Águas Bentas.
 
 Vencer dá a **Medalha Aurora** e o **Dom Prisma**: as **cortinas de luz**
@@ -1579,7 +1599,7 @@ Campo do Saci. Dois jeitos de chegar:
 - **A pé:** pela borda oeste da **Aldeia Catavento** (linhas 30-31), a
   **Estrada Dourada**. No meio dela, o portão do Guarda do Círculo só abre
   com a Medalha Aurora. Quatro aspirantes e veteranos treinam na estrada
-  (níveis 57-60).
+  (níveis 64-70).
 
 Na praça: benzimento, loja e a arena. **Leve garrafadas**: lá dentro
 ninguém benze ninguém.
@@ -1592,12 +1612,12 @@ vitória. **Sair ou cair recomeça do primeiro Guardião.**
 
 | # | Quem | Tipos | Time |
 |---|---|---|---|
-| 1 | **Iracema** | Água/Planta | Iara-Mãe 58, Curupirá 58, Caipora 59, Iara-Mãe 59, Curupirá 60 |
-| 2 | **Itaberá** | Fogo/Terra | Salamanca 59, Cabra-Cabriola 59, Mula-sem-Cabeça 59, Mapinguari 59, Boitatão 60 |
-| 3 | **Ybytu** | Vento/Raio | Saci 59, Relampo 59, Uirapuru 60, Tatu-Trovão 59, Arco-da-Velha 60 |
-| 4 | **Jacira** | Sombra/Luz | Lobisomem 60, Estrela-d'Alva 60, Cuca 60, Pisadeira 60, Jaci 60 |
-| 5 | **Zeca**, a última vez | — | Lobisomem, Relampo, Saci, Minhocão, Estrela-d'Alva, todos 60, e o inicial de vantagem contra o seu |
-| 6 | **Anhangá**, o campeão | — | Cuca, Mapinguari, Uirapuru, Arco-da-Velha, Jaci, Caipora, todos 60, e o inicial de vantagem contra o seu |
+| 1 | **Iracema** | Água/Planta | Ipupiara 66, Anhangá 66, Caipora 68, Ipupiara 68, Anhangá 70 |
+| 2 | **Itaberá** | Fogo/Terra | Teiniaguá 68, Cabra-Cabriola 68, Mula-sem-Cabeça 68, Juma 68, Mboitatá 70 |
+| 3 | **Ybytu** | Vento/Raio | Saci 68, Relampo 68, Uirapuru-Rei 70, Tatuaçu 68, Boiúna 70 |
+| 4 | **Jacira** | Sombra/Luz | Lobisomem 70, Estrela-d'Alva 70, Cuca-Rainha 70, Pesadelo 70, Eclipse 70 |
+| 5 | **Zeca**, a última vez | — | Lobisomem, Relampo, Saci, Minhocão, Estrela-d'Alva, todos 70, e o inicial de vantagem contra o seu |
+| 6 | **Anhangá**, o campeão | — | Cuca, Mapinguari, Uirapuru, Arco-da-Velha, Jaci, Caipora, todos 70, e o inicial de vantagem contra o seu |
 
 Todos são espertos: trocam de Encantado e usam garrafada, erva-doce e
 água benta. Vencer o Anhangá dá **15.000**, o título de campeão, a
@@ -1610,10 +1630,10 @@ recomeçar a arena não repete nenhuma.
 ## Depois de campeão
 
 - A arena continua aberta, e os seis voltam com **times mais fortes**
-  (seis Encantados cada, todos no 60).
+  (seis Encantados cada, todos no 70).
 - Na praça aparecem os **oito donos de terreiro** para uma **revanche** que
   **cresce com você**: o time deles vem no nível do seu Encantado mais forte
-  mais 3 (nunca abaixo do 60), cada bicho já na forma desse nível e com os
+  mais 3 (nunca abaixo do 70), cada bicho já na forma desse nível e com os
   golpes dele. Dá para repetir quantas vezes quiser (8000 réis cada).
 - **Romaria do Círculo** (a casa ROMARIA, no sudeste da praça): o Mestre manda
   um romeiro atrás do outro, com time sorteado entre todas as espécies (menos
@@ -1660,31 +1680,31 @@ nível máximo, é a recompensa por continuar treinando.
 
 | Linhagem | Tipo da forma nova |
 |---|---|
-| Boitatinha → Boitatão (18) → **Mboitatá** (55) | Fogo |
-| Iarinha → Iara-Mãe (18) → **Ipupiara** (55) | Água/Sombra |
-| Curupinho → Curupirá (18) → **Anhangá** (55) | Planta/Luz |
+| Boitatinha → Boitatão (18) → **Mboitatá** (38) | Fogo |
+| Iarinha → Iara-Mãe (18) → **Ipupiara** (38) | Água/Sombra |
+| Curupinho → Curupirá (18) → **Anhangá** (38) | Planta/Luz |
 | Piraguá → **Piraguaçu** (30) | Água |
 | Sacizinho → Saci (24) | — |
 | Caiporinha → **Caipora** (40) | Terra/Planta |
 | Cabritinha → Cabra-Cabriola (32) | — |
 | Mulinha → Mula-sem-Cabeça (30) | — |
 | Salamanca → **Teiniaguá** (42) | Fogo/Terra |
-| Mãe-do-Ouro → **Eldorado** (62) | Fogo/Luz |
-| Matinta → **Matinta-Perera** (48) | Vento/Sombra |
-| Uirapuru → **Uirapuru-Rei** (62) | Vento/Luz |
-| Faisquinha → Relampo (46) | — |
-| Tatu-Trovão → **Tatuaçu** (54) | Raio/Terra |
-| Arco-da-Velha → **Boiúna** (64) | Água/Raio |
-| Minhoquinha → Minhocão (50) | — |
-| Mapinguari → **Juma** (62) | Terra |
-| Lobinho → Lobisomem (52) | — |
-| Corpo-Seco → **Alma-Penada** (60) | Sombra/Terra |
-| Cuca → **Cuca-Rainha** (64) | Sombra/Água |
-| Pisadeira → **Pesadelo** (64) | Sombra/Vento |
-| Luzeiro → Estrela-d'Alva (50) | — |
-| Lamparina → **Fogo-Fátuo** (62) | Luz/Fogo |
-| Jaci → **Eclipse** (66) | Luz/Sombra |
-| Boto → **Boto-Encantado** (50) | Água/Luz |
+| Mãe-do-Ouro → **Eldorado** (52) | Fogo/Luz |
+| Matinta → **Matinta-Perera** (40) | Vento/Sombra |
+| Uirapuru → **Uirapuru-Rei** (50) | Vento/Luz |
+| Faisquinha → Relampo (36) | — |
+| Tatu-Trovão → **Tatuaçu** (46) | Raio/Terra |
+| Arco-da-Velha → **Boiúna** (55) | Água/Raio |
+| Minhoquinha → Minhocão (40) | — |
+| Mapinguari → **Juma** (54) | Terra |
+| Lobinho → Lobisomem (42) | — |
+| Corpo-Seco → **Alma-Penada** (54) | Sombra/Terra |
+| Cuca → **Cuca-Rainha** (56) | Sombra/Água |
+| Pisadeira → **Pesadelo** (56) | Sombra/Vento |
+| Luzeiro → Estrela-d'Alva (42) | — |
+| Lamparina → **Fogo-Fátuo** (52) | Luz/Fogo |
+| Jaci → **Eclipse** (58) | Luz/Sombra |
+| Boto → **Boto-Encantado** (44) | Água/Luz |
 
 Em negrito, as evoluções novas. O código A B A B ↑ ↑ A sobe um degrau por
 vez: um inicial precisa do código duas vezes para chegar à última forma.
@@ -1735,7 +1755,7 @@ NE: A → mestre) · Zeca 5 · Relampo do cume → terreiro (guarda · chaves 1-
 · 2 guardas) → Guaraci → **Trovão + Faísca** →
 (3 penas → Tecelã; penas + medalha → Arco-da-Velha; Faísca → 3 esconderijos).
 
-**Minas da Caipora** — forquilha + 3 pepitas (4,6 · 57,12 · 9,31) · charadas
+**Minas da Caipora** — forquilha + 3 pepitas (4,6 · 64,12 · 9,31) · charadas
 (buraco · alho · piolho) · Galerias (N: puxa 2 · O: puxa 3 · S: puxa 1 ·
 O: solta 3 · N: solta 2 · O: puxa 3 → sino) · Tuco pelo expresso até a Dona
 Luzia · Zeca 6 · Mapinguari no fundo da espiral → terreiro (guarda ·

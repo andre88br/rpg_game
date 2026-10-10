@@ -70,7 +70,7 @@ const LISTA: readonly Especie[] = [
       { nv: 40, golpe: 'brasa_viva' }, { nv: 46, golpe: 'fornalha' },
       { nv: 52, golpe: 'grito' },
     ],
-    evolui: { em: 'mboitata', nv: 55 },
+    evolui: { em: 'mboitata', nv: 38 },
   },
   {
     id: 'mboitata', nome: 'Mboitatá', tipos: ['fogo'],
@@ -115,7 +115,7 @@ const LISTA: readonly Especie[] = [
       { nv: 40, golpe: 'agua_cheiro' }, { nv: 46, golpe: 'cachoeira' },
       { nv: 52, golpe: 'fecha_corpo' },
     ],
-    evolui: { em: 'ipupiara', nv: 55 },
+    evolui: { em: 'ipupiara', nv: 38 },
   },
   {
     id: 'ipupiara', nome: 'Ipupiara', tipos: ['agua', 'sombra'],
@@ -160,7 +160,7 @@ const LISTA: readonly Especie[] = [
       { nv: 40, golpe: 'polen' }, { nv: 46, golpe: 'tronco' },
       { nv: 52, golpe: 'grito' },
     ],
-    evolui: { em: 'anhanga', nv: 55 },
+    evolui: { em: 'anhanga', nv: 38 },
   },
   {
     id: 'anhanga', nome: 'Anhangá', tipos: ['planta', 'luz'],
@@ -195,7 +195,7 @@ const LISTA: readonly Especie[] = [
   },
   {
     id: 'piraguacu', nome: 'Piraguaçu', tipos: ['agua'],
-    base: { hp: 78, atq: 92, def: 70, esp: 80, vel: 95 },
+    base: { hp: 85, atq: 100, def: 76, esp: 87, vel: 103 },
     taxaCaptura: 45, xpBase: 165, crescimento: 'rapido',
     arte: 'piraguacu', categoria: 'Peixe Encantado',
     sobre: 'Roubou tanta isca que virou história de pescador. Vira canoa com uma rabanada só.',
@@ -254,7 +254,7 @@ const LISTA: readonly Especie[] = [
   },
   {
     id: 'cabraCabriola', nome: 'Cabra-Cabriola', tipos: ['terra', 'fogo'],
-    base: { hp: 82, atq: 98, def: 80, esp: 70, vel: 72 },
+    base: { hp: 92, atq: 110, def: 90, esp: 78, vel: 81 },
     taxaCaptura: 30, xpBase: 168, crescimento: 'medio',
     arte: 'cabraCabriola', categoria: 'Bode da Serra',
     sobre: 'Solta fumaça pelas narinas quando pisa fundo. Ninguém segura uma cabriola dela.',
@@ -282,7 +282,7 @@ const LISTA: readonly Especie[] = [
   },
   {
     id: 'mulaSemCabeca', nome: 'Mula-sem-Cabeça', tipos: ['fogo'],
-    base: { hp: 75, atq: 92, def: 68, esp: 88, vel: 95 },
+    base: { hp: 81, atq: 99, def: 73, esp: 95, vel: 102 },
     taxaCaptura: 25, xpBase: 172, crescimento: 'medio',
     arte: 'mulaSemCabeca', categoria: 'Assombração da Estrada',
     sobre: 'Corre a serra inteira numa noite só. O pescoço solta fogo em vez de pescoço.',
@@ -337,7 +337,7 @@ const LISTA: readonly Especie[] = [
       { nv: 46, golpe: 'feixe' }, { nv: 52, golpe: 'fornalha' },
       { nv: 58, golpe: 'prece' },
     ],
-    evolui: { em: 'eldorado', nv: 62 },
+    evolui: { em: 'eldorado', nv: 52 },
   },
   {
     id: 'eldorado', nome: 'Eldorado', tipos: ['fogo', 'luz'],
@@ -357,7 +357,7 @@ const LISTA: readonly Especie[] = [
   /* --------------------- do Campo do Saci --------------------- */
   {
     id: 'saci', nome: 'Saci', tipos: ['vento'],
-    base: { hp: 64, atq: 74, def: 56, esp: 90, vel: 118 },
+    base: { hp: 72, atq: 83, def: 63, esp: 101, vel: 132 },
     taxaCaptura: 25, xpBase: 165, crescimento: 'rapido',
     arte: 'saci', categoria: 'Peralta do Vento',
     sobre: 'Cresceu, mas não emendou. Atravessa cerca fechada sem tirar o gorro do lugar.',
@@ -382,7 +382,7 @@ const LISTA: readonly Especie[] = [
       { nv: 28, golpe: 'rosnado' }, { nv: 36, golpe: 'vendaval' },
       { nv: 42, golpe: 'penas' }, { nv: 46, golpe: 'assobio' },
     ],
-    evolui: { em: 'matintaPerera', nv: 48 },
+    evolui: { em: 'matintaPerera', nv: 40 },
   },
   {
     id: 'matintaPerera', nome: 'Matinta-Perera', tipos: ['vento', 'sombra'],
@@ -410,7 +410,7 @@ const LISTA: readonly Especie[] = [
       { nv: 30, golpe: 'penas' }, { nv: 40, golpe: 'assobio' },
       { nv: 50, golpe: 'rasante' }, { nv: 56, golpe: 'fecha_corpo' },
     ],
-    evolui: { em: 'uirapuruRei', nv: 62 },
+    evolui: { em: 'uirapuruRei', nv: 50 },
   },
   {
     id: 'uirapuruRei', nome: 'Uirapuru-Rei', tipos: ['vento', 'luz'],
@@ -440,11 +440,11 @@ const LISTA: readonly Especie[] = [
       { nv: 22, golpe: 'trovoada' }, { nv: 28, golpe: 'faiscas' },
       { nv: 34, golpe: 'risco' }, { nv: 40, golpe: 'carregar' },
     ],
-    evolui: { em: 'relampo', nv: 46 },
+    evolui: { em: 'relampo', nv: 36 },
   },
   {
     id: 'relampo', nome: 'Relampo', tipos: ['raio'],
-    base: { hp: 68, atq: 70, def: 60, esp: 104, vel: 112 },
+    base: { hp: 74, atq: 76, def: 65, esp: 113, vel: 122 },
     taxaCaptura: 35, xpBase: 175, crescimento: 'rapido',
     arte: 'relampo', categoria: 'Vaga-lume do Raio',
     sobre: 'Risca o céu de uma serra a outra num piscar. O trovão só chega depois que ele já foi.',
@@ -469,7 +469,7 @@ const LISTA: readonly Especie[] = [
       { nv: 38, golpe: 'entocar' }, { nv: 44, golpe: 'desmoronamento' },
       { nv: 50, golpe: 'pedrinhas' },
     ],
-    evolui: { em: 'tatuacu', nv: 54 },
+    evolui: { em: 'tatuacu', nv: 46 },
   },
   {
     id: 'tatuacu', nome: 'Tatuaçu', tipos: ['raio', 'terra'],
@@ -497,7 +497,7 @@ const LISTA: readonly Especie[] = [
       { nv: 45, golpe: 'feixe' }, { nv: 50, golpe: 'carregar' },
       { nv: 55, golpe: 'raios_sol' }, { nv: 60, golpe: 'trovao_seco' },
     ],
-    evolui: { em: 'boiuna', nv: 64 },
+    evolui: { em: 'boiuna', nv: 55 },
   },
   {
     id: 'boiuna', nome: 'Boiúna', tipos: ['agua', 'raio'],
@@ -527,11 +527,11 @@ const LISTA: readonly Especie[] = [
       { nv: 26, golpe: 'tremor' }, { nv: 30, golpe: 'pedrinhas' },
       { nv: 38, golpe: 'entocar' }, { nv: 44, golpe: 'pisao' },
     ],
-    evolui: { em: 'minhocao', nv: 50 },
+    evolui: { em: 'minhocao', nv: 40 },
   },
   {
     id: 'minhocao', nome: 'Minhocão', tipos: ['terra'],
-    base: { hp: 104, atq: 108, def: 96, esp: 50, vel: 52 },
+    base: { hp: 114, atq: 119, def: 105, esp: 55, vel: 57 },
     taxaCaptura: 35, xpBase: 180, crescimento: 'rapido',
     arte: 'minhocao', categoria: 'Minhoca da Mina',
     sobre: 'Dizem que é ele quem faz o rio mudar de curso. Quando se vira embaixo da serra, a mina treme.',
@@ -555,7 +555,7 @@ const LISTA: readonly Especie[] = [
       { nv: 45, golpe: 'terremoto' }, { nv: 50, golpe: 'pisao' },
       { nv: 55, golpe: 'grito' }, { nv: 60, golpe: 'entocar' },
     ],
-    evolui: { em: 'juma', nv: 62 },
+    evolui: { em: 'juma', nv: 54 },
   },
   {
     id: 'juma', nome: 'Juma', tipos: ['terra'],
@@ -599,7 +599,7 @@ const LISTA: readonly Especie[] = [
       { nv: 30, golpe: 'garra_cuca' }, { nv: 36, golpe: 'unhas_noite' },
       { nv: 44, golpe: 'arrepio' },
     ],
-    evolui: { em: 'lobisomem', nv: 52 },
+    evolui: { em: 'lobisomem', nv: 42 },
   },
   {
     id: 'lobisomem', nome: 'Lobisomem', tipos: ['sombra'],
@@ -627,7 +627,7 @@ const LISTA: readonly Especie[] = [
       { nv: 36, golpe: 'assombracao' }, { nv: 44, golpe: 'garra_cuca' },
       { nv: 50, golpe: 'arrepio' }, { nv: 56, golpe: 'entocar' },
     ],
-    evolui: { em: 'almaPenada', nv: 60 },
+    evolui: { em: 'almaPenada', nv: 54 },
   },
   {
     id: 'almaPenada', nome: 'Alma-Penada', tipos: ['sombra', 'terra'],
@@ -655,7 +655,7 @@ const LISTA: readonly Especie[] = [
       { nv: 45, golpe: 'mau_sonho' }, { nv: 50, golpe: 'arrepio' },
       { nv: 55, golpe: 'assombracao' }, { nv: 60, golpe: 'fecha_corpo' },
     ],
-    evolui: { em: 'cucaRainha', nv: 64 },
+    evolui: { em: 'cucaRainha', nv: 56 },
   },
   {
     id: 'cucaRainha', nome: 'Cuca-Rainha', tipos: ['sombra', 'agua'],
@@ -682,7 +682,7 @@ const LISTA: readonly Especie[] = [
       { nv: 45, golpe: 'assombracao' }, { nv: 50, golpe: 'penas' },
       { nv: 55, golpe: 'mau_sonho' }, { nv: 60, golpe: 'arrepio' },
     ],
-    evolui: { em: 'pesadelo', nv: 64 },
+    evolui: { em: 'pesadelo', nv: 56 },
   },
   {
     id: 'pesadelo', nome: 'Pesadelo', tipos: ['sombra', 'vento'],
@@ -711,7 +711,7 @@ const LISTA: readonly Especie[] = [
       { nv: 28, golpe: 'raios_sol' }, { nv: 34, golpe: 'afiar' },
       { nv: 42, golpe: 'prece' }, { nv: 46, golpe: 'feixe' },
     ],
-    evolui: { em: 'estrelaDalva', nv: 50 },
+    evolui: { em: 'estrelaDalva', nv: 42 },
   },
   {
     id: 'estrelaDalva', nome: "Estrela-d'Alva", tipos: ['luz'],
@@ -739,7 +739,7 @@ const LISTA: readonly Especie[] = [
       { nv: 30, golpe: 'labareda' }, { nv: 36, golpe: 'brasa_viva' },
       { nv: 44, golpe: 'aurora' }, { nv: 52, golpe: 'feixe' },
     ],
-    evolui: { em: 'fogoFatuo', nv: 62 },
+    evolui: { em: 'fogoFatuo', nv: 52 },
   },
   {
     id: 'fogoFatuo', nome: 'Fogo-Fátuo', tipos: ['luz', 'fogo'],
@@ -767,7 +767,7 @@ const LISTA: readonly Especie[] = [
       { nv: 45, golpe: 'mau_sonho' }, { nv: 50, golpe: 'feixe' },
       { nv: 55, golpe: 'prece' }, { nv: 60, golpe: 'raios_sol' },
     ],
-    evolui: { em: 'eclipse', nv: 66 },
+    evolui: { em: 'eclipse', nv: 58 },
   },
   {
     id: 'eclipse', nome: 'Eclipse', tipos: ['luz', 'sombra'],
@@ -796,7 +796,7 @@ const LISTA: readonly Especie[] = [
       { nv: 32, golpe: 'mare_cheia' }, { nv: 38, golpe: 'prece' },
       { nv: 44, golpe: 'feixe' },
     ],
-    evolui: { em: 'botoEncantado', nv: 50 },
+    evolui: { em: 'botoEncantado', nv: 44 },
   },
   {
     id: 'botoEncantado', nome: 'Boto-Encantado', tipos: ['agua', 'luz'],

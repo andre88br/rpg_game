@@ -240,6 +240,9 @@ tudo de novo.
 ## O jogo
 
 - **9 cidades.** Vila do Sossego (início, sem terreiro) e mais 8, uma por tipo.
+- **Batalha.** Dois triângulos de tipos (2x num sentido, ½x no outro) e Luz ↔
+  Sombra; o XP vai para o time inteiro (metade para quem não lutou); a escada
+  de níveis vai do 5 da Foz ao 70 do campeão.
 - **8 terreiros.** Cada terreiro é fechado por uma **guia de cinco contas**: cinco
   desafios espalhados pela região, um de cada sabor — um recado para entregar, um
   rival que barra a estrada, uma caçada no mato alto, um sumiço para resolver e um

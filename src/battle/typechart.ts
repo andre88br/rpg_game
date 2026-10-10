@@ -7,13 +7,10 @@
        Terra →  Raio    →  Vento →  Terra       (2x)
        Luz   ↔  Sombra                          (2x nos dois sentidos)
 
-   Todo o resto é neutro (1x). É pouca regra de propósito: dá para decorar
-   depois de duas batalhas, mas ainda obriga a montar um time variado, já que
-   cada um dos 8 terreiros usa um tipo diferente.
-
-   Se um dia quisermos mais profundidade, basta acrescentar as resistências
-   (0.5x no sentido contrário de cada seta) em VANTAGENS — o resto do motor
-   não muda, porque tudo passa por eficacia().
+   E cada seta dos triângulos, ao contrário, vale ½× (RESISTENCIAS): quem
+   leva 2× de um tipo também resiste ao tipo que ele mesmo vence. Todo o
+   resto é neutro (1x). É pouca regra de propósito: dá para decorar depois
+   de duas batalhas, e ainda obriga a montar um time variado.
    ========================================================================= */
 import type { Tipo, TipoGolpe } from '../art/palette.ts';
 
@@ -30,8 +27,25 @@ export const VANTAGENS: Record<TipoGolpe, readonly Tipo[]> = {
   sombra: ['luz'],
 };
 
+/* atacante → tipos que resistem a ele (½×): cada seta dos triângulos, ao
+   contrário. Planta bate mal em Fogo, Água em Planta, Fogo em Água; Raio
+   em Terra, Vento em Raio, Terra em Vento. Luz e Sombra não resistem uma
+   à outra: as duas se batem com força. */
+export const RESISTENCIAS: Record<TipoGolpe, readonly Tipo[]> = {
+  neutro: [],
+  fogo:   ['agua'],
+  planta: ['fogo'],
+  agua:   ['planta'],
+  terra:  ['vento'],
+  raio:   ['terra'],
+  vento:  ['raio'],
+  luz:    [],
+  sombra: [],
+};
+
 export const SUPER = 2;
 export const NEUTRO = 1;
+export const FRACO = 0.5;
 
 /* multiplicador de um golpe contra um alvo de um ou dois tipos.
    Com dois tipos os multiplicadores se somam por multiplicação, então um
@@ -39,8 +53,11 @@ export const NEUTRO = 1;
    Fogo não tem vantagem sobre Água. */
 export function eficacia(golpe: TipoGolpe, alvo: readonly Tipo[]): number {
   let m = 1;
-  const vant = VANTAGENS[golpe];
-  for (const t of alvo) if (vant.includes(t)) m *= SUPER;
+  const vant = VANTAGENS[golpe], res = RESISTENCIAS[golpe];
+  for (const t of alvo) {
+    if (vant.includes(t)) m *= SUPER;
+    if (res.includes(t)) m *= FRACO;
+  }
   return m;
 }
 
@@ -48,6 +65,7 @@ export function eficacia(golpe: TipoGolpe, alvo: readonly Tipo[]): number {
 export function fraseEficacia(m: number): string | null {
   if (m >= 4) return 'Foi devastador!';
   if (m > 1) return 'É super eficaz!';
+  if (m < 1) return 'Não foi muito eficaz...';
   return null;
 }
 

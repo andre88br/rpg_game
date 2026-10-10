@@ -12,7 +12,7 @@
 import { Aleatorio } from '../core/rng.ts';
 import type { Tipo } from '../art/palette.ts';
 import { golpe as fichaGolpe, type Golpe, type ChaveStat } from '../data/moves.ts';
-import { item as fichaItem, consumir, type Mochila } from '../data/items.ts';
+import { item as fichaItem, consumir, quantoCura, type Mochila } from '../data/items.ts';
 import {
   atributos, curar, desmaiado, ganharXP, hpMaximo, nome, reviver,
   semPP, tipos, xpPorDerrotar, type Encantado,
@@ -88,6 +88,9 @@ export interface Combatente {
   protegido: boolean;
   /* turno do último Fecha-Corpo — dois seguidos, o segundo falha */
   ultimoProtege: number;
+  /* turnos seguidos de peçonha em campo: o veneno piora a cada um (n/16)
+     e volta ao começo quando ele sai de campo */
+  veneno: number;
 }
 
 /* o golpe mira no adversário? (o corpo fechado do outro só barra estes;
@@ -100,7 +103,7 @@ function miraOponente(g: Golpe): boolean {
 /* trocar de Encantado zera tudo isto: estágios, quebranto, recarga, proteção */
 function envolver(e: Encantado): Combatente {
   return { enc: e, estagios: { atq: 0, def: 0, esp: 0, vel: 0 }, feitico: 0,
-           recarregando: false, protegido: false, ultimoProtege: -9 };
+           recarregando: false, protegido: false, ultimoProtege: -9, veneno: 0 };
 }
 
 /* --------------------------------------------------------- treinador */
@@ -138,6 +141,8 @@ export interface OpcoesBatalha {
 }
 
 /* abaixo desta fração de HP a IA considera curar; acima, nunca gasta item */
+/* quanto do XP de quem venceu vai para cada um da reserva */
+export const FRACAO_RESERVA = 0.5;
 const LIMIAR_CURA_IA = 0.35;
 /* mesmo podendo, a IA não usa item nem troca toda vez — senão fica previsível */
 const CHANCE_ITEM_IA = 70;
@@ -416,11 +421,20 @@ export class Batalha {
 
     if (ef.k === 'cura') {
       const antes = destino.hp;
-      const ganho = curar(destino, ef.hp);
+      const ganho = curar(destino, quantoCura(ef, hpMaximo(destino)));
       if (destino === this.aliado.enc) {
         ev.push({ k: 'cura', lado: 'aliado', de: antes, para: destino.hp });
       }
-      ev.push({ k: 'texto', t: `${nome(destino)} recuperou ${ganho} de fôlego.` });
+      if (ganho > 0) ev.push({ k: 'texto', t: `${nome(destino)} recuperou ${ganho} de fôlego.` });
+      if (ef.limpa && destino.status) {
+        destino.status = null;
+        destino.turnosStatus = 0;
+        if (destino === this.aliado.enc) ev.push({ k: 'status', lado: 'aliado', status: null });
+        ev.push({ k: 'texto', t: `${nome(destino)} se sente bem melhor.` });
+      }
+    } else if (ef.k === 'pp') {
+      for (const g of destino.golpes) g.pp = Math.min(g.ppMax, g.pp + ef.n);
+      ev.push({ k: 'texto', t: `Os golpes de ${nome(destino)} voltaram a ter fôlego.` });
     } else if (ef.k === 'limpar') {
       destino.status = null;
       destino.turnosStatus = 0;
@@ -446,7 +460,9 @@ export class Batalha {
     if (!destino) return 'Não tem ninguém aí.';
     if (ef.k === 'cura') {
       if (desmaiado(destino)) return `${nome(destino)} está desmaiado: garrafada não acorda ninguém.`;
-      if (destino.hp >= hpMaximo(destino)) return `${nome(destino)} já está com o fôlego cheio.`;
+      if (destino.hp >= hpMaximo(destino) && !(ef.limpa && destino.status)) return `${nome(destino)} já está com o fôlego cheio.`;
+    } else if (ef.k === 'pp') {
+      if (destino.golpes.every((g) => g.pp >= g.ppMax)) return `Os golpes de ${nome(destino)} já estão cheios.`;
     } else if (ef.k === 'limpar') {
       if (desmaiado(destino) || !destino.status) return `${nome(destino)} não tem nada para curar.`;
       if (ef.status !== 'todos' && !ef.status.includes(destino.status)) return `Isso não cura o que ${nome(destino)} tem.`;
@@ -461,7 +477,7 @@ export class Batalha {
   /* quem precisa escolher em quem usar: cura, limpeza e reviver */
   static precisaAlvo(id: string): boolean {
     const k = fichaItem(id).efeito.k;
-    return k === 'cura' || k === 'limpar' || k === 'reviver';
+    return k === 'cura' || k === 'limpar' || k === 'reviver' || k === 'pp';
   }
 
   /* o treinador inimigo usa item do PRÓPRIO bolso (itensIA), sempre no
@@ -476,7 +492,7 @@ export class Batalha {
 
     if (ef.k === 'cura') {
       const antes = destino.hp;
-      const ganho = curar(destino, ef.hp);
+      const ganho = curar(destino, quantoCura(ef, hpMaximo(destino)));
       ev.push({ k: 'cura', lado: 'inimigo', de: antes, para: destino.hp });
       ev.push({ k: 'texto', t: `${nome(destino)} recuperou ${ganho} de fôlego.` });
     } else if (ef.k === 'limpar') {
@@ -832,8 +848,10 @@ export class Batalha {
       if (this.terminou) return;
       const c = this.lado(lado);
       if (c !== quem[lado] || desmaiado(c.enc) || !c.enc.status) continue;
-      const fracao = DANO_POR_TURNO[c.enc.status];
+      let fracao = DANO_POR_TURNO[c.enc.status];
       if (!fracao) continue;
+      // a peçonha piora: 1/16, 2/16, 3/16... até a metade da vida por turno
+      if (c.enc.status === 'envenenado') fracao *= Math.min(8, ++c.veneno);
       const dano = Math.max(1, Math.floor(hpMaximo(c.enc) * fracao));
       const antes = c.enc.hp;
       c.enc.hp = Math.max(0, c.enc.hp - dano);
@@ -946,6 +964,31 @@ export class Batalha {
       for (const g of s.naoCoube) {
         this.pendentesAprender.push({ indice: this.iAliado, golpe: g });
         ev.push({ k: 'esquecer', golpe: g });
+      }
+    }
+    this.premiarReserva(ev, ganho);
+  }
+
+  /* o resto do time de pé leva metade do XP, sem cena: só texto. Na
+     reserva não há sprite para trocar, então a evolução também vira texto
+     (o evento `evoluir` é só de quem está em campo) */
+  private premiarReserva(ev: Evento[], ganhoCampo: number): void {
+    const ganho = Math.max(1, Math.floor(ganhoCampo * FRACAO_RESERVA));
+    const reserva = this.time.map((e, i) => [e, i] as const)
+      .filter(([e, i]) => i !== this.iAliado && !desmaiado(e));
+    if (!reserva.length) return;
+    ev.push({ k: 'texto', t: `O resto do time ganhou ${ganho} de experiência!` });
+    for (const [enc, i] of reserva) {
+      let quem = nome(enc);
+      for (const s of ganharXP(enc, ganho)) {
+        ev.push({ k: 'texto', t: `${quem} chegou ao nível ${s.nivel}!` });
+        if (s.evoluiEm && s.evoluiDe) {
+          const novo = enc.apelido ?? especie(s.evoluiEm).nome;
+          ev.push({ k: 'texto', t: `${quem} virou ${especie(s.evoluiEm).nome}!` });
+          quem = novo;
+        }
+        for (const g of s.aprendeu) ev.push({ k: 'texto', t: `${quem} aprendeu ${fichaGolpe(g).nome}!` });
+        for (const g of s.naoCoube) this.pendentesAprender.push({ indice: i, golpe: g });
       }
     }
   }

@@ -114,5 +114,6 @@ export const ventaniaFunda: DefMapa = {
     { especie: 'saci', min: 39, max: 42, peso: 30 },
     { especie: 'matinta', min: 40, max: 43, peso: 20 },
     { especie: 'cabritinha', min: 38, max: 41, peso: 10 },
+    { especie: 'faisquinha', min: 38, max: 41, peso: 15 },
   ],
 };

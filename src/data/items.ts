@@ -10,7 +10,11 @@ import type { Tipo } from '../art/palette.ts';
 export type EfeitoItem =
   | { k: 'nenhum' }                    // item de recado: vale pelo que destrava
   | { k: 'patua'; bonus: number }
-  | { k: 'cura'; hp: number }
+  /* cura `hp` ou a fração da vida máxima, o que for maior; `limpa` também
+     tira o estado alterado (a Garrafada Santa) */
+  | { k: 'cura'; hp: number; fracao?: number; limpa?: boolean }
+  | { k: 'pp'; n: number }                       // devolve PP a todo golpe
+  | { k: 'repelente'; passos: number }           // espanta o bicho do mato
   | { k: 'limpar'; status: readonly Status[] | 'todos' }
   | { k: 'reviver'; fracao: number }
   /* ensina um golpe a quem tiver um dos `tipos` (ou a qualquer um, com
@@ -37,16 +41,25 @@ const LISTA: readonly Item[] = [
   { id: 'patua_bom', nome: 'Patuá Bom', preco: 600, emBatalha: true,
     efeito: { k: 'patua', bonus: 1.5 },
     descricao: 'Costurado com fita do Bonfim. Prende melhor que o comum.' },
-  { id: 'patua_mestre', nome: 'Patuá de Mestre', preco: 1200, emBatalha: true,
+  { id: 'patua_mestre', nome: 'Patuá de Mestre', preco: 1200, emBatalha: true, medalha: 'rodamoinho',
     efeito: { k: 'patua', bonus: 2.5 },
     descricao: 'Benzido três vezes. Segura quase qualquer Encantado.' },
 
   { id: 'garrafada', nome: 'Garrafada', preco: 300, emBatalha: true,
-    efeito: { k: 'cura', hp: 20 },
-    descricao: 'Remédio de raiz. Devolve 20 de fôlego.' },
+    efeito: { k: 'cura', hp: 20, fracao: 0.35 },
+    descricao: 'Remédio de raiz. Devolve um terço do fôlego (no mínimo 20).' },
   { id: 'garrafada_forte', nome: 'Garrafada Forte', preco: 700, emBatalha: true,
-    efeito: { k: 'cura', hp: 50 },
-    descricao: 'A mesma receita, mas da mão da benzedeira. Devolve 50.' },
+    efeito: { k: 'cura', hp: 50, fracao: 0.7 },
+    descricao: 'A mesma receita, mas da mão da benzedeira. Devolve dois terços do fôlego.' },
+  { id: 'garrafada_santa', nome: 'Garrafada Santa', preco: 1500, emBatalha: true,
+    efeito: { k: 'cura', hp: 0, fracao: 1, limpa: true },
+    descricao: 'Rezada na sexta-feira santa. Fôlego cheio e nenhum mau-jeito.' },
+  { id: 'mel_jatai', nome: 'Mel de Jataí', preco: 800, emBatalha: true,
+    efeito: { k: 'pp', n: 10 },
+    descricao: 'Mel de abelha sem ferrão. Devolve 10 PP de cada golpe.' },
+  { id: 'fumo_rolo', nome: 'Fumo de Rolo', preco: 300, emBatalha: false,
+    efeito: { k: 'repelente', passos: 120 },
+    descricao: 'A fumaça espanta o bicho do mato por 120 passos.' },
   { id: 'erva_doce', nome: 'Erva-Doce', preco: 250, emBatalha: true,
     efeito: { k: 'limpar', status: 'todos' },
     descricao: 'Chá que corta qualquer mau-jeito: queimadura, sono, veneno.' },
@@ -227,4 +240,9 @@ export function consumir(m: Mochila, id: string, n = 1): boolean {
   m[id] = quantidade(m, id) - n;
   if (m[id]! <= 0) delete m[id];
   return true;
+}
+
+/* quanto um item de cura devolve a este Encantado */
+export function quantoCura(ef: { hp: number; fracao?: number }, hpMax: number): number {
+  return Math.max(ef.hp, Math.ceil(hpMax * (ef.fracao ?? 0)));
 }

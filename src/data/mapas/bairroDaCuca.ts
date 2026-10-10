@@ -102,9 +102,9 @@ export const bairroDaCuca: DefMapa = {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3400, liga: 'conta_zeca7',
         // no primeiro encontro, a cutscene conta da cantiga da avó e do Casarão vendido
         apresentacao: 'zeca_cuca',
-        time: [{ especie: 'lobisomem', nivel: 57 }, { especie: 'minhocao', nivel: 57 },
-               { especie: 'relampo', nivel: 58 }, { especie: 'saci', nivel: 58 },
-               { especie: 'curupira', nivel: 59 }],
+        time: [{ especie: 'lobisomem', nivel: 58 }, { especie: 'minhocao', nivel: 58 },
+               { especie: 'relampo', nivel: 59 }, { especie: 'saci', nivel: 59 },
+               { especie: 'curupira', nivel: 61 }],
         falaInicio: 'Sete, {crianca}. Sete regiões. E dessa vez eu não durmo antes de ganhar.',
         falaDerrota: 'Sete a zero. Eu... vou dormir. Mas amanhã eu volto, pode ter certeza.',
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1, agua_benta: 1 },
@@ -165,8 +165,8 @@ export const bairroDaCuca: DefMapa = {
   },
   passosPorEncontro: 12,
   encontros: [
-    { especie: 'lobinho', min: 55, max: 57, peso: 50 },
-    { especie: 'corpoSeco', min: 55, max: 57, peso: 30 },
-    { especie: 'matinta', min: 55, max: 57, peso: 20 },
+    { especie: 'lobinho', min: 55, max: 58, peso: 50 },
+    { especie: 'corpoSeco', min: 55, max: 58, peso: 30 },
+    { especie: 'matinta', min: 55, max: 58, peso: 20 },
   ],
 };

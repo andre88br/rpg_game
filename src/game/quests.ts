@@ -12,6 +12,7 @@
 import { quantidade } from '../data/items.ts';
 import { curarTime, guardar, pronomeDe, type EstadoJogo } from './state.ts';
 import { criar } from '../battle/encantado.ts';
+import { maiorNivel } from './escala.ts';
 
 /* -------------------------------------------------------------- condições
 
@@ -174,7 +175,10 @@ export function aplicarFala(e: EstadoJogo, f: Fala, mochila: {
   }
   if (f.dom) e.flags[`dom_${f.dom}`] = true;
   if (f.encantado) {
-    guardar(e, criar(f.encantado.especie, f.encantado.nivel));
+    // o presente chega perto do nível do time (o mais forte menos 2), para
+    // não ficar 15 níveis atrás de quem ele vai acompanhar
+    const nv = Math.max(f.encantado.nivel, maiorNivel(e) - 2);
+    guardar(e, criar(f.encantado.especie, nv));
     efeito.encantado = f.encantado.especie;
   }
   efeito.batalha = f.batalha === true;

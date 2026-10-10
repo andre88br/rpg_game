@@ -132,7 +132,7 @@ export const jardimEspelhos: DefMapa = {
       treinador: {
         classe: 'JARDINEIRO DO SOL', visao: 4, premio: 3800,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'lamparina', nivel: 58 }, { especie: 'curupira', nivel: 58 }, { especie: 'estrelaDalva', nivel: 59 }],
+        time: [{ especie: 'lamparina', nivel: 61 }, { especie: 'curupira', nivel: 61 }, { especie: 'estrelaDalva', nivel: 63 }],
         falaInicio: 'Mexeu nos meus espelhos? Então mexe comigo também.',
         falaDerrota: 'Tá bom. Mas deixa os espelhos do jeito que achou... ou não.',
       },
@@ -147,7 +147,7 @@ export const jardimEspelhos: DefMapa = {
       treinador: {
         classe: 'JARDINEIRA DO SOL', visao: 4, premio: 4000,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'estrelaDalva', nivel: 59 }, { especie: 'arcoDaVelha', nivel: 58 }, { especie: 'lamparina', nivel: 59 }],
+        time: [{ especie: 'estrelaDalva', nivel: 63 }, { especie: 'arcoDaVelha', nivel: 61 }, { especie: 'lamparina', nivel: 63 }],
         falaInicio: 'O jardim fecha quando o sol se põe. Até lá, eu cuido dele.',
         falaDerrota: 'Cuida bem, então. Pode ficar.',
       },
@@ -168,8 +168,8 @@ export const jardimEspelhos: DefMapa = {
   cenario: 'mata',
   passosPorEncontro: 11,
   encontros: [
-    { especie: 'luzeiro', min: 58, max: 59, peso: 50 },
-    { especie: 'lamparina', min: 58, max: 59, peso: 30 },
-    { especie: 'estrelaDalva', min: 58, max: 59, peso: 20 },
+    { especie: 'luzeiro', min: 61, max: 63, peso: 50 },
+    { especie: 'lamparina', min: 61, max: 63, peso: 30 },
+    { especie: 'estrelaDalva', min: 61, max: 63, peso: 20 },
   ],
 };

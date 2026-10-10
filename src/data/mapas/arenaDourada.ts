@@ -106,7 +106,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DAS ÁGUAS E MATAS', visao: 6, premio: 6000, esperta: true,
         itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'iaraMae', nivel: 58 }, { especie: 'curupira', nivel: 58 }, { especie: 'caipora', nivel: 59 }, { especie: 'iaraMae', nivel: 59 }, { especie: 'curupira', nivel: 60 }],
+        time: [{ especie: 'iaraMae', nivel: 66 }, { especie: 'curupira', nivel: 66 }, { especie: 'caipora', nivel: 68 }, { especie: 'iaraMae', nivel: 68 }, { especie: 'curupira', nivel: 70 }],
         falaInicio: 'Rio e mata, os dois primeiros que você conheceu. Vamos ver se você ainda lembra deles.',
         falaDerrota: 'Aprendeu com a água e com a raiz. Pode seguir.',
       },
@@ -121,7 +121,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DAS ÁGUAS E MATAS', visao: 6, premio: 8000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'iaraMae', nivel: 60 }, { especie: 'curupira', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'iaraMae', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'curupira', nivel: 60 }],
+        time: [{ especie: 'iaraMae', nivel: 70 }, { especie: 'curupira', nivel: 70 }, { especie: 'caipora', nivel: 70 }, { especie: 'iaraMae', nivel: 70 }, { especie: 'caipora', nivel: 70 }, { especie: 'curupira', nivel: 70 }],
         falaInicio: 'Rio e mata, os dois primeiros que você conheceu. Vamos ver se você ainda lembra deles.',
         falaDerrota: 'Aprendeu com a água e com a raiz. Pode seguir.',
       },
@@ -136,7 +136,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃO DO FOGO E DA PEDRA', visao: 6, premio: 6500, esperta: true,
         itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'salamanca', nivel: 59 }, { especie: 'cabraCabriola', nivel: 59 }, { especie: 'mulaSemCabeca', nivel: 59 }, { especie: 'mapinguari', nivel: 59 }, { especie: 'boitatao', nivel: 60 }],
+        time: [{ especie: 'salamanca', nivel: 68 }, { especie: 'cabraCabriola', nivel: 68 }, { especie: 'mulaSemCabeca', nivel: 68 }, { especie: 'mapinguari', nivel: 68 }, { especie: 'boitatao', nivel: 70 }],
         falaInicio: 'Fogo derrete pedra; pedra abafa fogo. Eu uso os dois, e você só tem um time.',
         falaDerrota: 'Nem brasa nem rocha. Segue.',
       },
@@ -151,7 +151,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃO DO FOGO E DA PEDRA', visao: 6, premio: 8500, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'salamanca', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }, { especie: 'mulaSemCabeca', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'boitatao', nivel: 60 }, { especie: 'minhocao', nivel: 60 }],
+        time: [{ especie: 'salamanca', nivel: 70 }, { especie: 'cabraCabriola', nivel: 70 }, { especie: 'mulaSemCabeca', nivel: 70 }, { especie: 'mapinguari', nivel: 70 }, { especie: 'boitatao', nivel: 70 }, { especie: 'minhocao', nivel: 70 }],
         falaInicio: 'Fogo derrete pedra; pedra abafa fogo. Eu uso os dois, e você só tem um time.',
         falaDerrota: 'Nem brasa nem rocha. Segue.',
       },
@@ -166,7 +166,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DO VENTO E DO TROVÃO', visao: 6, premio: 7000, esperta: true,
         itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'saci', nivel: 59 }, { especie: 'relampo', nivel: 59 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'tatuTrovao', nivel: 59 }, { especie: 'arcoDaVelha', nivel: 60 }],
+        time: [{ especie: 'saci', nivel: 68 }, { especie: 'relampo', nivel: 68 }, { especie: 'uirapuru', nivel: 70 }, { especie: 'tatuTrovao', nivel: 68 }, { especie: 'arcoDaVelha', nivel: 70 }],
         falaInicio: 'O vento traz a nuvem, a nuvem traz o raio. Eu trago os dois.',
         falaDerrota: 'O céu abriu. Pode passar.',
       },
@@ -181,7 +181,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DO VENTO E DO TROVÃO', visao: 6, premio: 9000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'saci', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'matinta', nivel: 60 }],
+        time: [{ especie: 'saci', nivel: 70 }, { especie: 'relampo', nivel: 70 }, { especie: 'uirapuru', nivel: 70 }, { especie: 'tatuTrovao', nivel: 70 }, { especie: 'arcoDaVelha', nivel: 70 }, { especie: 'matinta', nivel: 70 }],
         falaInicio: 'O vento traz a nuvem, a nuvem traz o raio. Eu trago os dois.',
         falaDerrota: 'O céu abriu. Pode passar.',
       },
@@ -196,7 +196,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DA SOMBRA E DA LUZ', visao: 6, premio: 7500, esperta: true,
         itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }, { especie: 'cuca', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'jaci', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 70 }, { especie: 'estrelaDalva', nivel: 70 }, { especie: 'cuca', nivel: 70 }, { especie: 'pisadeira', nivel: 70 }, { especie: 'jaci', nivel: 70 }],
         falaInicio: 'Noite e dia. Um cobre o fraco do outro. Achou o fraco de algum?',
         falaDerrota: 'Viu no escuro e no claro. A próxima porta é do seu rival.',
       },
@@ -211,7 +211,7 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'GUARDIÃ DA SOMBRA E DA LUZ', visao: 6, premio: 9500, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }, { especie: 'cuca', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 70 }, { especie: 'estrelaDalva', nivel: 70 }, { especie: 'cuca', nivel: 70 }, { especie: 'pisadeira', nivel: 70 }, { especie: 'jaci', nivel: 70 }, { especie: 'maeDoOuro', nivel: 70 }],
         falaInicio: 'Noite e dia. Um cobre o fraco do outro. Achou o fraco de algum?',
         falaDerrota: 'Viu no escuro e no claro. A próxima porta é do seu rival.',
       },
@@ -228,13 +228,13 @@ export const arenaDourada: DefMapa = {
         // na primeira vez, a cutscene: o pai na arquibancada, e o redemoinho
         apresentacao: 'zeca_final',
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 70 }, { especie: 'relampo', nivel: 70 }, { especie: 'saci', nivel: 70 }, { especie: 'minhocao', nivel: 70 }, { especie: 'estrelaDalva', nivel: 70 }],
         falaInicio: 'Oito medalhas cada um. Nove vezes eu te barrei. Essa é a última, e é pra valer!',
         falaDerrota: 'Tá bom. TÁ BOM. Vai lá e ganha do Anhangá, senão eu nunca vou te perdoar.',
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 60 },
-          iarinha: { especie: 'curupira', nivel: 60 },
-          curupinho: { especie: 'boitatao', nivel: 60 },
+          boitatinha: { especie: 'iaraMae', nivel: 70 },
+          iarinha: { especie: 'curupira', nivel: 70 },
+          curupinho: { especie: 'boitatao', nivel: 70 },
         },
       },
       falas: [
@@ -248,13 +248,13 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 6, premio: 10000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 70 }, { especie: 'relampo', nivel: 70 }, { especie: 'saci', nivel: 70 }, { especie: 'minhocao', nivel: 70 }, { especie: 'estrelaDalva', nivel: 70 }],
         falaInicio: 'Oito medalhas cada um. Nove vezes eu te barrei. Essa é a última, e é pra valer!',
         falaDerrota: 'Tá bom. TÁ BOM. Vai lá e ganha do Anhangá, senão eu nunca vou te perdoar.',
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 60 },
-          iarinha: { especie: 'curupira', nivel: 60 },
-          curupinho: { especie: 'boitatao', nivel: 60 },
+          boitatinha: { especie: 'iaraMae', nivel: 70 },
+          iarinha: { especie: 'curupira', nivel: 70 },
+          curupinho: { especie: 'boitatao', nivel: 70 },
         },
       },
       falas: [
@@ -268,16 +268,16 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'CAMPEÃO DO CÍRCULO', visao: 6, premio: 15000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'cuca', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'caipora', nivel: 60 }],
+        time: [{ especie: 'cuca', nivel: 70 }, { especie: 'mapinguari', nivel: 70 }, { especie: 'uirapuru', nivel: 70 }, { especie: 'arcoDaVelha', nivel: 70 }, { especie: 'jaci', nivel: 70 }, { especie: 'caipora', nivel: 70 }],
         falaInicio: 'Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.',
         falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.',
         liga: 'campeao', creditos: true,
         // antes da luta, quem ele é; depois, o fim da história — e os créditos
         apresentacao: 'anhanga', cutscene: 'campeao',
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 60 },
-          iarinha: { especie: 'curupira', nivel: 60 },
-          curupinho: { especie: 'boitatao', nivel: 60 },
+          boitatinha: { especie: 'iaraMae', nivel: 70 },
+          iarinha: { especie: 'curupira', nivel: 70 },
+          curupinho: { especie: 'boitatao', nivel: 70 },
         },
       },
       falas: [
@@ -291,13 +291,13 @@ export const arenaDourada: DefMapa = {
       treinador: {
         classe: 'CAMPEÃO DO CÍRCULO', visao: 6, premio: 17000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
-        time: [{ especie: 'cuca', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }],
+        time: [{ especie: 'cuca', nivel: 70 }, { especie: 'mapinguari', nivel: 70 }, { especie: 'uirapuru', nivel: 70 }, { especie: 'arcoDaVelha', nivel: 70 }, { especie: 'jaci', nivel: 70 }, { especie: 'lobisomem', nivel: 70 }],
         falaInicio: 'Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.',
         falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.',
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 60 },
-          iarinha: { especie: 'curupira', nivel: 60 },
-          curupinho: { especie: 'boitatao', nivel: 60 },
+          boitatinha: { especie: 'iaraMae', nivel: 70 },
+          iarinha: { especie: 'curupira', nivel: 70 },
+          curupinho: { especie: 'boitatao', nivel: 70 },
         },
       },
       falas: [

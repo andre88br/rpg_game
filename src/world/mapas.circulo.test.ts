@@ -44,7 +44,7 @@ test('cada adversário tem gêmeo de campeão, e entrar na arena apaga todas as 
   for (const n of def.npcs) {
     assert.ok(n.treinador, `${n.id} devia lutar`);
     assert.ok(zera.has(`venceu_${n.id}`), `${n.id}: a vitória não se apaga ao entrar`);
-    for (const c of n.treinador!.time) assert.ok(c.nivel <= 60, `${n.id}: nível ${c.nivel} acima do máximo`);
+    for (const c of n.treinador!.time) assert.ok(c.nivel <= 70, `${n.id}: nível ${c.nivel} acima do teto (70)`);
     if (n.id.endsWith('_b')) { assert.equal(n.se, 'campeao'); continue; }
     assert.equal(n.seNao, 'campeao');
     assert.ok(def.npcs.some((x) => x.id === `${n.id}_b`), `${n.id} sem gêmeo de campeão`);
@@ -105,7 +105,7 @@ test('as oito revanches crescem com o jogador e podem se repetir', () => {
   const revanches = MAPAS['circuloDourado']!.npcs.filter((n) => n.id.startsWith('revanche_'));
   assert.equal(revanches.length, 8);
   for (const n of revanches) {
-    assert.deepEqual(n.treinador?.escala, { piso: 60, mais: 3 }, n.id);
+    assert.deepEqual(n.treinador?.escala, { piso: 70, mais: 3 }, n.id);
     assert.equal(n.treinador?.repete, true, n.id);
   }
 });

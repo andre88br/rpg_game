@@ -95,9 +95,9 @@ export const arraialCaipora: DefMapa = {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3000,
         // no primeiro encontro, a cutscene conta do pai dele de volta ao mar
         apresentacao: 'zeca_minas',
-        time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'relampo', nivel: 55 },
-               { especie: 'saci', nivel: 55 }, { especie: 'cabraCabriola', nivel: 55 },
-               { especie: 'curupira', nivel: 56 }],
+        time: [{ especie: 'minhocao', nivel: 53 }, { especie: 'relampo', nivel: 54 },
+               { especie: 'saci', nivel: 54 }, { especie: 'cabraCabriola', nivel: 54 },
+               { especie: 'curupira', nivel: 54 }],
         falaInicio: 'Seis, {crianca}. Seis vezes. Dessa vez eu cavei um time inteiro só pra você.',
         falaDerrota: 'Seis a zero... Tá. A Cava Funda é sua. Eu vou... treinar mais um pouco.',
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1 },
@@ -180,8 +180,8 @@ export const arraialCaipora: DefMapa = {
   },
   passosPorEncontro: 12,
   encontros: [
-    { especie: 'minhoquinha', min: 52, max: 54, peso: 50 },
-    { especie: 'cabraCabriola', min: 52, max: 54, peso: 30 },
-    { especie: 'faisquinha', min: 52, max: 54, peso: 20 },
+    { especie: 'minhoquinha', min: 52, max: 53, peso: 50 },
+    { especie: 'cabraCabriola', min: 52, max: 53, peso: 30 },
+    { especie: 'faisquinha', min: 52, max: 53, peso: 20 },
   ],
 };

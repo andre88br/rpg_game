@@ -99,7 +99,7 @@ export const casaraoAssombrado: DefMapa = {
       encontro: 'cuca', emboscada: true,
       treinador: {
         classe: 'DONA DO SÓTÃO', selvagem: true, visao: 4, liga: 'conta_cuca',
-        time: [{ especie: 'cuca', nivel: 58 }],
+        time: [{ especie: 'cuca', nivel: 59 }],
         falaInicio: 'Uma cantiga de ninar começa baixinho, e o focinho de jacaré aparece antes da voz de velha.',
       },
       falas: [

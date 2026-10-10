@@ -148,5 +148,7 @@ export const igarapeCurupira: DefMapa = {
   encontros: [
     { especie: 'caiporinha', min: 10, max: 14, peso: 55 },
     { especie: 'sacizinho', min: 11, max: 15, peso: 45 },
+    { especie: 'cabritinha', min: 11, max: 14, peso: 12 },
+    { especie: 'lobinho', min: 10, max: 14, peso: 12 },      // mais de noite (HORARIO)
   ],
 };

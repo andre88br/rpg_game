@@ -2,7 +2,7 @@
    Revanche que cresce com o jogador.
 
    Os oito mestres do Círculo voltam no nível do Encantado mais forte do
-   time mais 3 (nunca abaixo do 60), e cada bicho do time deles já aparece
+   time mais 3 (nunca abaixo do 70), e cada bicho do time deles já aparece
    na forma que teria nesse nível. Os golpes saem de `golpesAte` no nível
    novo — o time ganha golpe novo sozinho.
    ========================================================================= */

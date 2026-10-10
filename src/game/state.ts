@@ -5,8 +5,8 @@
    então o HP perdido numa luta continua perdido ao voltar para o mapa — sem
    nenhum trabalho de sincronização.
    ========================================================================= */
-import { curar, curarTudo, desmaiado, nome, reviver, type Encantado } from '../battle/encantado.ts';
-import { adicionar, consumir, item, type Mochila } from '../data/items.ts';
+import { curar, curarTudo, desmaiado, hpMaximo, nome, reviver, type Encantado } from '../battle/encantado.ts';
+import { adicionar, consumir, item, quantoCura, type Mochila } from '../data/items.ts';
 import type { Direcao } from '../art/people.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 
@@ -50,6 +50,8 @@ export interface EstadoJogo {
   raros: string[];                  // espécies já presas na cor rara
   /* a Romaria do Círculo: a sequência de agora e a melhor de todas */
   romaria: { seq: number; recorde: number };
+  /* passos que o Fumo de Rolo ainda espanta o bicho do mato */
+  repelente: number;
 }
 
 /* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
@@ -73,6 +75,7 @@ export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
     capturados: [],
     raros: [],
     romaria: { seq: 0, recorde: 0 },
+    repelente: 0,
   };
   adicionar(est.mochila, 'patua', 10);
   adicionar(est.mochila, 'garrafada', 5);
@@ -123,7 +126,7 @@ export function trocarPosicoes(e: EstadoJogo, i: number, j: number): void {
    adversário nenhum, então não há razão para trancá-los na batalha. */
 export function usavelForaDeBatalha(id: string): boolean {
   const k = item(id).efeito.k;
-  return k === 'cura' || k === 'limpar' || k === 'reviver' || k === 'cantiga';
+  return k === 'cura' || k === 'limpar' || k === 'reviver' || k === 'cantiga' || k === 'pp';
 }
 
 /* Usa um item de cura fora de batalha, no Encantado do índice dado.
@@ -137,9 +140,18 @@ export function usarItemForaDeBatalha(e: EstadoJogo, id: string,
 
   if (ef.k === 'cura') {
     if (desmaiado(destino)) return { msg: 'Não adiantou nada.', usou: false };
+    const cheio = destino.hp >= hpMaximo(destino);
+    if (cheio && !(ef.limpa && destino.status)) return { msg: 'Não adiantou nada.', usou: false };
     if (!consumir(e.mochila, id)) return { msg: 'Acabou.', usou: false };
-    const ganho = curar(destino, ef.hp);
-    return { msg: `${nome(destino)} recuperou ${ganho} de fôlego.`, usou: true };
+    const ganho = curar(destino, quantoCura(ef, hpMaximo(destino)));
+    if (ef.limpa) { destino.status = null; destino.turnosStatus = 0; }
+    return { msg: ganho > 0 ? `${nome(destino)} recuperou ${ganho} de fôlego.` : `${nome(destino)} se sente bem melhor.`, usou: true };
+  }
+  if (ef.k === 'pp') {
+    if (desmaiado(destino) || destino.golpes.every((g) => g.pp >= g.ppMax)) return { msg: 'Não adiantou nada.', usou: false };
+    if (!consumir(e.mochila, id)) return { msg: 'Acabou.', usou: false };
+    for (const g of destino.golpes) g.pp = Math.min(g.ppMax, g.pp + ef.n);
+    return { msg: `Os golpes de ${nome(destino)} voltaram a ter fôlego.`, usou: true };
   }
   if (ef.k === 'limpar') {
     if (!destino.status) return { msg: 'Não adiantou nada.', usou: false };

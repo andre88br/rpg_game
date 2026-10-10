@@ -134,9 +134,9 @@ test('um salto grande passa pelas duas evoluções, uma vez cada, e não perde X
   // XP de sobra para chegar além do 55 em qualquer curva
   const subidas = ganharXP(e, 5_000_000);
   const evolucoes = subidas.filter((s) => s.evoluiEm).map((s) => `${s.evoluiDe}>${s.evoluiEm}@${s.nivel}`);
-  assert.deepEqual(evolucoes, ['boitatinha>boitatao@18', 'boitatao>mboitata@55']);
+  assert.deepEqual(evolucoes, ['boitatinha>boitatao@18', 'boitatao>mboitata@38']);
   assert.equal(e.especie, 'mboitata');
-  assert.ok(e.nivel > 55);
+  assert.ok(e.nivel > 38);
   // nada de golpe aprendido duas vezes
   const ids = e.golpes.map((g) => g.id);
   assert.equal(new Set(ids).size, ids.length);

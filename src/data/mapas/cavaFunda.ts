@@ -96,8 +96,8 @@ export const cavaFunda: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRO DA CAVA', visao: 4, premio: 2800,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'minhocao', nivel: 55 }, { especie: 'cabraCabriola', nivel: 55 },
-               { especie: 'relampo', nivel: 55 }],
+        time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'cabraCabriola', nivel: 54 },
+               { especie: 'relampo', nivel: 54 }],
         falaInicio: 'A borda da cava é minha. Quer descer, desce me derrubando.',
         falaDerrota: 'Desce. O vão do primeiro anel é lá no oeste.',
       },
@@ -112,8 +112,8 @@ export const cavaFunda: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRA DA CAVA', visao: 4, premio: 3000,
         esperta: true, itens: { garrafada_forte: 1, erva_doce: 1 },
-        time: [{ especie: 'mapinguari', nivel: 55 }, { especie: 'salamanca', nivel: 56 },
-               { especie: 'tatuTrovao', nivel: 56 }],
+        time: [{ especie: 'mapinguari', nivel: 54 }, { especie: 'salamanca', nivel: 54 },
+               { especie: 'tatuTrovao', nivel: 54 }],
         falaInicio: 'Tá descendo a cava? Eu já vi o Mapinguari de longe. Você não aguenta nem a mim.',
         falaDerrota: 'Aguenta. Então vai, mas não olha no olho dele.',
       },
@@ -128,8 +128,8 @@ export const cavaFunda: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRO DA CAVA', visao: 4, premio: 3200,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'minhocao', nivel: 56 }, { especie: 'mapinguari', nivel: 56 },
-               { especie: 'relampo', nivel: 56 }, { especie: 'cabraCabriola', nivel: 56 }],
+        time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'mapinguari', nivel: 54 },
+               { especie: 'relampo', nivel: 54 }, { especie: 'cabraCabriola', nivel: 54 }],
         falaInicio: 'Último anel antes do fundo. Daqui pra baixo, só quem me vence.',
         falaDerrota: 'Vence. O vão do último anel é no oeste. O resto é com você.',
       },
@@ -146,7 +146,7 @@ export const cavaFunda: DefMapa = {
       encontro: 'mapinguari', emboscada: true,
       treinador: {
         classe: 'DONO DA CAVA', selvagem: true, visao: 4, liga: 'conta_mapinguari',
-        time: [{ especie: 'mapinguari', nivel: 57 }],
+        time: [{ especie: 'mapinguari', nivel: 55 }],
         falaInicio: 'O chão afunda de um lado, depois do outro. Um olho só se abre no meio da testa.',
       },
       falas: [
@@ -185,10 +185,10 @@ export const cavaFunda: DefMapa = {
   cenario: 'caverna',
   passosPorEncontro: 9,
   encontros: [
-    { especie: 'minhoquinha', min: 54, max: 56, peso: 35 },
-    { especie: 'minhocao', min: 54, max: 56, peso: 20 },
-    { especie: 'cabraCabriola', min: 54, max: 56, peso: 25 },
-    { especie: 'mapinguari', min: 55, max: 56, peso: 5 },
-    { especie: 'salamanca', min: 54, max: 56, peso: 15 },
+    { especie: 'minhoquinha', min: 53, max: 54, peso: 35 },
+    { especie: 'minhocao', min: 53, max: 54, peso: 20 },
+    { especie: 'cabraCabriola', min: 53, max: 54, peso: 25 },
+    { especie: 'mapinguari', min: 54, max: 54, peso: 5 },
+    { especie: 'salamanca', min: 53, max: 54, peso: 15 },
   ],
 };

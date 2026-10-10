@@ -184,6 +184,7 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
       seq: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['seq'], 0, 0, 9999),
       recorde: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['recorde'], 0, 0, 9999),
     },
+    repelente: inteiro(j['repelente'], 0, 0, 999),
   };
 }
 

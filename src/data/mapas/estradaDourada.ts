@@ -69,7 +69,7 @@ export const estradaDourada: DefMapa = {
       treinador: {
         classe: 'ASPIRANTE AO CÍRCULO', visao: 4, premio: 4000, esperta: true,
         itens: { garrafada_forte: 2 },
-        time: [{ especie: 'saci', nivel: 57 }, { especie: 'estrelaDalva', nivel: 57 }, { especie: 'minhocao', nivel: 58 }],
+        time: [{ especie: 'saci', nivel: 64 }, { especie: 'estrelaDalva', nivel: 64 }, { especie: 'minhocao', nivel: 66 }],
         falaInicio: 'Um dia eu entro no Círculo. Hoje eu treino com você.',
         falaDerrota: 'Tá {g:pronta|pronto} pro Círculo. Eu ainda não.',
       },
@@ -84,7 +84,7 @@ export const estradaDourada: DefMapa = {
       treinador: {
         classe: 'ASPIRANTE AO CÍRCULO', visao: 3, premio: 4200, esperta: true,
         itens: { garrafada_forte: 2 },
-        time: [{ especie: 'uirapuru', nivel: 58 }, { especie: 'lamparina', nivel: 58 }, { especie: 'corpoSeco', nivel: 58 }],
+        time: [{ especie: 'uirapuru', nivel: 66 }, { especie: 'lamparina', nivel: 66 }, { especie: 'corpoSeco', nivel: 66 }],
         falaInicio: 'O Guarda não me deixa passar. Então eu não deixo você!',
         falaDerrota: 'Tá, pode passar. Ah, não sou eu que abro...',
       },
@@ -99,7 +99,7 @@ export const estradaDourada: DefMapa = {
       treinador: {
         classe: 'VETERANA DO CÍRCULO', visao: 4, premio: 5000, esperta: true,
         itens: { garrafada_forte: 2, erva_doce: 1 },
-        time: [{ especie: 'iaraMae', nivel: 59 }, { especie: 'relampo', nivel: 59 }, { especie: 'cuca', nivel: 59 }, { especie: 'mapinguari', nivel: 59 }],
+        time: [{ especie: 'iaraMae', nivel: 68 }, { especie: 'relampo', nivel: 68 }, { especie: 'cuca', nivel: 68 }, { especie: 'mapinguari', nivel: 68 }],
         falaInicio: 'Já perdi para os quatro Guardiões. Deixa eu ver se você passa do primeiro.',
         falaDerrota: 'Passa, sim. Guarda as garrafadas para o Anhangá.',
       },
@@ -114,7 +114,7 @@ export const estradaDourada: DefMapa = {
       treinador: {
         classe: 'VETERANO DO CÍRCULO', visao: 3, premio: 5200, esperta: true,
         itens: { garrafada_forte: 2, agua_benta: 1 },
-        time: [{ especie: 'lobisomem', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 59 }, { especie: 'caipora', nivel: 59 }, { especie: 'mulaSemCabeca', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 70 }, { especie: 'arcoDaVelha', nivel: 68 }, { especie: 'caipora', nivel: 68 }, { especie: 'mulaSemCabeca', nivel: 70 }],
         falaInicio: 'O último treino antes do Círculo. Vale como se fosse de verdade.',
         falaDerrota: 'Vai. E não olha para trás lá dentro: a porta só abre para a frente.',
       },
@@ -137,10 +137,10 @@ export const estradaDourada: DefMapa = {
   cenario: 'mata',
   passosPorEncontro: 12,
   encontros: [
-    { especie: 'estrelaDalva', min: 57, max: 59, peso: 30 },
-    { especie: 'saci', min: 57, max: 59, peso: 25 },
-    { especie: 'uirapuru', min: 57, max: 58, peso: 15 },
-    { especie: 'mapinguari', min: 58, max: 59, peso: 15 },
-    { especie: 'cuca', min: 58, max: 59, peso: 15 },
+    { especie: 'estrelaDalva', min: 64, max: 68, peso: 30 },
+    { especie: 'saci', min: 64, max: 68, peso: 25 },
+    { especie: 'uirapuru', min: 64, max: 66, peso: 15 },
+    { especie: 'mapinguari', min: 66, max: 68, peso: 15 },
+    { especie: 'cuca', min: 66, max: 68, peso: 15 },
   ],
 };

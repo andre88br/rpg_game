@@ -40,7 +40,7 @@ export const remansoNorato: DefMapa = {
       tx: 4, ty: 3, dir: 'dir', seNao: 'capturado:cobraNorato',
       treinador: {
         classe: 'BICHO DO REMANSO', selvagem: true, repete: true,
-        time: [{ especie: 'cobraNorato', nivel: 70 }],
+        time: [{ especie: 'cobraNorato', nivel: 72 }],
         falaInicio: 'O rio inteiro se enrola e levanta a cabeça.',
       },
       falas: [

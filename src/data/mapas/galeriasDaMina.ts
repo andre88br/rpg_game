@@ -152,8 +152,8 @@ export const galeriasDaMina: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRO DE GALERIA', visao: 3, premio: 2600,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'salamanca', nivel: 54 },
-               { especie: 'cabraCabriola', nivel: 55 }],
+        time: [{ especie: 'minhocao', nivel: 53 }, { especie: 'salamanca', nivel: 53 },
+               { especie: 'cabraCabriola', nivel: 54 }],
         falaInicio: 'Chegou até aqui pelos trilhos? Então sabe mexer em alavanca. Mas e em Encantado?',
         falaDerrota: 'Sabe. A alavanca 3 fica lá na plataforma do oeste, se quer saber.',
       },
@@ -168,8 +168,8 @@ export const galeriasDaMina: DefMapa = {
       treinador: {
         classe: 'GARIMPEIRA DE GALERIA', visao: 3, premio: 2600,
         esperta: true, itens: { garrafada: 2 },
-        time: [{ especie: 'tatuTrovao', nivel: 54 }, { especie: 'minhocao', nivel: 55 },
-               { especie: 'mulaSemCabeca', nivel: 55 }],
+        time: [{ especie: 'tatuTrovao', nivel: 53 }, { especie: 'minhocao', nivel: 54 },
+               { especie: 'mulaSemCabeca', nivel: 54 }],
         falaInicio: 'Desceu até a plataforma mais funda do oeste? Coragem. Vamos ver a força.',
         falaDerrota: 'Força tem. O trilho daqui pra plataforma S só anda com a alavanca 3 puxada.',
       },
@@ -190,9 +190,9 @@ export const galeriasDaMina: DefMapa = {
   cenario: 'caverna',
   passosPorEncontro: 7,
   encontros: [
-    { especie: 'minhoquinha', min: 53, max: 55, peso: 40 },
-    { especie: 'minhocao', min: 53, max: 55, peso: 15 },
-    { especie: 'salamanca', min: 53, max: 55, peso: 25 },
-    { especie: 'tatuTrovao', min: 53, max: 55, peso: 20 },
+    { especie: 'minhoquinha', min: 52, max: 54, peso: 40 },
+    { especie: 'minhocao', min: 52, max: 54, peso: 15 },
+    { especie: 'salamanca', min: 52, max: 54, peso: 25 },
+    { especie: 'tatuTrovao', min: 52, max: 54, peso: 20 },
   ],
 };

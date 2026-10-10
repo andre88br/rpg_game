@@ -431,13 +431,29 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
 - **Itens.** `motivoItem` diz se um item serve agora (garrafada em quem está
   cheio, patuá em bicho de treinador não servem); a cena pergunta antes e
   só avisa, sem gastar o item nem a vez. Cura, limpeza e reviver perguntam em
-  quem (`Batalha.precisaAlvo`), como a troca.
+  quem (`Batalha.precisaAlvo`), como a troca. A cura é em fração da vida
+  (`quantoCura`: o maior entre o `hp` fixo e a `fracao`), a Garrafada Santa
+  também limpa o estado, e o Mel de Jataí (`pp`) devolve PP. O Fumo de Rolo
+  (`repelente`) é usado pela mochila sem alvo e liga `estado.repelente`, que
+  `talvezEncontro` gasta passo a passo.
 - **Subir de nível.** `ganharXP` evolui no próprio nível da evolução, dentro
   do salto: os níveis seguintes já usam a forma nova (e a segunda evolução
   acontece no mesmo salto), e a forma nova aprende o golpe daquele nível.
+  `premiar` dá o XP inteiro a quem está em campo e `premiarReserva` dá
+  `FRACAO_RESERVA` (metade) ao resto do time de pé, só com texto: na reserva
+  não há sprite, então a evolução de lá não gera o evento `evoluir`.
+- **Peçonha que piora.** O `Combatente` conta `veneno`: o dano do fim do turno
+  é n/16 da vida (n = turnos seguidos em campo, até 8), e volta a 1 quando ele
+  sai de campo.
+- **Treinador na forma do nível.** O mundo passa cada bicho de treinador por
+  `formaNoNivel` (`game/escala.ts`) na hora da luta; o bicho-chefe selvagem
+  fica como foi desenhado. `data/equilibrio.test.ts` vigia a escada (o topo de
+  cada terreiro sobe, o campeão no 70), a resposta de tipo antes de cada
+  terreiro, os atributos das formas finais e as evoluções até o 58.
 - **Tipos.** Dois triângulos e um par, e nada mais: `Fogo → Planta → Água → Fogo`,
   `Terra → Raio → Vento → Terra`, `Luz ↔ Sombra`. Quem ataca com vantagem causa
-  2x; o resto é neutro. Golpe do próprio tipo rende +50% (afinidade).
+  2x; cada seta ao contrário vale ½x (`RESISTENCIAS`), menos Luz e Sombra; o
+  resto é neutro. Golpe do próprio tipo rende +50% (afinidade).
 - **Dano.** Fórmula do gênero, com nível, ataque/defesa (física ou especial),
   crítico de 6% e variação de 85% a 100% — duas trocas iguais nunca dão o mesmo
   número, mas a diferença nunca vira sorte pura.
@@ -1054,7 +1070,7 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Arte de batalha própria para eles ainda não
   existe (na batalha 3D o problema some: o modelo tem o tamanho da linhagem).
-- Os iniciais evoluem no 18 e de novo no 55. As formas de cima de cada
+- Os iniciais evoluem no 18 e de novo no 38. As formas de cima de cada
   linhagem não aparecem no mato alto: só por evolução, nas revanches do
   Círculo e na Romaria (`formaNoNivel`).
 - A Serra Boitatá usa `cenario: 'caverna'` nas batalhas da caverna e da

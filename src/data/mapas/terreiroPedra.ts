@@ -73,8 +73,8 @@ export const terreiroPedra: DefMapa = {
       treinador: {
         classe: 'GUARDA DO CASCALHO', visao: 3, premio: 2600,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'minhocao', nivel: 55 }, { especie: 'salamanca', nivel: 55 },
-               { especie: 'tatuTrovao', nivel: 56 }],
+        time: [{ especie: 'minhocao', nivel: 54 }, { especie: 'salamanca', nivel: 54 },
+               { especie: 'tatuTrovao', nivel: 54 }],
         falaInicio: 'Antes do trilho, a guarda. O Ubirajara não recebe quem cai no primeiro cascalho.',
         falaDerrota: 'Passa. E olha a alavanca antes de subir no trilho.',
       },
@@ -106,8 +106,8 @@ export const terreiroPedra: DefMapa = {
       treinador: {
         classe: 'GUARDA DA ROCHA', visao: 3, premio: 3200,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'mapinguari', nivel: 56 }, { especie: 'minhocao', nivel: 57 },
-               { especie: 'cabraCabriola', nivel: 57 }, { especie: 'relampo', nivel: 57 }],
+        time: [{ especie: 'mapinguari', nivel: 54 }, { especie: 'minhocao', nivel: 55 },
+               { especie: 'cabraCabriola', nivel: 55 }, { especie: 'relampo', nivel: 55 }],
         falaInicio: 'Última guarda. A rocha não se mexe — e eu também não.',
         falaDerrota: 'Se mexeu. O Ubirajara já ouviu, pode entrar.',
       },
@@ -122,14 +122,14 @@ export const terreiroPedra: DefMapa = {
       treinador: {
         classe: 'DONO DO TERREIRO', premio: 6000,
         esperta: true, itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'minhocao', nivel: 57 }, { especie: 'mapinguari', nivel: 57 },
-               { especie: 'cabraCabriola', nivel: 58 }, { especie: 'salamanca', nivel: 58 },
-               { especie: 'minhocao', nivel: 59 }],
+        time: [{ especie: 'minhocao', nivel: 55 }, { especie: 'mapinguari', nivel: 55 },
+               { especie: 'cabraCabriola', nivel: 55 }, { especie: 'salamanca', nivel: 55 },
+               { especie: 'minhocao', nivel: 56 }],
         /* o sexto Encantado, escolhido contra o inicial — a regra do Brás */
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 58 },
-          iarinha: { especie: 'curupira', nivel: 58 },
-          curupinho: { especie: 'boitatao', nivel: 58 },
+          boitatinha: { especie: 'iaraMae', nivel: 55 },
+          iarinha: { especie: 'curupira', nivel: 55 },
+          curupinho: { especie: 'boitatao', nivel: 55 },
         },
         falaInicio: 'Cavou, respondeu, escoltou e desceu a cava. Agora aguenta o peso da pedra.',
         falaDerrota: 'A pedra cedeu. Pouca gente consegue isso comigo.',

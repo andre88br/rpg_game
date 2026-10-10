@@ -86,8 +86,8 @@ export const terreiroBreu: DefMapa = {
       treinador: {
         classe: 'GUARDA DA NÉVOA', visao: 2, premio: 3200,
         esperta: true, itens: { garrafada_forte: 1 },
-        time: [{ especie: 'corpoSeco', nivel: 57 }, { especie: 'lobisomem', nivel: 57 },
-               { especie: 'relampo', nivel: 57 }],
+        time: [{ especie: 'corpoSeco', nivel: 58 }, { especie: 'lobisomem', nivel: 58 },
+               { especie: 'relampo', nivel: 58 }],
         falaInicio: 'Passou pelos vultos sem eles verem? Então tem pé leve. Vamos ver a mão.',
         falaDerrota: 'Mão pesada também. Sobe.',
       },
@@ -102,8 +102,8 @@ export const terreiroBreu: DefMapa = {
       treinador: {
         classe: 'GUARDA DO LUTO', visao: 2, premio: 3600,
         esperta: true, itens: { garrafada_forte: 2 },
-        time: [{ especie: 'cuca', nivel: 58 }, { especie: 'lobisomem', nivel: 58 },
-               { especie: 'mapinguari', nivel: 58 }, { especie: 'corpoSeco', nivel: 58 }],
+        time: [{ especie: 'cuca', nivel: 59 }, { especie: 'lobisomem', nivel: 59 },
+               { especie: 'mapinguari', nivel: 59 }, { especie: 'corpoSeco', nivel: 59 }],
         falaInicio: 'Última guarda. Aqui dentro até a luz fica de luto.',
         falaDerrota: 'Então vai. A Morgana já apagou as velas pra te receber.',
       },
@@ -118,14 +118,14 @@ export const terreiroBreu: DefMapa = {
       treinador: {
         classe: 'DONA DO TERREIRO', premio: 7000,
         esperta: true, itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
-        time: [{ especie: 'lobisomem', nivel: 58 }, { especie: 'corpoSeco', nivel: 58 },
-               { especie: 'cuca', nivel: 59 }, { especie: 'matinta', nivel: 59 },
-               { especie: 'lobisomem', nivel: 60 }],
+        time: [{ especie: 'lobisomem', nivel: 59 }, { especie: 'corpoSeco', nivel: 59 },
+               { especie: 'cuca', nivel: 61 }, { especie: 'matinta', nivel: 61 },
+               { especie: 'lobisomem', nivel: 62 }],
         /* o sexto Encantado, escolhido contra o inicial — a regra do Brás */
         trunfo: {
-          boitatinha: { especie: 'iaraMae', nivel: 59 },
-          iarinha: { especie: 'curupira', nivel: 59 },
-          curupinho: { especie: 'boitatao', nivel: 59 },
+          boitatinha: { especie: 'iaraMae', nivel: 61 },
+          iarinha: { especie: 'curupira', nivel: 61 },
+          curupinho: { especie: 'boitatao', nivel: 61 },
         },
         falaInicio: 'Passou pelos vultos, pelas guardas, pelo Casarão. Agora vem o breu de verdade.',
         falaDerrota: 'O breu cedeu. Pouca gente vê no escuro como você.',
