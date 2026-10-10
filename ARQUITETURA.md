@@ -9,7 +9,7 @@ rodar estão no [`README.md`](README.md); o passo a passo de cada região, no
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
 o que mantém o pacote pequeno e elimina qualquer questão de licenciamento. A
 única biblioteca é o **three.js**, e só para a vista 3D: ela vem num arquivo à
-parte, baixado na primeira vez que alguém entra na Foz com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
+parte, baixado na primeira vez que alguém entra no mundo com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
 ```
@@ -61,7 +61,9 @@ src/
 │             de cada tipo de objeto, a luz de cada região e hora) + teste
 │             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
 │             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
-│             as árvores de cada bioma · casas.ts: a construção de cada região ·
+│             as árvores de cada bioma · casas.ts: a casa da região e a
+│             construção das lojas · terreiros.ts: o terreiro de cada
+│             região, copiado do 2D ·
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
 │             gente, com braço e perna que andam · desenho3d.ts: o desenho
 │             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
@@ -89,7 +91,8 @@ src/
 │             creditos.ts (o fim do Círculo Dourado)
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
-│             tracos.ts (os 24 traços e o de cada espécie) + teste
+│             tracos.ts (os 26 traços e o de cada espécie) + teste
+│             documentacao.test.ts (MANUAL e README conferidos contra os dados)
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             roteiros/ (da Serra em diante, um arquivo de roteiros por
 │             região, e o torneio; comum.ts guarda o arco das oito medalhas)
@@ -158,17 +161,48 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   (`juntar`) — um modelo, uma chamada de desenho. As árvores são escolhidas
   por região (`ARVORES_DA_REGIAO`: coqueiro perto do mar na Foz, mata alta na
   Mata, pinheiro na Serra, ipê no Campo e no Sol, cacto nas Minas, árvore seca
-  no Bairro) e repetidas com InstancedMesh. A construção segue o estilo da
-  região (`ESTILO_DA_REGIAO`, a mesma ideia de `art/predios.ts`), com a porta
-  na coluna de `colunaPorta`; benzimento, loja, forja e moinho ganham o
-  detalhe deles. Os objetos de mecânica olham o mesmo estado do desenho plano
+  no Bairro) e repetidas com InstancedMesh. As construções seguem o
+  desenho plano, com a porta na coluna de `colunaPorta`: a casa comum tem a
+  forma da região (`ESTILO_DA_REGIAO`); o **terreiro** de cada região é o
+  desenho dela em `art/predios.ts` refeito em sólidos, peça por peça e com
+  as mesmas cores (`modelos/terreiros.ts`: o telhado azul de espuma, a gota
+  e a concha da Foz; a oca de palha e troncos da Mata; a pedra escura de
+  chaminés acesas da Serra; a gameleira do Campo; a oca e o totem de Tupã;
+  o templo no penhasco das Minas; o sobrado de torre e lua do Bairro; o
+  templo de colunas e cúpula do Sol); e **loja, benzimento, posto, forja e
+  moinho** são, como no 2D (`tiles.ts: construcao`), a mesma construção em
+  todo lugar (`construcao3D`), mudando só a cor do telhado e a placa. Um
+  teste confere que as cores principais de cada terreiro 2D estão no 3D, e
+  `tools/predios3d.html` (no `npm run dev`) põe o 2D ao lado do 3D para
+  revisar. O letreiro fica logo acima da porta, com letra do mesmo tamanho
+  em todo prédio, pintado como a placa do 2D (borda escura, fundo da cor do
+  prédio, faixa branca), e na frente do que passa pelo vão dele — beiral,
+  cúpula, colunas, totem —, calculado pelas caixas das peças (`frenteEm`).
+  Os objetos de mecânica olham o mesmo estado do desenho plano
   (`vazio`, `inclinacao`, as contas da guia) — a vista remonta o mapa quando o
   `Mundo` devolve um mapa novo. Véu e cortina de luz são paredes translúcidas;
   ladrilho e buraco continuam como recorte deitado. A grama muda de cor por
   região (`relevoNaRegiao`), e por dentro o terreiro tem a parede da região.
   As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
-  que brilha. `window.jogo.forcar3D(true)` liga o 3D em qualquer mapa (para
-  testar), e `window.jogo.info3D()` mostra as chamadas de desenho.
+  que brilha. A corrente de vento (`V`) tem riscos claros correndo rente ao
+  chão (um shader no tempo do vento, cada risco num sentido, como no tile).
+  O prédio entre a
+  câmera e o jogador fica translúcido (`esconderPredios`). A água de
+  interior e de caverna recebe menos luz, para não brilhar mais que o chão,
+  e no mapa escuro o círculo de luz 2D vai onde a câmera 3D põe o jogador
+  (`projetar`). `window.jogo.info3D()` mostra as chamadas de desenho.
+- **Mundo inteiro.** Todo mapa registrado tem vista 3D (`relevo.test.ts`
+  confere letras, objetos e prédios de todos); a cena do mundo só pergunta
+  se a VISÃO está ligada (`vista()`), e a batalha e o corte da guia seguem
+  a mesma resposta.
+- **Qualidade** (`game/config.ts`: `obterQualidade`, ALTA ou LEVE; sem
+  escolha gravada, `palpiteQualidade` olha toque, tela, núcleos e memória).
+  A vista confere a cada quadro (`aplicarQualidade`), sem recriar o
+  renderer: LEVE desliga as sombras (e marca os materiais para recompilar),
+  usa densidade 1 (0,75 em tela de alta densidade, e o canvas estica), põe
+  `uLeve` na água (sem onda, risco nem brilho), para o vento,
+  tira a corrente e remonta o mapa com metade da mata e dos morros de fora.
+  `window.jogo.qualidade('leve')` troca pelo console.
 - **Gente e Encantados.** O `Ator` guarda o `estilo` e dá a `fasePasso`; a
   vista monta um modelo por estilo e clona para cada ator. Gente
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
@@ -388,6 +422,18 @@ joga dezenas delas, com semente fixa, sem abrir navegador nenhum.
 
 ## Como funciona a batalha
 
+- **O turno.** As duas ações são escolhidas antes, e só quem as escolheu as
+  faz: o reserva que entra no lugar de um derrubado não herda o golpe do
+  outro. O fim do turno (brasa, peçonha, traços, o Fecha-Corpo desfeito)
+  corre mesmo com o seu caído, só para quem estava em campo. Um golpe que
+  derruba os dois (o recuo leva quem bateu) derruba os dois de verdade.
+- **Itens.** `motivoItem` diz se um item serve agora (garrafada em quem está
+  cheio, patuá em bicho de treinador não servem); a cena pergunta antes e
+  só avisa, sem gastar o item nem a vez. Cura, limpeza e reviver perguntam em
+  quem (`Batalha.precisaAlvo`), como a troca.
+- **Subir de nível.** `ganharXP` evolui no próprio nível da evolução, dentro
+  do salto: os níveis seguintes já usam a forma nova (e a segunda evolução
+  acontece no mesmo salto), e a forma nova aprende o golpe daquele nível.
 - **Tipos.** Dois triângulos e um par, e nada mais: `Fogo → Planta → Água → Fogo`,
   `Terra → Raio → Vento → Terra`, `Luz ↔ Sombra`. Quem ataca com vantagem causa
   2x; o resto é neutro. Golpe do próprio tipo rende +50% (afinidade).
@@ -777,6 +823,8 @@ multiplicador entra em dois lugares só: quanto texto revela por segundo
 (diálogo e batalha) e a duração do passo do `Ator` — ambos dividem o valor de
 sempre pelo multiplicador, então nenhum outro código precisa saber que a
 velocidade existe. A opção mora no menu de pausa, junto de TIME e MOCHILA.
+Ao lado dela moram a VISÃO (3D ou plana) e a QUALIDADE do 3D (ALTA ou
+LEVE, com palpite pelo aparelho na primeira vez — ver "O mundo em 3D").
 
 Três coisas pequenas que valem a pena entender juntas, porque moram todas em
 `game/state.ts` e `scenes/menu.ts`:
@@ -849,7 +897,7 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
   - [x] **Etapa 3 — a fase fecha.** Escolha do inicial na mesa da Dona Firmina,
         os cinco desafios completos, o salão alagado que escorrega, o farol e o
         bicho que mora nele, Dona Mariana, a Medalha Maré e o Dom "Nadar".
-- [ ] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
+- [x] **4 — Conteúdo.** As 7 regiões restantes, uma completa de cada vez.
   - [x] **Mata do Curupira.** A guia e as contas viraram um sistema por
         terreiro (`TERREIROS` em `quests.ts`, uma chave por tipo), para caber
         mais de uma região aberta ao mesmo tempo. A segunda carta da Dona
@@ -973,11 +1021,27 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
       **créditos** (`scenes/creditos.ts`); depois, os seis voltam com times
       mais fortes e os oito donos de terreiro esperam revanche na praça.
 - [x] **6 — Publicação.** Build estático no GitHub Pages, publicado a cada push.
+- [x] **7 — Melhorias depois do jogo fechado**, em treze fases, cada uma
+      publicada ao fim:
+  1. a cena do mundo dividida em `scenes/mundo/` e os testes de mapa em pedaços;
+  2. exportar e importar o save, o jogo instalável e offline (service worker)
+     e a caixa pelo menu;
+  3. música no mundo e nas batalhas (`audio/temas.ts`);
+  4. de 43 para 92 golpes, com os efeitos várias pancadas, recarga,
+     Fecha-Corpo, dano fixo e dobra com estado;
+  5. o Rezador e as Cantigas (`game/golpes.ts`);
+  6. os traços passivos (`data/tracos.ts`);
+  7. a IA de treinador que não desperdiça golpe e troca melhor;
+  8. dia, noite e clima (`game/tempo.ts`, `art/ceu.ts`);
+  9. a Canoa Encantada (`game/viagem.ts`);
+  10. cor rara, prêmios do Caderno e o Boto;
+  11. o pós-jogo: revanches que crescem, Romaria, Cobra Norato e Modo Desafio;
+  12. o mundo, a gente, os Encantados e a batalha em 3D low-poly, com a
+      opção de qualidade ALTA/LEVE;
+  13. README, MANUAL e esta arquitetura revisados contra os dados.
 
 ### Pontas soltas conhecidas
 
-- Quem nada continua andando em pé na água: não existe sprite de nado. O Dom
-  funciona, mas a pose é a mesma da terra firme.
 - O `premio` do treinador é pago pela cena do mundo, não pelo motor de batalha:
   é lá que mora o bolso do jogador.
 - Um toque curto numa direção só VIRA o personagem, como no gênero. No salão
@@ -985,7 +1049,8 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
   por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
 - Os iniciais evoluem no 18 e de novo no 55. As formas de cima de cada
-  linhagem só aparecem por evolução: nenhum treinador nem mato alto as usa.
+  linhagem não aparecem no mato alto: só por evolução, nas revanches do
+  Círculo e na Romaria (`formaNoNivel`).
 - A Serra Boitatá usa `cenario: 'caverna'` nas batalhas da caverna e da
   cumeeira: não existe fundo de montanha próprio, e a trilha e a vila caem no
   fundo de mata mesmo.

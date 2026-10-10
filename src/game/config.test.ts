@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  definirVelocidade, definirVisao3D, multiplicadorVelocidade, obterVelocidade, obterVisao3D,
+  definirQualidade, definirVelocidade, definirVisao3D, obterQualidade, palpiteQualidade, multiplicadorVelocidade, obterVelocidade, obterVisao3D,
   usarArmazemConfig, obterVolume, definirVolume, proximoVolume,
 } from './config.ts';
 import type { Armazem } from './save.ts';
@@ -55,6 +55,26 @@ test('a visão 3D vem ligada, e desligar vale para a próxima sessão', () => {
   usarArmazemConfig(ls);
   assert.equal(obterVisao3D(), false);
   assert.equal(obterVelocidade(), 'normal', 'a visão não mexe na velocidade');
+});
+
+test('qualidade: o palpite pelo aparelho', () => {
+  assert.equal(palpiteQualidade({ toque: true, ladoMenor: 412 }), 'leve', 'celular');
+  assert.equal(palpiteQualidade({ toque: false, ladoMenor: 1080, nucleos: 8, memoria: 8 }), 'alta', 'computador');
+  assert.equal(palpiteQualidade({ toque: true, ladoMenor: 1024, nucleos: 8 }), 'alta', 'tablet grande e forte');
+  assert.equal(palpiteQualidade({ toque: false, ladoMenor: 1080, nucleos: 4 }), 'leve', 'poucos núcleos');
+  assert.equal(palpiteQualidade({ toque: false, ladoMenor: 1080, nucleos: 8, memoria: 2 }), 'leve', 'pouca memória');
+});
+
+test('qualidade: a escolha persiste e não mexe na visão', () => {
+  const ls = memoria();
+  usarArmazemConfig(ls);
+  definirQualidade('leve');
+  usarArmazemConfig(ls);
+  assert.equal(obterQualidade(), 'leve');
+  assert.equal(obterVisao3D(), true);
+  definirQualidade('alta');
+  usarArmazemConfig(ls);
+  assert.equal(obterQualidade(), 'alta');
 });
 
 test('volumes: MÉDIO por padrão, cada canal por si, e persistem', () => {

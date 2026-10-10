@@ -113,11 +113,33 @@ test('substituir golpe troca o certo e devolve os PP cheios', () => {
   assert.equal(e.golpes.length, MAX_GOLPES);
 });
 
-test('chegar ao nível da evolução é sinalizado, mas quem evolui é quem chama', () => {
+test('chegar ao nível da evolução evolui ali mesmo, e diz de quem para quem', () => {
   const e = criar('boitatinha', 17);
   const subidas = ganharXP(e, xpDoNivel(18, 'medio') - e.xp);
   assert.equal(subidas.at(-1)!.evoluiEm, 'boitatao');
-  assert.equal(e.especie, 'boitatinha');    // ainda não evoluiu
+  assert.equal(subidas.at(-1)!.evoluiDe, 'boitatinha');
+  assert.equal(e.especie, 'boitatao');
+});
+
+test('a forma nova aprende o golpe do próprio nível da evolução', () => {
+  const e = criar('boitatinha', 17);
+  e.golpes = e.golpes.slice(0, 2);             // com vaga, para entrar sozinho
+  const subidas = ganharXP(e, xpDoNivel(18, 'medio') - e.xp);
+  assert.ok(subidas.at(-1)!.aprendeu.includes('rabo_brasa'));
+  assert.ok(e.golpes.some((g) => g.id === 'rabo_brasa'));
+});
+
+test('um salto grande passa pelas duas evoluções, uma vez cada, e não perde XP', () => {
+  const e = criar('boitatinha', 10);
+  // XP de sobra para chegar além do 55 em qualquer curva
+  const subidas = ganharXP(e, 5_000_000);
+  const evolucoes = subidas.filter((s) => s.evoluiEm).map((s) => `${s.evoluiDe}>${s.evoluiEm}@${s.nivel}`);
+  assert.deepEqual(evolucoes, ['boitatinha>boitatao@18', 'boitatao>mboitata@55']);
+  assert.equal(e.especie, 'mboitata');
+  assert.ok(e.nivel > 55);
+  // nada de golpe aprendido duas vezes
+  const ids = e.golpes.map((g) => g.id);
+  assert.equal(new Set(ids).size, ids.length);
 });
 
 test('evoluir mantém nível e golpes, e o HP ganho entra como HP de verdade', () => {

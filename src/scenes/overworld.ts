@@ -17,8 +17,7 @@
      game/avisos.ts      o que placa, tranca e guia dizem ao A
      game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
-import { forcado3D, vista3D } from '../render3d/carregar.ts';
-import { EM_3D } from '../render3d/relevo.ts';
+import { vista3D } from '../render3d/carregar.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
 import { assar, type Assado } from '../core/buf.ts';
@@ -146,6 +145,8 @@ export class CenaMundo implements Cena {
   private camera = new Camera();
   private jogador!: Ator;
   private npcs: NpcVivo[] = [];
+  /* quem foi preso no patuá nesta visita: não volta ao cenário */
+  private sumidos = new Set<string>();
   private ocupados = new Set<string>();
   private avisos = new Map<string, Aviso>();
 
@@ -311,15 +312,10 @@ export class CenaMundo implements Cena {
     this.dialogo.conversa = null;
     this.duelo = null;
 
+    this.sumidos.clear();
     this.npcs = this.def.npcs
       .filter((d) => serve(this.op.estado, d))
-      .map((d) => ({
-        def: d,
-        ator: Object.assign(new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir), { estilo: d.estilo }),
-        folego: d.fujao?.folego ?? FOLEGO_PADRAO,
-        rondaI: 0,
-        rondaT: 0,
-      }));
+      .map((d) => this.npcVivo(d));
     this.progressoLadrilhos = 0;
     this.pedras = posicoesIniciais(this.def.pedras, (f) => ligada(this.op.estado, f));
     this.recontarOcupados();
@@ -360,6 +356,13 @@ export class CenaMundo implements Cena {
        hora: o Sacizinho que largou a rede, o bicho do farol que perdeu */
     const antes = this.npcs.length;
     this.npcs = this.npcs.filter((n) => serve(this.op.estado, n.def));
+    /* e quem passou a estar ali aparece na hora, sem precisar sair e voltar:
+       os Sacizinhos do cais depois do recado, o bicho do farol, o Curupira */
+    for (const d of this.def.npcs) {
+      if (this.sumidos.has(d.id) || this.npcs.some((n) => n.def === d) || !serve(this.op.estado, d)) continue;
+      if (d.tx === this.jogador.tx && d.ty === this.jogador.ty) continue;
+      this.npcs.push(this.npcVivo(d));
+    }
     if (this.npcs.length !== antes) this.recontarOcupados();
 
     this.sincronizarSeguidor();
@@ -736,6 +739,14 @@ export class CenaMundo implements Cena {
     if (t.creditos) this.creditosPendentes = true;
     // preso no patuá, ninguém larga nada e sai correndo: sem a cutscene
     if (r !== 'captura') this.pedirHistoria(t.cutscene);
+    // quem andou até o jogador volta para o posto: a guarda que parava
+    // embaixo da barreira que acabou de abrir tampava a passagem
+    const casa = d.npc.def;
+    if ((d.npc.ator.tx !== casa.tx || d.npc.ator.ty !== casa.ty)
+        && !(this.jogador.tx === casa.tx && this.jogador.ty === casa.ty)) {
+      d.npc.ator.teleportar(casa.tx, casa.ty, casa.dir);
+      this.recontarOcupados();
+    }
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
@@ -773,19 +784,30 @@ export class CenaMundo implements Cena {
     return null;
   }
 
+  private npcVivo(d: DefNPC): NpcVivo {
+    return {
+      def: d,
+      ator: Object.assign(new Ator(this.folhaDe(d.estilo), d.tx, d.ty, d.dir), { estilo: d.estilo }),
+      folego: d.fujao?.folego ?? FOLEGO_PADRAO,
+      rondaI: 0,
+      rondaT: 0,
+    };
+  }
+
   private sumirNpc(npc: NpcVivo): void {
+    this.sumidos.add(npc.def.id);
     this.npcs = this.npcs.filter((n) => n !== npc);
     this.recontarOcupados();
   }
 
   /* ------------------------------------------------------ código secreto */
 
-  private verificarCodigoSecreto(entrada: Entrada): void {
+  private verificarCodigoSecreto(entrada: Entrada): boolean {
     const apertados: Acao[] =
       (['cima', 'baixo', 'esq', 'dir', 'a', 'b'] as const)
         .filter((a) => entrada.apertouAgora(a));
     const codigo = this.codigos.ler(apertados);
-    if (!codigo) return;
+    if (!codigo) return false;
 
     // todo código termina em 'a' — sem consumi-lo aqui, o mesmo toque cairia
     // de novo em `entrada.apertou('a')` lá embaixo, no andar, e abriria
@@ -802,6 +824,7 @@ export class CenaMundo implements Cena {
       this.centrarCamera();
       this.abrirConversa('???', [pulo.aviso]);
     }
+    return true;
   }
 
   /* evolui na hora todo Encantado do time que tiver pra onde evoluir,
@@ -1050,7 +1073,8 @@ export class CenaMundo implements Cena {
     this.andarCorridas(dt);
     if (this.dialogo.conversa) return;
 
-    this.verificarCodigoSecreto(entrada);
+    // o código aceito gasta o quadro: o A que o fechou não abre conversa
+    if (this.verificarCodigoSecreto(entrada)) return;
 
     if (entrada.apertou('menu')) { this.emMenu = true; this.menu!.abrir(); return; }
 
@@ -1156,7 +1180,9 @@ export class CenaMundo implements Cena {
     this.avistarEncontros();
     this.espantarFujoes();
     this.olharTreinadores();
-    if (!this.duelo && this.carencia <= 0
+    // uma emboscada (ou cutscene) acabou de ser marcada neste passo: o mato
+    // espera, senão o bicho selvagem atropelava a luta marcada
+    if (!this.duelo && !this.lutaDepois && !this.historiaPendente && this.carencia <= 0
         && this.mapa.temEncontro(this.jogador.tx, this.jogador.ty)) {
       this.talvezEncontro();
     }
@@ -1383,10 +1409,10 @@ export class CenaMundo implements Cena {
   /* ------------------------------------------------------------- desenho */
 
   desenhar(r: Renderizador): void {
-    if (this.corte.ativo) { this.corte.desenhar(r, (id) => this.vistaDo(id)); return; }
+    if (this.corte.ativo) { this.corte.desenhar(r, () => this.vista(), this.climaAqui()); return; }
 
     r.limpar('#101018');
-    const vista = this.vistaDo(this.def.id);
+    const vista = this.vista();
     if (vista) {
       vista.desenhar(r.ctx, {
         mapa: this.mapa, tempo: this.tempoAnim,
@@ -1416,14 +1442,14 @@ export class CenaMundo implements Cena {
   private batalhar(p: PedidoBatalha): void {
     this.op.aoBatalhar({
       ...p,
-      em3D: this.vistaDo(this.def.id) !== null,
+      em3D: this.vista() !== null,
       regiao: regiaoDoMapa(lugarNoMundo(this.def.id, MAPAS) ?? this.def.id)?.tipo ?? null,
     });
   }
 
-  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
-  private vistaDo(id: string): Vista3D | null {
-    if (!obterVisao3D() || (!EM_3D.has(id) && !forcado3D())) return null;
+  /* a vista 3D, quando ela está ligada e já carregou (todo mapa tem uma) */
+  private vista(): Vista3D | null {
+    if (!obterVisao3D()) return null;
     return vista3D();
   }
 
@@ -1434,7 +1460,7 @@ export class CenaMundo implements Cena {
     if (this.def.escuro) this.desenharEscuridao(r);
     if (this.ceuAberto()) {
       // no 3D a hora já está na luz da cena; no plano, um filtro de cor
-      if (!this.vistaDo(this.def.id)) tingir(r, periodo());
+      if (!this.vista()) tingir(r, periodo());
       desenharClima(r, this.clima, this.tempoAnim);
     }
 
@@ -1469,7 +1495,7 @@ export class CenaMundo implements Cena {
     const a = this.duelo!.npc.ator;
     let x = a.px - this.camera.x + 4;
     let y = a.py - this.camera.y - 14;
-    const vista = this.vistaDo(this.def.id);
+    const vista = this.vista();
     if (vista) {
       // no 3D, o balão vai acima da cabeça, onde quer que ela caia na tela
       const p = vista.projetar(a.px / TS + 0.5, a.py / TS + 0.6, 1.5);
@@ -1488,6 +1514,16 @@ export class CenaMundo implements Cena {
   private desenharEscuridao(r: Renderizador): void {
     const def = this.def.escuro!;
     const raio = def.fixo ? (def.raio ?? RAIO_SEM_LUZ) : raioDaLuz(this.op.estado);
+    const vista = this.vista();
+    if (vista) {
+      // no 3D a luz vai onde a câmera 3D põe o jogador, e o raio acompanha o
+      // tamanho do tile na tela (a câmera 3D chega mais perto que a plana)
+      const x = this.jogador.px / TS + 0.5, y = this.jogador.py / TS + 0.5;
+      const c = vista.projetar(x, y, 0.5), lado = vista.projetar(x + 1, y, 0.5);
+      const escala = Math.hypot(lado.x - c.x, lado.y - c.y) / TS;
+      this.pintor.escuridao(r, Math.round(raio * escala), c.x, c.y);
+      return;
+    }
     this.pintor.escuridao(r, raio, this.jogador.px - this.camera.x + TS / 2,
                           this.jogador.py - this.camera.y + TS / 2);
   }

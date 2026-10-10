@@ -17,6 +17,9 @@ import { quebrar } from '../../art/font.ts';
 import { CONTAS_NA_GUIA } from '../../art/tiles.ts';
 import { TERREIROS } from '../../game/quests.ts';
 import type { Vista3D } from '../../render3d/vista3d.ts';
+import { MAPAS } from '../../data/mapas/index.ts';
+import { lugarNoMundo, regiaoDoMapa } from '../../data/mundo.ts';
+import { periodo, type Clima } from '../../game/tempo.ts';
 
 /* tempo de entrada/saída do preto, e quanto tempo o recado fica na tela se
    ninguém apertar nada */
@@ -69,13 +72,16 @@ export class CorteDaGuia {
     } else if (c.fase === 'sai' && c.t >= CUT_FADE) { this.corte = null; }
   }
 
-  /* `vistaDo` diz se o mapa da guia se desenha em 3D */
-  desenhar(r: Renderizador, vistaDo: (id: string) => Vista3D | null): void {
+  /* `vista3d` dá a vista 3D, quando ela está ligada e carregada; `clima` é
+     o tempo que faz (a guia fica na mesma região de quem a acendeu) */
+  desenhar(r: Renderizador, vista3d: () => Vista3D | null, clima: Clima = 'limpo'): void {
     const c = this.corte!;
     r.limpar('#101018');
-    const vista = vistaDo(c.mapa.id);
+    const vista = vista3d();
     if (vista) {
-      vista.desenhar(r.ctx, { mapa: c.mapa, tempo: c.t, atores: [],
+      // o mapa da guia com a cara da região dele e a luz da hora de agora
+      const regiao = regiaoDoMapa(lugarNoMundo(c.mapa.id, MAPAS) ?? c.mapa.id)?.tipo ?? null;
+      vista.desenhar(r.ctx, { mapa: c.mapa, tempo: c.t, atores: [], periodo: periodo(), clima, regiao,
                              alvoX: (c.cam.x + LARGURA / 2) / TS, alvoY: (c.cam.y + ALTURA / 2) / TS });
     } else {
       c.mapa.desenhar(r.ctx, c.cam.x, c.cam.y, LARGURA, ALTURA);

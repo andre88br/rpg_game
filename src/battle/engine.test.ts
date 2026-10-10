@@ -658,3 +658,67 @@ test('Pilão sai por último, mesmo sendo mais rápido', () => {
   const ordem = ev.filter((e) => e.k === 'golpe').map((e) => e.lado);
   assert.deepEqual(ordem, ['inimigo', 'aliado']);
 });
+
+/* ------------------------------------------------- correções da revisão */
+
+test('o reserva do treinador não ataca no turno em que entra', () => {
+  const meu = criar('boitatinha', 40);
+  const fraco = criar('curupinho', 3), reserva = criar('curupinho', 3);
+  fraco.hp = 1;
+  meu.golpes = [{ id: 'brasa', pp: 25, ppMax: 25 }];
+  const b = montar({ meu: [meu], dele: [fraco, reserva], treinador: true });
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(ev.some((e) => e.k === 'entrar' && e.lado === 'inimigo'), 'o reserva entrou');
+  assert.ok(!ev.some((e) => e.k === 'dano' && e.lado === 'aliado'), 'e não bateu no mesmo turno');
+});
+
+test('com o seu caído, o veneno do outro ainda corre no fim do turno', () => {
+  const meu = criar('curupinho', 3), reserva = criar('iarinha', 10);
+  meu.hp = 1;
+  const dele = criar('boitatinha', 40, { selvagem: true });
+  dele.status = 'envenenado';
+  const b = montar({ meu: [meu, reserva], dele: [dele] });
+  const ev = b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(b.aguardandoTroca, 'o seu caiu');
+  assert.ok(textos(ev).some((t) => /sofre com a peçonha/.test(t)), 'o veneno do outro correu');
+  assert.equal(b.inimigo.protegido, false);
+});
+
+test('garrafada escolhe em quem: cura o reserva, não o que está em campo', () => {
+  const meu = criar('iarinha', 20), reserva = criar('boitatinha', 20);
+  reserva.hp = 5;
+  const mochila = { garrafada: 1 };
+  const b = montar({ meu: [meu, reserva], mochila });
+  b.executar({ tipo: 'item', item: 'garrafada', alvo: 1 });
+  assert.ok(reserva.hp > 5);
+  assert.equal(mochila.garrafada ?? 0, 0);
+});
+
+test('item que não serve não é gasto, e a vez não passa', () => {
+  const meu = criar('iarinha', 20);
+  const mochila = { garrafada: 1, patua: 2 };
+  const b = montar({ meu: [meu], mochila, treinador: true });
+  assert.match(b.motivoItem('garrafada') ?? '', /cheio/);
+  const ev = b.executar({ tipo: 'item', item: 'garrafada' });
+  assert.equal(mochila.garrafada, 1, 'a garrafada continua na mochila');
+  assert.match(b.motivoItem('patua') ?? '', /dos outros/);
+  b.executar({ tipo: 'item', item: 'patua' });
+  assert.equal(mochila.patua, 2, 'o patuá continua na mochila');
+  void ev;
+});
+
+test('quando o golpe derruba os dois, os dois caem de verdade', () => {
+  // força a situação: o alvo cai com o golpe e quem bateu cai junto
+  const meu = criar('boitatinha', 40), reserva = criar('iarinha', 10);
+  const fraco = criar('curupinho', 3), outro = criar('curupinho', 3);
+  fraco.hp = 1;
+  const b = montar({ meu: [meu, reserva], dele: [fraco, outro], treinador: true });
+  // um golpe com recuo, e o atacante já por um fio
+  meu.golpes[0] = { id: 'esforco', pp: 5, ppMax: 5 };
+  meu.hp = 1;
+  b.executar({ tipo: 'golpe', indice: 0 });
+  assert.ok(desmaiado(fraco), 'o alvo caiu');
+  assert.ok(desmaiado(meu), 'quem bateu caiu com o recuo');
+  assert.ok(b.aguardandoTroca, 'e a batalha pede a troca do seu');
+  assert.equal(b.inimigo.enc, outro, 'o treinador mandou o reserva');
+});

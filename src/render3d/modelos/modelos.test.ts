@@ -5,6 +5,9 @@ import { regiaoDoMapa, lugarNoMundo } from '../../data/mundo.ts';
 import { colunaPorta } from '../../art/tiles.ts';
 import { modeloDe, TIPOS_DE_OBJETO } from '../relevo.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './casas.ts';
+import { FUNDO_PLACA_TERREIRO, TERREIRO_3D } from './terreiros.ts';
+import { terreiroDaRegiao } from '../../art/predios.ts';
+import { P, type Tipo } from '../../art/palette.ts';
 import { objeto3D, temModelo3D } from './objetos.ts';
 import { ARVORES, ARVORES_DA_REGIAO, MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra } from './vegetacao.ts';
 
@@ -40,6 +43,21 @@ test('toda construção de todo mapa vira modelo, com a porta na coluna do mapa 
       const p = predio3D(reg, o.tipo, w, alt, o.portaCol);
       assert.ok(p.geo.getAttribute('position').count > 30, `${id}: ${o.tipo} vazio`);
       if (o.tipo !== 'balao') assert.equal(p.portaCol, colunaPorta(w, o.portaCol), `${id}: porta de ${o.tipo}`);
+      // o letreiro: todo prédio de serviço tem, cabe na fachada e fica na
+      // frente de tudo o que passa pelo vão dele (senão a câmera não o vê)
+      const comLetreiro = ['terreiro', 'benzimento', 'loja', 'posto', 'forja', 'moinho', 'arena'].includes(o.tipo);
+      assert.equal(p.letreiro !== undefined, comLetreiro, `${id}: letreiro de ${o.tipo}`);
+      if (p.letreiro && o.tipo !== 'arena') {
+        const l = p.letreiro;
+        assert.ok(l.x - l.larg / 2 >= 0 && l.x + l.larg / 2 <= w, `${id}: letreiro de ${o.tipo} sai da fachada`);
+        p.geo.computeBoundingBox();
+        const pos = p.geo.getAttribute('position');
+        for (let i = 0; i < pos.count; i++) {
+          if (Math.abs(pos.getX(i) - l.x) < l.larg / 2 && pos.getY(i) > l.y) {
+            assert.ok(pos.getZ(i) < l.z, `${id}: ${o.tipo} tem peça na frente do letreiro`);
+          }
+        }
+      }
       p.geo.dispose();
     }
   }
@@ -130,4 +148,50 @@ test('o desmaio deixa o Encantado deitado; o ataque avança', () => {
   assert.ok(corpo.position.z > 0.3);
   animarEncantado(g, 'desmaio', 1, 0);
   assert.ok(Math.abs(corpo.rotation.z - Math.PI / 2) < 0.01);
+});
+
+/* as cores de vértice de um modelo, para comparar com o desenho */
+function coresDe(g: THREE.BufferGeometry): THREE.Color[] {
+  const c = g.getAttribute('color');
+  const vistas = new Map<string, THREE.Color>();
+  for (let i = 0; i < c.count; i++) {
+    const k = `${c.getX(i).toFixed(4)},${c.getY(i).toFixed(4)},${c.getZ(i).toFixed(4)}`;
+    if (!vistas.has(k)) vistas.set(k, new THREE.Color(c.getX(i), c.getY(i), c.getZ(i)));
+  }
+  return [...vistas.values()];
+}
+const tem = (cores: THREE.Color[], hex: string) => {
+  const a = new THREE.Color(hex);
+  return cores.some((b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b) < 0.01);
+};
+
+test('loja, benzimento, posto, forja e moinho: a mesma construção do 2D em toda região', () => {
+  for (const tipo of ['loja', 'benzimento', 'posto', 'forja', 'moinho'] as const) {
+    const contas = REGIOES.map((r) => predio3D(r, tipo, 5, 4, 2).geo.getAttribute('position').count);
+    assert.ok(contas.every((n) => n === contas[0]), `${tipo} muda de forma com a região`);
+    const cores = coresDe(predio3D('raio', tipo, 5, 4, 2).geo);
+    assert.ok(tem(cores, P.wall!) && tem(cores, P.door!) && tem(cores, P.win!), `${tipo}: parede, porta e janela do 2D`);
+  }
+  assert.ok(tem(coresDe(predio3D('terra', 'loja', 5, 4, 2).geo), '#3f8f6f'), 'o telhado verde da loja');
+  assert.ok(tem(coresDe(predio3D('luz', 'benzimento', 5, 4, 2).geo), '#c25d8f'), 'o telhado rosa do benzimento');
+});
+
+test('o terreiro 3D de cada região tem as cores do desenho 2D', () => {
+  for (const r of Object.keys(TERREIRO_3D) as Tipo[]) {
+    // as cores que mais aparecem no desenho, sem o contorno e sem a placa
+    const b = terreiroDaRegiao(r, 7, 5, 3);
+    const conta = new Map<string, number>();
+    for (let y = 0; y < b.h; y++) {
+      for (let x = 0; x < b.w; x++) {
+        const c = b.get(x, y);
+        if (!c || c === P.ink || c === '#ffffff' || c === FUNDO_PLACA_TERREIRO[r]) continue;
+        conta.set(c, (conta.get(c) ?? 0) + 1);
+      }
+    }
+    const principais = [...conta.entries()].sort((a, z) => z[1] - a[1]).slice(0, 4).map(([c]) => c);
+    const p = predio3D(r, 'terreiro', 7, 5, 3);
+    const cores = coresDe(p.geo);
+    for (const c of principais) assert.ok(tem(cores, c), `terreiro de ${r}: falta a cor ${c} do 2D`);
+    assert.equal(p.letreiro?.fundo, FUNDO_PLACA_TERREIRO[r], `terreiro de ${r}: placa da cor do 2D`);
+  }
 });

@@ -291,3 +291,34 @@ test('migração não sobrescreve um slot 1 que já existe', () => {
   for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
   usarArmazem(null);
 });
+
+test('item acima de 99 não some ao salvar e carregar', () => {
+  const e = novoJogo();
+  adicionar(e.mochila, 'ficha_romaria', 140);
+  const v = restaurar(serializar(e))!;
+  assert.equal(quantidade(v.mochila, 'ficha_romaria'), 140);
+});
+
+test('save editado com nomes do protótipo ("constructor") não vira item nem espécie', () => {
+  const s = serializar(novoJogo()) as unknown as { jogo: Record<string, unknown> };
+  s.jogo['mochila'] = { constructor: 3, toString: 2, patua: 1 };
+  s.jogo['vistos'] = ['constructor', 'boitatinha'];
+  s.jogo['personagem'] = 'constructor';
+  const v = restaurar(s)!;
+  assert.deepEqual(Object.keys(v.mochila), ['patua']);
+  assert.deepEqual(v.vistos, ['boitatinha']);
+  assert.equal(v.personagem, 'taina');
+});
+
+test('um save que não se lê aparece como danificado, não como vazio', () => {
+  const ls = memoria();
+  usarArmazem(ls);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  ls.setItem('encantados:save:v1:1', '{isto não é json');
+  ls.setItem('encantados:save:v1:2', JSON.stringify({ v: -1 }));
+  assert.equal(resumoSlot(1)?.danificado, true);
+  assert.equal(resumoSlot(2)?.danificado, true);
+  assert.equal(resumoSlot(0), null);
+  for (let i = 0; i < NUM_SLOTS; i++) apagarSlot(i);
+  usarArmazem(null);
+});

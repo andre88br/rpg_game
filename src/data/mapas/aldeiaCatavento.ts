@@ -150,7 +150,7 @@ export const aldeiaCatavento: DefMapa = {
     { tx: 17, ty: 0,  para: 'ventaniaFunda',      destino: { tx: 10, ty: 41, dir: 'cima' } },
     { tx: 16, ty: 33, para: 'topoDoRedemoinho',   destino: { tx: 16, ty: 1,  dir: 'baixo' } },
     { tx: 17, ty: 33, para: 'topoDoRedemoinho',   destino: { tx: 17, ty: 1,  dir: 'baixo' } },
-    { tx: 16, ty: 7,  para: 'terreiroRodamoinho', destino: { tx: 7,  ty: 15, dir: 'cima' } },
+    { tx: 16, ty: 7,  para: 'terreiroRodamoinho', destino: { tx: 7,  ty: 39, dir: 'cima' } },
     { tx: 5,  ty: 21, para: 'lojaCatavento',      destino: { tx: 7,  ty: 8,  dir: 'cima' } },
     { tx: 28, ty: 21, para: 'benzimentoCatavento', destino: { tx: 7, ty: 8,  dir: 'cima' } },
     { tx: 5,  ty: 29, para: 'moinhoCatavento',    destino: { tx: 7,  ty: 8,  dir: 'cima' } },

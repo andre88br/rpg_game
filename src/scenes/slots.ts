@@ -79,7 +79,8 @@ export class TelaSlots {
 
     const ocupado = this.resumos[this.sel] !== null;
     if (this.modo === 'continuar') {
-      if (!ocupado) return 'aberto';      // nada pra continuar num slot vazio
+      // nada pra continuar num slot vazio, nem num que não se lê
+      if (!ocupado || this.resumos[this.sel]?.danificado) return 'aberto';
       this.aoEscolher?.(this.sel);
       return 'fechar';
     }
@@ -110,6 +111,7 @@ export class TelaSlots {
     r.texto(rotulo, x, y, cor);
 
     if (!resumo) { r.texto('(VAZIO)', x + 54, y, P.uiBg3!); return; }
+    if (resumo.danificado) { r.texto('(DANIFICADO)', x + 54, y, P.uiBg3!); return; }
 
     const meio = `${resumo.nome.slice(0, 6)}  NV${resumo.nivel || 1}`;
     r.texto(meio, x + 54, y, cor);

@@ -10,7 +10,10 @@ export class Laco {
   private acumFps = 0;
   private quadros = 0;
 
-  constructor(private passo: PassoJogo) {}
+  /* `aoErro`: um quadro deu erro. O laço não para por isso — o próximo
+     quadro já está agendado —, e quem criou decide como avisar. */
+  constructor(private passo: PassoJogo, private aoErro?: (e: unknown) => void) {}
+  private ultimoErro = '';
 
   iniciar(): void {
     if (this.rodando) return;
@@ -26,8 +29,19 @@ export class Laco {
         this.fps = Math.round(this.quadros / this.acumFps);
         this.acumFps = 0; this.quadros = 0;
       }
-      this.passo(dt);
+      // agenda antes de rodar: um erro num quadro não congela o jogo
       this.id = requestAnimationFrame(tique);
+      try {
+        this.passo(dt);
+      } catch (e) {
+        // o mesmo erro a cada quadro só é avisado uma vez
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg !== this.ultimoErro) {
+          this.ultimoErro = msg;
+          console.error(e);
+          this.aoErro?.(e);
+        }
+      }
     };
     this.id = requestAnimationFrame(tique);
   }

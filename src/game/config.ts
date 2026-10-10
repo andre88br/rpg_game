@@ -1,9 +1,9 @@
 /* =========================================================================
    Preferências do dispositivo — não são a partida, não vivem em slot
    nenhum. A velocidade do jogo (quão rápido o texto se revela e quão
-   rápido o personagem anda) e a visão 3D (ligada, a Região da Foz sai do
-   papel). Guardadas à parte de qualquer save, porque troca de slot não
-   deveria trocar de preferência.
+   rápido o personagem anda), a visão 3D (ligada, o mundo sai do papel) e
+   a qualidade do 3D (LEVE para aparelho fraco). Guardadas à parte de
+   qualquer save, porque troca de slot não deveria trocar de preferência.
    ========================================================================= */
 import type { Armazem } from './save.ts';
 
@@ -32,7 +32,7 @@ function loja(): Armazem | null {
 
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazemConfig(a: Armazem | null): void {
-  armazem = a; velocidade = undefined; visao3d = undefined; volumes = {};
+  armazem = a; velocidade = undefined; visao3d = undefined; qualidade = undefined; volumes = {};
 }
 
 let velocidade: Velocidade | undefined;
@@ -69,6 +69,60 @@ export function obterVisao3D(): boolean {
 export function definirVisao3D(v: boolean): void {
   visao3d = v;
   try { loja()?.setItem(CHAVE_VISAO, v ? 'sim' : 'nao'); } catch { /* nada a fazer */ }
+}
+
+/* A qualidade do 3D. LEVE tira as sombras, baixa a resolução, aquieta a
+   água e o vento e põe menos mata em volta do mapa: é para o celular que
+   esquenta. Sem escolha gravada, um palpite pelo aparelho. */
+export type Qualidade = 'alta' | 'leve';
+const CHAVE_QUALIDADE = 'encantados:config:qualidade:v1';
+let qualidade: Qualidade | undefined;
+
+export interface InfoAparelho {
+  toque: boolean;
+  /* o lado menor da tela, em pixels CSS */
+  ladoMenor: number;
+  nucleos?: number;
+  /* memória em GB (navigator.deviceMemory, só no Chrome) */
+  memoria?: number;
+}
+
+export function palpiteQualidade(a: InfoAparelho): Qualidade {
+  if (a.toque && a.ladoMenor < 900) return 'leve';
+  if (a.nucleos !== undefined && a.nucleos <= 4) return 'leve';
+  if (a.memoria !== undefined && a.memoria <= 4) return 'leve';
+  return 'alta';
+}
+
+function infoDoAparelho(): InfoAparelho | null {
+  const g = globalThis as {
+    navigator?: { maxTouchPoints?: number; hardwareConcurrency?: number; deviceMemory?: number };
+    screen?: { width: number; height: number };
+  };
+  if (!g.navigator) return null;
+  return {
+    toque: (g.navigator.maxTouchPoints ?? 0) > 0,
+    ladoMenor: g.screen ? Math.min(g.screen.width, g.screen.height) : 9999,
+    nucleos: g.navigator.hardwareConcurrency,
+    memoria: g.navigator.deviceMemory,
+  };
+}
+
+export function obterQualidade(): Qualidade {
+  if (qualidade !== undefined) return qualidade;
+  let lida: string | null = null;
+  try { lida = loja()?.getItem(CHAVE_QUALIDADE) ?? null; } catch { /* fica no palpite */ }
+  if (lida === 'alta' || lida === 'leve') qualidade = lida;
+  else {
+    const info = infoDoAparelho();
+    qualidade = info ? palpiteQualidade(info) : 'alta';
+  }
+  return qualidade;
+}
+
+export function definirQualidade(q: Qualidade): void {
+  qualidade = q;
+  try { loja()?.setItem(CHAVE_QUALIDADE, q); } catch { /* nada a fazer */ }
 }
 
 /* Som: a música e os efeitos têm volumes separados, de DESLIGADO a ALTO —

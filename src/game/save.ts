@@ -56,6 +56,10 @@ function texto(v: unknown, padrao: string): string {
   return typeof v === 'string' && v.length > 0 ? v : padrao;
 }
 
+/* a chave existe de verdade na tabela? (um save editado com "constructor"
+   ou "__proto__" acharia o que vem do protótipo do objeto) */
+function tem(tabela: object, chave: string): boolean { return Object.hasOwn(tabela, chave); }
+
 function inteiro(v: unknown, padrao: number, min = 0, max = Number.MAX_SAFE_INTEGER): number {
   const n = typeof v === 'number' && Number.isFinite(v) ? Math.floor(v) : padrao;
   return Math.max(min, Math.min(max, n));
@@ -72,7 +76,7 @@ function lugar(v: unknown, padrao: Lugar): Lugar {
   const o = (v ?? {}) as Record<string, unknown>;
   /* mapa que não existe mais leva o resto junto: as coordenadas dele não
      querem dizer nada aqui, e cairiam dentro de uma parede qualquer */
-  if (typeof o['mapa'] !== 'string' || !MAPAS[o['mapa']]) return { ...padrao };
+  if (typeof o['mapa'] !== 'string' || !tem(MAPAS, o['mapa'])) return { ...padrao };
   const id = o['mapa'];
   const def = MAPAS[id]!;
   const largura = def.chao[0]?.length ?? 1;
@@ -89,12 +93,12 @@ function lugar(v: unknown, padrao: Lugar): Lugar {
 function bicho(v: unknown): Encantado | null {
   const o = (v ?? {}) as Record<string, unknown>;
   const id = typeof o['especie'] === 'string' ? o['especie'] : '';
-  if (!ESPECIES[id]) return null;
+  if (!tem(ESPECIES, id)) return null;
 
   const nivel = inteiro(o['nivel'], 5, 1);
   const golpes = (Array.isArray(o['golpes']) ? o['golpes'] : [])
     .map((g) => (g ?? {}) as Record<string, unknown>)
-    .filter((g) => typeof g['id'] === 'string' && GOLPES[g['id']])
+    .filter((g) => typeof g['id'] === 'string' && tem(GOLPES, g['id']))
     .slice(0, MAX_GOLPES)
     .map((g) => {
       const idGolpe = g['id'] as string;
@@ -148,8 +152,9 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
   const mochila: Record<string, number> = {};
   const m = (j['mochila'] ?? {}) as Record<string, unknown>;
   for (const [id, n] of Object.entries(m)) {
-    if (!ITENS[id]) continue;
-    const q = inteiro(n, 0, 0, 99);
+    if (!tem(ITENS, id)) continue;
+    // a mochila não tem teto de 99 no jogo (fichas da Romaria passam disso)
+    const q = inteiro(n, 0, 0, 9999);
     if (q > 0) mochila[id] = q;
   }
 
@@ -157,7 +162,7 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
   const f = (j['flags'] ?? {}) as Record<string, unknown>;
   for (const [k, v] of Object.entries(f)) if (v === true) flags[k] = true;
 
-  const personagem = typeof j['personagem'] === 'string' && ESTILOS[j['personagem']]
+  const personagem = typeof j['personagem'] === 'string' && tem(ESTILOS, j['personagem'])
     ? j['personagem'] : 'taina';
 
   return {
@@ -172,9 +177,9 @@ export function restaurar(bruto: unknown): EstadoJogo | null {
     dinheiro: inteiro(j['dinheiro'], 0, 0, 999999),
     medalhas: listaDeTexto(j['medalhas'], () => true),
     flags,
-    vistos: listaDeTexto(j['vistos'], (s2) => ESPECIES[s2] !== undefined),
-    capturados: listaDeTexto(j['capturados'], (s2) => ESPECIES[s2] !== undefined),
-    raros: listaDeTexto(j['raros'], (s2) => ESPECIES[s2] !== undefined),
+    vistos: listaDeTexto(j['vistos'], (s2) => tem(ESPECIES, s2)),
+    capturados: listaDeTexto(j['capturados'], (s2) => tem(ESPECIES, s2)),
+    raros: listaDeTexto(j['raros'], (s2) => tem(ESPECIES, s2)),
     romaria: {
       seq: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['seq'], 0, 0, 9999),
       recorde: inteiro((j['romaria'] as Record<string, unknown> | undefined)?.['recorde'], 0, 0, 9999),
@@ -268,6 +273,9 @@ export interface ResumoSlot {
   nivel: number;          // maior nível do time; 0 se ainda não tem ninguém
   mapa: string;
   medalhas: number;
+  /* tem coisa gravada, mas não dá para ler: não é vazio, e gravar por cima
+     pede confirmação como qualquer outro */
+  danificado?: boolean;
 }
 
 export function resumoSlot(slot: number): ResumoSlot | null {
@@ -277,10 +285,12 @@ export function resumoSlot(slot: number): ResumoSlot | null {
   try { cru = ls.getItem(chaveSlot(slot)); } catch { return null; }
   if (!cru) return null;
 
+  const danificado: ResumoSlot = { slot, nome: '', quando: null, nivel: 0, mapa: '???', medalhas: 0, danificado: true };
   let bruto: unknown;
-  try { bruto = JSON.parse(cru); } catch { return null; }
-  const jogo = restaurar(bruto);
-  if (!jogo) return null;
+  try { bruto = JSON.parse(cru); } catch { return danificado; }
+  let jogo: EstadoJogo | null;
+  try { jogo = restaurar(bruto); } catch { return danificado; }
+  if (!jogo) return danificado;
 
   const quandoMs = (bruto as Record<string, unknown>)['quando'];
   return {
@@ -288,7 +298,7 @@ export function resumoSlot(slot: number): ResumoSlot | null {
     nome: jogo.nome,
     quando: typeof quandoMs === 'number' ? formatarData(quandoMs) : null,
     nivel: jogo.time.reduce((max, c) => Math.max(max, c.nivel), 0),
-    mapa: MAPAS[jogo.posicao.mapa]?.nome ?? '???',
+    mapa: (tem(MAPAS, jogo.posicao.mapa) ? MAPAS[jogo.posicao.mapa]?.nome : undefined) ?? '???',
     medalhas: jogo.medalhas.length,
   };
 }

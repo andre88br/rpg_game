@@ -1,16 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MAPAS } from '../data/mapas/index.ts';
-import { REGIOES } from '../data/mundo.ts';
 import { TILES } from '../world/tilemap.ts';
 import {
-  EM_3D, LETRAS_COM_RELEVO, NIVEL_AGUA, PREDIOS, TIPOS_DE_OBJETO, luzDe, modeloDe, relevoDe,
+  LETRAS_COM_RELEVO, NIVEL_AGUA, PREDIOS, TIPOS_DE_OBJETO, luzDe, modeloDe, relevoDe,
 } from './relevo.ts';
-
-test('a vista 3D cobre exatamente a Região da Foz', () => {
-  const foz = REGIOES.find((r) => r.tipo === 'agua')!;
-  assert.deepEqual([...EM_3D].sort(), [...foz.mapas].sort());
-});
 
 test('toda letra de chão de todo mapa registrado tem relevo — as 27', () => {
   assert.deepEqual([...LETRAS_COM_RELEVO].sort(), Object.keys(TILES).sort());
@@ -40,10 +34,10 @@ test('água fica abaixo da lâmina, e todo chão andável fica acima dela', () =
   }
 });
 
-test('toda construção da Foz vira prédio, com as cores do telhado do mapa plano', () => {
-  for (const id of EM_3D) {
-    for (const o of MAPAS[id]!.objetos) {
-      if (['casa', 'loja', 'benzimento', 'terreiro'].includes(o.tipo)) {
+test('toda construção de todo mapa vira prédio, com as cores do telhado do mapa plano', () => {
+  for (const def of Object.values(MAPAS)) {
+    for (const o of def.objetos) {
+      if (['casa', 'loja', 'benzimento', 'terreiro', 'posto', 'forja', 'moinho', 'arena', 'balao'].includes(o.tipo)) {
         assert.equal(modeloDe(o.tipo), 'predio');
         assert.ok(PREDIOS[o.tipo]!.telhado.startsWith('#'));
       }
