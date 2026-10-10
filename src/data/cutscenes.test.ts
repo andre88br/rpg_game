@@ -53,13 +53,17 @@ for (const [id, roteiro] of Object.entries(CUTSCENES)) {
     for (const [i, t] of roteiro.entries()) {
       assert.ok(t.legendas.length > 0 || t.titulo, `tomada ${i}: nem legenda nem letreiro`);
       for (const l of t.legendas) {
-        const s = textoDe(l);
-        /* o recheio ({nome}, {inicial}...) pode esticar a frase: mede com
-           um nome de dez letras, o máximo que a tela de nome deixa digitar */
-        const cheio = s.replace(/\{[\w:]+\}/g, 'MMMMMMMMMM');
-        const n = quebrar(cheio, LARG_LEGENDA).length;
-        assert.ok(n <= LINHAS_LEGENDA, `tomada ${i}: "${s}" dá ${n} linhas`);
-        assert.ok(desenhavel(s.replace(/\{[\w:]+\}/g, '')), `tomada ${i}: "${s}" tem letra que a fonte não desenha`);
+        const cru = textoDe(l);
+        // {g:ela|ele}: confere as duas formas, a da Tainá e a do Bento
+        for (const lado of [1, 2]) {
+          const s = cru.replace(/\{g:([^{}|]*)\|([^{}]*)\}/g, (_, f: string, m: string) => (lado === 1 ? f : m));
+          /* o recheio ({nome}, {inicial}...) pode esticar a frase: mede com
+             um nome de dez letras, o máximo que a tela de nome deixa digitar */
+          const cheio = s.replace(/\{[\w:]+\}/g, 'MMMMMMMMMM');
+          const n = quebrar(cheio, LARG_LEGENDA).length;
+          assert.ok(n <= LINHAS_LEGENDA, `tomada ${i}: "${s}" dá ${n} linhas`);
+          assert.ok(desenhavel(s.replace(/\{[\w:]+\}/g, '')), `tomada ${i}: "${s}" tem letra que a fonte não desenha`);
+        }
         if (typeof l !== 'string') assert.ok(desenhavel(l.quem), `tomada ${i}: nome "${l.quem}"`);
       }
     }
@@ -366,6 +370,7 @@ test('todo tema que não é vinheta toca em algum lugar: cutscene, mapa ou batal
     ...Object.values(CUTSCENES).flatMap((r) => r.map((t) => t.musica)),
     ...Object.values(MAPAS).map((d) => temaDoMapa(d)),
     temaDaBatalha(null),
+    'titulo',                    // a tela de título (scenes/title.ts)
     ...Object.values(MAPAS).flatMap((d) => d.npcs.flatMap((n) => (n.treinador ? [temaDaBatalha(n.treinador)] : []))),
   ]);
   for (const [id, m] of Object.entries(MUSICAS)) {

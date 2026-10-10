@@ -125,10 +125,10 @@ export class CenaPersonagem implements Cena {
       if (escolhido) r.retangulo(cx - 26, 46, 52, 60, P.uiBg2!);
       r.sprite(img, cx - img.width / 2, escolhido ? 50 : 56);
       r.texto(p.nome, cx - r.larguraTexto(p.nome) / 2, 110,
-              escolhido ? P.uiInk! : P.uiBg3!);
+              escolhido ? P.uiInk! : P.uiTexto2!);
     });
 
-    r.texto('< >  ESCOLHER    A  CONFIRMAR', 16, ALTURA - 20, P.uiBg3!);
+    r.texto('< >  ESCOLHER    A  CONFIRMAR', 16, ALTURA - 20, P.uiTexto2!);
   }
 
   private desenharModo(r: Renderizador): void {
@@ -144,10 +144,10 @@ export class CenaPersonagem implements Cena {
       const y = 42 + i * 36;
       const escolhido = (i === 1) === this.desafio;
       if (escolhido) r.retangulo(16, y - 3, LARGURA - 32, 15 + o.linhas.length * 9, P.uiBg2!);
-      r.texto(o.nome, 24, y, escolhido ? P.uiInk! : P.uiBg3!);
-      o.linhas.forEach((l, j) => r.texto(l, 32, y + 11 + j * 9, P.uiBg3!));
+      r.texto(o.nome, 24, y, escolhido ? P.uiInk! : P.uiTexto2!);
+      o.linhas.forEach((l, j) => r.texto(l, 32, y + 11 + j * 9, P.uiTexto2!));
     });
-    r.texto('A CONFIRMAR   B VOLTAR', 16, ALTURA - 20, P.uiBg3!);
+    r.texto('A CONFIRMAR   B VOLTAR', 16, ALTURA - 20, P.uiTexto2!);
   }
 
   private desenharNome(r: Renderizador): void {
@@ -159,7 +159,7 @@ export class CenaPersonagem implements Cena {
     r.sprite(this.retrato(prot.id), 16, 28);
 
     const campo = this.nome.length > 0 ? this.nome : prot.nome;
-    const corCampo = this.nome.length > 0 ? P.uiInk! : P.uiBg3!;
+    const corCampo = this.nome.length > 0 ? P.uiInk! : P.uiTexto2!;
     r.retangulo(48, 30, 130, 14, P.uiBg2!);
     r.texto(campo, 54, 34, corCampo);
     if (Math.floor(Date.now() / 400) % 2 === 0) {
@@ -174,10 +174,10 @@ export class CenaPersonagem implements Cena {
       const x = ox + col * celW, y = oy + linha * celH;
       const selecionado = i === this.cursor;
       if (selecionado) r.retangulo(x, y, celW - 4, celH - 3, P.uiAcc!);
-      const cor = selecionado ? P.uiInk! : P.uiBg3!;
+      const cor = selecionado ? P.uiInk! : P.uiTexto2!;
       r.texto(tecla, x + (celW - 4 - r.larguraTexto(tecla)) / 2, y + 3, cor);
     });
 
-    r.texto('A ESCOLHER   B VOLTAR', 16, ALTURA - 12, P.uiBg3!);
+    r.texto('A ESCOLHER   B VOLTAR', 16, ALTURA - 12, P.uiTexto2!);
   }
 }

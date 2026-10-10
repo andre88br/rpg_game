@@ -114,7 +114,7 @@ const LISTA: readonly Item[] = [
     descricao: 'Presente da Dona Firmina. Use na mochila: rema sozinha até o benzimento de uma cidade onde você já esteve.' },
   { id: 'mapa_agua', nome: 'Mapa da Foz', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
-    descricao: 'A Região da Foz, da Vila Aurora até o farol. Com ele, o Mapa do Mundo mostra a planta de cada lugar dela.' },
+    descricao: 'A Região da Foz, da Vila do Sossego até o farol. Com ele, o Mapa do Mundo mostra a planta de cada lugar dela.' },
   { id: 'mapa_planta', nome: 'Mapa da Mata', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'A Mata do Curupira e o igarapé, trilha por trilha. Com ele, o Mapa do Mundo mostra a planta de cada lugar dela.' },

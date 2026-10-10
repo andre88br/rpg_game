@@ -225,7 +225,7 @@ const SOL_CIRCULO: Roteiro = [
     fundo: S.baloeCeu,
     atores: [{ figura: { peca: 'balao' }, x: -40, y: 30, ate: { x: 190, y: 20, de: 0.2, por: 8 }, balanco: { amp: 2, periodo: 2 } }],
     legendas: [
-      { quem: 'BALOEIRO', texto: 'Lá de cima se vê as oito regiões de uma vez, da Foz até aqui.' },
+      { quem: 'BALOEIRO', texto: 'Lá de cima se veem as oito regiões de uma vez, da Foz até aqui.' },
       { quem: 'BALOEIRO', texto: 'E bem no meio de tudo, o Círculo Dourado. Fala comigo do lado do balão, que eu te levo.' },
     ],
     titulo: ['O CÍRCULO DOURADO', 'NO MEIO DO MUNDO'],

@@ -32,6 +32,9 @@ export const P: Record<string, string> = {
   wind:     '#bfe9e0',  windD:    '#7fc4b8',
 
   uiBg:     '#f7f3e6',  uiBg2:    '#ded5bd',  uiBg3:    '#bdb198',
+  /* o texto secundário (dicas, descrições, o que não está escolhido): o
+     uiBg3 é fundo, claro demais para letra sobre o creme */
+  uiTexto2: '#6f6450',
   uiInk:    '#2b2436',  uiAcc:    '#c9a227',  uiAccD:   '#8d6f16',
   hpGreen:  '#4cd05a',  hpYellow: '#f0c030',  hpRed:    '#e04a3a',
   barBack:  '#4a4258',  xp:       '#4aa8e0',

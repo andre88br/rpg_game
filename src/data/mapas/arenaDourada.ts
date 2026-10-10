@@ -270,7 +270,7 @@ export const arenaDourada: DefMapa = {
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'cuca', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'caipora', nivel: 60 }],
         falaInicio: 'Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.',
-        falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem um novo campeão.',
+        falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.',
         liga: 'campeao', creditos: true,
         // antes da luta, quem ele é; depois, o fim da história — e os créditos
         apresentacao: 'anhanga', cutscene: 'campeao',
@@ -281,7 +281,7 @@ export const arenaDourada: DefMapa = {
         },
       },
       falas: [
-        { se: 'venceu_anhanga', linhas: ['Campeão agora é você. Mas o Círculo continua aberto: volta quando quiser, que eu volto mais forte.'] },
+        { se: 'venceu_anhanga', linhas: ['{g:Campeã|Campeão} agora é você. Mas o Círculo continua aberto: volta quando quiser, que eu volto mais forte.'] },
         { batalha: true, linhas: ['Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.'] },
       ],
     },
@@ -293,7 +293,7 @@ export const arenaDourada: DefMapa = {
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'cuca', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }],
         falaInicio: 'Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.',
-        falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem um novo campeão.',
+        falaDerrota: 'O mato respondeu a você. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.',
         trunfo: {
           boitatinha: { especie: 'iaraMae', nivel: 60 },
           iarinha: { especie: 'curupira', nivel: 60 },
@@ -301,7 +301,7 @@ export const arenaDourada: DefMapa = {
         },
       },
       falas: [
-        { se: 'venceu_anhanga_b', linhas: ['Campeão agora é você. Mas o Círculo continua aberto: volta quando quiser, que eu volto mais forte.'] },
+        { se: 'venceu_anhanga_b', linhas: ['{g:Campeã|Campeão} agora é você. Mas o Círculo continua aberto: volta quando quiser, que eu volto mais forte.'] },
         { batalha: true, linhas: ['Vinte anos esperando alguém que escutasse o mato de novo. Mostra o que ele te disse.'] },
       ],
     },

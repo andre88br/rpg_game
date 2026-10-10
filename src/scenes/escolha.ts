@@ -80,17 +80,17 @@ export class EscolhaInicial {
       r.sprite(img, x + (48 - larguraDe(img)) / 2 - 4, escolhido ? 30 : 36);
       const nome = f.nome.toUpperCase();
       r.texto(nome, x + (48 - r.larguraTexto(nome)) / 2 - 4, 72,
-              escolhido ? P.uiInk! : P.uiBg3!);
+              escolhido ? P.uiInk! : P.uiTexto2!);
     });
 
     const f = especie(INICIAIS[this.sel]!);
     const info = infoTipo(f.tipos[0]!);
     r.retangulo(14, 88, r.larguraTexto(info.nome) + 8, 11, info.corD);
-    r.texto(info.nome, 18, 90, P.uiInk!);
-    r.texto(f.categoria.toUpperCase(), 14 + r.larguraTexto(info.nome) + 16, 90, P.uiBg3!);
+    r.texto(info.nome, 18, 90, P.white!);
+    r.texto(f.categoria.toUpperCase(), 14 + r.larguraTexto(info.nome) + 16, 90, P.uiTexto2!);
     this.sobre(r, f.sobre, 104);
 
-    r.texto('< >  ESCOLHER    A  FICAR COM ELE', 14, ALTURA - 18, P.uiBg3!);
+    r.texto('< >  ESCOLHER    A  FICAR COM ELE', 14, ALTURA - 18, P.uiTexto2!);
     if (this.confirmando) this.desenharConfirmacao(r, f.nome);
   }
 
@@ -113,7 +113,7 @@ export class EscolhaInicial {
     r.retangulo(x, y, larg, alt, P.uiBg!);
     const pergunta = `FICAR COM ${nome.toUpperCase()}?`;
     r.texto(pergunta, x + (larg - r.larguraTexto(pergunta)) / 2, y + 8, P.uiInk!);
-    r.texto('Escolha de patuá não se desfaz.', x + 10, y + 19, P.uiBg3!);
+    r.texto('Escolha de patuá não se desfaz.', x + 10, y + 19, P.uiTexto2!);
     ['SIM', 'NÃO'].forEach((op, i) => {
       const ox = x + 46 + i * 70;
       if (i === this.simNao) r.texto('=', ox - 10, y + 32, P.uiAccD!);

@@ -30,10 +30,10 @@ export const casaTaina: DefMapa = {
     quem: 'MÃE', seNao: ['viu_boas_vindas', 'escolheu_inicial'], liga: 'viu_boas_vindas',
     linhas: [
       'Acordou, enfim, {nome}! A Dona Firmina mandou te chamar logo cedo.',
-      'Pra andar, use as setas. No celular, o direcional.',
-      'Pra falar com alguém ou ler uma placa, chegue de frente e aperte A. No teclado, o A é o Z.',
-      'Segure B pra correr. No teclado, o B é o X.',
-      'O MENU mostra seu time, a mochila, a guia de contas e o mapa. No teclado, é o Esc.',
+      'Pra andar, use as setas ou W A S D. No celular, o direcional.',
+      'Pra falar com alguém ou ler uma placa, chegue de frente e aperte A. No teclado, o A é o Z, o Enter ou o Espaço.',
+      'Segure B pra correr. No teclado, o B é o X ou o Shift.',
+      'O MENU mostra seu time, a mochila, a guia de contas e o mapa. No teclado, é o Esc ou o Tab.',
       'A casa da Dona Firmina é a de telhado grande, logo à direita da nossa. Vai lá, criança.'],
   },
 

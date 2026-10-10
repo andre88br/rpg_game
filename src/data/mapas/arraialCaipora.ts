@@ -110,7 +110,7 @@ export const arraialCaipora: DefMapa = {
       ],
     },
     {
-      id: 'dona_luzia', nome: 'DONA LUZIA', estilo: 'firmina',
+      id: 'dona_luzia', nome: 'DONA LUZIA', estilo: 'senhora',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
         { se: 'menino_salvo', linhas: [

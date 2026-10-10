@@ -134,9 +134,9 @@ export class TelaCaixa {
       L.linhaBicho(r, bicho, y, idx === this.sel);
     }
 
-    if (this.topo > 0) r.texto('...', LARGURA - 34, 28, P.uiBg3!);
+    if (this.topo > 0) r.texto('...', LARGURA - 34, 28, P.uiTexto2!);
     if (this.topo + LINHAS_VISIVEIS < linhas.length) {
-      r.texto('...', LARGURA - 34, 28 + (LINHAS_VISIVEIS - 1) * LINHA_ALT, P.uiBg3!);
+      r.texto('...', LARGURA - 34, 28 + (LINHAS_VISIVEIS - 1) * LINHA_ALT, P.uiTexto2!);
     }
 
     if (this.recado) {

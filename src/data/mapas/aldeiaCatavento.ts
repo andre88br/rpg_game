@@ -76,7 +76,7 @@ export const aldeiaCatavento: DefMapa = {
       seNao: 'achou_capim_aldeia',
       falas: [{ liga: 'achou_capim_aldeia', da: { item: 'capim_dourado' }, linhas: [
         'Crescendo numa fresta do muro, sem murchar nunca: um punhado de CAPIM DOURADO.',
-        'A moleira do moinho procura os três até hoje.'] }] },
+        'O moleiro do moinho procura os três até hoje.'] }] },
   ],
 
   npcs: [

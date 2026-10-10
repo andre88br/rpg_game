@@ -37,7 +37,7 @@ export const benzimentoPortoIara: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira', nome: 'DONA ROSA', estilo: 'firmina',
+      id: 'benzedeira', nome: 'DONA ROSA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

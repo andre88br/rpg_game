@@ -163,7 +163,7 @@ export class TelaPoder {
       r.retangulo(27, y + 11, r.larguraTexto(info.nome) + 6, 7, info.cor);
       r.texto(info.nome, 30, y + 12, P.uiInk!);
       const pp = `PP ${g.pp}`;
-      r.texto(pp, LARGURA - 20 - r.larguraTexto(pp), y + 11, P.uiBg3!);
+      r.texto(pp, LARGURA - 20 - r.larguraTexto(pp), y + 11, P.uiTexto2!);
     });
   }
 }

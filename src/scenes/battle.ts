@@ -153,6 +153,9 @@ export class CenaBatalha implements Cena {
   /* cursores dos menus */
   private sel = 0;
   private selGolpe = 0;
+  /* o letreiro da descrição recomeça quando o golpe escolhido muda */
+  private golpeVisto = -1;
+  private golpeDesde = 0;
   private selItem = 0;
   private selTime = 0;
   private selEsquecer = 0;
@@ -567,7 +570,7 @@ export class CenaBatalha implements Cena {
 
   private navegarGolpes(entrada: Entrada): void {
     const n = Math.max(1, this.b.aliado.enc.golpes.length);
-    this.selGolpe = this.mover(entrada, this.selGolpe, n, 2);
+    this.selGolpe = this.mover(entrada, this.selGolpe, n, 1);
     if (entrada.apertou('b')) { this.tela = 'comando'; return; }
     if (!entrada.apertou('a')) return;
     const g = this.b.aliado.enc.golpes[this.selGolpe];
@@ -886,23 +889,51 @@ export class CenaBatalha implements Cena {
     r.sprite(this.caixaGolpes, 0, BARRA_Y);
     enc.golpes.forEach((g, i) => {
       const f = fichaGolpe(g.id);
-      const x = 16 + (i % 2) * 78;
-      const y = BARRA_Y + 13 + Math.floor(i / 2) * 17;
+      // um por linha: nome de golpe chega a 18 letras ("Rodamoinho do Saci")
+      const x = 16;
+      const y = BARRA_Y + 4 + i * 8;
       if (i === this.selGolpe) r.texto('=', x - 8, y, P.uiAccD!);
-      r.texto(f.nome, x, y, g.pp > 0 ? P.uiInk! : P.uiBg3!);
+      r.texto(f.nome, x, y, g.pp > 0 ? P.uiInk! : P.uiTexto2!);
     });
 
     r.sprite(this.caixaFicha, LARGURA - 78, BARRA_Y);
     const g = enc.golpes[this.selGolpe];
     if (!g) return;
     const f = fichaGolpe(g.id);
+    if (this.selGolpe !== this.golpeVisto) { this.golpeVisto = this.selGolpe; this.golpeDesde = this.relogio; }
+    this.desenharDescricao(r, f.descricao);
     const info = infoTipo(f.tipo);
     const fx = LARGURA - 78;
-    r.retangulo(fx + 7, BARRA_Y + 6, larguraTexto(info.nome) + 8, 11, info.corD);
-    r.retangulo(fx + 8, BARRA_Y + 7, larguraTexto(info.nome) + 6, 9, info.cor);
-    r.texto(info.nome, fx + 11, BARRA_Y + 8, P.uiInk!);
-    r.texto(`PP ${g.pp}/${g.ppMax}`, fx + 7, BARRA_Y + 22, g.pp > 0 ? P.uiInk! : P.hpRed!);
-    r.texto(f.pot > 0 ? `POT ${f.pot}` : 'EFEITO', fx + 7, BARRA_Y + 34, P.uiInk!);
+    r.retangulo(fx + 7, BARRA_Y + 4, larguraTexto(info.nome) + 8, 11, info.corD);
+    r.retangulo(fx + 8, BARRA_Y + 5, larguraTexto(info.nome) + 6, 9, info.cor);
+    r.texto(info.nome, fx + 11, BARRA_Y + 6, P.uiInk!);
+    r.texto(`PP ${g.pp}/${g.ppMax}`, fx + 7, BARRA_Y + 17, g.pp > 0 ? P.uiInk! : P.hpRed!);
+    r.texto(f.pot > 0 ? `POT ${f.pot}` : 'EFEITO', fx + 7, BARRA_Y + 26, P.uiInk!);
+    // precisão 0 é "nunca erra"
+    r.texto(f.precisao > 0 ? `PREC ${f.precisao}` : 'PREC --', fx + 7, BARRA_Y + 35, P.uiTexto2!);
+  }
+
+  /* a descrição do golpe escolhido, embaixo dos quatro: se não cabe numa
+     linha, corre devagar da direita para a esquerda, como letreiro */
+  private desenharDescricao(r: Renderizador, texto: string): void {
+    const x0 = 9, y = BARRA_Y + 37, larg = 164 - 18;
+    const w = larguraTexto(texto);
+    const ctx = r.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, y, larg, 9);
+    ctx.clip();
+    if (w <= larg) r.texto(texto, x0, y + 1, P.uiTexto2!);
+    else {
+      // um vão de três espaços entre uma volta e a outra
+      const volta = w + 18;
+      // parado um segundo no começo, para dar tempo de ler
+      const t = Math.max(0, this.relogio - this.golpeDesde - 1);
+      const desl = Math.floor((t * 22) % volta);
+      r.texto(texto, x0 - desl, y + 1, P.uiTexto2!);
+      r.texto(texto, x0 - desl + volta, y + 1, P.uiTexto2!);
+    }
+    ctx.restore();
   }
 
   /* ------------------------------------------------------- telas cheias */
@@ -937,7 +968,7 @@ export class CenaBatalha implements Cena {
       r.texto(f.nome, 24, y, P.uiInk!);
       const info = infoTipo(f.tipo);
       r.retangulo(150, y - 1, 34, 9, info.corD);
-      r.texto(info.nome.slice(0, 5), 152, y, P.uiInk!);
+      r.texto(info.nome.slice(0, 5), 152, y, P.white!);
       r.texto(`${g.pp}/${g.ppMax}`, 192, y, P.uiInk!);
     });
     const y = 48 + alvo.golpes.length * 15;

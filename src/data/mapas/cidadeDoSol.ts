@@ -178,13 +178,13 @@ export const cidadeDoSol: DefMapa = {
       },
       falas: [
         { se: 'venceu_zeca8', linhas: [
-          'Quando você for campeã... quer dizer, campeão... lembra de mim, tá? Eu fui o primeiro a te desafiar.'] },
+          'Quando você for {campea}, lembra de mim, tá? Eu fui o primeiro a te desafiar.'] },
         { batalha: true, linhas: [
           'A subida do Pico é aqui. E eu estou na frente dela, como sempre estive.'] },
       ],
     },
     {
-      id: 'joalheira', nome: 'JOALHEIRA', estilo: 'firmina',
+      id: 'joalheira', nome: 'JOALHEIRA', estilo: 'senhora',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
         /* quem fez o serviço antes das cantigas existirem recebe agora */

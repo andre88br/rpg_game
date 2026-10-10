@@ -1,4 +1,4 @@
-/* Rota da Foz — a estrada entre Vila Aurora e Porto Iara.
+/* Rota da Foz — a estrada entre Vila do Sossego e Porto Iara.
    É o mato alto mais cheio da região e onde o Zeca "Redemoinho" barra a
    passagem (segunda conta da guia, na Etapa 2). O paredão de pedra no sul
    deixa um vão só: quem quiser desviar tem que voltar pelo mato.            */
@@ -55,7 +55,7 @@ export const rotaFoz: DefMapa = {
         'Dobrado dentro de uma garrafa, na beira do caminho: o MAPA DA FOZ.',
         'Agora o Mapa do Mundo mostra a planta de cada lugar desta região.'] }] },
     { tipo: 'placa', tx: 15, ty: 1,
-      placa: 'ROTA DA FOZ. Ao norte, Vila Aurora. Ao sul, Porto Iara.' },
+      placa: 'ROTA DA FOZ. Ao norte, Vila do Sossego. Ao sul, Porto Iara.' },
     { tipo: 'placa', tx: 16, ty: 25,
       placa: 'Passagem do paredão. Daqui em diante é porto: cuidado com a maré.' },
     /* a tranca do Zeca: some no instante em que ele perde, e é por isso que
@@ -93,7 +93,7 @@ export const rotaFoz: DefMapa = {
         /* falar com ele vale o mesmo que ser visto: quem desce pela outra
            faixa da estrada não escapa do desafio por um tile de diferença */
         { batalha: true, linhas: [
-          'Ó ela! A vizinha resolveu virar caçadora de Encantado.',
+          '{g:Ó ela! A vizinha|Ó ele! O vizinho} resolveu virar {g:caçadora|caçador} de Encantado.',
           'Essa estrada é minha. Quer passar? Passa por cima de mim.'] },
       ],
     },

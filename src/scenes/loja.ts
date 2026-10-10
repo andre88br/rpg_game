@@ -175,7 +175,7 @@ export class Loja {
       r.texto(preco, LARGURA - 24 - r.larguraTexto(preco), y, P.uiInk!);
       if (!comprando) {
         const q = 'X' + quantidade(this.estado.mochila, id);
-        r.texto(q, LARGURA - 66 - r.larguraTexto(q), y, P.uiBg3!);
+        r.texto(q, LARGURA - 66 - r.larguraTexto(q), y, P.uiTexto2!);
       }
     });
 

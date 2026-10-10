@@ -554,7 +554,7 @@ export class MenuPausa {
     r.retangulo(px - 2, py - 2, larg + 4, alt + 4, P.ink!);
     r.retangulo(px, py, larg, alt, P.uiBg!);
     r.texto('VOLTAR AO TÍTULO?', px + 10, py + 8, P.uiInk!);
-    r.texto('O que não foi gravado se perde.', px + 10, py + 20, P.uiBg3!);
+    r.texto('O que não foi gravado se perde.', px + 10, py + 20, P.uiTexto2!);
     ['SIM', 'NÃO'].forEach((op, i) => {
       const ox = px + 20 + i * 60;
       if (i === this.sel) r.texto('=', ox - 10, py + 34, P.uiAccD!);
@@ -586,7 +586,7 @@ export class MenuPausa {
         if (this.ehCantiga()) {
           const golpe = fichaGolpe(this.golpeDaCantiga()).nome.toUpperCase();
           L.telaCheia(r, this.caixaCheia, `ENSINAR ${golpe} A QUEM?`, 'A ENSINAR   B VOLTAR');
-          const ROTULOS = { pode: ['PODE', P.uiAccD!], nao: ['NÃO PODE', P.uiBg3!], ja: ['JÁ SABE', P.uiBg3!] } as const;
+          const ROTULOS = { pode: ['PODE', P.uiAccD!], nao: ['NÃO PODE', P.uiTexto2!], ja: ['JÁ SABE', P.uiTexto2!] } as const;
           L.listaTime(r, est.time, this.selAlvo, {
             etiqueta: (i) => {
               const [texto, cor] = ROTULOS[compatibilidade(est.time[i]!, this.itemUsando!)];
@@ -621,7 +621,7 @@ export class MenuPausa {
           const y = 32 + i * 16;
           r.retangulo(16, y + 1, 6, 6, acesa ? P.water! : P.uiBg3!);
           r.texto(acesa ? c.servico.toUpperCase() : '? ? ?', 28, y,
-                  acesa ? P.uiInk! : P.uiBg3!);
+                  acesa ? P.uiInk! : P.uiTexto2!);
         });
         break;
       }
@@ -638,7 +638,7 @@ export class MenuPausa {
         if (id && reg) {
           r.texto(MAPAS[id]!.nome, 14, ALTURA - 42, P.uiInk!);
           const tem = quantidade(est.mochila, itemMapaDaRegiao(reg)) > 0;
-          r.texto(tem ? reg.nome : `${reg.nome}: MAPA ESCONDIDO`, 14, ALTURA - 31, P.uiBg3!);
+          r.texto(tem ? reg.nome : `${reg.nome}: MAPA ESCONDIDO`, 14, ALTURA - 31, P.uiTexto2!);
         }
         break;
       }
@@ -688,7 +688,7 @@ export class MenuPausa {
           if (sel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);
           const v = valores[op];
-          if (!ACOES.has(op)) r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiBg3!);
+          if (!ACOES.has(op)) r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiTexto2!);
         });
         break;
       }
@@ -701,7 +701,7 @@ export class MenuPausa {
     const caixa = this.op.estado.caixa;
     L.telaCheia(r, this.caixaCheia, `NA CAIXA (${caixa.length})`, '< TIME   B VOLTAR');
     if (caixa.length === 0) {
-      r.texto('NINGUÉM NA CAIXA AINDA.', 22, 30, P.uiBg3!);
+      r.texto('NINGUÉM NA CAIXA AINDA.', 22, 30, P.uiTexto2!);
     }
     for (let i = 0; i < CAIXA_LINHAS_VISIVEIS; i++) {
       const idx = this.topoCaixa + i;
@@ -709,17 +709,17 @@ export class MenuPausa {
       if (!bicho) break;
       L.linhaBicho(r, bicho, 28 + i * 10, idx === this.selCaixa);
     }
-    if (this.topoCaixa > 0) r.texto('...', LARGURA - 34, 28, P.uiBg3!);
+    if (this.topoCaixa > 0) r.texto('...', LARGURA - 34, 28, P.uiTexto2!);
     if (this.topoCaixa + CAIXA_LINHAS_VISIVEIS < caixa.length) {
-      r.texto('...', LARGURA - 34, 28 + (CAIXA_LINHAS_VISIVEIS - 1) * 10, P.uiBg3!);
+      r.texto('...', LARGURA - 34, 28 + (CAIXA_LINHAS_VISIVEIS - 1) * 10, P.uiTexto2!);
     }
-    r.texto('TROCAR, SÓ NO BAÚ DO BENZIMENTO.', 14, ALTURA - 30, P.uiBg3!);
+    r.texto('TROCAR, SÓ NO BAÚ DO BENZIMENTO.', 14, ALTURA - 30, P.uiTexto2!);
   }
 
   private rodapeTime(r: Renderizador, e: Encantado | undefined): void {
     if (!e) return;
     const f = ficha(e);
-    r.texto(`${nome(e)} — ${f.nome}`, 14, ALTURA - 32, P.uiBg3!);
+    r.texto(`${nome(e)} — ${f.nome}`, 14, ALTURA - 32, P.uiTexto2!);
     const t = tracoDaEspecie(e.especie).nome.toUpperCase();
     r.texto(t, LARGURA - 14 - r.larguraTexto(t), ALTURA - 32, P.uiAccD!);
   }
@@ -739,37 +739,37 @@ export class MenuPausa {
       const y = 30 + i * 10;
       if (idx === this.selCaderno) r.texto('=', 12, y, P.uiAccD!);
       r.texto(vista ? especie(id).nome.toUpperCase() : '? ? ?', 22, y,
-              vista ? P.uiInk! : P.uiBg3!);
+              vista ? P.uiInk! : P.uiTexto2!);
       // a estrela: já prendeu um desses na cor rara
       if (est.raros.includes(id)) r.texto('*', 22 + r.larguraTexto(especie(id).nome.toUpperCase()) + 3, y, P.uiAccD!);
     }
-    if (this.topoCaderno > 0) r.texto('...', 96, 30, P.uiBg3!);
+    if (this.topoCaderno > 0) r.texto('...', 96, 30, P.uiTexto2!);
     if (this.topoCaderno + CADERNO_LINHAS_VISIVEIS < ESPECIES_ORDEM.length) {
-      r.texto('...', 96, 30 + (CADERNO_LINHAS_VISIVEIS - 1) * 10, P.uiBg3!);
+      r.texto('...', 96, 30 + (CADERNO_LINHAS_VISIVEIS - 1) * 10, P.uiTexto2!);
     }
 
     const idSel = ESPECIES_ORDEM[this.selCaderno];
     if (!idSel) return;
     if (!est.vistos.includes(idSel)) {
-      r.texto('AINDA NÃO VISTO.', 120, 40, P.uiBg3!);
+      r.texto('AINDA NÃO VISTO.', 120, 40, P.uiTexto2!);
       return;
     }
     const esp = especie(idSel);
     r.sprite(this.spriteCaderno(esp.arte), 160, 26);
     if (!this.cadernoTraco) {
       r.texto(esp.categoria, 120, 64, P.uiAccD!);
-      L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiBg3!);
+      L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiTexto2!);
       return;
     }
     // o traço só fica anotado depois de ter um no patuá
     if (!est.capturados.includes(idSel)) {
       r.texto('TRAÇO: ?', 120, 64, P.uiAccD!);
-      L.paragrafo(r, 'Só se conhece o jeito de um bicho depois de ter um no patuá.', 120, 76, 112, 5, P.uiBg3!);
+      L.paragrafo(r, 'Só se conhece o jeito de um bicho depois de ter um no patuá.', 120, 76, 112, 5, P.uiTexto2!);
       return;
     }
     const t = tracoDaEspecie(idSel);
     r.texto(t.nome.toUpperCase(), 120, 64, P.uiAccD!);
-    L.paragrafo(r, t.descricao, 120, 76, 112, 5, P.uiBg3!);
+    L.paragrafo(r, t.descricao, 120, 76, 112, 5, P.uiTexto2!);
   }
 
   private spriteCaderno(arte: string): Assado {
@@ -794,8 +794,8 @@ export class MenuPausa {
         r.texto(m.nome.slice(0, 6), x, y + 24, P.uiInk!);
       } else {
         r.retangulo(x + 8, y + 2, 16, 16, P.uiBg2!);
-        r.texto('?', x + 14, y + 6, P.uiBg3!);
-        r.texto('- - -', x, y + 24, P.uiBg3!);
+        r.texto('?', x + 14, y + 6, P.uiTexto2!);
+        r.texto('- - -', x, y + 24, P.uiTexto2!);
       }
     });
   }

@@ -1,4 +1,4 @@
-/* Vila Aurora — onde a trilha começa.
+/* Vila do Sossego — onde a trilha começa.
    Grade editável à mão, um caractere por tile de 16x16:
      .  grama          ,  mato alto (encontros)   =  caminho de terra
      a  areia          ~  água (intransponível)   p  cais de madeira
@@ -8,7 +8,7 @@ import type { DefMapa } from '../../world/tilemap.ts';
 
 export const vilaAurora: DefMapa = {
   id: 'vilaAurora',
-  nome: 'VILA AURORA',
+  nome: 'VILA DO SOSSEGO',
 
   chao: [
     '##############################',
@@ -45,7 +45,7 @@ export const vilaAurora: DefMapa = {
     { tipo: 'casa', tx: 12, ty: 2, larg: 5, alt: 4 },                    // porta (14,5)
     { tipo: 'casa', tx: 21, ty: 3, larg: 4, alt: 3, trancada: true },    // ninguém em casa
     { tipo: 'placa', tx: 12, ty: 23,
-      placa: 'VILA AURORA. Ao sul, a Rota da Foz leva a Porto Iara.' },
+      placa: 'VILA DO SOSSEGO. Ao sul, a Rota da Foz leva a Porto Iara.' },
     { tipo: 'placa', tx: 17, ty: 5,
       placa: 'CASA DA DONA FIRMINA. Quem quer o primeiro patuá, pode entrar.' },
     { tipo: 'placa', tx: 10, ty: 10,
@@ -58,7 +58,7 @@ export const vilaAurora: DefMapa = {
       tx: 19, ty: 7, dir: 'baixo',
       falas: [
         { se: 'medalha:mare', linhas: [
-          'Vou contar isso até morrer: {crianca} da Vila Aurora com a Medalha Maré!'] },
+          'Vou contar isso até morrer: {crianca} da Vila do Sossego com a Medalha Maré!'] },
         { se: 'item:carta', linhas: [
           'Carta na mão e cara de pressa. Desce a estrada, {crianca}, que o porto não anda até aqui.',
           'A saída da vila é lá embaixo, no fim da estrada do meio. Depois é só seguir a Rota da Foz até o mar.'] },

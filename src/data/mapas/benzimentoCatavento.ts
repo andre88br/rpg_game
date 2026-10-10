@@ -37,7 +37,7 @@ export const benzimentoCatavento: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_catavento', nome: 'DONA CACILDA', estilo: 'firmina',
+      id: 'benzedeira_catavento', nome: 'DONA CACILDA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

@@ -37,7 +37,7 @@ export const benzimentoCaipora: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_caipora', nome: 'DONA ZEFA', estilo: 'firmina',
+      id: 'benzedeira_caipora', nome: 'DONA ZEFA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

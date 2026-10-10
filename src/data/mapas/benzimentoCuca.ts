@@ -36,7 +36,7 @@ export const benzimentoCuca: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_cuca', nome: 'DONA BENTA', estilo: 'firmina',
+      id: 'benzedeira_cuca', nome: 'DONA BENTA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

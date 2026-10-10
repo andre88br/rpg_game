@@ -95,7 +95,9 @@ export class CenaTitulo implements Cena {
   constructor(aoComecar: (c: Comeco, slot: number) => void) { this.aoComecar = aoComecar; }
 
   entrar(): void {
-    Som.musica(null);                 // quem volta da partida não traz o tema do mapa
+    // o tema do título (quem volta da partida não traz o tema do mapa); só
+    // soa depois do primeiro toque, quando o navegador destrava o áudio
+    Som.musica('titulo');
     this.fundo = assarSuave(fundoTitulo());
     this.t = 0;
     this.sel = 0;
@@ -216,7 +218,7 @@ export class CenaTitulo implements Cena {
     if (titulo) { r.texto(titulo, x + 12, iy, P.uiAccD!); iy += 12; }
     itens.forEach((it, i) => {
       if (i === sel) r.texto('=', x + 12, iy, P.uiAccD!);
-      r.texto(it, x + 24, iy, sel < 0 ? P.uiBg3! : P.uiInk!);
+      r.texto(it, x + 24, iy, sel < 0 ? P.uiTexto2! : P.uiInk!);
       iy += 12;
     });
   }

@@ -84,7 +84,7 @@ export const circuloDourado: DefMapa = {
       tx: 23, ty: 10, dir: 'baixo',
       falas: [
         { se: 'campeao', linhas: [
-          'A arena está aberta para o campeão sempre que quiser. Os Guardiões ficaram mais fortes depois de você.'] },
+          'A arena está aberta para {g:a campeã|o campeão} sempre que quiser. Os Guardiões ficaram mais fortes depois de você.'] },
         { linhas: [
           'Lá dentro: quatro Guardiões, o seu rival e o campeão, o Anhangá. Uma câmara depois da outra.',
           'A porta de cada câmara só abre para a frente, e ninguém benze ninguém. Se cair, recomeça do primeiro.'] },
@@ -99,7 +99,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'iaraMae', nivel: 60 }, { especie: 'piragua', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'iaraMae', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'A Maré voltou mais alta. Vamos ver se você ainda nada nela.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_mariana', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -115,7 +115,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'curupira', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'curupira', nivel: 60 }, { especie: 'mapinguari', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A mata cresceu desde a Raiz. Eu também.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_tie', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -131,7 +131,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'boitatao', nivel: 60 }, { especie: 'mulaSemCabeca', nivel: 60 }, { especie: 'salamanca', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }, { especie: 'lamparina', nivel: 60 }],
         falaInicio: 'A forja ficou mais quente. Aguenta?',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_bras', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -147,7 +147,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'saci', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'matinta', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'saci', nivel: 60 }],
         falaInicio: 'O redemoinho gira pro outro lado agora.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_perere', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -163,7 +163,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'relampo', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'relampo', nivel: 60 }, { especie: 'uirapuru', nivel: 60 }, { especie: 'minhocao', nivel: 60 }],
         falaInicio: 'O trovão aprendeu uns truques novos.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_guaraci', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -179,7 +179,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'mapinguari', nivel: 60 }, { especie: 'minhocao', nivel: 60 }, { especie: 'tatuTrovao', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'caipora', nivel: 60 }, { especie: 'cabraCabriola', nivel: 60 }],
         falaInicio: 'A pedra não esquece quem passou por ela.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_ubirajara', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -195,7 +195,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'cuca', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }, { especie: 'pisadeira', nivel: 60 }, { especie: 'corpoSeco', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'lobisomem', nivel: 60 }],
         falaInicio: 'No breu eu te vi chegar. Agora eu te vejo voltar.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_morgana', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },
@@ -211,7 +211,7 @@ export const circuloDourado: DefMapa = {
         itens: { garrafada_forte: 3, erva_doce: 2, agua_benta: 2 },
         time: [{ especie: 'estrelaDalva', nivel: 60 }, { especie: 'jaci', nivel: 60 }, { especie: 'maeDoOuro', nivel: 60 }, { especie: 'arcoDaVelha', nivel: 60 }, { especie: 'lamparina', nivel: 60 }, { especie: 'estrelaDalva', nivel: 60 }],
         falaInicio: 'O sol nasceu de novo. A luta também.',
-        falaDerrota: 'Campeão é campeão. Volta quando quiser.',
+        falaDerrota: '{g:Campeã é campeã|Campeão é campeão}. Volta quando quiser.',
       },
       falas: [
         { se: 'venceu_revanche_solano', batalha: true, linhas: ['Voltou? Eu também treinei. Venho do tamanho do seu time, como da outra vez.'] },

@@ -90,7 +90,7 @@ export const mataDoCurupira: DefMapa = {
         { se: 'conta_pegadas', seNao: 'conta_mudas', linhas: [
           'O caderno está redondo, mas o viveiro ainda não. Alguma Caiporinha anda com uma muda minha.'] },
         { se: 'tem_caderno_mata', linhas: [
-          'Duas coisas em aberto, {crianca}: o caderno, que você mesma enche andando pelo mato,',
+          'Duas coisas em aberto, {crianca}: o caderno, que você {g:mesma|mesmo} enche andando pelo mato,',
           'e as três mudas do viveiro, sumidas com Caiporinhas — uma no igarapé, uma no mato fechado,',
           'e uma mais adiante. Resolva as duas e acendo mais duas contas da guia.'] },
         { linhas: [

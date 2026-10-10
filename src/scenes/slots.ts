@@ -94,7 +94,7 @@ export class TelaSlots {
     r.sprite(this.caixa, x, y);
     r.texto(TITULOS[this.modo], x + 10, y + 8, P.uiAccD!);
     r.retangulo(x + 8, y + 19, this.caixa.width - 16, 1, P.uiBg3!);
-    r.texto(RODAPES[this.modo], x + 10, y + this.caixa.height - 12, P.uiBg3!);
+    r.texto(RODAPES[this.modo], x + 10, y + this.caixa.height - 12, P.uiTexto2!);
 
     for (let i = 0; i < NUM_SLOTS; i++) {
       this.desenharLinha(r, i, x + 10, y + 26 + i * 16);
@@ -106,18 +106,18 @@ export class TelaSlots {
   private desenharLinha(r: Renderizador, slot: number, x: number, y: number): void {
     const resumo = this.resumos[slot];
     const rotulo = `SLOT ${slot + 1}`;
-    const cor = resumo ? P.uiInk! : P.uiBg3!;
+    const cor = resumo ? P.uiInk! : P.uiTexto2!;
     if (slot === this.sel) r.texto('=', x - 8, y, P.uiAccD!);
     r.texto(rotulo, x, y, cor);
 
-    if (!resumo) { r.texto('(VAZIO)', x + 54, y, P.uiBg3!); return; }
-    if (resumo.danificado) { r.texto('(DANIFICADO)', x + 54, y, P.uiBg3!); return; }
+    if (!resumo) { r.texto('(VAZIO)', x + 54, y, P.uiTexto2!); return; }
+    if (resumo.danificado) { r.texto('(DANIFICADO)', x + 54, y, P.uiTexto2!); return; }
 
     const meio = `${resumo.nome.slice(0, 6)}  NV${resumo.nivel || 1}`;
     r.texto(meio, x + 54, y, cor);
     if (resumo.quando) {
       const dt = resumo.quando;
-      r.texto(dt, LARGURA - 24 - r.larguraTexto(dt), y, P.uiBg3!);
+      r.texto(dt, LARGURA - 24 - r.larguraTexto(dt), y, P.uiTexto2!);
     }
   }
 
@@ -127,7 +127,7 @@ export class TelaSlots {
     r.retangulo(x - 2, y - 2, larg + 4, alt + 4, P.ink!);
     r.retangulo(x, y, larg, alt, P.uiBg!);
     r.texto(`SOBRESCREVER O SLOT ${this.sel + 1}?`, x + 10, y + 8, P.uiInk!);
-    r.texto('A partida gravada ali se perde.', x + 10, y + 20, P.uiBg3!);
+    r.texto('A partida gravada ali se perde.', x + 10, y + 20, P.uiTexto2!);
     ['SIM', 'NÃO'].forEach((op, i) => {
       const ox = x + 40 + i * 70;
       if (i === this.simNao) r.texto('=', ox - 10, y + 34, P.uiAccD!);

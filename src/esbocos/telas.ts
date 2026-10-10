@@ -254,7 +254,7 @@ export function telaMapa(): Buf {
   texto(b, titulo, (W - larguraTexto(titulo)) / 2, 12, '#6b4a22');
 
   const cidades: { n: string; t: Tipo | null; dom: string }[] = [
-    { n: 'VILA AURORA',       t: null,     dom: '(INÍCIO - SEM TERREIRO)' },
+    { n: 'VILA DO SOSSEGO',       t: null,     dom: '(INÍCIO - SEM TERREIRO)' },
     { n: 'PORTO IARA',        t: 'agua',   dom: 'NADAR' },
     { n: 'MATA DO CURUPIRA',  t: 'planta', dom: 'CORTAR CIPÓ' },
     { n: 'SERRA BOITATÁ',     t: 'fogo',   dom: 'TOCHA' },

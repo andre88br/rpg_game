@@ -53,7 +53,7 @@ export interface EstadoJogo {
 }
 
 /* A partida começa SEM Encantado nenhum: o primeiro é escolhido na mesa da
-   Dona Firmina, em Vila Aurora. Até lá o mato alto não gera encontro e nenhum
+   Dona Firmina, na Vila do Sossego. Até lá o mato alto não gera encontro e nenhum
    treinador desafia — as duas coisas checam se há alguém de pé. */
 export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
   const inicio = MAPAS[MAPA_INICIAL]!.inicio;

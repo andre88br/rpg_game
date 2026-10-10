@@ -117,7 +117,7 @@ export const bairroDaCuca: DefMapa = {
       ],
     },
     {
-      id: 'velha_retratos', nome: 'VELHA DO BAIRRO', estilo: 'firmina',
+      id: 'velha_retratos', nome: 'VELHA DO BAIRRO', estilo: 'senhora',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
         /* quem fez o serviço antes das cantigas existirem recebe agora */

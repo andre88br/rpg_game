@@ -149,7 +149,7 @@ export class TelaRezador {
     if (e) {
       const n = relembraveis(e).length;
       r.texto(n === 0 ? 'NADA PARA LEMBRAR' : `${n} GOLPE${n > 1 ? 'S' : ''} PARA LEMBRAR - ${PRECO_REZA} RÉIS`,
-              14, ALTURA - 32, P.uiBg3!);
+              14, ALTURA - 32, P.uiTexto2!);
     }
   }
 
@@ -166,16 +166,16 @@ export class TelaRezador {
       if (idx === this.selGolpe) r.retangulo(10, y - 3, LARGURA - 20, ALTURA_LINHA - 2, P.uiBg2!);
       r.texto(g.nome.toUpperCase(), 16, y, P.uiInk!);
       L.etiquetaTipo(r, infoTipo(g.tipo), 112, y, 4);
-      if (g.pot > 0) r.texto(`POT ${g.pot}`, 146, y, P.uiBg3!);
+      if (g.pot > 0) r.texto(`POT ${g.pot}`, 146, y, P.uiTexto2!);
       const pp = `PP ${g.pp}`;
-      r.texto(pp, LARGURA - 16 - r.larguraTexto(pp), y, P.uiBg3!);
+      r.texto(pp, LARGURA - 16 - r.larguraTexto(pp), y, P.uiTexto2!);
     }
-    if (this.topo > 0) r.texto('...', LARGURA - 34, 22, P.uiBg3!);
+    if (this.topo > 0) r.texto('...', LARGURA - 34, 22, P.uiTexto2!);
     if (this.topo + LINHAS_VISIVEIS < this.lista.length) {
-      r.texto('...', LARGURA - 34, 30 + LINHAS_VISIVEIS * ALTURA_LINHA - 4, P.uiBg3!);
+      r.texto('...', LARGURA - 34, 30 + LINHAS_VISIVEIS * ALTURA_LINHA - 4, P.uiTexto2!);
     }
     // a descrição do golpe escolhido, numa linha só
     const linhas = quebrar(fichaGolpe(this.lista[this.selGolpe]!).descricao, LARGURA - 40);
-    r.texto(linhas.length > 1 ? `${linhas[0]}...` : linhas[0] ?? '', 14, ALTURA - 30, P.uiBg3!);
+    r.texto(linhas.length > 1 ? `${linhas[0]}...` : linhas[0] ?? '', 14, ALTURA - 30, P.uiTexto2!);
   }
 }

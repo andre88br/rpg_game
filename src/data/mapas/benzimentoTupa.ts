@@ -37,7 +37,7 @@ export const benzimentoTupa: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_tupa', nome: 'DONA JUREMA', estilo: 'firmina',
+      id: 'benzedeira_tupa', nome: 'DONA JUREMA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

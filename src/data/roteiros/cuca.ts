@@ -36,7 +36,7 @@ const CARTOMANTE: Roteiro = [
     ],
     legendas: [
       { quem: 'CARTOMANTE', texto: 'A primeira carta é o rio que dorme. A segunda, a sombra que cresce comprando terra.' },
-      { quem: 'CARTOMANTE', texto: 'E a terceira é você, {crianca}: uma criança de oito medalhas no peito, no meio do mundo.' },
+      { quem: 'CARTOMANTE', texto: 'E a terceira é você, {crianca}: uma criança que ainda vai ter oito medalhas no peito, no meio do mundo.' },
     ],
   },
   { // a placa de VENDIDO no Casarão

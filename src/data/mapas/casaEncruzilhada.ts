@@ -34,7 +34,7 @@ export const casaEncruzilhada: DefMapa = {
 
   npcs: [
     {
-      id: 'iraci', nome: 'DONA IRACI', estilo: 'firmina',
+      id: 'iraci', nome: 'DONA IRACI', estilo: 'senhora',
       tx: 2, ty: 3, dir: 'dir',
       falas: [
         { cura: true, linhas: [

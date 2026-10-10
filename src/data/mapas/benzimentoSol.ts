@@ -36,7 +36,7 @@ export const benzimentoSol: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_sol', nome: 'DONA CLARA', estilo: 'firmina',
+      id: 'benzedeira_sol', nome: 'DONA CLARA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

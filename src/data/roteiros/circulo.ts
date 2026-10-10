@@ -34,7 +34,7 @@ const CIRCULO: Roteiro = [
     atores: [{ figura: { pessoa: 'anhanga', dir: 'baixo' }, x: 112, y: 84 }],
     legendas: [
       { quem: 'PORTEIRO', texto: 'Faz vinte anos que o Anhangá ganhou o Círculo. Desde então, ninguém chegou aqui com as oito.' },
-      { quem: 'PORTEIRO', texto: 'Foi no ano em que a Companhia chegou. Ele ficou esperando alguém que escutasse o mato de novo.' },
+      { quem: 'PORTEIRO', texto: 'Desde então o mato foi falando cada vez mais baixo. Ele ficou esperando alguém que escutasse o mato de novo.' },
     ],
   },
   { // os oito donos de terreiro, cada um da sua região
@@ -223,7 +223,7 @@ const CAMPEAO: Roteiro = [
     ],
     legendas: [
       'Quando a última luta acaba, a arena inteira vem abaixo: papel picado, tambor e grito das oito regiões.',
-      { quem: 'ANHANGÁ', texto: 'O mato respondeu a você, {crianca}. O Círculo Dourado tem um novo campeão.' },
+      { quem: 'ANHANGÁ', texto: 'O mato respondeu a você, {crianca}. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.' },
     ],
   },
   { // as oito medalhas acendem juntas
@@ -282,7 +282,7 @@ const CAMPEAO: Roteiro = [
       { figura: { criatura: 'sacizinho' }, x: 140, y: 88, aparece: 1.4, balanco: { amp: 3, periodo: 1.2, fase: 0.7 } },
     ],
     legendas: [],
-    titulo: ['ENCANTADOS', 'O CAMPEÃO DO CÍRCULO'],
+    titulo: ['ENCANTADOS', '{g:A CAMPEÃ|O CAMPEÃO} DO CÍRCULO'],
   },
 ];
 

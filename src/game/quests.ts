@@ -214,8 +214,12 @@ export function responder(e: EstadoJogo, f: Fala, i: number): Resposta {
    'A guia esta com {contas} de cinco contas.' O que nao for reconhecido
    fica como esta, para um `{` solto no texto nao sumir com a frase.
    `{contas:planta}`, `{faltam:planta}` e `{servico:planta}` fazem o mesmo
-   para a guia de outro terreiro que nao a de agua. */
+   para a guia de outro terreiro que nao a de agua. `{g:pronta|pronto}`
+   escolhe a forma que concorda com o protagonista (Tainá ou Bento). */
 export function preencher(e: EstadoJogo, linha: string): string {
+  // {g:feminino|masculino}: a palavra que concorda com o protagonista
+  const ele = pronomeDe(e) === 'ele';
+  linha = linha.replace(/\{g:([^{}|]*)\|([^{}]*)\}/g, (_, fem: string, masc: string) => (ele ? masc : fem));
   return linha.replace(/\{([\w:]+)\}/g, (inteiro, chave: string) => {
     if (chave.startsWith('contas:')) return String(contasAcesasDe(e, chave.slice(7)));
     if (chave.startsWith('faltam:')) {

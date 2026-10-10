@@ -676,8 +676,8 @@ const FIRMINA_CHAMA: Roteiro = [
       { figura: { inicial: true }, x: 146, y: 126, ate: { x: 136, y: 88, por: 3.5 }, balanco: { amp: 1, periodo: 1.6 } },
     ],
     legendas: [
-      { quem: 'MESTRE DO PORTO', texto: 'Sobe a Rota da Foz até a Vila Aurora, {crianca}. A casa de telhado grande, você sabe.' },
-      'A Dona Firmina está esperando em VILA AURORA.',
+      { quem: 'MESTRE DO PORTO', texto: 'Sobe a Rota da Foz até a Vila do Sossego, {crianca}. A casa de telhado grande, você sabe.' },
+      'A Dona Firmina está esperando em VILA DO SOSSEGO.',
     ],
   },
 ];

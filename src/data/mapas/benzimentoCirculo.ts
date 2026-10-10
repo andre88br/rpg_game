@@ -36,7 +36,7 @@ export const benzimentoCirculo: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_circulo', nome: 'DONA DOURADA', estilo: 'firmina',
+      id: 'benzedeira_circulo', nome: 'DONA DOURADA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

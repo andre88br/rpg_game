@@ -190,7 +190,8 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   câmera e o jogador fica translúcido (`esconderPredios`). A água de
   interior e de caverna recebe menos luz, para não brilhar mais que o chão,
   e no mapa escuro o círculo de luz 2D vai onde a câmera 3D põe o jogador
-  (`projetar`). `window.jogo.info3D()` mostra as chamadas de desenho.
+  (`projetar`). `window.jogo.info3D()` mostra as chamadas de desenho (o `window.jogo`
+  só existe no `npm run dev` ou com `?debug` na URL).
 - **Mundo inteiro.** Todo mapa registrado tem vista 3D (`relevo.test.ts`
   confere letras, objetos e prédios de todos); a cena do mundo só pergunta
   se a VISÃO está ligada (`vista()`), e a batalha e o corte da guia seguem
@@ -387,7 +388,7 @@ que já existe, sem redesenhar nada:
 
 **Textura não é contorno**, e essa distinção teve de ser ensinada ao filtro.
 Grama, areia e terra batida são feitas de chuvisco: pontinhos de um tom vizinho
-espalhados pelo tile. O filtro engordava cada pontinho e o gramado da Vila Aurora
+espalhados pelo tile. O filtro engordava cada pontinho e o gramado da Vila do Sossego
 virou um mofo esverdeado. Agora só conta como borda o encontro de duas cores
 **distantes** — a copa da árvore contra a grama, o contorno de um bicho, a parede
 contra o chão. Tom vizinho de tom vizinho é textura, e textura passa intacta.
@@ -631,7 +632,11 @@ virar `batalha`. O texto aceita recheio: `{nome}`, `{contas}`, `{faltam}`,
 escolhido — `{crianca}` ("menino" ou "menina") e `{caida}` ("caído" ou
 "caída"), resolvidos por `pronomeDe(estado)` em `game/state.ts`. Quem
 escreve uma fala nova para "a menina"/"moça" escreve `{crianca}` no lugar,
-e ela lê certo para os dois.
+e ela lê certo para os dois. Para qualquer outra palavra, a marca genérica
+`{g:feminino|masculino}` (`Tá {g:pronta|pronto}`, `{g:A CAMPEÃ|O CAMPEÃO}`).
+O recheio vale nas falas, nas cutscenes (legenda e letreiro) e nas falas de
+treinador na batalha (`main.ts: lutar`), e `game/genero.test.ts` lê todo
+texto do jogo com a Tainá e com o Bento atrás de forma errada.
 
 `contas`/`faltam`/`servico` sem sufixo sempre falam do Terreiro de Água — é
 compatibilidade com a Região da Foz inteira, que já cita assim. Uma segunda
@@ -887,7 +892,7 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - [x] **2 — Batalha.** Turnos, tabela de tipos, dano, PP, estados, itens, captura,
       troca, XP, subida de nível, evolução e IA — com 88 testes automatizados.
 - [x] **3 — Região da Foz.** A Fase 1 do jogo, inteira.
-  - [x] **Etapa 1 — o mundo se abre.** Oito mapas encadeados (Vila Aurora, Rota da
+  - [x] **Etapa 1 — o mundo se abre.** Oito mapas encadeados (Vila do Sossego, Rota da
         Foz, Porto Iara e cinco interiores), passagens, portas alinhadas ao tile,
         abrigo onde se acorda depois de apagar, e os testes de coerência de mapa.
   - [x] **Etapa 2 — o jogo lembra de você.** Falas condicionais com efeitos, as
@@ -1047,7 +1052,8 @@ de cada lado); os quadros da forma são baked uma vez e ficam em cache por
 - Um toque curto numa direção só VIRA o personagem, como no gênero. No salão
   alagado, em que cada passo muda de direção, isso custa um toque a mais.
 - Os Encantados evoluídos são desenhados em 40×40 e, ampliados em dobro, passam
-  por baixo do painel do oponente. Ganham arte de batalha própria na Fase 4.
+  por baixo do painel do oponente. Arte de batalha própria para eles ainda não
+  existe (na batalha 3D o problema some: o modelo tem o tamanho da linhagem).
 - Os iniciais evoluem no 18 e de novo no 55. As formas de cima de cada
   linhagem não aparecem no mato alto: só por evolução, nas revanches do
   Círculo e na Romaria (`formaNoNivel`).

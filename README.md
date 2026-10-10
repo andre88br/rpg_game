@@ -3,6 +3,24 @@
 RPG de captura de criaturas jogável direto no navegador, no PC ou no celular.
 Criaturas e cenários inspirados no folclore brasileiro.
 
+**Jogue agora, inclusive no celular: https://andre88br.github.io/rpg_game/**
+
+## Controles
+
+| | Teclado | Toque |
+|---|---|---|
+| andar | setas ou WASD | direcional na tela |
+| falar / confirmar | Z, Enter ou espaço | botão A |
+| correr / voltar | X, Shift ou Backspace | botão B |
+| menu | Esc ou Tab | botão MENU |
+| trocar a página da mochila | ← → | direcional ← → |
+| escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
+
+No título, sem nenhuma partida gravada, o **MENU** abre o **IMPORTAR SAVE**.
+Em **menu → TIME**, a seta **→** mostra quem está na caixa.
+
+## A trilha (contém spoilers)
+
 **Estado: completo** — as oito regiões, o torneio do Círculo Dourado e o
 pós-jogo, com **54 Encantados**, **92 golpes**, **26 traços** e **12
 cantigas** (as tabelas estão no [MANUAL](MANUAL.md)). A **Região da Foz**
@@ -149,8 +167,6 @@ patuá, porta, menu) e as vinhetas curtas (cura, medalha, nível, captura).
 Como a arte, **o som também é feito por código**, sem nenhum arquivo de
 áudio. Volumes separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
 
-Jogue agora, inclusive no celular: **https://andre88br.github.io/rpg_game/**
-
 ## Rodar
 
 ```bash
@@ -175,19 +191,7 @@ regiões e do Círculo Dourado: onde está cada NPC, o que cada serviço exige, 
 times e níveis de todo treinador, a solução de cada quebra-cabeça e os
 serviços opcionais de cada região.
 
-## Controles
-
-| | Teclado | Toque |
-|---|---|---|
-| andar | setas ou WASD | direcional na tela |
-| falar / confirmar | Z, Enter ou espaço | botão A |
-| correr / voltar | X ou Shift | botão B |
-| menu | Esc | botão MENU |
-| trocar a página da mochila | ← → | direcional ← → |
-| escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
-
-No título, sem nenhuma partida gravada, o **MENU** abre o **IMPORTAR SAVE**.
-Em **menu → TIME**, a seta **→** mostra quem está na caixa.
+## Mais para quem joga
 
 ### Instalar e levar o save
 
@@ -235,7 +239,7 @@ tudo de novo.
 
 ## O jogo
 
-- **9 cidades.** Vila Aurora (início, sem terreiro) e mais 8, uma por tipo.
+- **9 cidades.** Vila do Sossego (início, sem terreiro) e mais 8, uma por tipo.
 - **8 terreiros.** Cada terreiro é fechado por uma **guia de cinco contas**: cinco
   desafios espalhados pela região, um de cada sabor — um recado para entregar, um
   rival que barra a estrada, uma caçada no mato alto, um sumiço para resolver e um
@@ -244,7 +248,7 @@ tudo de novo.
   Cinco contas acesas abrem a guia; derrotar o líder dá a medalha e um
   **Dom de Campo**, que remove o obstáculo da estrada para a região seguinte.
 - **Oito regiões em fila.** Cada Dom de Campo abre a estrada da seguinte, da
-  **Região da Foz** (Vila Aurora → Rota da Foz → Porto Iara) até a Cidade do Sol.
+  **Região da Foz** (Vila do Sossego → Rota da Foz → Porto Iara) até a Cidade do Sol.
 - **Torneio Círculo Dourado.** 6 adversários seguidos, sem cura entre as lutas:
   quatro Guardiões de dois tipos cada, o Zeca e o campeão Anhangá. Fica no meio
   do continente; depois dele, créditos, revanches que crescem com o seu time,

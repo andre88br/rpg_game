@@ -162,7 +162,7 @@ export const portoIara: DefMapa = {
       tx: 6, ty: 21, dir: 'baixo',
       falas: [
         { se: 'conta_farol', linhas: [
-          'Você encarou o bicho do farol e voltou inteira? Quando eu crescer eu faço igual.'] },
+          'Você encarou o bicho do farol e voltou {g:inteira|inteiro}? Quando eu crescer eu faço igual.'] },
         { se: 'item:rede>=1', linhas: [
           'Rede na mão! Foi Sacizinho, né? Eles gostam de nó, e de canto onde ninguém passa.'] },
         { se: 'contas>=3', linhas: [

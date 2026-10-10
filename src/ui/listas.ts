@@ -22,7 +22,7 @@ export function linhaBicho(r: Renderizador, e: Encantado, y: number, selecionado
   if (selecionado) r.texto('=', 12, y, P.uiAccD!);
   r.texto(nome(e) + (e.raro ? ' *' : ''), 22, y, P.uiInk!);
   const nv = 'NV' + e.nivel;
-  r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiBg3!);
+  r.texto(nv, LARGURA - 20 - r.larguraTexto(nv), y, P.uiTexto2!);
 }
 
 /* A etiqueta de tipo de um golpe: moldura escura por fora, miolo claro por
@@ -42,7 +42,7 @@ export function telaCheia(r: Renderizador, caixa: Assado, titulo: string, rodape
   r.sprite(caixa, 4, 4);
   r.texto(titulo, 14, 12, P.uiAccD!);
   r.retangulo(12, 23, LARGURA - 24, 1, P.uiBg3!);
-  r.texto(rodape, 14, ALTURA - 18, P.uiBg3!);
+  r.texto(rodape, 14, ALTURA - 18, P.uiTexto2!);
 }
 
 export interface OpcoesListaTime {
@@ -78,14 +78,18 @@ export function listaTime(r: Renderizador, time: readonly Encantado[], sel: numb
     const hp = `${e.hp}/${max}`;
     r.texto(hp, LARGURA - 20 - r.larguraTexto(hp), y, P.uiInk!);
 
-    const tipo = ficha(e).tipos[0]!;
-    r.retangulo(22, y + 9, 26, 8, TIPOS[tipo].corD);
-    r.texto(TIPOS[tipo].nome.slice(0, 4), 24, y + 10, P.uiInk!);
+    // os tipos (um ou dois), em letra branca: o fundo é a cor escura do tipo
+    const tipos = ficha(e).tipos;
+    tipos.forEach((tipo, k) => {
+      r.retangulo(22 + k * 28, y + 9, 26, 8, TIPOS[tipo].corD);
+      r.texto(TIPOS[tipo].nome.slice(0, 4), 24 + k * 28, y + 10, P.white!);
+    });
+    const xr = 22 + tipos.length * 28 + 6;
     const rotulo = etiqueta?.(i);
-    if (rotulo) r.texto(rotulo.texto, 56, y + 10, rotulo.cor);
-    else if (caido) r.texto('CAÍDO', 56, y + 10, P.hpRed!);
-    else if (i === emCampo) r.texto('EM CAMPO', 56, y + 10, P.uiAccD!);
-    else if (e.status) r.texto(STATUS[e.status].sigla, 56, y + 10, UI.statusCor(STATUS[e.status].sigla));
+    if (rotulo) r.texto(rotulo.texto, xr, y + 10, rotulo.cor);
+    else if (caido) r.texto('CAÍDO', xr, y + 10, P.hpRed!);
+    else if (i === emCampo) r.texto('EM CAMPO', xr, y + 10, P.uiAccD!);
+    else if (e.status) r.texto(STATUS[e.status].sigla, xr, y + 10, UI.statusCor(STATUS[e.status].sigla));
   });
 }
 
@@ -136,7 +140,7 @@ export function listaMochila(r: Renderizador, m: Mochila, ids: readonly string[]
   const paginas = paginasDaMochila(ids.length);
   if (paginas > 1) {
     const marca = `< ${pag + 1}/${paginas} >`;
-    r.texto(marca, LARGURA - 20 - r.larguraTexto(marca), 12, P.uiBg3!);
+    r.texto(marca, LARGURA - 20 - r.larguraTexto(marca), 12, P.uiTexto2!);
   }
 }
 
@@ -158,7 +162,7 @@ export function paragrafo(r: Renderizador, texto: string, x: number, y: number,
 export function descricaoItem(r: Renderizador, id: string | undefined, y: number,
                               maxLinhas = 2): void {
   if (!id) return;
-  paragrafo(r, fichaItem(id).descricao, 14, y, LARGURA - 32, maxLinhas, P.uiBg3!);
+  paragrafo(r, fichaItem(id).descricao, 14, y, LARGURA - 32, maxLinhas, P.uiTexto2!);
 }
 
 function quebrarCurto(s: string, larg: number): string[] {

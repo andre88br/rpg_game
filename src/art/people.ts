@@ -156,6 +156,15 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
   firmina:  { cabelo: '#d8d4cc', cabeloL: '#f2f0ea', cabeloLongo: true,
               pele: P.skin2, peleEsc: P.skin2D,
               roupa: '#5f8f4f', roupaL: '#7fb06a', calca: '#4a6a3f' },
+  /* as benzedeiras de cada cidade: roupa branca de benzer, cabelo grisalho */
+  benzedeira: { cabelo: '#9a948a', cabeloL: '#c4beb4', cabeloLongo: true,
+              pele: P.skin2, peleEsc: P.skin2D,
+              roupa: '#e8e2d4', roupaL: '#fbf8f0', calca: '#b8ae98' },
+  /* outras senhoras (a Tecelã, a Joalheira, a Velha do Bairro...): para não
+     parecer que a Dona Firmina apareceu de novo */
+  senhora:  { cabelo: '#b4aea4', cabeloL: '#d4cec4', cabeloLongo: true,
+              pele: P.skin, peleEsc: P.skinD,
+              roupa: '#8a4a6a', roupaL: '#b0688a', calca: '#5a3a4a' },
   mariana:  { cabelo: '#1b3a5c', cabeloL: '#2f5f8f', cabeloLongo: true,
               pele: P.skin2, peleEsc: P.skin2D,
               roupa: '#2f8fbf', roupaL: '#5fc0e0', calca: '#1b5f8f' },

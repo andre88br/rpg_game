@@ -427,6 +427,14 @@ export const MUSICAS = {
               g5 bb5 eb6:4 g6:4 f6:4 | f6:4 eb6 d6 c6:8 | d6:4 c6 bb5 f5:4 d5:4 | bb5:12 -:4`,
   },
 
+  /* a tela de título: toada de beira de fogueira em lá menor, a avó
+     começando a contar — devagar, com o arpejo subindo feito fumaça */
+  titulo: {
+    bpm: 82, baixo: 'passeio', arpejo: 'sobe', ganho: 0.7,
+    acordes: ['Am', 'F', 'C', 'G', 'Am', 'F', 'Dm', 'E'],
+    melodia: `a4:4 c5:2 e5:2 a5:6 g5:2 | f5:4 e5:2 d5:2 c5:8 | e5:2 g5:2 c6:4 b5:2 a5:2 g5:4 | d5:6 e5:2 g5:8 |
+              a5:4 c6:4 b5:2 a5:2 e5:4 | f5:2 a5:2 c6:6 b5:2 a5:4 | d5:2 f5:2 a5:4 g5:2 f5:2 e5:4 | g#5:6 b5:2 e5:8`,
+  },
   /* dentro de casa: modinha baixinha em dó, sem bateria */
   casa: {
     bpm: 76, baixo: 'passeio', arpejo: 'colcheia', ganho: 0.6,

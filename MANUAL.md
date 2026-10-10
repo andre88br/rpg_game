@@ -176,7 +176,7 @@ Firmina entrega a carta para a Tiê e, na conversa seguinte, a **Canoa
 Encantada** (quem já tinha a medalha num save antigo recebe falando com ela
 de novo). Menu → MOCHILA → Canoa: o mapa mostra as cidades onde você já
 esteve; escolha uma e a canoa leva direto para dentro do benzimento dela (na
-Vila Aurora, a sua casa; na Mata, a casa da Encruzilhada). Não rema enquanto
+Vila do Sossego, a sua casa; na Mata, a casa da Encruzilhada). Não rema enquanto
 você estiver levando alguém (a escolta) nem com o relógio de uma corrida
 andando.
 
@@ -289,12 +289,12 @@ caminho — não dá para contornar.
 
 # REGIÃO 1 — A FOZ · Terreiro de Água · Medalha Maré · Dom Nadar
 
-Mapas: **Vila Aurora** → **Rota da Foz** → **Porto Iara** (+ Casa da Firmina,
+Mapas: **Vila do Sossego** → **Rota da Foz** → **Porto Iara** (+ Casa da Firmina,
 loja e benzimento).
 
 ## Abertura: o inicial
 
-Entre na casa da Dona Firmina, em Vila Aurora, porta em (14,5). Ela está em
+Entre na casa da Dona Firmina, na Vila do Sossego, porta em (14,5). Ela está em
 (6,1) e deixa você escolher entre **Boitatinha** (Fogo), **Iarinha** (Água) e
 **Curupinho** (Planta). Fale com ela **de novo** depois de escolher: ela
 entrega a **Carta da Firmina**, que é a primeira conta.
@@ -304,7 +304,7 @@ entrega a **Carta da Firmina**, que é a primeira conta.
 > Cabra-Cabriola nível 35 no fim; quem for de **Boitatinha**, uma Iara-Mãe 34;
 > quem for de **Iarinha**, um Curupirá 34.
 
-Saia de Vila Aurora pelo sul, em (13,25)/(14,25).
+Saia de Vila do Sossego pelo sul, em (13,25)/(14,25).
 
 ## Conta 1 — `conta_recado`: a carta da Dona Firmina
 
@@ -408,7 +408,7 @@ mata; ele acende a conta, entrega o **caderno de pegadas** e avisa da grota.
 Curupira da grota só aparecem depois dela.
 
 > Se o Seu Elias não aceitar nada, é porque você não voltou na Firmina depois
-> da Medalha Maré. Volte lá em Vila Aurora e fale com ela.
+> da Medalha Maré. Volte lá na Vila do Sossego e fale com ela.
 
 ## Conta 2 — `conta_zeca_mata`: o Zeca, de novo
 

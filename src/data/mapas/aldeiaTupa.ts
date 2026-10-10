@@ -131,7 +131,7 @@ export const aldeiaTupa: DefMapa = {
       ],
     },
     {
-      id: 'tecela', nome: 'TECELÃ', estilo: 'firmina',
+      id: 'tecela', nome: 'TECELÃ', estilo: 'senhora',
       tx: 30, ty: 25, dir: 'baixo',
       falas: [
         /* quem fez o serviço antes das cantigas existirem recebe agora */

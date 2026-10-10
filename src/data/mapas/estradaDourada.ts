@@ -71,7 +71,7 @@ export const estradaDourada: DefMapa = {
         itens: { garrafada_forte: 2 },
         time: [{ especie: 'saci', nivel: 57 }, { especie: 'estrelaDalva', nivel: 57 }, { especie: 'minhocao', nivel: 58 }],
         falaInicio: 'Um dia eu entro no Círculo. Hoje eu treino com você.',
-        falaDerrota: 'Tá pronta pro Círculo. Eu ainda não.',
+        falaDerrota: 'Tá {g:pronta|pronto} pro Círculo. Eu ainda não.',
       },
       falas: [
         { se: 'venceu_aspirante1', linhas: ['Os Guardiões lutam com dois tipos cada. Pensa bem no time.'] },

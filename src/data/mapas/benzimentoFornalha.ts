@@ -37,7 +37,7 @@ export const benzimentoFornalha: DefMapa = {
 
   npcs: [
     {
-      id: 'benzedeira_serra', nome: 'DONA IZILDA', estilo: 'firmina',
+      id: 'benzedeira_serra', nome: 'DONA IZILDA', estilo: 'benzedeira',
       tx: 9, ty: 2, dir: 'esq',
       falas: [
         { cura: true, linhas: [

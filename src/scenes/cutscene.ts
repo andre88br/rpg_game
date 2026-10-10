@@ -306,7 +306,8 @@ export class CenaCutscene implements Cena {
     const al = limitar((this.t - 0.3) / (TEMPO_TITULO - 0.3));
     if (al <= 0) return;
     r.ctx.globalAlpha = al;
-    linhas.forEach((s, i) => {
+    linhas.forEach((cru, i) => {
+      const s = this.recheio(cru);
       const y = 44 + i * 16;
       r.texto(s, (LARGURA - r.larguraTexto(s)) / 2, y, i === 0 ? P.gold! : P.lightD!, { sombra: P.ink! });
     });

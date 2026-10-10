@@ -3,6 +3,7 @@
 import { fimDoQuadro3D, vista3D } from './render3d/carregar.ts';
 import { fixarHora, type Clima } from './game/tempo.ts';
 import { definirQualidade, type Qualidade } from './game/config.ts';
+import { preencher } from './game/quests.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
@@ -82,7 +83,12 @@ function lutar(p: PedidoBatalha): void {
   cenas.trocar(new CenaBatalha({
     estado: est,
     oponentes: p.oponentes,
-    treinador: p.treinador ?? null,
+    // a fala do treinador também concorda com o protagonista ({g:...|...})
+    treinador: p.treinador ? {
+      ...p.treinador,
+      falaInicio: p.treinador.falaInicio && preencher(est, p.treinador.falaInicio),
+      falaDerrota: p.treinador.falaDerrota && preencher(est, p.treinador.falaDerrota),
+    } : null,
     itensIA: p.itensIA,
     cenario: p.cenario ?? 'praia',
     clima: p.clima,
@@ -190,8 +196,10 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   });
 }
 
-// atalho de depuração, útil no navegador
-Object.assign(window as unknown as Record<string, unknown>, {
+// atalho de depuração, útil no navegador: só no `npm run dev` ou com
+// `?debug` na URL — no site, ninguém tropeça num `jogo.lutar` pelo console
+const depurar = import.meta.env.DEV || new URLSearchParams(location.search).has('debug');
+if (depurar) Object.assign(window as unknown as Record<string, unknown>, {
   jogo: {
     r, entrada, cenas, laco, regiao, lutar, LARGURA, ALTURA,
     musica: () => Som.tocandoAgora(),
