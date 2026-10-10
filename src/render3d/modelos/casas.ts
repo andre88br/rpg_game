@@ -52,6 +52,8 @@ export interface Predio3D {
   letreiro?: { texto: string; cor: string; x: number; y: number; z: number; larg: number };
   /* a coluna da porta, em tiles a partir da esquerda */
   portaCol: number;
+  /* as pás do moinho: peça à parte, com o eixo na origem, que a vista gira */
+  pas?: { geo: THREE.BufferGeometry; x: number; y: number; z: number };
 }
 
 const JANELA = '#8ed0ec', JANELA_ACESA = '#f4d070', MOLDURA = '#5a3e24';
@@ -206,16 +208,21 @@ export function predio3D(regiao: string | null, tipo: TipoObjeto, w: number, alt
     p(caixa(0.45, 0.25, 0.25), '#3a3a42', w - 0.7, 0.45, frente + 0.4);
     p(caixa(0.2, 0.3, 0.2), '#3a3a42', w - 0.7, 0.2, frente + 0.4);
   }
+  let pas: Predio3D['pas'];
   if (tipo === 'moinho') {
+    const lista: THREE.BufferGeometry[] = [peca(cilindro(0.1, 0.1, 0.12, 6), '#6b4a2e', 0, 0, 0, { x: Math.PI / 2 })];
     for (let k = 0; k < 4; k++) {
-      p(caixa(0.18, 1.5, 0.04), '#f4ead0', cx, h * 0.7, frente + 0.12, { z: k * Math.PI / 2 + 0.3 }, [1, 1, 1]);
+      const a = k * Math.PI / 2;
+      lista.push(peca(caixa(0.18, 1.5, 0.04), '#f4ead0', Math.sin(a) * 0.75, Math.cos(a) * 0.75, 0, { z: -a }));
     }
+    // no alto da fachada, acima do letreiro
+    pas = { geo: juntar(lista), x: cx, y: h + 0.35, z: frente + 0.15 };
   }
 
   const letra = cfg?.letreiro && tipo !== 'terreiro' && tipo !== 'casa'
     ? { texto: cfg.letreiro, cor: cfg.escuro, x: cx, y: Math.min(h - 0.25, altPorta + 0.55), z: frente + 0.07, larg: Math.min(w - 0.5, 2.4) }
     : undefined;
-  return { geo: juntar(pecas), letreiro: letra, portaCol: col };
+  return { geo: juntar(pecas), letreiro: letra, portaCol: col, pas };
 }
 
 /* a arena do Círculo: um anel dourado, com bandeiras no alto */

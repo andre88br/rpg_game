@@ -21,8 +21,11 @@ acorda e diz onde mora a Dona Firmina (a casa de telhado grande, à direita
 da sua, com placa na porta). Depois de escolher o patuá, a Firmina explica
 como a trilha funciona e entrega a primeira carta.
 
-**Visão 3D.** A Região da Foz aparece em 3D. Para voltar ao mapa plano:
-menu → **OPÇÕES** → **VISÃO** → **PLANA** (a velocidade do jogo e o volume
+**Visão 3D.** O mundo inteiro aparece em 3D, e as batalhas também. Para
+voltar ao mapa plano: menu → **OPÇÕES** → **VISÃO** → **PLANA**. Logo abaixo,
+**QUALIDADE**: **ALTA** tem sombras e água com ondas; **LEVE** tira as
+sombras, baixa a resolução e para a água, para o celular não esquentar (em
+celular, o jogo já começa em LEVE). A velocidade do jogo e o volume
 da **MÚSICA** — um tema por região, outro na batalha, e a trilha das cutscenes — e dos **EFEITOS**
 moram na mesma página; A ou as setas para os
 lados trocam o valor). Nada muda nas contas, nos caminhos nem nas coordenadas.

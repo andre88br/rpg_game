@@ -1,6 +1,6 @@
 /* Ponto de entrada: monta o renderizador, a entrada e o laço, e liga os
    botões de toque da página às mesmas ações do teclado. */
-import { fimDoQuadro3D, forcar3D, vista3D } from './render3d/carregar.ts';
+import { fimDoQuadro3D, vista3D } from './render3d/carregar.ts';
 import { fixarHora, type Clima } from './game/tempo.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
@@ -18,6 +18,7 @@ import { Mundo } from './world/mundo.ts';
 import { novoJogo, type EstadoJogo } from './game/state.ts';
 import { carregarDeSlot, definirSlotAtivo, migrarSaveAntigo } from './game/save.ts';
 import * as Som from './audio/som.ts';
+import { definirQualidade, type Qualidade } from './game/config.ts';
 
 // quem jogava antes dos seis slots tinha um save só: essa migração acontece
 // uma vez, aqui, antes de qualquer tela olhar para os slots
@@ -175,10 +176,10 @@ Object.assign(window as unknown as Record<string, unknown>, {
     r, entrada, cenas, laco, regiao, lutar, LARGURA, ALTURA,
     musica: () => Som.tocandoAgora(),
     hora: (h: number | null) => fixarHora(h),
-    forcar3D: (v: boolean) => forcar3D(v),
     info3D: () => vista3D()?.info() ?? null,
     vitrine3D: (v = true) => { const x = vista3D(); if (x) x.vitrine = v; },
     clima: (c: Clima) => mundo?.forcarClima(c),
+    qualidade: (q: Qualidade) => definirQualidade(q),
     get estado() { return estado; },
     get mundo() { return mundo; },
   },

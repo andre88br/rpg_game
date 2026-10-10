@@ -9,7 +9,7 @@ rodar estão no [`README.md`](README.md); o passo a passo de cada região, no
 Sem engine e sem nenhum asset externo: **toda a arte é desenhada por código**,
 o que mantém o pacote pequeno e elimina qualquer questão de licenciamento. A
 única biblioteca é o **three.js**, e só para a vista 3D: ela vem num arquivo à
-parte, baixado na primeira vez que alguém entra na Foz com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
+parte, baixado na primeira vez que alguém entra no mundo com o 3D ligado. A mesma fonte em TypeScript serve o navegador (via Vite) e a
 ferramenta de linha de comando que gera os PNGs.
 
 ```
@@ -132,7 +132,18 @@ canvas do jogo, na **resolução real da tela** (densidade até 2) e com
 antisserrilhado. O canvas do jogo ficou transparente: a cena do mundo limpa o
 quadro onde o mundo aparece, e diálogo, menu e clima continuam em 2D por cima.
 O laço chama `fimDoQuadro3D()` depois de desenhar; se o mundo 3D não foi
-desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
+desenhado naquele quadro (título, mapa plano), o canvas some. Todo mapa tem
+vista 3D: ela depende só da VISÃO ligada (`obterVisao3D`). No mapa escuro, o
+disco de luz 2D é posto onde o jogador aparece na câmera 3D (`projetar`), do
+tamanho de um tile na tela.
+
+**Qualidade** (`game/config.ts: obterQualidade`, menu OPÇÕES): ALTA tem
+sombra do sol, densidade da tela até 2 e água e vento animados; LEVE desliga
+a sombra (os materiais recompilam), usa densidade 1, põe metade das árvores
+e dos morros no entorno e para a água e o vento. Sem escolha gravada, o
+palpite vem do aparelho (`palpiteQualidade`: tela de toque pequena, poucos
+núcleos ou pouca memória → LEVE). A vista confere a qualidade a cada quadro
+e só refaz o que mudou; `window.jogo.qualidade('leve')` troca para testar.
 
 - **Chão low-poly.** Cada tile vira quatro triângulos em leque: o centro na
   altura do tile (é onde se pisa), os cantos na média dos vizinhos — o
@@ -167,8 +178,9 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   ladrilho e buraco continuam como recorte deitado. A grama muda de cor por
   região (`relevoNaRegiao`), e por dentro o terreiro tem a parede da região.
   As pedras de empurrar deslizam até a casa nova, e o feixe de luz é um tubo
-  que brilha. `window.jogo.forcar3D(true)` liga o 3D em qualquer mapa (para
-  testar), e `window.jogo.info3D()` mostra as chamadas de desenho.
+  que brilha, as pás do moinho giram e a corrente de vento (`V`) tem riscos
+  claros correndo por cima. `window.jogo.info3D()` mostra as chamadas de
+  desenho e os triângulos.
 - **Gente e Encantados.** O `Ator` guarda o `estilo` e dá a `fasePasso`; a
   vista monta um modelo por estilo e clona para cada ator. Gente
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e

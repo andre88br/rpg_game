@@ -38,13 +38,14 @@ import {
 import { desenharMundo, desenharPlanta } from '../ui/mapas.ts';
 import {
   VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade, obterVisao3D, definirVisao3D,
+  obterQualidade, definirQualidade,
   NOME_VOLUME, obterVolume, definirVolume, proximoVolume,
 } from '../game/config.ts';
 import * as Som from '../audio/som.ts';
 
-/* as linhas da página de OPÇÕES: as quatro primeiras trocam de valor com A
+/* as linhas da página de OPÇÕES: as cinco primeiras trocam de valor com A
    ou com as setas para os lados; as duas de baixo são ações, só com A */
-const OPCOES = ['VELOCIDADE', 'VISÃO', 'MÚSICA', 'EFEITOS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
+const OPCOES = ['VELOCIDADE', 'VISÃO', 'QUALIDADE', 'MÚSICA', 'EFEITOS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
 type Opcao = (typeof OPCOES)[number];
 const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['BAIXAR SAVE', 'COPIAR CÓDIGO']);
 
@@ -218,7 +219,13 @@ export class MenuPausa {
       case 'VISÃO': {
         const em3d = !obterVisao3D();
         definirVisao3D(em3d);
-        this.avisar(em3d ? 'VISÃO 3D: A FOZ SAI DO PAPEL.' : 'VISÃO PLANA.');
+        this.avisar(em3d ? 'VISÃO 3D: O MUNDO SAI DO PAPEL.' : 'VISÃO PLANA.');
+        break;
+      }
+      case 'QUALIDADE': {
+        const q = obterQualidade() === 'alta' ? 'leve' : 'alta';
+        definirQualidade(q);
+        this.avisar(q === 'alta' ? 'QUALIDADE ALTA: SOMBRAS E ÁGUA VIVA.' : 'QUALIDADE LEVE: MAIS RÁPIDO NO CELULAR.');
         break;
       }
       case 'MÚSICA': case 'EFEITOS': {
@@ -669,14 +676,15 @@ export class MenuPausa {
                     ACOES.has(OPCOES[this.velSel]!) ? 'A FAZ   B VOLTAR' : 'A OU < > MUDA   B VOLTAR');
         const valores: Record<Opcao, string> = {
           VELOCIDADE: NOME_VELOCIDADE[obterVelocidade()],
-          VISÃO: obterVisao3D() ? '3D NA FOZ' : 'PLANA',
+          VISÃO: obterVisao3D() ? '3D' : 'PLANA',
+          QUALIDADE: obterQualidade() === 'alta' ? 'ALTA' : 'LEVE',
           MÚSICA: NOME_VOLUME[obterVolume('musica')],
           EFEITOS: NOME_VOLUME[obterVolume('efeitos')],
           'BAIXAR SAVE': '',
           'COPIAR CÓDIGO': '',
         };
         OPCOES.forEach((op, i) => {
-          const y = 34 + i * 18;
+          const y = 32 + i * 16;
           const sel = i === this.velSel;
           if (sel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);

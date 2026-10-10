@@ -17,8 +17,7 @@
      game/avisos.ts      o que placa, tranca e guia dizem ao A
      game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
-import { forcado3D, vista3D } from '../render3d/carregar.ts';
-import { EM_3D } from '../render3d/relevo.ts';
+import { vista3D } from '../render3d/carregar.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
 import { assar, type Assado } from '../core/buf.ts';
@@ -1421,9 +1420,9 @@ export class CenaMundo implements Cena {
     });
   }
 
-  /* a vista 3D, quando este mapa tem uma e ela está ligada e já carregou */
-  private vistaDo(id: string): Vista3D | null {
-    if (!obterVisao3D() || (!EM_3D.has(id) && !forcado3D())) return null;
+  /* a vista 3D, quando ela está ligada e já carregou (todo mapa tem uma) */
+  private vistaDo(_id: string): Vista3D | null {
+    if (!obterVisao3D()) return null;
     return vista3D();
   }
 
@@ -1488,6 +1487,16 @@ export class CenaMundo implements Cena {
   private desenharEscuridao(r: Renderizador): void {
     const def = this.def.escuro!;
     const raio = def.fixo ? (def.raio ?? RAIO_SEM_LUZ) : raioDaLuz(this.op.estado);
+    const vista = this.vistaDo(this.def.id);
+    if (vista) {
+      // no 3D a câmera é outra: o disco vai onde o jogador aparece, e do
+      // tamanho que um tile tem na tela
+      const x = this.jogador.px / TS + 0.5, y = this.jogador.py / TS + 0.5;
+      const c = vista.projetar(x, y, 0.5), lado = vista.projetar(x + 1, y, 0.5);
+      const escala = Math.hypot(lado.x - c.x, lado.y - c.y) / TS;
+      this.pintor.escuridao(r, Math.max(4, Math.round(raio * escala)), Math.round(c.x), Math.round(c.y));
+      return;
+    }
     this.pintor.escuridao(r, raio, this.jogador.px - this.camera.x + TS / 2,
                           this.jogador.py - this.camera.y + TS / 2);
   }
