@@ -19,7 +19,7 @@ import { quebrar, larguraTexto } from '../../art/font.ts';
 import { empaginar } from '../../ui/paginas.ts';
 import { preencher, type Fala } from '../../game/quests.ts';
 import type { EstadoJogo } from '../../game/state.ts';
-import { multiplicadorVelocidade } from '../../game/config.ts';
+import { multiplicadorTexto } from '../../game/config.ts';
 
 const LARG_DIALOGO = LARGURA - 12;
 const CHARS_POR_SEG = 48;
@@ -80,7 +80,7 @@ export class Dialogo<N> {
     const c = this.conversa;
     if (!c) return null;
     const total = this.textoDaPagina().length;
-    c.revelados = Math.min(total, c.revelados + CHARS_POR_SEG * multiplicadorVelocidade() * dt);
+    c.revelados = Math.min(total, c.revelados + CHARS_POR_SEG * multiplicadorTexto() * dt);
     if (entrada.apertou('a')) {
       if (c.revelados < total) {
         c.revelados = total;                       // primeiro A: revela tudo

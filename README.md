@@ -16,8 +16,19 @@ Criaturas e cenários inspirados no folclore brasileiro.
 | trocar a página da mochila | ← → | direcional ← → |
 | escolher a resposta de uma charada | ↑ ↓ e Z | direcional ↑ ↓ e botão A |
 
+Controle de videogame também serve: a cruz ou o analógico andam, A
+confirma, B volta, Start ou Select abrem o menu. Em **menu → OPÇÕES →
+TECLAS** cada ação ganha uma tecla própria (as de sempre continuam valendo),
+e **TEXTO** acelera só as letras, à parte da velocidade de andar. O nome do
+protagonista pode ser digitado direto no teclado, com acento. No celular,
+dá para deslizar o dedo de uma seta para outra sem soltar.
+
 No título, sem nenhuma partida gravada, o **MENU** abre o **IMPORTAR SAVE**.
-Em **menu → TIME**, a seta **→** mostra quem está na caixa.
+Em **menu → TIME**, a seta **→** mostra quem está na caixa, e **A** num
+Encantado abre a **ficha** dele (atributos, XP que falta, tipos, traço e
+golpes) ou muda ele de lugar. O **Caderno** tem uma aba **ONDE**: em que
+lugar cada espécie aparece. Quando sai uma versão nova do jogo com ele
+aberto, uma faixa avisa para salvar e recarregar.
 
 ## A trilha (contém spoilers)
 

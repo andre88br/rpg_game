@@ -94,3 +94,33 @@ test('proximoVolume dá a volta nos dois sentidos', () => {
   assert.equal(proximoVolume(0, -1), 3);
   assert.equal(proximoVolume(1), 2);
 });
+
+test('a velocidade do texto é à parte da de andar, e sobrevive à volta', async () => {
+  const { obterVelTexto, definirVelTexto, multiplicadorTexto } = await import('./config.ts');
+  const m = memoria();
+  usarArmazemConfig(m);
+  assert.equal(obterVelTexto(), 'normal');
+  definirVelTexto('instantaneo');
+  assert.equal(multiplicadorVelocidade(), 1, 'andar continua igual');
+  assert.ok(multiplicadorTexto() >= 1e5);
+  assert.ok(Number.isFinite(multiplicadorTexto() * 0), 'dt zero não vira NaN');
+  usarArmazemConfig(m);
+  assert.equal(obterVelTexto(), 'instantaneo');
+});
+
+test('tecla própria: uma por ação, sem repetir, e o padrão limpa', async () => {
+  const { obterTeclas, definirTecla, limparTeclas } = await import('./config.ts');
+  const m = memoria();
+  usarArmazemConfig(m);
+  definirTecla('a', 'KeyJ');
+  definirTecla('b', 'KeyJ');            // a mesma tecla passa para o B
+  assert.deepEqual(obterTeclas(), { b: 'KeyJ' });
+  definirTecla('menu', 'KeyM');
+  usarArmazemConfig(m);
+  assert.deepEqual(obterTeclas(), { b: 'KeyJ', menu: 'KeyM' });
+  limparTeclas();
+  assert.deepEqual(obterTeclas(), {});
+  m.dados.set('encantados:config:teclas:v1', 'lixo{');
+  usarArmazemConfig(m);
+  assert.deepEqual(obterTeclas(), {}, 'gravação estragada não derruba');
+});

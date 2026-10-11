@@ -15,14 +15,31 @@ import { PROTAGONISTAS } from '../game/state.ts';
 
 const MAX_NOME = 10;
 
-/* teclado alfabético: quatro linhas de sete, a última fecha com apagar e OK.
+/* teclado alfabético: seis linhas de sete — as letras, depois o Ç e as
+   vogais com acento (Tainá, João, Conceição), e a última fecha com apagar e OK.
    "<-" e não "⌫": a fonte do jogo é só o que cabe num cartucho de verdade,
    sem glifo de apagar — e o traço já lê como seta pra trás. */
 const APAGAR = '<-';
 const TECLAS: readonly string[] = [
-  ...'ABCDEFG', ...'HIJKLMN', ...'OPQRSTU', ...'VWXYZ', APAGAR, 'OK',
+  ...'ABCDEFG', ...'HIJKLMN', ...'OPQRSTU', ...'VWXYZÇÁ', ...'ÃÂÉÊÍÓÕ', ...'ÔÚ', APAGAR, 'OK',
 ];
 const COLS = 7;
+
+/* o que dá para escrever: as teclas da grade, menos as de comando — e é
+   isso que o teclado físico também aceita */
+export const LETRAS_NOME: ReadonlySet<string> = new Set(TECLAS.filter((t) => t.length === 1));
+
+/* aplica o que veio do teclado físico ao nome: letra que a fonte desenha
+   entra (até o máximo), '\b' apaga, o resto é ignorado */
+export function digitarNome(nome: string, teclas: readonly string[]): { nome: string; ok: boolean } {
+  let ok = false;
+  for (const t of teclas) {
+    if (t === '\b') nome = nome.slice(0, -1);
+    else if (t === '\n') ok = true;
+    else if (LETRAS_NOME.has(t) && nome.length < MAX_NOME) nome += t;
+  }
+  return { nome, ok };
+}
 
 export class CenaPersonagem implements Cena {
   private tela: 'personagem' | 'nome' | 'modo' = 'personagem';
@@ -54,6 +71,8 @@ export class CenaPersonagem implements Cena {
   }
 
   atualizar(_dt: number, entrada: Entrada): void {
+    // só a tela do nome escuta letra como texto
+    entrada.modoTexto = this.tela === 'nome';
     if (this.tela === 'personagem') { this.naEscolha(entrada); return; }
     if (this.tela === 'modo') { this.noModo(entrada); return; }
     this.noNome(entrada);
@@ -68,6 +87,9 @@ export class CenaPersonagem implements Cena {
   }
 
   private noNome(entrada: Entrada): void {
+    const digitou = digitarNome(this.nome, entrada.lerTexto());
+    this.nome = digitou.nome;
+    if (digitou.ok) { this.tela = 'modo'; entrada.modoTexto = false; return; }
     if (entrada.apertou('b')) { this.tela = 'personagem'; return; }
 
     const linha = Math.floor(this.cursor / COLS);
@@ -92,6 +114,7 @@ export class CenaPersonagem implements Cena {
       this.desafio = !this.desafio;
     }
     if (!entrada.apertou('a')) return;
+    entrada.modoTexto = false;
     const padrao = PROTAGONISTAS[this.sel]!.nome;
     this.aoEscolher(PROTAGONISTAS[this.sel]!.id, this.nome.length > 0 ? this.nome : padrao, this.desafio);
   }
@@ -168,7 +191,7 @@ export class CenaPersonagem implements Cena {
     }
 
     // teclado
-    const ox = 24, oy = 56, celW = 26, celH = 15;
+    const ox = 24, oy = 50, celW = 26, celH = 14;
     TECLAS.forEach((tecla, i) => {
       const col = i % COLS, linha = Math.floor(i / COLS);
       const x = ox + col * celW, y = oy + linha * celH;
@@ -178,6 +201,6 @@ export class CenaPersonagem implements Cena {
       r.texto(tecla, x + (celW - 4 - r.larguraTexto(tecla)) / 2, y + 3, cor);
     });
 
-    r.texto('A ESCOLHER   B VOLTAR', 16, ALTURA - 12, P.uiTexto2!);
+    r.texto('A ESCOLHE  B VOLTA  OU DIGITE', 16, ALTURA - 22, P.uiTexto2!);
   }
 }

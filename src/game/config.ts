@@ -33,6 +33,7 @@ function loja(): Armazem | null {
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazemConfig(a: Armazem | null): void {
   armazem = a; velocidade = undefined; visao3d = undefined; qualidade = undefined; volumes = {};
+  texto = undefined; teclas = undefined;
 }
 
 let velocidade: Velocidade | undefined;
@@ -158,4 +159,70 @@ export function definirVolume(c: Canal, v: Volume): void {
 /* o próximo volume, dando a volta: ALTO → DESLIGADO */
 export function proximoVolume(v: Volume, passo: 1 | -1 = 1): Volume {
   return (((v + passo) % 4 + 4) % 4) as Volume;
+}
+
+/* A velocidade do TEXTO, à parte da de andar: tem quem leia devagar e
+   ande rápido, e quem queira o texto inteiro de uma vez. */
+export type VelTexto = 'normal' | 'rapido' | 'instantaneo';
+export const VELS_TEXTO: readonly VelTexto[] = ['normal', 'rapido', 'instantaneo'];
+export const NOME_VEL_TEXTO: Record<VelTexto, string> = {
+  normal: 'NORMAL', rapido: 'RÁPIDO', instantaneo: 'DE UMA VEZ',
+};
+/* "de uma vez" é um número grande e finito: Infinity vezes um dt zero dá NaN */
+const MULT_TEXTO: Record<VelTexto, number> = { normal: 1, rapido: 2, instantaneo: 1e6 };
+const CHAVE_TEXTO = 'encantados:config:texto:v1';
+let texto: VelTexto | undefined;
+
+export function obterVelTexto(): VelTexto {
+  if (texto !== undefined) return texto;
+  texto = 'normal';
+  try {
+    const v = loja()?.getItem(CHAVE_TEXTO);
+    if (v === 'normal' || v === 'rapido' || v === 'instantaneo') texto = v;
+  } catch { /* fica no padrão */ }
+  return texto;
+}
+
+export function definirVelTexto(v: VelTexto): void {
+  texto = v;
+  try { loja()?.setItem(CHAVE_TEXTO, v); } catch { /* nada a fazer */ }
+}
+
+/* quantas vezes mais rápido as letras aparecem: a escolha do TEXTO por
+   cima da velocidade do jogo (TURBO continua acelerando tudo) */
+export function multiplicadorTexto(): number { return MULT_TEXTO[obterVelTexto()] * multiplicadorVelocidade(); }
+
+/* As teclas próprias de quem joga: uma por ação, por cima das de sempre
+   (que continuam valendo, para ninguém se trancar fora do jogo). Gravado
+   como { acao: código da tecla }, o `KeyboardEvent.code`. */
+export type AcaoTecla = 'cima' | 'baixo' | 'esq' | 'dir' | 'a' | 'b' | 'menu';
+export const ACOES_TECLA: readonly AcaoTecla[] = ['cima', 'baixo', 'esq', 'dir', 'a', 'b', 'menu'];
+const CHAVE_TECLAS = 'encantados:config:teclas:v1';
+let teclas: Partial<Record<AcaoTecla, string>> | undefined;
+
+export function obterTeclas(): Partial<Record<AcaoTecla, string>> {
+  if (teclas !== undefined) return teclas;
+  teclas = {};
+  try {
+    const bruto = JSON.parse(loja()?.getItem(CHAVE_TECLAS) ?? '{}') as Record<string, unknown>;
+    for (const a of ACOES_TECLA) {
+      const c = bruto[a];
+      if (typeof c === 'string' && c.length > 0 && c.length < 40) teclas[a] = c;
+    }
+  } catch { /* fica sem */ }
+  return teclas;
+}
+
+/* uma tecla só serve a uma ação: escolher a mesma para outra tira da antiga */
+export function definirTecla(a: AcaoTecla, codigo: string | null): void {
+  const atual = { ...obterTeclas() };
+  for (const k of ACOES_TECLA) if (atual[k] === codigo) delete atual[k];
+  if (codigo) atual[a] = codigo; else delete atual[a];
+  teclas = atual;
+  try { loja()?.setItem(CHAVE_TECLAS, JSON.stringify(atual)); } catch { /* nada a fazer */ }
+}
+
+export function limparTeclas(): void {
+  teclas = {};
+  try { loja()?.setItem(CHAVE_TECLAS, '{}'); } catch { /* nada a fazer */ }
 }

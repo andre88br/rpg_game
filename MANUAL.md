@@ -35,6 +35,19 @@ lados trocam o valor). Nada muda nas contas, nos caminhos nem nas coordenadas.
 de título tem **IMPORTAR SAVE** (sem nenhuma partida gravada, é o botão
 **MENU**): escolha o arquivo ou cole o código e diga em que slot gravar.
 
+**Opções e controles.** Em menu → **OPÇÕES**: **VELOCIDADE** (andar e
+animações), **TEXTO** (as letras: NORMAL, RÁPIDO ou DE UMA VEZ), **VISÃO**,
+**QUALIDADE**, **MÚSICA**, **EFEITOS** e **TECLAS**. Em TECLAS, A numa ação
+e depois a tecla nova (Esc desiste); **VOLTAR AO PADRÃO** limpa tudo. As
+teclas de sempre continuam valendo. Controle de videogame: cruz ou
+analógico andam, A confirma, B volta, Start/Select abrem o menu. Na tela do
+nome dá para digitar no teclado, com acento, e Enter termina.
+
+**A ficha.** Em menu → **TIME**, **A** num Encantado abre **VER FICHA** ou
+**MUDAR DE LUGAR**. A ficha mostra os tipos, o traço, a vida, ATQ, DEF, ESP
+e VEL, quanto falta de XP para o próximo nível e os golpes com tipo,
+potência e PP. Cima e baixo passam para o próximo do time.
+
 **A caixa.** Quem não cabe no time vai para a caixa. Para ver quem está lá:
 menu → **TIME** → **→**. Para trocar, só no baú de qualquer benzimento.
 
@@ -171,8 +184,10 @@ falando de novo com quem pagou o serviço.
 **Traços.** São 26. Todo Encantado tem um traço, o jeito de ser da espécie, que age
 sozinho na batalha; a linha de evolução inteira divide o mesmo. Quando ele
 age, uma faixa com o nome aparece junto do painel. O traço aparece no rodapé
-do menu → TIME e no Caderno (→ troca a página para o traço, que só fica
-anotado depois de ter um daquela espécie no patuá). "Contato" é golpe físico.
+do menu → TIME, na ficha e no Caderno (← → trocam a aba: SOBRE, TRAÇO, que
+só fica anotado depois de ter um daquela espécie no patuá, e ONDE, que diz
+em que mapas ela aparece no mato, de dia ou de noite, quem a dá de
+presente e de quem ela evolui). "Contato" é golpe físico.
 
 | traço | quem | o que faz |
 |---|---|---|

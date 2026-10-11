@@ -147,7 +147,7 @@ export class TelaPoder {
 
     const alvo = this.alvo!;
     L.telaCheia(r, this.caixaCheia, `GOLPES DE ${nome(alvo).toUpperCase()}`,
-                '▲▼ LINHA   ◄► GOLPE   A CONFIRMAR   B VOLTAR');
+                'SETAS ESCOLHEM  A CONFIRMA  B VOLTA');
 
     this.slots.forEach((id, i) => {
       const y = 30 + i * 24;

@@ -33,7 +33,7 @@ import { item as fichaItem } from '../data/items.ts';
 import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
-import { multiplicadorVelocidade } from '../game/config.ts';
+import { multiplicadorTexto } from '../game/config.ts';
 import { periodo, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { vista3D } from '../render3d/carregar.ts';
@@ -524,7 +524,7 @@ export class CenaBatalha implements Cena {
     // 1. frase em digitação
     if (this.linha !== null) {
       const total = this.linha.length;
-      this.revelados = Math.min(total, this.revelados + CHARS_POR_SEG * multiplicadorVelocidade() * dt);
+      this.revelados = Math.min(total, this.revelados + CHARS_POR_SEG * multiplicadorTexto() * dt);
       if (entrada.apertou('a')) {
         if (this.revelados < total) { this.revelados = total; return; }
         this.pausa = 0;

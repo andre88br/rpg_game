@@ -597,7 +597,7 @@ export class CenaMundo implements Cena {
      selecionado — é o convite para trocar a ordem assim que alguém entra */
   private abrirReordenar(): void {
     this.emMenu = true;
-    this.menu!.abrirEmTime('Quer mudar a ordem do time? A troca de lugar, B sai.',
+    this.menu!.abrirEmTime('Quer mudar a ordem do time? A escolhe, B sai.',
                            this.op.estado.time.length - 1);
   }
 

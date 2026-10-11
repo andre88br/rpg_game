@@ -15,7 +15,9 @@ ferramenta de linha de comando que gera os PNGs.
 ```
 src/
 ├─ core/      buf.ts (pixels, primitivas, contorno, "assar" p/ canvas)
-│             renderer.ts · input.ts · loop.ts · scene.ts
+│             renderer.ts · input.ts (teclado, toque, controle de
+│             videogame, teclas próprias e modo texto) + teste · loop.ts
+│             · scene.ts
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
@@ -702,6 +704,24 @@ paga os prêmios do caderno antes de falar do Boto). A volta para casa, a
 lenda da Norato e a festa da Romaria são `aoChegar` com cutscene de uma
 vez só (`viu_cut_<id>`). `data/historia.test.ts` vigia isso, e também que
 nenhum mestre repita a frase de outro.
+
+**Entrada e telas de apoio (Fase E).** `core/input.ts` continua sendo o
+único lugar que sabe de onde vem um comando:
+- o **direcional de toque** é uma peça só (`ligarDirecional`), com a direção
+  calculada pelo ponto do dedo em relação ao centro (`direcaoDoToque`),
+  então deslizar de uma seta para outra funciona;
+- o **controle de videogame** é lido a cada quadro (`lerControle`, mapeamento
+  padrão em `acoesDoControle`);
+- as **teclas próprias** (`game/config.ts: obterTeclas`) ganham das de
+  sempre em `acaoDaTecla`, e `capturarTecla` entrega a próxima tecla à
+  página TECLAS do menu;
+- no **modo texto** (a tela do nome) letra vira texto e não ação.
+
+A velocidade do texto (`multiplicadorTexto`) é separada da de andar. A aba
+ONDE do Caderno sai de `game/caderno.ts`, que lê as tabelas de encontro, os
+bichos-chefe, os presentes e as evoluções. `ui/textos.test.ts` confere que
+todo letreiro das telas existe na fonte. O aviso de versão nova escuta o
+`controllerchange` do service worker (`main.ts`).
 
 ## Seis slots, uma introdução, e a velocidade do jogo
 

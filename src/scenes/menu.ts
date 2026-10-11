@@ -11,13 +11,18 @@ import type { Entrada } from '../core/input.ts';
 import { P } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { MEDALHAS, medalha } from '../art/badges.ts';
-import { ficha, nome, MAX_GOLPES, type Encantado } from '../battle/encantado.ts';
+import {
+  ficha, nome, MAX_GOLPES, atributos, hpMaximo, progressoXP, xpDoNivel, type Encantado,
+} from '../battle/encantado.ts';
+import { STATUS } from '../battle/status.ts';
+import { TIPOS, infoTipo } from '../art/palette.ts';
 import { golpe as fichaGolpe } from '../data/moves.ts';
 import { tracoDaEspecie } from '../data/tracos.ts';
 import { NOME_CLIMA, NOME_PERIODO, periodo, type Clima } from '../game/tempo.ts';
 import { emDesafio } from '../game/desafio.ts';
 import { compatibilidade, ensinar } from '../game/golpes.ts';
 import { EscolhaEsquecer } from '../ui/esquecer.ts';
+import { textoOnde } from '../game/caderno.ts';
 import * as L from '../ui/listas.ts';
 import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
@@ -37,6 +42,8 @@ import {
 } from '../data/mundo.ts';
 import { desenharMundo, desenharPlanta } from '../ui/mapas.ts';
 import {
+  VELS_TEXTO, NOME_VEL_TEXTO, obterVelTexto, definirVelTexto,
+  ACOES_TECLA, obterTeclas, definirTecla, limparTeclas, type AcaoTecla,
   VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade, obterVisao3D, definirVisao3D, obterQualidade, definirQualidade,
   NOME_VOLUME, obterVolume, definirVolume, proximoVolume,
 } from '../game/config.ts';
@@ -44,15 +51,41 @@ import * as Som from '../audio/som.ts';
 
 /* as linhas da página de OPÇÕES: as quatro primeiras trocam de valor com A
    ou com as setas para os lados; as duas de baixo são ações, só com A */
-const OPCOES = ['VELOCIDADE', 'VISÃO', 'QUALIDADE', 'MÚSICA', 'EFEITOS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
+const OPCOES = ['VELOCIDADE', 'TEXTO', 'VISÃO', 'QUALIDADE', 'MÚSICA', 'EFEITOS', 'TECLAS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
 type Opcao = (typeof OPCOES)[number];
-const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['BAIXAR SAVE', 'COPIAR CÓDIGO']);
+const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['TECLAS', 'BAIXAR SAVE', 'COPIAR CÓDIGO']);
+
+/* a página TECLAS: uma linha por ação, e a última volta tudo ao padrão */
+const LINHAS_TECLAS: readonly (AcaoTecla | 'padrao')[] = [...ACOES_TECLA, 'padrao'];
+const NOME_ACAO: Record<AcaoTecla, string> = {
+  cima: 'CIMA', baixo: 'BAIXO', esq: 'ESQUERDA', dir: 'DIREITA', a: 'BOTÃO A', b: 'BOTÃO B', menu: 'MENU',
+};
+const TECLAS_DE_SEMPRE: Record<AcaoTecla, string> = {
+  cima: 'SETA OU W', baixo: 'SETA OU S', esq: 'SETA OU A', dir: 'SETA OU D',
+  a: 'Z, ENTER, ESPAÇO', b: 'X, SHIFT', menu: 'ESC, TAB',
+};
+
+/* o nome curto de uma tecla, pelo KeyboardEvent.code */
+export function nomeTecla(codigo: string): string {
+  if (codigo.startsWith('Key')) return codigo.slice(3);
+  if (codigo.startsWith('Digit')) return codigo.slice(5);
+  if (codigo.startsWith('Numpad')) return 'NUM ' + codigo.slice(6).toUpperCase();
+  const nomes: Record<string, string> = {
+    ArrowUp: 'SETA CIMA', ArrowDown: 'SETA BAIXO', ArrowLeft: 'SETA ESQ', ArrowRight: 'SETA DIR',
+    Space: 'ESPAÇO', Enter: 'ENTER', ShiftLeft: 'SHIFT', ShiftRight: 'SHIFT DIR', Tab: 'TAB',
+    ControlLeft: 'CTRL', ControlRight: 'CTRL DIR', AltLeft: 'ALT', Backspace: 'APAGAR', Escape: 'ESC',
+  };
+  return nomes[codigo] ?? codigo.toUpperCase().slice(0, 10);
+}
 
 /* o que a sobreposição devolve a cada quadro */
 export type SaidaMenu = 'aberto' | 'fechar' | 'titulo' | 'viajar';
 
 type Pagina = 'raiz' | 'time' | 'caixa' | 'mochila' | 'mochilaAlvo' | 'cantigaEsquecer' | 'medalhas' | 'guia'
-            | 'caderno' | 'velocidade' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal' | 'canoa';
+            | 'caderno' | 'velocidade' | 'teclas' | 'slots' | 'sair' | 'mapaMundo' | 'mapaLocal' | 'canoa' | 'ficha';
+
+/* A no time abre esta escolha: ver a ficha do bicho ou mudar ele de lugar */
+const ESCOLHA_TIME = ['VER FICHA', 'MUDAR DE LUGAR'] as const;
 
 const RAIZ = ['TIME', 'MOCHILA', 'MEDALHAS', 'GUIA', 'OPÇÕES', 'SALVAR', 'SAIR'] as const;
 
@@ -80,6 +113,9 @@ export class MenuPausa {
   private tempoRecado = 0;
   /* índice do Encantado "pego" na mão, esperando trocar de lugar com outro */
   private peguei: number | null = null;
+  /* a escolha VER FICHA / MUDAR DE LUGAR aberta em cima do time */
+  private escolhaTime = false;
+  private selEscolha = 0;
   /* item escolhido na mochila, esperando saber em quem vai ser usado */
   private itemUsando: string | null = null;
   private selAlvo = 0;
@@ -95,7 +131,8 @@ export class MenuPausa {
   private selCaderno = 0;
   private topoCaderno = 0;
   /* a direita do Caderno mostra o que o Contador anotou ou o traço (← →) */
-  private cadernoTraco = false;
+  /* a aba da direita: 0 SOBRE, 1 TRAÇO, 2 ONDE */
+  private cadernoAba = 0;
 
   /* o Mapa do Mundo: o lugar apontado, a planta aberta e o relógio do pisca */
   private selMundo: string | null = null;
@@ -115,6 +152,9 @@ export class MenuPausa {
   private spritesCaderno = new Map<string, Assado>();
   private slots: TelaSlots;
   private velSel = 0;
+  private selTecla = 0;
+  /* a entrada do quadro: a página TECLAS pede a próxima tecla a ela */
+  private entrada: Entrada | null = null;
 
   constructor(op: OpcoesMenu) {
     this.op = op;
@@ -129,6 +169,7 @@ export class MenuPausa {
     this.selLista = 0;
     this.recado = null;
     this.peguei = null;
+    this.escolhaTime = false;
     this.itemUsando = null;
   }
 
@@ -145,6 +186,7 @@ export class MenuPausa {
 
   atualizar(dt: number, entrada: Entrada): SaidaMenu {
     this.relogio += dt;
+    this.entrada = entrada;
     if (this.tempoRecado > 0) {
       this.tempoRecado -= dt;
       if (this.tempoRecado <= 0) this.recado = null;
@@ -215,6 +257,17 @@ export class MenuPausa {
         this.avisar(`VELOCIDADE: ${NOME_VELOCIDADE[v]}.`);
         break;
       }
+      case 'TEXTO': {
+        const n = VELS_TEXTO.length;
+        const v = VELS_TEXTO[(VELS_TEXTO.indexOf(obterVelTexto()) + passo + n) % n]!;
+        definirVelTexto(v);
+        this.avisar(`TEXTO: ${NOME_VEL_TEXTO[v]}.`);
+        break;
+      }
+      case 'TECLAS':
+        this.pagina = 'teclas';
+        this.selTecla = 0;
+        break;
       case 'VISÃO': {
         const em3d = !obterVisao3D();
         definirVisao3D(em3d);
@@ -276,9 +329,53 @@ export class MenuPausa {
       return 'aberto';
     }
 
+    if (this.pagina === 'teclas') {
+      // esperando a tecla nova: nada mais anda até ela chegar
+      if (entrada.capturando) return 'aberto';
+      this.selTecla = this.andar(entrada, this.selTecla, LINHAS_TECLAS.length);
+      if (entrada.apertou('a')) {
+        const linha = LINHAS_TECLAS[this.selTecla]!;
+        if (linha === 'padrao') {
+          limparTeclas();
+          entrada.proprias = {};
+          this.avisar('TECLAS DE VOLTA AO PADRÃO.');
+        } else {
+          entrada.capturarTecla((codigo) => {
+            if (codigo === 'Escape') { this.avisar('NADA MUDOU.'); return; }
+            definirTecla(linha, codigo);
+            entrada.proprias = { ...obterTeclas() };
+            this.avisar(`${NOME_ACAO[linha]}: ${nomeTecla(codigo)}.`);
+          });
+        }
+      }
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'velocidade';
+      return 'aberto';
+    }
+
+    if (this.pagina === 'ficha') {
+      this.selLista = this.andar(entrada, this.selLista, this.op.estado.time.length);
+      if (entrada.apertou('b') || entrada.apertou('menu') || entrada.apertou('a')) this.pagina = 'time';
+      return 'aberto';
+    }
+
+    if (this.pagina === 'time' && this.escolhaTime) {
+      this.selEscolha = this.andar(entrada, this.selEscolha, ESCOLHA_TIME.length);
+      if (entrada.apertou('a')) {
+        this.escolhaTime = false;
+        if (this.selEscolha === 0) this.pagina = 'ficha';
+        else if (this.op.estado.time.length >= 2) this.peguei = this.selLista;
+        else this.avisar('Com um só no time, não tem com quem trocar.', 2);
+      }
+      if (entrada.apertou('b') || entrada.apertou('menu')) this.escolhaTime = false;
+      return 'aberto';
+    }
+
     if (this.pagina === 'time') {
       this.selLista = this.andar(entrada, this.selLista, this.op.estado.time.length);
-      if (entrada.apertou('a')) this.tocarTime();
+      if (entrada.apertou('a')) {
+        if (this.peguei !== null) this.tocarTime();
+        else if (this.op.estado.time.length) { this.escolhaTime = true; this.selEscolha = 0; }
+      }
       if (this.peguei === null && entrada.apertou('dir')) {
         this.pagina = 'caixa'; this.selCaixa = 0; this.topoCaixa = 0;
         return 'aberto';
@@ -328,7 +425,8 @@ export class MenuPausa {
     if (this.pagina === 'caderno') {
       this.selCaderno = this.andar(entrada, this.selCaderno, ESPECIES_ORDEM.length);
       this.ajustarJanelaCaderno();
-      if (entrada.apertou('dir') || entrada.apertou('esq')) this.cadernoTraco = !this.cadernoTraco;
+      if (entrada.apertou('dir')) this.cadernoAba = (this.cadernoAba + 1) % 3;
+      if (entrada.apertou('esq')) this.cadernoAba = (this.cadernoAba + 2) % 3;
       if (entrada.apertou('b') || entrada.apertou('menu')) this.pagina = 'mochila';
       return 'aberto';
     }
@@ -576,9 +674,13 @@ export class MenuPausa {
     switch (this.pagina) {
       case 'time':
         L.telaCheia(r, this.caixaCheia, 'SEU TIME',
-                   this.peguei !== null ? 'A TROCAR AQUI   B CANCELAR' : 'A PEGAR   > CAIXA   B VOLTAR');
+                   this.peguei !== null ? 'A TROCAR AQUI   B CANCELAR' : 'A ESCOLHER   > CAIXA   B VOLTAR');
         L.listaTime(r, est.time, this.selLista, { peguei: this.peguei ?? undefined });
         this.rodapeTime(r, est.time[this.selLista]);
+        if (this.escolhaTime) this.desenharEscolhaTime(r);
+        break;
+      case 'ficha':
+        this.desenharFicha(r);
         break;
       case 'caixa':
         this.desenharCaixa(r);
@@ -684,6 +786,8 @@ export class MenuPausa {
                     ACOES.has(OPCOES[this.velSel]!) ? 'A FAZ   B VOLTAR' : 'A OU < > MUDA   B VOLTAR');
         const valores: Record<Opcao, string> = {
           VELOCIDADE: NOME_VELOCIDADE[obterVelocidade()],
+          TEXTO: NOME_VEL_TEXTO[obterVelTexto()],
+          TECLAS: '',
           VISÃO: obterVisao3D() ? '3D' : 'PLANA',
           QUALIDADE: obterQualidade() === 'alta' ? 'ALTA' : 'LEVE',
           MÚSICA: NOME_VOLUME[obterVolume('musica')],
@@ -692,13 +796,34 @@ export class MenuPausa {
           'COPIAR CÓDIGO': '',
         };
         OPCOES.forEach((op, i) => {
-          const y = 32 + i * 16;
+          const y = 30 + i * 12;
           const sel = i === this.velSel;
           if (sel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);
           const v = valores[op];
           if (!ACOES.has(op)) r.texto(sel ? `< ${v} >` : v, sel ? 112 : 124, y, sel ? P.uiAccD! : P.uiTexto2!);
         });
+        break;
+      }
+      case 'teclas': {
+        const esperando = this.entrada?.capturando === true;
+        L.telaCheia(r, this.caixaCheia, 'TECLAS',
+                    esperando ? 'APERTE A TECLA NOVA   ESC DESISTE' : 'A TROCA   B VOLTAR');
+        const proprias = obterTeclas();
+        LINHAS_TECLAS.forEach((linha, i) => {
+          const y = 30 + i * 12;
+          const sel = i === this.selTecla;
+          if (sel) r.texto('=', 16, y, P.uiAccD!);
+          if (linha === 'padrao') {
+            r.texto('VOLTAR AO PADRÃO', 28, y, sel ? P.uiAccD! : P.uiInk!);
+            return;
+          }
+          r.texto(NOME_ACAO[linha], 28, y, sel ? P.uiAccD! : P.uiInk!);
+          const propria = proprias[linha];
+          const valor = sel && esperando ? '...' : propria ? nomeTecla(propria) : TECLAS_DE_SEMPRE[linha];
+          r.texto(valor, 96, y, propria ? P.uiAccD! : P.uiTexto2!);
+        });
+        r.texto('AS DE SEMPRE CONTINUAM VALENDO.', 14, ALTURA - 32, P.uiTexto2!);
         break;
       }
       default:
@@ -725,6 +850,78 @@ export class MenuPausa {
     r.texto('TROCAR, SÓ NO BAÚ DO BENZIMENTO.', 14, ALTURA - 30, P.uiTexto2!);
   }
 
+  private desenharEscolhaTime(r: Renderizador): void {
+    const larg = 110, alt = 14 + ESCOLHA_TIME.length * 12;
+    const px = LARGURA - larg - 14, py = Math.min(28 + this.selLista * 21 + 10, ALTURA - alt - 24);
+    r.retangulo(px - 2, py - 2, larg + 4, alt + 4, P.ink!);
+    r.retangulo(px, py, larg, alt, P.uiBg!);
+    ESCOLHA_TIME.forEach((op, i) => {
+      const y = py + 7 + i * 12;
+      const sel = i === this.selEscolha;
+      if (sel) r.texto('=', px + 6, y, P.uiAccD!);
+      r.texto(op, px + 16, y, sel ? P.uiAccD! : P.uiInk!);
+    });
+  }
+
+  /* A ficha de um Encantado do time: tipos, traço, vida, os quatro
+     atributos, quanto falta de XP e os golpes com tipo e PP. Cima e baixo
+     passam para o próximo do time sem voltar à lista. */
+  private desenharFicha(r: Renderizador): void {
+    const e = this.op.estado.time[this.selLista];
+    if (!e) return;
+    const f = ficha(e);
+    const titulo = `${nome(e)}${e.raro ? ' *' : ''}  NV${e.nivel}`;
+    L.telaCheia(r, this.caixaCheia, titulo, 'CIMA/BAIXO: OUTRO   B VOLTAR');
+    if (e.apelido) r.texto(f.nome.toUpperCase(), LARGURA - 14 - r.larguraTexto(f.nome.toUpperCase()), 12, P.uiTexto2!);
+
+    r.sprite(this.spriteCaderno(f.arte), 14, 26);
+
+    // tipos e traço
+    f.tipos.forEach((tipo, k) => {
+      r.retangulo(70 + k * 40, 28, 38, 9, TIPOS[tipo].corD);
+      r.texto(TIPOS[tipo].nome, 72 + k * 40, 29, P.white!);
+    });
+    const t = tracoDaEspecie(e.especie);
+    r.texto(t.nome.toUpperCase(), 152, 29, P.uiAccD!);
+
+    // vida, estado e atributos
+    const at = atributos(e);
+    const max = hpMaximo(e);
+    r.texto(`VIDA ${Math.max(0, e.hp)}/${max}`, 70, 42, P.uiInk!);
+    if (e.status) r.texto(STATUS[e.status].sigla, 160, 42, UI.statusCor(STATUS[e.status].sigla));
+    ([['ATQ', at.atq], ['DEF', at.def], ['ESP', at.esp], ['VEL', at.vel]] as const).forEach(([rot, v], i) => {
+      const x = 70 + (i % 2) * 58, y = 53 + Math.floor(i / 2) * 10;
+      r.texto(rot, x, y, P.uiTexto2!);
+      r.texto(String(v), x + 26, y, P.uiInk!);
+    });
+
+    // experiência: quanto falta para o próximo nível, com a barrinha
+    const proximo = xpDoNivel(e.nivel + 1, f.crescimento);
+    const falta = Math.max(0, proximo - e.xp);
+    r.texto(e.nivel >= 100 ? 'XP NO MÁXIMO' : `FALTA ${falta} XP`, 70, 75, P.uiTexto2!);
+    r.retangulo(152, 76, 66, 5, P.uiInk!);
+    r.retangulo(153, 77, 64, 3, P.barBack!);
+    const cheio = Math.round(64 * progressoXP(e));
+    if (cheio > 0) r.retangulo(153, 77, cheio, 3, P.water!);
+
+    // o traço, numa linha
+    L.paragrafo(r, t.descricao, 14, 86, LARGURA - 28, 1, P.uiTexto2!);
+
+    // os golpes
+    for (let i = 0; i < MAX_GOLPES; i++) {
+      const y = 100 + i * 10;
+      const g = e.golpes[i];
+      if (!g) { r.texto('-', 22, y, P.uiTexto2!); continue; }
+      const fg = fichaGolpe(g.id);
+      L.etiquetaTipo(r, infoTipo(fg.tipo), 14, y, 4);
+      r.texto(fg.nome.toUpperCase(), 52, y, P.uiInk!);
+      const pot = fg.pot > 0 ? `POT ${fg.pot}` : '';
+      r.texto(pot, 150, y, P.uiTexto2!);
+      const pp = `${g.pp}/${g.ppMax}`;
+      r.texto(pp, LARGURA - 16 - r.larguraTexto(pp), y, g.pp === 0 ? P.hpRed! : P.uiInk!);
+    }
+  }
+
   private rodapeTime(r: Renderizador, e: Encantado | undefined): void {
     if (!e) return;
     const f = ficha(e);
@@ -738,7 +935,7 @@ export class MenuPausa {
   private desenharCaderno(r: Renderizador): void {
     const est = this.op.estado;
     L.telaCheia(r, this.caixaCheia, 'CADERNO DE BICHOS',
-                `B VOLTAR  ${this.cadernoTraco ? '< SOBRE' : '> TRAÇO'}  ${est.vistos.length} DE ${ESPECIES_ORDEM.length}`);
+                `B VOLTAR  < ${['SOBRE', 'TRAÇO', 'ONDE'][this.cadernoAba]} >  ${est.vistos.length} DE ${ESPECIES_ORDEM.length}`);
 
     for (let i = 0; i < CADERNO_LINHAS_VISIVEIS; i++) {
       const idx = this.topoCaderno + i;
@@ -765,7 +962,12 @@ export class MenuPausa {
     }
     const esp = especie(idSel);
     r.sprite(this.spriteCaderno(esp.arte), 160, 26);
-    if (!this.cadernoTraco) {
+    if (this.cadernoAba === 2) {
+      r.texto('ONDE ACHAR', 120, 64, P.uiAccD!);
+      L.paragrafo(r, textoOnde(idSel), 120, 76, 112, 6, P.uiTexto2!);
+      return;
+    }
+    if (this.cadernoAba === 0) {
       r.texto(esp.categoria, 120, 64, P.uiAccD!);
       L.paragrafo(r, esp.sobre, 120, 76, 112, 5, P.uiTexto2!);
       return;

@@ -2,7 +2,7 @@
    botões de toque da página às mesmas ações do teclado. */
 import { fimDoQuadro3D, vista3D } from './render3d/carregar.ts';
 import { fixarHora, type Clima } from './game/tempo.ts';
-import { definirQualidade, type Qualidade } from './game/config.ts';
+import { definirQualidade, obterTeclas, type Qualidade } from './game/config.ts';
 import { preencher } from './game/quests.ts';
 import { Renderizador, LARGURA, ALTURA } from './core/renderer.ts';
 import { Entrada, type Acao } from './core/input.ts';
@@ -31,10 +31,16 @@ if (!canvas || !palco) throw new Error('elementos do jogo não encontrados na p�
 
 const r = new Renderizador(canvas);
 const entrada = new Entrada();
+entrada.proprias = obterTeclas();
 const cenas = new GerenciadorCenas();
 
 /* ---- botões de toque ---- */
+// o direcional é uma peça só (dá para deslizar o dedo de uma seta para
+// outra); os outros botões, um por um
+const direcional = document.getElementById('direcional');
+if (direcional) entrada.ligarDirecional(direcional);
 for (const el of document.querySelectorAll<HTMLElement>('[data-acao]')) {
+  if (direcional?.contains(el)) continue;
   entrada.ligarBotao(el, el.dataset['acao'] as Acao);
 }
 
@@ -154,6 +160,7 @@ cenas.definir(new CenaTitulo(comecar));
 /* ---- laço ---- */
 const laco = new Laco((dt) => {
   try {
+    entrada.lerControle();
     cenas.atualizar(dt, entrada);
     somDeInterface();
     cenas.desenhar(r);
@@ -189,11 +196,36 @@ try { sessionStorage.removeItem('encantados:recarga'); } catch { /* aba privada 
    para abrir sem internet e deixa instalar no celular. Só no build de
    produção: no `npm run dev` ele serviria arquivos velhos do cache. */
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  // havia um service worker antes desta página abrir? Então o próximo que
+  // assumir é uma publicação nova, e a aba (ou o app instalado) ainda roda
+  // a antiga: avisa, e quem joga escolhe a hora de recarregar (depois de
+  // salvar). Na primeira visita não há o que avisar.
+  const tinhaAntes = navigator.serviceWorker.controller !== null;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (tinhaAntes) avisarVersaoNova();
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch((e: unknown) => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      // aba aberta por horas (o app instalado, no celular): procura de novo
+      // de vez em quando, e sempre que a aba volta a aparecer
+      const procurar = () => { reg.update().catch(() => { /* sem internet */ }); };
+      setInterval(procurar, 30 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) procurar(); });
+    }).catch((e: unknown) => {
       console.warn('service worker indisponível:', e);
     });
   });
+}
+
+function avisarVersaoNova(): void {
+  if (document.getElementById('aviso-versao')) return;
+  const faixa = document.createElement('div');
+  faixa.id = 'aviso-versao';
+  faixa.style.cssText = 'position:fixed;left:8px;right:8px;top:8px;padding:8px 12px;background:#2b2436;'
+    + 'color:#fbf1de;font:12px monospace;border:2px solid #4fa84f;z-index:99;cursor:pointer;text-align:center';
+  faixa.textContent = 'Saiu uma versão nova do jogo! Salve a partida e toque aqui para atualizar.';
+  faixa.addEventListener('click', () => location.reload());
+  document.body.appendChild(faixa);
 }
 
 // atalho de depuração, útil no navegador: só no `npm run dev` ou com
