@@ -29,6 +29,20 @@ export interface DefPedra { tx: number; ty: number; cova: string }
 export interface Cova { tx: number; ty: number; flag: string }
 
 /* as pedras cujas covas ainda não foram tapadas — chamado ao montar o mapa */
+/* as covas AINDA ABERTAS de um mapa: um objeto `cova` com `seNao` na flag
+   que a tapa, enquanto essa flag estiver apagada */
+export function covasAbertas(objetos: readonly { tipo: string; tx: number; ty: number; seNao?: string | readonly string[] }[],
+                             ligada: (flag: string) => boolean): Cova[] {
+  const abertas: Cova[] = [];
+  for (const o of objetos) {
+    if (o.tipo !== 'cova') continue;
+    const flag = typeof o.seNao === 'string' ? o.seNao : null;
+    if (!flag || ligada(flag)) continue;
+    abertas.push({ tx: o.tx, ty: o.ty, flag });
+  }
+  return abertas;
+}
+
 export function posicoesIniciais(
   pedras: readonly DefPedra[] | undefined,
   ligada: (flag: string) => boolean,

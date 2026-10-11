@@ -15,6 +15,7 @@
    Puro. Teste em relevo.test.ts.
    ========================================================================= */
 import type { TipoObjeto } from '../world/tilemap.ts';
+import { escurecer, misturar } from '../core/cor.ts';
 
 /* o que fica em cima do chão daquele tile */
 export type Enfeite =
@@ -94,12 +95,6 @@ export function relevoNaRegiao(ch: string, regiao: string | null): Relevo | null
   if (!r) return null;
   const cor = regiao && GRAMA.has(ch) ? GRAMA_DA_REGIAO[regiao] : undefined;
   return cor ? { ...r, cor: ch === ',' ? escurecer(cor, 0.88) : cor } : r;
-}
-
-function escurecer(cor: string, k: number): string {
-  const n = parseInt(cor.slice(1), 16);
-  const c = (s: number) => Math.round(((n >> s) & 255) * k);
-  return `#${((c(16) << 16) | (c(8) << 8) | c(0)).toString(16).padStart(6, '0')}`;
 }
 
 export const LETRAS_COM_RELEVO: readonly string[] = Object.keys(TABELA);
@@ -183,12 +178,6 @@ const CEU_DA_REGIAO: Record<string, [string, string]> = {
   vento: ['#7cc4f0', '#e8f6ff'], raio: ['#7a8ec8', '#d8def0'], terra: ['#c8a878', '#f0e0c0'],
   sombra: ['#6a5a8a', '#c8b8d8'], luz: ['#f0c860', '#fff4d0'], fora: ['#e8c060', '#fff0c8'],
 };
-
-function misturar(a: string, b: string, k: number): string {
-  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
-  const c = (s: number) => Math.round(((pa >> s) & 255) * (1 - k) + ((pb >> s) & 255) * k);
-  return `#${((c(16) << 16) | (c(8) << 8) | c(0)).toString(16).padStart(6, '0')}`;
-}
 
 export function luzDe(regiao: string | null, p: PeriodoLuz, clima: ClimaLuz, interior: boolean): Luz {
   if (interior) {

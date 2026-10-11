@@ -10,6 +10,7 @@ import * as CR from '../art/creatures.ts';
 import * as UI from '../art/ui.ts';
 import { medalha, fileiraMedalhas, MEDALHAS } from '../art/badges.ts';
 import { fundoBatalha } from '../art/battlebg.ts';
+import { clarear, misturar } from '../core/cor.ts';
 
 export const W = 240, H = 160, TS = 16;
 
@@ -184,7 +185,7 @@ export function telaTitulo(): Buf {
   // ceu noturno com estrelas e lua
   for (let y = 0; y < H; y++) {
     const t = y / H;
-    b.rect(0, y, W, 1, t < 0.55 ? mistura('#1b1338', '#4a2f6b', t / 0.55) : mistura('#4a2f6b', '#a05a4a', (t - 0.55) / 0.45));
+    b.rect(0, y, W, 1, t < 0.55 ? misturar('#1b1338', '#4a2f6b', t / 0.55) : misturar('#4a2f6b', '#a05a4a', (t - 0.55) / 0.45));
   }
   for (let i = 0; i < 70; i++) {
     const x = (i * 71) % W, y = (i * 37) % 80;
@@ -230,15 +231,6 @@ export function telaTitulo(): Buf {
   const rod = 'ENCANTADOS 2026';
   texto(b, rod, (W - larguraTexto(rod)) / 2, H - 11, '#7f749c');
   return b;
-}
-
-function mistura(a: string, b2: string, t: number): string {
-  t = Math.max(0, Math.min(1, t));
-  const pa = parseInt(a.slice(1), 16), pb = parseInt(b2.slice(1), 16);
-  const r = Math.round(((pa >> 16) & 255) * (1 - t) + ((pb >> 16) & 255) * t);
-  const g = Math.round(((pa >> 8) & 255) * (1 - t) + ((pb >> 8) & 255) * t);
-  const bl = Math.round((pa & 255) * (1 - t) + (pb & 255) * t);
-  return '#' + [r, g, bl].map(v => v.toString(16).padStart(2, '0')).join('');
 }
 
 /* ---------- 5. MAPA DA JORNADA ---------- */
@@ -322,14 +314,8 @@ function botao(b: Buf, cx: number, cy: number, r: number, rotulo: string, cor: s
   b.circle(cx, cy + 2, r, '#0c0a12');       // sombra
   b.circle(cx, cy, r, corD);
   b.circle(cx, cy - 1, r - 2, cor);
-  b.ellipse(cx, cy - r / 2, r - 4, 2, clarearHex(cor));
+  b.ellipse(cx, cy - r / 2, r - 4, 2, clarear(cor, 45));
   texto(b, rotulo, cx - 2, cy - 3, P.ink!);
-}
-
-function clarearHex(hex: string): string {
-  const n = parseInt(hex.slice(1), 16);
-  return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-    .map(v => Math.min(255, v + 45).toString(16).padStart(2, '0')).join('');
 }
 
 export function telaCelular(): Buf {

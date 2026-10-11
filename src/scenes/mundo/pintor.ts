@@ -13,6 +13,7 @@ import type { Camera } from '../../world/camera.ts';
 import type { Ator } from '../../world/actor.ts';
 import type { Pedra } from '../../world/pedras.ts';
 import * as T from '../../art/tiles.ts';
+import { P } from '../../art/palette.ts';
 
 /* quanto do sprite (de 20px de altura) fica visível nadando — corta bem no
    pescoço, água na altura do peito. O resto de baixo nem se desenha: quem
@@ -98,4 +99,23 @@ export class PintorMundo {
     }
     r.escuridao(mascara, cx, cy);
   }
+}
+
+/* o balão de espanto acima do treinador que acabou de te ver, com o canto
+   de cima à esquerda em (x, y) */
+export function balaoSusto(r: Renderizador, x: number, y: number): void {
+  r.retangulo(x - 2, y - 2, 12, 16, P.ink!);
+  r.retangulo(x - 1, y - 1, 10, 14, P.uiBg!);
+  r.retangulo(x + 3, y + 1, 2, 7, P.hpRed!);
+  r.retangulo(x + 3, y + 10, 2, 2, P.hpRed!);
+}
+
+/* quanto falta para o sol se pôr, no canto de cima: fica vermelho nos
+   últimos dez segundos */
+export function relogioDoSol(r: Renderizador, segundos: number): void {
+  const texto = `SOL: ${segundos}s`;
+  const w = r.larguraTexto(texto) + 10;
+  r.retangulo(LARGURA - w - 6, 6, w, 14, P.ink!);
+  r.retangulo(LARGURA - w - 5, 7, w - 2, 12, segundos <= 10 ? '#8a2a1a' : '#5a3e24');
+  r.texto(texto, LARGURA - w - 1, 10, P.bolt!);
 }

@@ -36,11 +36,25 @@ export default defineConfig({
   // caminho relativo: o build funciona em qualquer subdiretorio (GitHub Pages incluso)
   base: './',
   build: {
+    /* o maior pacote é o próprio three.js (~520 kB minificado, uns 130 kB
+       com gzip), que não dá para partir; o resto fica bem abaixo disto */
+    chunkSizeWarningLimit: 540,
     target: 'es2022',
     rollupOptions: {
       input: {
         principal: resolve(__dirname, 'index.html'),
         esbocos: resolve(__dirname, 'esbocos.html'),
+      },
+      output: {
+        /* Pacotes que mudam pouco ficam à parte, com hash próprio: uma
+           publicação que só mexe no código do jogo não faz o celular baixar
+           de novo o three.js (o motor 3D) nem as grades dos mapas — o service
+           worker e o navegador reaproveitam o que já têm. */
+        manualChunks(id: string) {
+          if (id.includes('/node_modules/three/')) return 'three';
+          if (id.includes('/src/data/mapas/')) return 'mapas';
+          return undefined;
+        },
       },
     },
   },

@@ -13,7 +13,10 @@
    Esta classe coordena; os pedaços com vida própria moram ao lado:
      mundo/dialogo.ts    a caixa de conversa e a charada
      mundo/corteGuia.ts  o corte de câmera para a guia do terreiro
-     mundo/pintor.ts     o desenho do mundo plano e do breu
+     mundo/pintor.ts     o desenho do mundo plano e do breu, o "!" e o relógio
+     mundo/treinadores.ts quem avista o jogador, e com que time luta
+     mundo/encontros.ts  o passo no mato que vira luta, e a fuga do Sacizinho
+     mundo/romaria.ts    o romeiro da vez e o fim da sequência
      game/avisos.ts      o que placa, tranca e guia dizem ao A
      game/codigos.ts     os códigos secretos e os pulos de região
    ========================================================================= */
@@ -21,7 +24,7 @@ import { vista3D } from '../render3d/carregar.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
 import { assar, type Assado } from '../core/buf.ts';
-import { LARGURA, type Renderizador } from '../core/renderer.ts';
+import type { Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada, Acao } from '../core/input.ts';
 import {
@@ -34,11 +37,10 @@ import { Ator, assarBicho, assarFolha, direcaoDe, DELTAS,
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import * as UI from '../art/ui.ts';
-import { P } from '../art/palette.ts';
 import { larguraTexto } from '../art/font.ts';
 import { acaso } from '../core/rng.ts';
 import {
-  criar, evoluir, ficha, nome as nomeDe, sortearSelvagem, type Encantado,
+  criar, evoluir, ficha, nome as nomeDe, type Encantado,
 } from '../battle/encantado.ts';
 import type { Resultado, Treinador } from '../battle/engine.ts';
 import type { Cenario } from '../art/battlebg.ts';
@@ -46,11 +48,8 @@ import { ITENS, adicionar, consumir, quantidade } from '../data/items.ts';
 import { MAPAS } from '../data/mapas/index.ts';
 import { lugarNoMundo, regiaoDoMapa } from '../data/mundo.ts';
 import { chegada, destinosDaCanoa, motivoParaNaoViajar } from '../game/viagem.ts';
-import { talvezRaro } from '../game/raro.ts';
-import { formaNoNivel, nivelEscalado } from '../game/escala.ts';
-import { BENZE_A_CADA, fichasDaVitoria, gerarRomeiro, nivelDaRomaria } from '../game/romaria.ts';
-import { gastarEncontro, podePrenderAqui, soltarDesmaiados } from '../game/desafio.ts';
-import { periodo, sortearClima, tabelaDoMomento, type Clima } from '../game/tempo.ts';
+import { gastarEncontro, soltarDesmaiados } from '../game/desafio.ts';
+import { periodo, sortearClima, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { guardar, temTimeEmPe, curarTime, NIVEL_INICIAL, type EstadoJogo } from '../game/state.ts';
 import {
@@ -69,7 +68,7 @@ import * as Som from '../audio/som.ts';
 import { temaDaBatalha, temaDoMapa } from '../audio/temas.ts';
 import type { IdMusica } from '../audio/musicas.ts';
 import { raioDaLuz, RAIO_SEM_LUZ } from '../game/luz.ts';
-import { empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
+import { covasAbertas, empurrar, ocupadaPorPedra, posicoesIniciais, type Cova, type Pedra } from '../world/pedras.ts';
 import { MenuPausa } from './menu.ts';
 import { Loja } from './loja.ts';
 import { EscolhaInicial } from './escolha.ts';
@@ -78,7 +77,10 @@ import { TelaRezador } from './rezador.ts';
 import { TelaPoder } from './poder.ts';
 import { Dialogo, type Conversa } from './mundo/dialogo.ts';
 import { CorteDaGuia } from './mundo/corteGuia.ts';
-import { PintorMundo } from './mundo/pintor.ts';
+import { PintorMundo, balaoSusto, relogioDoSol } from './mundo/pintor.ts';
+import { avistou, fichaDoTreinador, premiarVitoria, timeDoTreinador } from './mundo/treinadores.ts';
+import { passoNoMato, rotaDeFuga } from './mundo/encontros.ts';
+import { fimDaRomaria, proximoRomeiro } from './mundo/romaria.ts';
 
 /* todas as corridas contra o sol do jogo, de qualquer mapa */
 const CORRIDAS: readonly DefCorrida[] = Object.values(MAPAS).flatMap((d) => (d.corrida ? [d.corrida] : []));
@@ -105,6 +107,12 @@ interface NpcVivo {
 const FOLEGO_PADRAO = 4;
 /* a quantos passos a cutscene de encontro de um NPC dispara */
 const DISTANCIA_ENCONTRO = 3;
+
+/* o que toda tela por cima do mundo sabe fazer: 'aberto' enquanto fica */
+interface Sobreposta {
+  atualizar(dt: number, entrada: Entrada): string;
+  desenhar(r: Renderizador): void;
+}
 
 /* um treinador que avistou o jogador e está vindo */
 interface Duelo { npc: NpcVivo; fase: 'susto' | 'andando' | 'falando' | 'lutando'; t: number }
@@ -189,12 +197,10 @@ export class CenaMundo implements Cena {
   private telaCaixa: TelaCaixa | null = null;
   private telaRezador: TelaRezador | null = null;
   private telaPoder: TelaPoder | null = null;
-  private emMenu = false;
-  private emLoja = false;
-  private emEscolha = false;
-  private emCaixa = false;
-  private emRezador = false;
-  private emPoder = false;
+  /* a tela aberta por cima do mundo (menu, loja, escolha, caixa, rezador,
+     poder), uma de cada vez: o mundo fica desenhado e congelado atrás, e
+     `depois` decide o que fazer com o que ela devolveu ao fechar */
+  private sobre: { tela: Sobreposta; depois?: (saida: string) => void } | null = null;
   /* deslizando numa poça: o passo continua sozinho até bater em alguma coisa */
   private deslizando = false;
   /* quem está sendo escoltado anda um passo atrás do jogador (game/escolta.ts) */
@@ -495,6 +501,20 @@ export class CenaMundo implements Cena {
                        this.mapa.larguraPx, this.mapa.alturaPx);
   }
 
+  /* ------------------------------------------------------ sobreposições */
+
+  private sobrepor(tela: Sobreposta, depois?: (saida: string) => void): void {
+    this.sobre = { tela, depois };
+  }
+
+  /* o menu de pausa: além de fechar, ele pode mandar remar ou voltar ao título */
+  private abrirMenu(): void {
+    this.sobrepor(this.menu!, (saida) => {
+      if (saida === 'viajar') this.remar(this.menu!.destinoViagem);
+      else if (saida === 'titulo') this.op.aoSair?.();
+    });
+  }
+
   /* ------------------------------------------------------------ conversa */
 
   private abrirConversa(falante: string, falas: readonly string[],
@@ -544,13 +564,14 @@ export class CenaMundo implements Cena {
       this.indo = { tx: this.jogador.tx, ty: this.jogador.ty, para: l.mapa, destino: { tx: l.tx, ty: l.ty, dir: l.dir } };
       this.fade = 0;
     }
-    if (efeito.loja) { this.emLoja = true; this.loja!.abrir(); }
+    if (efeito.loja) { this.loja!.abrir(); this.sobrepor(this.loja!); }
     if (efeito.escolher) {
-      this.emEscolha = true;
       this.escolha!.abrir((id) => this.receberInicial(id));
+      this.sobrepor(this.escolha!);
     }
-    if (efeito.caixa) { this.emCaixa = true; this.telaCaixa!.abrir(); }
-    if (efeito.rezador) { this.emRezador = true; this.telaRezador!.abrir(); }
+    if (efeito.caixa) { this.telaCaixa!.abrir(); this.sobrepor(this.telaCaixa!); }
+    // a reza gasta dinheiro: grava ao sair, como depois de qualquer compra de serviço
+    if (efeito.rezador) { this.telaRezador!.abrir(); this.sobrepor(this.telaRezador!, () => salvar(this.op.estado)); }
     if (efeito.romaria) { this.lutarNaRomaria(); return; }
     /* um Encantado que acaba de entrar por fala é a mesma oferta de reordenar
        que uma captura dá — só que sem passar pela tela de batalha. Se ele
@@ -596,7 +617,7 @@ export class CenaMundo implements Cena {
   /* abre o menu de pausa direto na página do time, com o recém-chegado
      selecionado — é o convite para trocar a ordem assim que alguém entra */
   private abrirReordenar(): void {
-    this.emMenu = true;
+    this.abrirMenu();
     this.menu!.abrirEmTime('Quer mudar a ordem do time? A escolhe, B sai.',
                            this.op.estado.time.length - 1);
   }
@@ -617,15 +638,10 @@ export class CenaMundo implements Cena {
     for (const n of this.visiveis()) {
       const t = n.def.treinador;
       if (!t?.visao || this.venceu(n)) continue;
-      const [dx, dy] = DELTAS[n.ator.dir];
-      for (let i = 1; i <= t.visao; i++) {
-        const x = n.ator.tx + dx * i, y = n.ator.ty + dy * i;
-        if (this.mapa.solido(x, y)) break;          // parede corta a vista
-        if (x === this.jogador.tx && y === this.jogador.ty) {
-          this.duelo = { npc: n, fase: 'susto', t: 0 };
-          return;
-        }
-        if (this.ocupados.has(`${x},${y}`)) break;  // outro NPC na frente
+      const vigia = { tx: n.ator.tx, ty: n.ator.ty, dir: n.ator.dir, visao: t.visao };
+      if (avistou(vigia, this.jogador, (x, y) => this.mapa.solido(x, y), (x, y) => this.ocupados.has(`${x},${y}`))) {
+        this.duelo = { npc: n, fase: 'susto', t: 0 };
+        return;
       }
     }
   }
@@ -661,30 +677,9 @@ export class CenaMundo implements Cena {
   private lutarCom(npc: NpcVivo): void {
     const t = npc.def.treinador!;
     this.duelo = { npc, fase: 'lutando', t: 0 };
-    /* bicho não é treinador: sem painel de treinador, e o patuá funciona.
-       Prender o Boitatá do farol vale tanto quanto derrubá-lo. */
-    /* a revanche que cresce vem no nível do melhor do time do jogador */
-    const nv = (c: { nivel: number }) => (t.escala ? nivelEscalado(this.op.estado, t.escala) : c.nivel);
-    const oponentes = t.time.map((c) => {
-      const nivel = nv(c);
-      // treinador leva cada bicho na forma que ele teria nesse nível (um
-      // Cabritinha no 42 já virou Cabra-Cabriola); o bicho-chefe selvagem
-      // fica como foi desenhado
-      return criar(t.selvagem ? c.especie : formaNoNivel(c.especie, nivel), nivel, { selvagem: t.selvagem });
-    });
-    if (t.trunfo) {
-      const e = this.op.estado;
-      const chave = Object.keys(t.trunfo).find((esp) => e.flags[`inicial_${esp}`] === true);
-      const escolhido = (chave ? t.trunfo[chave] : undefined) ?? Object.values(t.trunfo)[0]!;
-      oponentes.push(criar(formaNoNivel(escolhido.especie, escolhido.nivel), escolhido.nivel));
-    }
     this.batalhar({
-      oponentes,
-      treinador: t.selvagem ? null : {
-        nome: npc.def.nome, classe: t.classe,
-        falaInicio: t.falaInicio, falaDerrota: t.falaDerrota, premio: t.premio,
-        esperta: t.esperta,
-      },
+      oponentes: timeDoTreinador(t, this.op.estado),
+      treinador: fichaDoTreinador(npc.def.nome, t),
       itensIA: t.selvagem ? undefined : t.itens,
       cenario: this.def.cenario ?? 'praia',
       musica: temaDaBatalha(t),
@@ -733,12 +728,7 @@ export class CenaMundo implements Cena {
     const e = this.op.estado;
     const t = d.npc.def.treinador!;
     const terreiro = this.terreiroDaFala(t.liga);
-    e.flags[`venceu_${d.npc.def.id}`] = true;
-    const extras = t.liga === undefined ? []
-                 : typeof t.liga === 'string' ? [t.liga] : t.liga;
-    for (const f of extras) e.flags[f] = true;
-    if (t.premio) e.dinheiro += t.premio;
-    if (t.da) adicionar(e.mochila, t.da.item, t.da.n ?? 1);
+    premiarVitoria(e, d.npc.def.id, t);
     if (t.creditos) this.creditosPendentes = true;
     // preso no patuá, ninguém larga nada e sai correndo: sem a cutscene
     if (r !== 'captura') this.pedirHistoria(t.cutscene);
@@ -854,8 +844,8 @@ export class CenaMundo implements Cena {
       this.abrirConversa('???', ['Código aceito. Mas o time está vazio — nada para potencializar.']);
       return;
     }
-    this.emPoder = true;
     this.telaPoder!.abrir();
+    this.sobrepor(this.telaPoder!);
   }
 
   /* ------------------------------------------------------------- entrada */
@@ -913,31 +903,16 @@ export class CenaMundo implements Cena {
   private tentarFugir(npc: NpcVivo): boolean {
     if (!npc.def.fujao || npc.folego <= 0 || npc.ator.movendo) return false;
     const a = npc.ator;
-    const dx = Math.sign(a.tx - this.jogador.tx);
-    const dy = Math.sign(a.ty - this.jogador.ty);
-
-    // primeiro na direção contrária à do jogador; depois de lado; nunca para cima dele
-    const tentativas: Direcao[] = [];
-    const fugaDireta = direcaoDe(dx, dy);
-    if (fugaDireta) tentativas.push(fugaDireta);
-    for (const d of ['cima', 'baixo', 'esq', 'dir'] as Direcao[]) {
-      if (!tentativas.includes(d)) tentativas.push(d);
-    }
-
-    for (const d of tentativas) {
-      const [ex, ey] = DELTAS[d];
-      const nx = a.tx + ex, ny = a.ty + ey;
-      if (this.mapa.solido(nx, ny)) continue;
-      if (nx === this.jogador.tx && ny === this.jogador.ty) continue;
-      if (this.npcs.some((o) => o !== npc && o.ator.tx === nx && o.ator.ty === ny)) continue;
-      if (this.mapa.saidaEm(nx, ny)) continue;    // não some pela porta
-      a.dir = d;
-      a.teleportar(nx, ny, d);
-      npc.folego--;
-      this.recontarOcupados();
-      return true;
-    }
-    return false;                                 // encurralado
+    const d = rotaDeFuga(a, this.jogador, (x, y) => !this.mapa.solido(x, y)
+      && !this.npcs.some((o) => o !== npc && o.ator.tx === x && o.ator.ty === y)
+      && !this.mapa.saidaEm(x, y));                // não some pela porta
+    if (!d) return false;                          // encurralado
+    const [ex, ey] = DELTAS[d];
+    a.dir = d;
+    a.teleportar(a.tx + ex, a.ty + ey, d);
+    npc.folego--;
+    this.recontarOcupados();
+    return true;
   }
 
   /* chegou perto de quem tem cutscene de encontro: ela toca uma vez só, e
@@ -979,7 +954,7 @@ export class CenaMundo implements Cena {
 
     // uma cutscene da história: entra assim que a conversa que a pediu fecha
     if (this.historiaPendente && !this.falando && !this.indo && !this.duelo
-        && !this.emLoja && !this.emMenu && !this.emEscolha && !this.emCaixa && !this.emRezador && !this.emPoder) {
+        && !this.sobre) {
       const id = this.historiaPendente;
       this.historiaPendente = null;
       salvar(this.op.estado);
@@ -1011,39 +986,21 @@ export class CenaMundo implements Cena {
 
     // uma conta acendeu: o corte de câmera espera a vez, sem atropelar nada
     // que já esteja na tela (conversa, batalha, loja, menu, escolha, caixa, poder, porta)
-    if (this.corte.esperando && !this.falando && !this.emLoja && !this.emMenu
-        && !this.emEscolha && !this.emCaixa && !this.emRezador && !this.emPoder && !this.indo && !this.duelo) {
+    if (this.corte.esperando && !this.falando && !this.sobre && !this.indo && !this.duelo) {
       this.corte.iniciar(this.op.mundo, this.contexto());
       return;
     }
 
     // ---- sobreposições: o mundo continua desenhado, mas congelado ----
-    if (this.emLoja) {
-      if (this.loja!.atualizar(dt, entrada) === 'fechar') this.emLoja = false;
-      return;
-    }
-    if (this.emMenu) {
-      const saida = this.menu!.atualizar(dt, entrada);
-      if (saida === 'fechar') this.emMenu = false;
-      else if (saida === 'viajar') { this.emMenu = false; this.remar(this.menu!.destinoViagem); }
-      else if (saida === 'titulo') { this.emMenu = false; this.op.aoSair?.(); }
-      return;
-    }
-    if (this.emPoder) {
-      if (this.telaPoder!.atualizar(dt, entrada) === 'fechar') this.emPoder = false;
-      return;
-    }
-    if (this.emEscolha) {
-      if (this.escolha!.atualizar(dt, entrada) === 'fechar') this.emEscolha = false;
-      return;
-    }
-    if (this.emRezador) {
-      // a reza gasta dinheiro: grava ao sair, como depois de qualquer compra de serviço
-      if (this.telaRezador!.atualizar(dt, entrada) === 'fechar') { this.emRezador = false; salvar(this.op.estado); }
-      return;
-    }
-    if (this.emCaixa) {
-      if (this.telaCaixa!.atualizar(dt, entrada) === 'fechar') this.emCaixa = false;
+    if (this.sobre) {
+      const atual = this.sobre;
+      const saida = atual.tela.atualizar(dt, entrada);
+      if (saida !== 'aberto') {
+        // a tela pode ter aberto outra no meio (a escolha do inicial chama
+        // o menu para reordenar o time): essa outra fica
+        if (this.sobre === atual) this.sobre = null;
+        atual.depois?.(saida);
+      }
       return;
     }
 
@@ -1079,7 +1036,7 @@ export class CenaMundo implements Cena {
     // o código aceito gasta o quadro: o A que o fechou não abre conversa
     if (this.verificarCodigoSecreto(entrada)) return;
 
-    if (entrada.apertou('menu')) { this.emMenu = true; this.menu!.abrir(); return; }
+    if (entrada.apertou('menu')) { this.menu!.abrir(); this.abrirMenu(); return; }
 
     // ---- andar ----
     const { x, y } = entrada.direcao();
@@ -1113,14 +1070,7 @@ export class CenaMundo implements Cena {
   /* toda cova AINDA ABERTA deste mapa — a lista que world/pedras.ts precisa
      para saber onde uma pedra empurrada se funde de vez */
   private covasDeste(): Cova[] {
-    const abertas: Cova[] = [];
-    for (const o of this.def.objetos) {
-      if (o.tipo !== 'cova') continue;
-      const flag = typeof o.seNao === 'string' ? o.seNao : null;
-      if (!flag || ligada(this.op.estado, flag)) continue;
-      abertas.push({ tx: o.tx, ty: o.ty, flag });
-    }
-    return abertas;
+    return covasAbertas(this.def.objetos, (f) => ligada(this.op.estado, f));
   }
 
   /* se há uma pedra na direção que o jogador está tentando andar, tenta
@@ -1303,7 +1253,7 @@ export class CenaMundo implements Cena {
       this.abrirConversa('MESTRE DA ROMARIA', ['Com o time caído não tem romaria. Vá se benzer primeiro.']);
       return;
     }
-    const { nome, time } = gerarRomeiro(acaso, nivelDaRomaria(e), e.romaria.seq);
+    const { nome, time } = proximoRomeiro(e, acaso);
     this.naRomaria = true;
     this.batalhar({
       oponentes: time,
@@ -1317,24 +1267,7 @@ export class CenaMundo implements Cena {
 
   private fimDaLutaDaRomaria(r: Resultado): void {
     const e = this.op.estado;
-    const ro = e.romaria;
-    if (r === 'vitoria') {
-      ro.seq++;
-      ro.recorde = Math.max(ro.recorde, ro.seq);
-      const f = fichasDaVitoria(ro.seq);
-      adicionar(e.mochila, 'ficha_romaria', f);
-      const linhas = [`${ro.seq} vitória${ro.seq > 1 ? 's' : ''} seguida${ro.seq > 1 ? 's' : ''}! ${f} ficha${f > 1 ? 's' : ''} para você.`];
-      if (ro.seq % BENZE_A_CADA === 0) {
-        curarTime(e);
-        linhas.push(`${BENZE_A_CADA} de uma vez: benzi o seu time. A romaria segue!`);
-      }
-      this.recados.push({ quem: 'MESTRE DA ROMARIA', linhas });
-    } else {
-      const fez = ro.seq;
-      ro.seq = 0;
-      this.recados.push({ quem: 'MESTRE DA ROMARIA',
-                          linhas: [`A romaria acabou em ${fez} vitória${fez === 1 ? '' : 's'}. O recorde é ${ro.recorde}.`] });
-    }
+    this.recados.push({ quem: 'MESTRE DA ROMARIA', linhas: fimDaRomaria(e, r) });
     salvar(e);
   }
 
@@ -1370,27 +1303,13 @@ export class CenaMundo implements Cena {
 
   /* um passo no mato alto: às vezes vira encontro */
   private talvezEncontro(): void {
-    const tabela = this.def.encontros;
-    if (!tabela || tabela.length === 0) return;
-    if (!temTimeEmPe(this.op.estado)) return;
-    // o Fumo de Rolo: cada passo no mato gasta um pouco da fumaça
-    const e = this.op.estado;
-    if (e.repelente > 0) {
-      e.repelente--;
-      if (e.repelente === 0) this.abrirConversa('', ['O cheiro do fumo passou. O mato volta a ter bicho.']);
-      return;
-    }
-
-    const media = this.def.passosPorEncontro ?? 10;
-    if (!acaso.chance(100 / media)) return;
-
-    const agora = tabelaDoMomento(tabela, periodo(), this.climaAqui());
-    const lugar = lugarNoMundo(this.def.id, MAPAS) ?? this.def.id;
-    const podePrender = podePrenderAqui(this.op.estado, lugar);
-    this.lugarDoEncontro = lugar;
+    const passo = passoNoMato(this.op.estado, this.def, this.climaAqui(), acaso);
+    if (passo.k === 'fumoAcabou') this.abrirConversa('', ['O cheiro do fumo passou. O mato volta a ter bicho.']);
+    if (passo.k !== 'luta') return;
+    this.lugarDoEncontro = passo.lugar;
     this.batalhar({
-      podePrender,
-      oponentes: [talvezRaro(sortearSelvagem(agora, acaso), this.op.estado, acaso)],
+      podePrender: passo.podePrender,
+      oponentes: [passo.oponente],
       cenario: this.def.cenario ?? 'praia',
       clima: this.climaAqui(),
     });
@@ -1492,12 +1411,7 @@ export class CenaMundo implements Cena {
       r.ctx.globalAlpha = 1;
     }
 
-    if (this.emEscolha) { r.cortina(0.45); this.escolha!.desenhar(r); }
-    else if (this.emLoja) { r.cortina(0.45); this.loja!.desenhar(r); }
-    else if (this.emCaixa) { r.cortina(0.45); this.telaCaixa!.desenhar(r); }
-    else if (this.emRezador) { r.cortina(0.45); this.telaRezador!.desenhar(r); }
-    else if (this.emPoder) { r.cortina(0.45); this.telaPoder!.desenhar(r); }
-    else if (this.emMenu) { r.cortina(0.45); this.menu!.desenhar(r); }
+    if (this.sobre) { r.cortina(0.45); this.sobre.tela.desenhar(r); }
   }
 
   /* o balão de espanto acima do treinador que acabou de te ver */
@@ -1511,10 +1425,7 @@ export class CenaMundo implements Cena {
       const p = vista.projetar(a.px / TS + 0.5, a.py / TS + 0.6, 1.5);
       x = Math.round(p.x) - 4; y = Math.round(p.y) - 16;
     }
-    r.retangulo(x - 2, y - 2, 12, 16, P.ink!);
-    r.retangulo(x - 1, y - 1, 10, 14, P.uiBg!);
-    r.retangulo(x + 3, y + 1, 2, 7, P.hpRed!);
-    r.retangulo(x + 3, y + 10, 2, 2, P.hpRed!);
+    balaoSusto(r, x, y);
   }
 
   /* breu com um disco de luz em volta do jogador: `escuro.raio`, quando
@@ -1553,11 +1464,6 @@ export class CenaMundo implements Cena {
 
   /* quanto falta para o sol se pôr, no canto de cima */
   private desenharRelogio(r: Renderizador): void {
-    const resta = Math.max(0, Math.ceil(Math.min(...this.relogios.values())));
-    const texto = `SOL: ${resta}s`;
-    const w = r.larguraTexto(texto) + 10;
-    r.retangulo(LARGURA - w - 6, 6, w, 14, P.ink!);
-    r.retangulo(LARGURA - w - 5, 7, w - 2, 12, resta <= 10 ? '#8a2a1a' : '#5a3e24');
-    r.texto(texto, LARGURA - w - 1, 10, P.bolt!);
+    relogioDoSol(r, Math.max(0, Math.ceil(Math.min(...this.relogios.values()))));
   }
 }

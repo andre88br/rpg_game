@@ -11,14 +11,7 @@ import { saveDoTexto } from '../game/transferencia.ts';
 import { escolherArquivo, pedirTexto } from '../ui/arquivos.ts';
 import { TelaSlots } from './slots.ts';
 import * as Som from '../audio/som.ts';
-
-function misturar(a: string, b: string, t: number): string {
-  t = Math.max(0, Math.min(1, t));
-  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
-  const canal = (desl: number) =>
-    Math.round(((pa >> desl) & 255) * (1 - t) + ((pb >> desl) & 255) * t);
-  return '#' + [canal(16), canal(8), canal(0)].map((v) => v.toString(16).padStart(2, '0')).join('');
-}
+import { misturar } from '../core/cor.ts';
 
 function fundoTitulo(): Buf {
   const b = new Buf(LARGURA, ALTURA);

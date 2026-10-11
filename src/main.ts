@@ -9,8 +9,9 @@ import { Entrada, type Acao } from './core/input.ts';
 import { Laco } from './core/loop.ts';
 import { GerenciadorCenas } from './core/scene.ts';
 import { CenaTitulo, type Comeco } from './scenes/title.ts';
-import { CenaCutscene } from './scenes/cutscene.ts';
-import { CUTSCENES } from './data/cutscenes.ts';
+import {
+  CenaEspera, carregarCutscenes, cutscenesProntas, type PacoteCutscenes,
+} from './scenes/sobDemanda.ts';
 import { CenaPersonagem } from './scenes/personagem.ts';
 import { CenaMundo, type PedidoBatalha } from './scenes/overworld.ts';
 import { CenaBatalha } from './scenes/battle.ts';
@@ -130,11 +131,24 @@ function iniciarMundo(): void {
     // uma cutscene da história, e depois o mundo volta de onde estava
     aoCutscene: (id) => {
       const cena = mundo!;
-      const roteiro = CUTSCENES[id];
-      if (roteiro) cenas.trocar(new CenaCutscene(roteiro, () => cenas.trocar(cena), estado));
+      tocarCutscene(id, () => cenas.trocar(cena));
     },
   });
   cenas.trocar(mundo);
+}
+
+/* toca uma cutscene do pacote à parte (scenes/sobDemanda.ts): a tela preta
+   segura o lugar se ele ainda não chegou, e sem pacote nenhum (offline sem
+   cache) a história segue sem a cena, em vez de travar */
+function tocarCutscene(id: string, depois: () => void): void {
+  const tocar = (m: PacoteCutscenes) => {
+    const roteiro = m.CUTSCENES[id];
+    if (roteiro) cenas.trocar(new m.CenaCutscene(roteiro, depois, estado));
+    else depois();
+  };
+  const pronto = cutscenesProntas();
+  if (pronto) tocar(pronto);
+  else cenas.trocar(new CenaEspera(tocar, depois));
 }
 
 function comecar(modo: Comeco, slot: number): void {
@@ -146,13 +160,13 @@ function comecar(modo: Comeco, slot: number): void {
   }
   // jogo novo: a cutscene de abertura toca, depois a escolha de quem vai andar a
   // trilha — só então o mundo existe de verdade
-  cenas.trocar(new CenaCutscene(CUTSCENES['intro']!, () => {
+  tocarCutscene('intro', () => {
     cenas.trocar(new CenaPersonagem((personagem, nome, desafio) => {
       estado = novoJogo(nome, personagem);
       if (desafio) estado.flags['desafio'] = true;
       iniciarMundo();
     }));
-  }));
+  });
 }
 
 cenas.definir(new CenaTitulo(comecar));
@@ -187,6 +201,9 @@ function avisarErro(e: unknown): void {
   faixa.textContent = `Algo deu errado (${msg}). O jogo continua; se algo travar, salve e recarregue a página.`;
 }
 laco.iniciar();
+
+// a pré-carga das cutscenes: depois de o título aparecer, sem disputar com ele
+setTimeout(() => { carregarCutscenes().catch(() => { /* tenta na hora de tocar */ }); }, 1200);
 
 /* O jogo subiu: libera a rede de segurança do index.html para uma próxima
    publicação. Só aqui, porque só aqui sabemos que deu certo de verdade. */

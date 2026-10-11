@@ -7,6 +7,9 @@ import { assarSuave, larguraDe, alturaDe, type Assado, type Buf } from '../core/
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
+// as contas de direção moram à parte, para os testes (sem DOM) as usarem
+import { DELTAS, direcaoDe } from './direcao.ts';
+export { DELTAS, direcaoDe } from './direcao.ts';
 
 export type FolhaAssada = Record<Direcao, [Assado, Assado, Assado]>;
 
@@ -34,17 +37,6 @@ export const VEL_ANDAR = 0.20;   // segundos por tile
 export const VEL_CORRER = 0.115;
 const ESPERA_VIRADA = 0.07;      // tempo de virar no lugar antes de sair andando
 
-export const DELTAS: Record<Direcao, [number, number]> = {
-  cima: [0, -1], baixo: [0, 1], esq: [-1, 0], dir: [1, 0],
-};
-
-export function direcaoDe(dx: number, dy: number): Direcao | null {
-  if (dx < 0) return 'esq';
-  if (dx > 0) return 'dir';
-  if (dy < 0) return 'cima';
-  if (dy > 0) return 'baixo';
-  return null;
-}
 
 export class Ator {
   tx: number;

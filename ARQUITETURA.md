@@ -17,7 +17,8 @@ src/
 ├─ core/      buf.ts (pixels, primitivas, contorno, "assar" p/ canvas)
 │             renderer.ts · input.ts (teclado, toque, controle de
 │             videogame, teclas próprias e modo texto) + teste · loop.ts
-│             · scene.ts
+│             · scene.ts · cor.ts (misturar, clarear e escurecer cor, uma
+│             vez só para o jogo inteiro)
 ├─ art/       palette · font (5×7 com acentuação) · tiles · people · mundo
 │             predios (casa e terreiro com a cara de cada região)
 │             creatures · badges · ui · battlebg
@@ -34,6 +35,7 @@ src/
 │             tracos.test.ts (um caso por gancho de traço)
 │             ia.test.ts (o que o treinador escolhe e quando troca)
 ├─ world/     tilemap.ts · mundo.ts (os mapas e o cache) · camera.ts · actor.ts
+│             direcao.ts (DELTAS e direcaoDe, sem o ator, para os testes)
 │             pedras.ts (empurrar, e o BFS que prova que a sala tem solução)
 │             mapas.test.ts (coerência geral: saídas, alcance, encontros,
 │             falas) + mapas.<região>.test.ts (os quebra-cabeças de cada
@@ -87,7 +89,11 @@ src/
 ├─ scenes/    title.ts · overworld.ts (a cena do mundo: coordena) · battle.ts
 │             mundo/ (os pedaços da cena do mundo: dialogo.ts, a caixa de
 │             conversa e a charada · corteGuia.ts, o corte de câmera para a
-│             guia · pintor.ts, o desenho do mundo plano e do breu)
+│             guia · pintor.ts, o desenho do mundo plano e do breu, o "!"
+│             e o relógio do sol · treinadores.ts, quem avista e com que
+│             time luta · encontros.ts, o passo no mato e a fuga do
+│             Sacizinho · romaria.ts, o romeiro da vez · + mundo.test.ts)
+│             sobDemanda.ts (o pacote das cutscenes, pedido na hora)
 │             menu.ts · loja.ts · escolha.ts (os três patuás da mesa)
 │             rezador.ts (o Rezador do benzimento: lembrar golpe a dinheiro)
 │             creditos.ts (o fim do Círculo Dourado)
@@ -722,6 +728,28 @@ ONDE do Caderno sai de `game/caderno.ts`, que lê as tabelas de encontro, os
 bichos-chefe, os presentes e as evoluções. `ui/textos.test.ts` confere que
 todo letreiro das telas existe na fonte. O aviso de versão nova escuta o
 `controllerchange` do service worker (`main.ts`).
+
+**Pacotes (Fase F).** O build sai em pedaços com hash próprio
+(`vite.config.ts: manualChunks`):
+
+| pacote | o que leva | quando carrega |
+|---|---|---|
+| `principal` | o jogo | sempre |
+| `battlebg` | a arte que o título já usa | sempre |
+| `mapas` | as grades dos mapas | sempre, mas muda pouco: fica no cache entre publicações |
+| `cutscenes` | os roteiros, os fundos pintados e o tocador | sob demanda, com pré-carga 1,2 s depois do título (`scenes/sobDemanda.ts`); uma tela preta segura o lugar se ainda não chegou |
+| `vista3d` e `three` | o 3D | quando a vista 3D liga |
+
+O three.js sozinho tem uns 520 kB minificado e não se parte; por isso o
+limite de aviso do Vite fica em 540 kB. Todos entram no cache do service
+worker na instalação, então o jogo continua abrindo offline.
+
+**A cena do mundo** coordena; o que é conta pura saiu para `scenes/mundo/`
+e tem teste sem DOM. As seis telas por cima do mundo (menu, loja, escolha,
+caixa, rezador, poder) são uma sobreposição só (`sobre`): enquanto existe,
+o mundo fica congelado e desenhado atrás. Quando a tela devolve algo
+diferente de `'aberto'`, o `depois` dela decide o que fazer (o menu manda
+remar ou voltar ao título; o rezador grava).
 
 ## Seis slots, uma introdução, e a velocidade do jogo
 

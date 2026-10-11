@@ -3,6 +3,7 @@
 import { Buf } from '../core/buf.ts';
 import { P } from './palette.ts';
 import { texto, larguraTexto } from './font.ts';
+import { clarear } from '../core/cor.ts';
 
 /* caixa de dialogo / painel, com borda dupla estilo cartucho */
 export interface OpcoesCaixa { fundo?: string; borda?: string; borda2?: string; sombra?: boolean }
@@ -27,17 +28,9 @@ export function barra(w: number, h: number, pct: number, cor: string, fundo: str
   const fill = Math.max(0, Math.min(w - 2, Math.round((w - 2) * pct)));
   if (fill > 0) {
     b.rect(1, 1, fill, h - 2, cor);
-    b.rect(1, 1, fill, 1, clarear(cor));
+    b.rect(1, 1, fill, 1, clarear(cor, 50));
   }
   return b;
-}
-
-function clarear(hex: string): string {
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.min(255, ((n >> 16) & 255) + 50);
-  const g = Math.min(255, ((n >> 8) & 255) + 50);
-  const bl = Math.min(255, (n & 255) + 50);
-  return '#' + [r, g, bl].map(v => v.toString(16).padStart(2, '0')).join('');
 }
 
 export function corHP(pct: number): string {
@@ -109,7 +102,7 @@ export function etiquetaTipo(nome: string, cor: string, corD: string): Buf {
   const b = new Buf(w, 11);
   b.rect(0, 0, w, 11, corD);
   b.rect(1, 1, w - 2, 9, cor);
-  b.rect(1, 1, w - 2, 3, clarear(cor));
+  b.rect(1, 1, w - 2, 3, clarear(cor, 50));
   texto(b, nome, 4, 2, P.uiInk);
   return b;
 }
