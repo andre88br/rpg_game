@@ -152,11 +152,12 @@ const INTRO: Roteiro = [
     depois: { fundo: C.mataDepois, de: 2.5, por: 3 },
     atores: [
       { figura: { peca: 'trator' }, x: -60, y: 62, ate: { x: 96, y: 62, de: 0.4, por: 5 } },
-      { figura: { pessoa: 'capataz', dir: 'baixo' }, x: 216, y: 70, aparece: 5 },
+      { figura: { pessoa: 'ferraz', dir: 'baixo' }, x: 216, y: 70, aparece: 5 },
     ],
     efeitos: [{ tipo: 'fumaca', x: 60, y: 60, aparece: 3 }, { tipo: 'fumaca', x: 190, y: 56, aparece: 4 }],
     legendas: [
       'E a Companhia Mata-Seca anda comprando terra e calando rio, região por região.',
+      { quem: 'DOUTOR FERRAZ', texto: 'Mato parado é dinheiro perdido. Com papel carimbado, tudo vira serventia.' },
       'Alguém vai ter que discordar.',
     ],
   },
@@ -337,7 +338,7 @@ const MESTRE: Roteiro = [
       { quem: 'MESTRE DO PORTO', texto: 'A Firmina escreve pouco e diz muito. Diz que você é de confiança.' },
     ],
   },
-  { // o porto de antigamente: trinta barcos e a Iara-Mãe guiando na neblina
+  { // o porto de antigamente: trinta barcos e a Mãe-d'Água guiando na neblina
     musica: 'lembranca',
     fundo: C.portoAntigo,
     atores: [
@@ -346,7 +347,7 @@ const MESTRE: Roteiro = [
     ],
     legendas: [
       { quem: 'MESTRE DO PORTO', texto: 'No tempo do meu pai, a Foz tinha trinta barcos.' },
-      { quem: 'MESTRE DO PORTO', texto: 'E quando a neblina baixava, a Iara-Mãe trazia um por um de volta pra casa.' },
+      { quem: 'MESTRE DO PORTO', texto: 'E quando a neblina baixava, a Mãe-d\'Água trazia um por um de volta pra casa.' },
     ],
   },
   { // a Companhia com o papel carimbado
@@ -568,14 +569,14 @@ const TERREIRO_AGUA: Roteiro = [
       'Lá no alto, entre as velas, alguém espera sem pressa nenhuma.',
     ],
   },
-  { // a lembrança: a Iara-Mãe no salão, no tempo da maré
+  { // a lembrança: a Mãe-d'Água no salão, no tempo da maré
     musica: 'encantados',
     fundo: C.salaoAgua,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 96, y: 50, alfa: 0.5, aparece: 0.4, balanco: { amp: 2, periodo: 2.4 } },
     ],
     legendas: [
-      { quem: 'DONA MARIANA', texto: 'Este terreiro é da Iara-Mãe. Antes da comporta, a água entrava aqui sozinha, com a maré.' },
+      { quem: 'DONA MARIANA', texto: 'Este terreiro é da Mãe-d\'Água. Antes da comporta, a água entrava aqui sozinha, com a maré.' },
       { quem: 'DONA MARIANA', texto: 'Hoje eu é que cuido dela. E ela não deixa ninguém atravessar de qualquer jeito.' },
     ],
   },
@@ -610,14 +611,14 @@ const MARIANA_VENCE: Roteiro = [
       { quem: 'DONA MARIANA', texto: 'A maré virou pro seu lado. E eu fico contente de ter perdido, viu?' },
     ],
   },
-  { // a comporta, e a Iara-Mãe dormindo
+  { // a comporta, e a Mãe-d'Água dormindo
     musica: 'companhia',
     fundo: C.rioCalado,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 60, y: 54, alfa: 0.4, balanco: { amp: 1, periodo: 3 } },
     ],
     legendas: [
-      { quem: 'DONA MARIANA', texto: 'Enquanto a comporta da Companhia fechar o rio, a Iara-Mãe dorme.' },
+      { quem: 'DONA MARIANA', texto: 'Enquanto a comporta da Companhia fechar o rio, a Mãe-d\'Água dorme.' },
       { quem: 'DONA MARIANA', texto: 'Quem vai abrir aquilo não sou eu, {crianca}. É quem anda a trilha inteira.' },
     ],
   },

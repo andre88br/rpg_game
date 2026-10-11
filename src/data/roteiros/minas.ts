@@ -39,9 +39,10 @@ const GARIMPEIRA: Roteiro = [
   { // a draga da Companhia
     musica: 'companhia',
     fundo: M.dragaCompanhia,
-    atores: [{ figura: { pessoa: 'capataz', dir: 'dir' }, x: 76, y: 70 }],
+    atores: [{ figura: { pessoa: 'ferraz', dir: 'dir' }, x: 76, y: 70 }],
     legendas: [
       { quem: 'GARIMPEIRA', texto: 'Aí a Companhia trouxe a draga. Revira o rio inteiro atrás de ouro, e o que sobra é lama.' },
+      { quem: 'GARIMPEIRA', texto: 'Quem manda é um tal de Doutor Ferraz, de terno no meio do barro. Nunca pôs a mão na bateia.' },
       { quem: 'GARIMPEIRA', texto: 'Eu enterrei as minhas três pepitas pra eles não levarem. E agora nem eu acho mais onde!' },
     ],
   },

@@ -96,6 +96,22 @@ export const bairroDaCuca: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_sombra', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, com as placas de VENDIDO debaixo do braço.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_sombra`) */
+      tx: 33, ty: 18, dir: 'baixo', se: 'medalha:breu', seNao: 'venceu_capanga_sombra',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 2600, liga: 'companhia_sombra',
+        time: [{ especie: 'lobinho', nivel: 60 }, { especie: 'corpoSeco', nivel: 61 }, { especie: 'mulinha', nivel: 62 }],
+        falaInicio: 'Mais uma placa de VENDIDO e eu vou embora, {crianca}. Não atrapalha!',
+        falaDerrota: 'Arranco as placas. Todas. O bairro velho fica de pé — e o Casarão também.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Cada porta com placa é uma casa a menos. O Doutor Ferraz quer o bairro velho no chão.'] },
+      ],
+    },
+    {
       id: 'zeca7', nome: 'ZECA', estilo: 'zeca',
       tx: 1, ty: 19, dir: 'baixo',
       treinador: {

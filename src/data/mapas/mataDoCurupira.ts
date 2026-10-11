@@ -59,6 +59,22 @@ export const mataDoCurupira: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_planta', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, na beira da mata, com a lata de tinta vermelha.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_planta`) */
+      tx: 18, ty: 12, dir: 'esq', se: 'medalha:raiz', seNao: 'venceu_capanga_planta',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 900, liga: 'companhia_planta',
+        time: [{ especie: 'lobinho', nivel: 25 }, { especie: 'mulinha', nivel: 26 }],
+        falaInicio: 'Sai da frente, {crianca}! Ainda falta pintar X na metade da mata.',
+        falaDerrota: 'Pronto, pronto! Eu jogo a tinta no rio... quer dizer, eu lavo os X. Todos. Hoje mesmo.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Tô contando árvore pro Doutor Ferraz. Cada X é uma tora que vira dinheiro.'] },
+      ],
+    },
+    {
       id: 'elias', nome: 'SEU ELIAS', estilo: 'aldeao',
       tx: 14, ty: 9, dir: 'baixo',
       falas: [

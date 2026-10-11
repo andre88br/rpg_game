@@ -81,6 +81,22 @@ export const aldeiaCatavento: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_vento', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, na beira do campo, com o rolo de arame nas costas.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_vento`) */
+      tx: 27, ty: 30, dir: 'esq', se: 'medalha:rodamoinho', seNao: 'venceu_capanga_vento',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 1800, liga: 'companhia_vento',
+        time: [{ especie: 'minhoquinha', nivel: 46 }, { especie: 'mulinha', nivel: 47 }, { especie: 'lobinho', nivel: 48 }],
+        falaInicio: 'Mais um moirão e o campo inteiro vira soja. Sai do caminho, {crianca}!',
+        falaDerrota: 'Tá certo, o vento ganhou. Eu enrolo o arame e deixo o capim crescer de volta.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'O vento derruba a cerca, eu levanto de novo. O Doutor Ferraz paga por moirão.'] },
+      ],
+    },
+    {
       id: 'zeca4', nome: 'ZECA', estilo: 'zeca',
       tx: 16, ty: 32, dir: 'cima',
       treinador: {

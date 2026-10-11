@@ -93,6 +93,8 @@ src/
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
 │             tracos.ts (os 26 traços e o de cada espécie) + teste
 │             documentacao.test.ts (MANUAL e README conferidos contra os dados)
+│             companhia.test.ts (um capanga por região, o escritório do
+│             Ferraz e o balão que espera por ele)
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             roteiros/ (da Serra em diante, um arquivo de roteiros por
 │             região, e o torneio; comum.ts guarda o arco das oito medalhas)
@@ -104,7 +106,8 @@ src/
 │             Minas da Caipora: 4 externos largos + 3 interiores + o
 │             terreiro em 1 sala; Bairro da Cuca: 3 externos largos + o
 │             Casarão + 3 interiores + o terreiro em 1 sala; Cidade do Sol:
-│             4 externos largos + 3 interiores + o terreiro em 1 sala)
+│             4 externos largos + 4 interiores, com o escritório da
+│             Companhia, + o terreiro em 1 sala)
 └─ esbocos/   telas.ts (as telas de apresentação) + main.ts
 public/       favicon e ícones (gerados por tools/favicon.mjs) · manifest.webmanifest
 tools/        png.mjs (codificador PNG) · render.mjs · preview.mjs
@@ -676,6 +679,18 @@ atravessa publicações do jogo, então `restaurar()` não confia nele — espé
 que sumiu, golpe renomeado, mapa que não existe mais e vida acima do máximo
 são corrigidos em silêncio, porque perder a partida inteira por causa de um
 campo torto seria pior do que voltar com um item a menos.
+
+**A Companhia com rosto.** O vilão não tem mecânica própria: é feito das
+peças que já existiam. Cada capanga é um `DefNPC` com `treinador`, `se` na
+medalha da região e `seNao` no próprio `venceu_<id>` — aparece depois da
+cerimônia, some depois de vencido —, e liga `companhia_<tipo>` para quem
+quiser reagir a ele depois. O Doutor Ferraz é o treinador de
+`mapas/escritorioCompanhia.ts`, com a cutscene `ferraz` (em
+`roteiros/sol.ts`) depois da derrota. O fim depende dele em dois lugares: a
+fala do Baloeiro com `leva` vem depois de uma com `seNao: 'venceu_ferraz'`
+(`escolherFala` pega a primeira que serve), e o portão da Estrada Dourada
+tem duas barreiras em cada tile, uma por condição — basta uma de pé para
+fechar. `data/companhia.test.ts` e `mapas.circulo.test.ts` cobram os dois.
 
 ## Seis slots, uma introdução, e a velocidade do jogo
 

@@ -77,6 +77,22 @@ export const vilaFornalha: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_fogo', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, perto da saída da serra: é o capataz da carvoaria.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_fogo`) */
+      tx: 25, ty: 30, dir: 'esq', se: 'medalha:brasa', seNao: 'venceu_capanga_fogo',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 1300, liga: 'companhia_fogo',
+        time: [{ especie: 'boitatinha', nivel: 36 }, { especie: 'mulinha', nivel: 37 }, { especie: 'minhoquinha', nivel: 37 }],
+        falaInicio: 'A carvoaria é do Doutor Ferraz, {crianca}. Quem atrapalha o forno vai pro forno!',
+        falaDerrota: 'Chega! Eu apago os fornos e mando a tropa pra casa. Ninguém tosse mais por minha conta.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'A carvoaria não para. O Doutor Ferraz quer mais carvão até o fim da semana.'] },
+      ],
+    },
+    {
       id: 'zeca3', nome: 'ZECA', estilo: 'zeca',
       tx: 16, ty: 32, dir: 'cima',
       treinador: {

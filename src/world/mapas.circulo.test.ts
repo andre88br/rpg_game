@@ -55,10 +55,13 @@ test('cada adversário tem gêmeo de campeão, e entrar na arena apaga todas as 
   assert.equal(def.npcs.filter((n) => n.treinador?.creditos).length, 1, 'os créditos tocam uma vez só');
 });
 
-test('o portão da Estrada Dourada só abre com a oitava medalha', () => {
+test('o portão da Estrada Dourada só abre com a oitava medalha e o Ferraz vencido', () => {
   const def = MAPAS['estradaDourada']!;
   const sem = new Mapa(def, { ...ABERTO, ligada: (c) => c !== 'medalha:aurora' });
   assert.ok(!alcance(sem, def.inicio.tx, def.inicio.ty).has('0,11'));
+  // e só com o Doutor Ferraz vencido: a pé também não se pula o escritório
+  const semFerraz = new Mapa(def, { ...ABERTO, ligada: (c) => c !== 'venceu_ferraz' });
+  assert.ok(!alcance(semFerraz, def.inicio.tx, def.inicio.ty).has('0,11'));
   assert.ok(alcance(new Mapa(def, ABERTO), def.inicio.tx, def.inicio.ty).has('0,11'));
 });
 

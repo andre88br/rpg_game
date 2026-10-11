@@ -109,7 +109,7 @@ export const MUSICAS = {
     melodia: `d5 g5 f#5 g5 a5:4 g5:4 | f#5 a5 d5:4 e5 f#5 a5:4 | g5 e5 b4:4 e5 g5 b5:4 | c6:4 b5 a5 g5:4 e5:4 |
               d5:1 e5:1 g5 b5:4 a5 g5 d5:4 | f#5 e5 d5 e5 f#5:4 a5:4 | e5 g5 c6:4 a5 f#5 d5:4 | g5:4 d5:4 g4:8`,
   },
-  /* o Terreiro de Água e a Iara-Mãe: solene, devagar, como a maré */
+  /* o Terreiro de Água e a Mãe-d'Água: solene, devagar, como a maré */
   terreiro_agua: {
     bpm: 64, baixo: 'lento', arpejo: 'sobe',
     acordes: ['Cm', 'Ab', 'Eb', 'Bb', 'Cm', 'Fm', 'G', 'Cm'],

@@ -42,9 +42,10 @@ const CARTOMANTE: Roteiro = [
   { // a placa de VENDIDO no Casarão
     musica: 'companhia',
     fundo: Q.bairroCuca,
-    atores: [{ figura: { pessoa: 'capataz', dir: 'baixo' }, x: 142, y: 86 }],
+    atores: [{ figura: { pessoa: 'ferraz', dir: 'baixo' }, x: 142, y: 86 }],
     legendas: [
       { quem: 'CARTOMANTE', texto: 'A sombra já chegou aqui: a Companhia comprou o Casarão e quer derrubar o bairro velho inteiro.' },
+      { quem: 'CARTOMANTE', texto: 'Quem assinou foi o Doutor Ferraz. Vi a assinatura dele na placa: tinta vermelha, letra apertada.' },
       { quem: 'CARTOMANTE', texto: 'Mas carta não mente. Quem junta as oito, o mato inteiro escuta.' },
     ],
   },

@@ -45,6 +45,26 @@ emboscada, o terreiro tem uma na entrada e outra na vitória, e a saída com a
 medalha chama para a região seguinte. Cada uma toca **uma vez só**; **B**
 pula a cutscene inteira. Nenhuma muda conta, caminho ou coordenada.
 
+**Os capangas da Companhia.** Depois de cada medalha, da Foz ao Bairro da
+Cuca, um **capanga da Companhia** aparece perto da ameaça daquela região, a
+mando do **Doutor Ferraz**. É treinador comum (vê o jogador de 3 tiles):
+vencido, desfaz o serviço da Companhia ali e vai embora. Nenhum acende conta
+nem tranca caminho — é a história andando, e um bom prêmio.
+
+| Região | Onde | Depois de | Time (nível do mais forte) | Desfaz |
+|---|---|---|---|---|
+| Foz | Porto Iara, na areia (22,28) | Medalha Maré | 2 bichos (16) | as estacas da praia |
+| Mata | Mata do Curupira (18,12) | Medalha Raiz | 2 bichos (26) | os X vermelhos |
+| Serra | Vila Fornalha, perto da saída sul (25,30) | Medalha Brasa | 3 bichos (37) | os fornos da carvoaria |
+| Campo | Aldeia Catavento, perto da saída sul (27,30) | Medalha Rodamoinho | 3 bichos (48) | o arame do campo |
+| Tupã | Aldeia Tupã (33,18) | Medalha Trovão | 3 bichos (53) | as torres que prendem raio |
+| Minas | Arraial da Caipora (33,18) | Medalha Pedra | 3 bichos (56) | a draga |
+| Cuca | Bairro da Cuca (33,18) | Medalha Breu | 3 bichos (62) | as placas de VENDIDO |
+
+O último, o **escritório do próprio Ferraz**, fica na Cidade do Sol (veja
+a Região 8): sem vencê-lo, nem o balão nem a Estrada Dourada levam ao
+Círculo.
+
 **A guia de contas.** Cada terreiro tem uma guia com **cinco contas**. A porta
 do terreiro só abre com as cinco acesas. Uma conta acende sozinha assim que
 você cumpre o serviço — não precisa voltar para "entregar" em lugar nenhum,
@@ -380,7 +400,7 @@ um Boitatão.
 ## O Terreiro de Água — o salão alagado
 
 Porta em Porto Iara, (16,17). Só abre com as cinco contas acesas. Na primeira
-entrada, uma cutscene apresenta a Dona Mariana e o salão da Iara-Mãe.
+entrada, uma cutscene apresenta a Dona Mariana e o salão da Mãe-d'Água.
 
 O chão é água: **quem pisa não para de andar até bater em alguma coisa.** Duas
 colunas de pedra são os únicos freios. Entra-se pelo vão de baixo, em (8,8), e
@@ -1480,7 +1500,10 @@ leva 2x de **Sombra**. Suba com o time perto de 61-66.
 6. Pico da Aurora: três guias, o terceiro cristal, e a **Estrela-d'Alva** no
    cume → **conta_estrela**.
 7. Terreiro da Aurora, até o Solano.
-8. (Opcional) os três cristais para a Joalheira, e a Jaci.
+8. Cidade: o **escritório da Companhia** — o capanga da porta e o **Doutor
+   Ferraz** (pode ser antes ou depois do Solano, mas é obrigatório para o
+   Círculo).
+9. (Opcional) os três cristais para a Joalheira, e a Jaci.
 
 ## Conta 1 — `conta_oraculo`: as três perguntas
 
@@ -1562,6 +1585,23 @@ Anhangá 66 ou Mboitatá 66). Prêmio 9000. Esperto, com 3 Garrafadas Fortes,
 Vencer dá a **Medalha Aurora** e o **Dom Prisma**: as **cortinas de luz**
 se abrem.
 
+## O escritório da Companhia — o Doutor Ferraz
+
+A visão do Oráculo (`conta_oraculo`) mostra a sala da Companhia "na praça
+baixa da cidade": é a casa ao sul do lago, porta em **(33,36)**, com placa
+ao lado. Antes da visão, a porta abre, mas o Ferraz só manda a visita
+embora.
+
+1. **Capanga da porta** (34,37), olhando para a porta: quem pisa na frente
+   dela é visto. 3 bichos, o mais forte no **64**. Prêmio 3000. Esperto.
+2. **Doutor Ferraz**, atrás da mesa (fale com ele). **5 bichos, 65 a 67**,
+   com Mapinguari no fim. Prêmio 6000. Esperto, com 2 Garrafadas Fortes e 1
+   Garrafada Santa.
+
+Vencido, uma cutscene mostra o mapa dos X rasgando e a lancha da Companhia
+indo embora (`venceu_ferraz`). Só então o **Baloeiro** sobe e o **portão da
+Estrada Dourada** abre (os dois também pedem a Medalha Aurora).
+
 ## Os dois serviços opcionais
 
 ### `servico_cristais` — os três cristais solares
@@ -1594,11 +1634,12 @@ Fica no meio do continente, no espaço vazio entre a Mata, a Serra e o
 Campo do Saci. Dois jeitos de chegar:
 
 - **Balão:** na Cidade do Sol, o **Baloeiro** fica ao lado do balão
-  listrado, a oeste da praça (8,24). Com as oito medalhas, ele leva direto
-  para a praça do Círculo; o de lá traz de volta.
+  listrado, a oeste da praça (8,24). Com as oito medalhas e o **Doutor
+  Ferraz** vencido, ele leva direto para a praça do Círculo; o de lá traz
+  de volta.
 - **A pé:** pela borda oeste da **Aldeia Catavento** (linhas 30-31), a
   **Estrada Dourada**. No meio dela, o portão do Guarda do Círculo só abre
-  com a Medalha Aurora. Quatro aspirantes e veteranos treinam na estrada
+  com a Medalha Aurora e o Ferraz vencido. Quatro aspirantes e veteranos treinam na estrada
   (níveis 64-70).
 
 Na praça: benzimento, loja e a arena. **Leve garrafadas**: lá dentro
@@ -1772,9 +1813,10 @@ Beco sem ser visto (esperar nos nichos) · Zeca 7 · Casarão: ladrilhos
 · a sombra) · 5 lampiões correndo (26 s) · espelhos 1, 2, 3, 5 · Zeca 8 ·
 Estrela-d'Alva no cume → terreiro (2 espelhos · 2 guardas) → Solano →
 **Aurora + Prisma** →
-(3 cristais → Joalheira; cristais + medalha → Jaci; Prisma → 2 cortinas).
+(3 cristais → Joalheira; cristais + medalha → Jaci; Prisma → 2 cortinas) ·
+escritório da Companhia (capanga da porta → **Doutor Ferraz**).
 
-**Círculo Dourado** — balão da Cidade do Sol (ou a Estrada Dourada, a oeste
-da Aldeia Catavento) → garrafadas na loja → Iracema · Itaberá · Ybytu ·
+**Círculo Dourado** — com o Ferraz vencido: balão da Cidade do Sol (ou a
+Estrada Dourada, a oeste da Aldeia Catavento) → garrafadas na loja → Iracema · Itaberá · Ybytu ·
 Jacira · Zeca · **Anhangá** sem sair da arena → créditos → revanches que
 crescem · Romaria · Remanso da Norato.

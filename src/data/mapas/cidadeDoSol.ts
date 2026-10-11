@@ -80,6 +80,9 @@ export const cidadeDoSol: DefMapa = {
     { tipo: 'loja',        tx: 38, ty: 5,  larg: 5, alt: 4 },              // porta (40,8)
     { tipo: 'benzimento',  tx: 45, ty: 5,  larg: 5, alt: 4 },              // porta (47,8)
     { tipo: 'casa',        tx: 38, ty: 23, larg: 5, alt: 4 },              // porta (40,26), o Oráculo
+    { tipo: 'casa',        tx: 31, ty: 33, larg: 5, alt: 4 },              // porta (33,36), a Companhia
+    { tipo: 'placa', tx: 36, ty: 36,
+      placa: 'COMPANHIA MATA-SECA. Escritório regional. Não se atende sem hora marcada.' },
     { tipo: 'placa', tx: 16, ty: 12,
       placa: 'TERREIRO DA AURORA, do Solano. A guia abre com cinco contas acesas.' },
     { tipo: 'placa', tx: 25, ty: 22,
@@ -141,12 +144,34 @@ export const cidadeDoSol: DefMapa = {
       id: 'baloeiro_sol', nome: 'BALOEIRO', estilo: 'aldeao',
       tx: 8, ty: 24, dir: 'esq',
       falas: [
+        /* o balão espera o fim da Companhia: a visão do Oráculo aponta a
+           sala do Doutor Ferraz, e só depois dele o Círculo */
+        { se: 'medalha:aurora', seNao: 'venceu_ferraz', linhas: [
+          'Oito medalhas! Mas o balão não sobe com a Companhia mandando aqui embaixo.',
+          'O escritório do Doutor Ferraz fica na praça baixa, perto do lago. Resolve isso primeiro, {crianca}.'] },
         { se: 'medalha:aurora', leva: { mapa: 'circuloDourado', tx: 9, ty: 27, dir: 'cima' }, linhas: [
           'Oito medalhas! Então o balão é seu: vamos ao Círculo Dourado, no meio do mundo.',
           'Segura no cesto. Lá de cima dá pra ver as oito regiões de uma vez.'] },
         { linhas: [
           'Este balão vai até o Círculo Dourado, o torneio do meio do mundo.',
           'Só levo quem tem as oito medalhas. Você tem {medalhas}.'] },
+      ],
+    },
+    {
+      id: 'capanga_porta', nome: 'CAPANGA', estilo: 'capataz',
+      /* ao lado da porta do escritório, depois da visão do Oráculo: quem
+         pisa na frente da porta é visto. Vencido, some */
+      tx: 34, ty: 37, dir: 'esq', se: 'conta_oraculo', seNao: 'venceu_capanga_porta',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 3000, esperta: true,
+        time: [{ especie: 'mulinha', nivel: 63 }, { especie: 'minhoquinha', nivel: 64 },
+               { especie: 'lobinho', nivel: 64 }],
+        falaInicio: 'O Doutor Ferraz não recebe criança. Nem com oito medalha no peito!',
+        falaDerrota: 'Tá, tá... Entra. Mas não diz que fui eu que deixei.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Escritório da Companhia. Daqui pra dentro, só com hora marcada.'] },
       ],
     },
     {
@@ -219,6 +244,7 @@ export const cidadeDoSol: DefMapa = {
     { tx: 40, ty: 8,  para: 'lojaSol',          destino: { tx: 7,  ty: 8,  dir: 'cima' } },
     { tx: 47, ty: 8,  para: 'benzimentoSol',    destino: { tx: 7,  ty: 8,  dir: 'cima' } },
     { tx: 40, ty: 26, para: 'casaOraculo',      destino: { tx: 7,  ty: 8,  dir: 'cima' } },
+    { tx: 33, ty: 36, para: 'escritorioCompanhia', destino: { tx: 8, ty: 9, dir: 'cima' } },
   ],
 
   cenario: 'cidade',

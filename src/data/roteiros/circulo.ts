@@ -208,8 +208,9 @@ const ANHANGA: Roteiro = [
 /* ------------------------------------------------------ o campeão
 
    Toca depois da fala de derrota do Anhangá, antes dos créditos: a arena
-   vem abaixo, as oito medalhas acendem juntas, a comporta da Foz racha e a
-   Iara-Mãe acorda, a mata volta, e a avó fecha a história na beira do
+   vem abaixo, o campeão se revela o próprio Anhangá, o guarda da mata, as
+   oito medalhas acendem juntas, a comporta da Foz racha e a
+   Mãe-d'Água acorda, a mata volta, e a avó fecha a história na beira do
    fogo — o mesmo fogo da abertura. */
 const CAMPEAO: Roteiro = [
   { // a arena vem abaixo
@@ -226,6 +227,21 @@ const CAMPEAO: Roteiro = [
       { quem: 'ANHANGÁ', texto: 'O mato respondeu a você, {crianca}. O Círculo Dourado tem {g:uma nova campeã|um novo campeão}.' },
     ],
   },
+  { // a coroa cai: o campeão é o próprio Anhangá
+    musica: 'encantados',
+    fundo: O.camaraFesta,
+    atores: [
+      { figura: { pessoa: 'anhanga', dir: 'baixo' }, x: 112, y: 62, some: 2 },
+      { figura: { criatura: 'anhanga' }, x: 112, y: 56, alfa: 0.75, aparece: 2.2, balanco: { amp: 2, periodo: 1.6 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 100 },
+    ],
+    legendas: [
+      'O campeão tira a coroa. Por um instante, no lugar dele, está um veado branco de olhos de fogo.',
+      { quem: 'ANHANGÁ', texto: 'Eu sou o guarda da mata. O primeiro Anhangá. Vesti gente pra esperar aqui no meio do mundo.' },
+      { quem: 'ANHANGÁ', texto: 'Bicho não briga com papel carimbado. Precisava de gente que respondesse pela terra. E você respondeu.' },
+      { quem: 'ANHANGÁ', texto: 'O Doutor Ferraz já foi embora. Agora é a vez de quem dorme.' },
+    ],
+  },
   { // as oito medalhas acendem juntas
     musica: 'encantados',
     fundo: trilhaAurora,
@@ -235,7 +251,7 @@ const CAMPEAO: Roteiro = [
       'E quem dormia debaixo do mato começa, enfim, a acordar.',
     ],
   },
-  { // a comporta racha, e a Iara-Mãe acorda
+  { // a comporta racha, e a Mãe-d'Água acorda
     fundo: O.rioLivre,
     atores: [
       { figura: { criatura: 'iaraMae' }, x: 60, y: 76, aparece: 0.6, ate: { x: 60, y: 48, de: 0.6, por: 2.4 }, balanco: { amp: 2, periodo: 2.2 } },
@@ -243,7 +259,7 @@ const CAMPEAO: Roteiro = [
     ],
     legendas: [
       'Na Foz, a comporta da Companhia racha ao meio, e o rio passa por cima, cantando.',
-      'A Iara-Mãe acorda. E lá no terreiro, a Dona Mariana sente a água entrar sozinha, com a maré.',
+      'A Mãe-d\'Água acorda. E lá no terreiro, a Dona Mariana sente a água entrar sozinha, com a maré.',
     ],
   },
   { // a mata volta
@@ -255,7 +271,8 @@ const CAMPEAO: Roteiro = [
     ],
     legendas: [
       'Na mata, na serra, no campo e nas minas, onde havia X vermelho, brota muda nova.',
-      'A Companhia Mata-Seca recolhe as estacas e vai embora. Terra que responde não se compra.',
+      'Sem o Doutor Ferraz, a Companhia recolhe as estacas e não volta mais.',
+      'Terra que responde não se compra.',
     ],
   },
   { // a avó termina a história na beira do fogo

@@ -109,6 +109,22 @@ export const aldeiaTupa: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_raio', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, perto da estrada, de olho nas torres.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_raio`) */
+      tx: 33, ty: 18, dir: 'baixo', se: 'medalha:trovao', seNao: 'venceu_capanga_raio',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 2000, liga: 'companhia_raio',
+        time: [{ especie: 'tatuTrovao', nivel: 52 }, { especie: 'mulinha', nivel: 52 }, { especie: 'minhoquinha', nivel: 53 }],
+        falaInicio: 'Raio agora tem dono, {crianca}. E o dono é a Companhia!',
+        falaDerrota: 'Desligo, desligo! O raio volta a cair onde quiser. Pode avisar o pajé.',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Essas torres prendem o raio e mandam a luz pra cidade. O Doutor Ferraz cobra por cada faísca.'] },
+      ],
+    },
+    {
       id: 'zeca5', nome: 'ZECA', estilo: 'zeca',
       tx: 27, ty: 2, dir: 'baixo',
       treinador: {

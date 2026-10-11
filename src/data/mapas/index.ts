@@ -62,6 +62,7 @@ import { cidadeDoSol } from './cidadeDoSol.ts';
 import { lojaSol } from './lojaSol.ts';
 import { benzimentoSol } from './benzimentoSol.ts';
 import { casaOraculo } from './casaOraculo.ts';
+import { escritorioCompanhia } from './escritorioCompanhia.ts';
 import { jardimEspelhos } from './jardimEspelhos.ts';
 import { picoAurora } from './picoAurora.ts';
 import { terreiroAurora } from './terreiroAurora.ts';
@@ -134,6 +135,7 @@ export const MAPAS: Record<string, DefMapa> = {
   lojaSol,
   benzimentoSol,
   casaOraculo,
+  escritorioCompanhia,
   jardimEspelhos,
   picoAurora,
   terreiroAurora,

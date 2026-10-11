@@ -89,6 +89,22 @@ export const arraialCaipora: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_terra', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, perto da estrada da mina: é ele quem toca a draga.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_terra`) */
+      tx: 33, ty: 18, dir: 'baixo', se: 'medalha:pedra', seNao: 'venceu_capanga_terra',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 2200, liga: 'companhia_terra',
+        time: [{ especie: 'minhoquinha', nivel: 55 }, { especie: 'cabraCabriola', nivel: 55 }, { especie: 'tatuTrovao', nivel: 56 }],
+        falaInicio: 'Ouro não cai do céu, {crianca}. Sai que a draga vai passar!',
+        falaDerrota: 'Desligo a draga. O barro assenta e o rio volta a correr limpo. Mas o Doutor vai mandar outra...',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'A draga só para quando o rio virar barro de uma ponta à outra. Ordem do Doutor Ferraz.'] },
+      ],
+    },
+    {
       id: 'zeca6', nome: 'ZECA', estilo: 'zeca',
       tx: 1, ty: 19, dir: 'baixo',
       treinador: {

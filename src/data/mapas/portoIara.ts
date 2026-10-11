@@ -75,6 +75,22 @@ export const portoIara: DefMapa = {
 
   npcs: [
     {
+      id: 'capanga_agua', nome: 'CAPANGA', estilo: 'capataz',
+      /* o capanga da Companhia, na praia das estacas: é ele quem cuida da comporta.
+         Vencido, desfaz a ameaça da região e some (a flag `companhia_agua`) */
+      tx: 22, ty: 28, dir: 'cima', se: 'medalha:mare', seNao: 'venceu_capanga_agua',
+      treinador: {
+        classe: 'CAPANGA DA COMPANHIA', visao: 3, premio: 480, liga: 'companhia_agua',
+        time: [{ especie: 'minhoquinha', nivel: 15 }, { especie: 'piragua', nivel: 16 }],
+        falaInicio: 'Chega aí, {crianca}! Ordem do Doutor Ferraz: ninguém passa da estaca.',
+        falaDerrota: 'Tá bom, tá bom! Eu arranco as estacas e abro uma fresta na comporta. Mas o Doutor não vai gostar...',
+      },
+      falas: [
+        { batalha: true, linhas: [
+          'Ei! Essa praia agora é da Companhia. O Doutor Ferraz mandou fincar estaca até a beira d\'água.'] },
+      ],
+    },
+    {
       id: 'guarda', nome: 'GUARDA DO LARGO', estilo: 'guarda',
       tx: 12, ty: 20, dir: 'dir',
       falas: [

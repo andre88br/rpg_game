@@ -145,13 +145,14 @@ const ZECA_SERRA: Roteiro = [
     fundo: S.carvoaria,
     atores: [
       { figura: { pessoa: 'paiZeca', dir: 'esq' }, x: 112, y: 100 },
-      { figura: { pessoa: 'capataz', dir: 'esq' }, x: 150, y: 104 },
+      { figura: { pessoa: 'ferraz', dir: 'esq' }, x: 150, y: 104 },
       { figura: { pessoa: 'zeca', dir: 'dir' }, x: 20, y: 102, aparece: 0.8 },
     ],
     efeitos: [{ tipo: 'fumaca', x: 92, y: 76 }],
     legendas: [
+      { quem: 'DOUTOR FERRAZ', texto: 'Mais lenha nesse forno! Carvão não espera ninguém parar de tossir.' },
       { quem: 'ZECA', texto: 'Sabe por que eu subi? Mandaram meu pai pros fornos da carvoaria. Ele volta pra casa preto de fuligem.' },
-      { quem: 'ZECA', texto: 'Tossindo a noite inteira. E ainda diz que é progresso.' },
+      { quem: 'ZECA', texto: 'Tossindo a noite inteira. E o Doutor Ferraz, o gerente, ainda diz que é progresso.' },
     ],
   },
   { // de volta à boca da caverna, com o Piraguá novo

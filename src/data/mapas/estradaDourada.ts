@@ -41,9 +41,12 @@ export const estradaDourada: DefMapa = {
   ],
 
   objetos: [
-    /* o portão do Círculo: some com a oitava medalha */
+    /* o portão do Círculo: some com a oitava medalha E com o Doutor Ferraz
+       vencido — uma tranca para cada, no mesmo lugar, e qualquer uma fecha */
     { tipo: 'barreira', tx: 24, ty: 11, larg: 1, seNao: 'medalha:aurora' },
     { tipo: 'barreira', tx: 24, ty: 12, larg: 1, seNao: 'medalha:aurora' },
+    { tipo: 'barreira', tx: 24, ty: 11, larg: 1, seNao: 'venceu_ferraz' },
+    { tipo: 'barreira', tx: 24, ty: 12, larg: 1, seNao: 'venceu_ferraz' },
     { tipo: 'placa', tx: 27, ty: 10,
       placa: 'CÍRCULO DOURADO, a oeste. Só entra quem traz as oito medalhas.' },
     { tipo: 'placa', tx: 44, ty: 13,
@@ -55,6 +58,9 @@ export const estradaDourada: DefMapa = {
       id: 'guarda_circulo', nome: 'GUARDA DO CÍRCULO', estilo: 'guarda',
       tx: 25, ty: 13, dir: 'cima',
       falas: [
+        { se: 'medalha:aurora', seNao: 'venceu_ferraz', linhas: [
+          'Oito medalhas, mas o portão não abre enquanto a Companhia mandar na Cidade do Sol.',
+          'O escritório do Doutor Ferraz fica na praça baixa de lá. Resolve isso primeiro, {crianca}.'] },
         { se: 'medalha:aurora', linhas: [
           'Oito medalhas. O portão está aberto, {crianca}: o Círculo Dourado fica logo ali.',
           'Lá dentro são seis lutas seguidas, e ninguém benze ninguém entre uma e outra. Leve garrafadas.'] },

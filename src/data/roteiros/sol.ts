@@ -6,7 +6,7 @@
    ========================================================================= */
 import type { Ator, Roteiro } from '../cutscenes.ts';
 import * as S from '../../art/fundos/sol.ts';
-import { trilhaAurora, paredaoRota, barcoAmanhecer } from '../../art/cenas.ts';
+import { trilhaAurora, paredaoRota, barcoAmanhecer, fozEstacas } from '../../art/cenas.ts';
 import { arcoMedalhas } from './comum.ts';
 
 /* ------------------------------------------- a visão do Oráculo */
@@ -37,10 +37,11 @@ const ORACULO: Roteiro = [
   { // a sala da Companhia
     musica: 'companhia',
     fundo: S.escritorioCompanhia,
-    atores: [{ figura: { pessoa: 'capataz', dir: 'cima' }, x: 112, y: 100 }],
+    atores: [{ figura: { pessoa: 'ferraz', dir: 'cima' }, x: 112, y: 100 }],
     legendas: [
       { quem: 'ORÁCULO', texto: 'Vejo também a sala da Companhia: um mapa enorme na parede, com um X vermelho em cada região.' },
-      { quem: 'ORÁCULO', texto: 'Papel carimbado diz que a terra é deles. Mas a terra não lê papel.' },
+      { quem: 'ORÁCULO', texto: 'E vejo quem risca os X: o Doutor Ferraz. A sala fica aqui mesmo, na praça baixa da cidade.' },
+      { quem: 'ORÁCULO', texto: 'Papel carimbado diz que a terra é deles. Mas a terra não lê papel. Vai lá e mostra isso a ele.' },
     ],
   },
   { // de volta à bacia, a conta
@@ -50,6 +51,48 @@ const ORACULO: Roteiro = [
     legendas: [
       { quem: 'ORÁCULO', texto: 'Quando as oito se juntarem no Círculo Dourado, quem dorme debaixo do mato vai acordar.' },
       { quem: 'ORÁCULO', texto: 'Acendi uma conta da sua guia, {crianca}. E toma, que visão boa se paga.' },
+    ],
+  },
+];
+
+/* ------------------------------------- o Doutor Ferraz, vencido
+
+   O ato final contra a Companhia: depois da luta no escritório, o mapa dos
+   X rasga na parede, as estacas saem da praia da Foz e o gerente vai
+   embora de lancha. O que ainda dorme só acorda no Círculo. */
+const FERRAZ: Roteiro = [
+  { // o mapa dos X rasga na parede
+    musica: 'companhia',
+    fundo: S.escritorioCompanhia,
+    atores: [
+      { figura: { pessoa: 'ferraz', dir: 'esq' }, x: 150, y: 96 },
+      { figura: { jogador: true, dir: 'dir' }, x: 74, y: 100 },
+    ],
+    legendas: [
+      'O Doutor Ferraz cai sentado na cadeira. O carimbo rola da mesa e some debaixo da estante.',
+      { quem: 'DOUTOR FERRAZ', texto: 'Sete regiões. Sete capangas voltando de mão vazia. E agora uma criança na minha sala.' },
+      'Na parede, o mapa enorme range. Um X vermelho descola, depois outro, e o papel rasga de cima a baixo.',
+      { quem: 'DOUTOR FERRAZ', texto: 'Papel carimbado... Eu comprei tudo isso. Com papel carimbado!' },
+      'Lá fora, o vento da praça leva os pedaços de X pela janela. Terra não lê papel.',
+    ],
+  },
+  { // na Foz, a última estaca sai da areia
+    musica: 'lembranca',
+    fundo: fozEstacas,
+    atores: [],
+    legendas: [
+      'Longe dali, na praia da Foz, um capanga arranca a última estaca e joga no mato.',
+      'Na Mata, no fundo da serra, no campo e nas minas, a notícia corre mais rápido que a lancha da Companhia.',
+    ],
+  },
+  { // a lancha vai embora de madrugada
+    musica: 'sol',
+    fundo: barcoAmanhecer,
+    atores: [],
+    legendas: [
+      'De madrugada, uma lancha sai do porto. O Doutor Ferraz vai embora sem levar nem o chapéu.',
+      'Mas a comporta da Foz continua de pé, e quem dorme debaixo do mato ainda não acordou.',
+      'Para isso, falta o Círculo Dourado. E o balão do Baloeiro já pode subir.',
     ],
   },
 ];
@@ -263,6 +306,7 @@ const JACI: Roteiro = [
 
 export const ROTEIROS_SOL: Record<string, Roteiro> = {
   oraculo: ORACULO,
+  ferraz: FERRAZ,
   zeca_sol: ZECA_SOL,
   estrela: ESTRELA,
   terreiro_aurora: TERREIRO_AURORA,

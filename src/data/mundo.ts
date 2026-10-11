@@ -49,7 +49,7 @@ export const REGIOES: readonly Regiao[] = [
     mapas: ['ruaDoBreu', 'bairroDaCuca', 'lojaCuca', 'benzimentoCuca', 'casaCartomante',
             'becoDasRondas', 'casaraoAssombrado', 'terreiroBreu'] },
   { tipo: 'luz', nome: 'CIDADE DO SOL', medalha: 'aurora',
-    mapas: ['caminhoAurora', 'cidadeDoSol', 'lojaSol', 'benzimentoSol', 'casaOraculo',
+    mapas: ['caminhoAurora', 'cidadeDoSol', 'lojaSol', 'benzimentoSol', 'casaOraculo', 'escritorioCompanhia',
             'jardimEspelhos', 'picoAurora', 'terreiroAurora',
             // o Círculo Dourado: o torneio das oito medalhas, no meio do mundo
             'estradaDourada', 'circuloDourado', 'lojaCirculo', 'benzimentoCirculo', 'arenaDourada', 'romariaCirculo', 'remansoNorato'] },

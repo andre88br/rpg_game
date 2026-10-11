@@ -188,6 +188,10 @@ export const ESTILOS: Record<string, OpcoesPessoa> = {
   /* o capataz da Companhia Mata-Seca: boné cinza e roupa de firma */
   capataz:  { chapeu: 'bone', chapeuCor: '#4a4a4a', chapeuCorL: '#6a6a6a', cabelo: '#2c1b14',
               roupa: '#6a6a6a', roupaL: '#8a8a8a', calca: '#2a2a2a' },
+  /* o Doutor Ferraz, gerente da Companhia Mata-Seca: terno escuro, gravata
+     vermelha (a roupa clara da manga), cabelo grisalho penteado para trás */
+  ferraz:   { cabelo: '#7a7670', cabeloL: '#a8a49c',
+              roupa: '#2a2a38', roupaL: '#a8322a', calca: '#1e1e28', sapato: '#1a1210' },
   /* o pai do Zeca, no uniforme da Companhia: boné cinza, cabelo do filho */
   paiZeca:  { chapeu: 'bone', chapeuCor: '#6a6a6a', chapeuCorL: '#8a8a8a', cabelo: '#6b4a1f', cabeloL: '#8f6a30',
               roupa: '#7a7a6a', roupaL: '#9a9a88', calca: '#3a3a3a' },

@@ -132,6 +132,18 @@ Aurora** e o Dom **Prisma**, que atravessa as cortinas de luz — mais dois
 serviços opcionais: três cristais solares enterrados e a **Jaci**, a
 Encantada exclusiva.
 
+A **Companhia Mata-Seca** tem rosto: o **Doutor Ferraz**, o gerente de
+terno que aparece nas cenas da carvoaria, da draga e das placas de VENDIDO.
+Depois de cada medalha, da Foz ao Bairro da Cuca, um **capanga da
+Companhia** aparece perto da ameaça daquela região — as estacas da praia, os
+X vermelhos, os fornos da carvoaria, o arame do campo, as torres que prendem
+raio, a draga e as placas —, e vencê-lo desfaz o serviço. A visão do Oráculo
+aponta o **escritório da Companhia**, na praça baixa da Cidade do Sol: um
+capanga guarda a porta, o Ferraz luta dentro, e só depois dele o Baloeiro
+leva ao Círculo Dourado. Lá, vencido, o campeão tira a coroa e se revela o
+próprio **Anhangá**, o veado branco que guarda a mata — e que esperou vinte
+anos por gente que respondesse pela terra.
+
 O começo explica o jogo: ao acordar em casa, a mãe mostra os controles e
 aponta a casa da Dona Firmina; ao entregar a primeira carta, a Firmina
 explica a trilha (guia de cinco contas, mestre, medalha e Dom, patuá). Na
@@ -272,7 +284,7 @@ tudo de novo.
 | 8 | Cidade do Sol | Luz | Solano | Aurora | Prisma |
 
 Elenco: Tainá / Bento (protagonista) · Zeca "Redemoinho" (rival) · Dona Firmina
-(mentora) · Companhia Mata-Seca (antagonistas) · Anhangá (campeão).
+(mentora) · Doutor Ferraz e a Companhia Mata-Seca (antagonistas) · Anhangá (campeão).
 Iniciais: **Boitatinha** (Fogo) → Boitatão → Mboitatá · **Iarinha** (Água) →
 Iara-Mãe → Ipupiara · **Curupinho** (Planta) → Curupirá → Anhangá.
 Da Foz e da Mata: **Piraguá** (Água) → Piraguaçu · **Caiporinha** (Planta) →
