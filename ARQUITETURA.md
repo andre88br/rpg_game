@@ -95,6 +95,9 @@ src/
 │             documentacao.test.ts (MANUAL e README conferidos contra os dados)
 │             companhia.test.ts (um capanga por região, o escritório do
 │             Ferraz e o balão que espera por ele)
+│             historia.test.ts (mestres sem frase repetida, revanches
+│             com voz própria, o fim comentado em cada região, a volta
+│             para casa)
 │             cutscenes.ts (os roteiros das cutscenes) + teste de coerência
 │             roteiros/ (da Serra em diante, um arquivo de roteiros por
 │             região, e o torneio; comum.ts guarda o arco das oito medalhas)
@@ -691,6 +694,14 @@ fala do Baloeiro com `leva` vem depois de uma com `seNao: 'venceu_ferraz'`
 (`escolherFala` pega a primeira que serve), e o portão da Estrada Dourada
 tem duas barreiras em cada tile, uma por condição — basta uma de pé para
 fechar. `data/companhia.test.ts` e `mapas.circulo.test.ts` cobram os dois.
+
+**O mundo depois do fim.** A reação ao campeonato também é só dado: falas
+com `se: 'campeao'` colocadas antes das falas informativas de cada NPC, mas
+depois das que entregam serviço ainda pendente (o Contador, por exemplo,
+paga os prêmios do caderno antes de falar do Boto). A volta para casa, a
+lenda da Norato e a festa da Romaria são `aoChegar` com cutscene de uma
+vez só (`viu_cut_<id>`). `data/historia.test.ts` vigia isso, e também que
+nenhum mestre repita a frase de outro.
 
 ## Seis slots, uma introdução, e a velocidade do jogo
 

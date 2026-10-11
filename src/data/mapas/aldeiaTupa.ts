@@ -109,6 +109,22 @@ export const aldeiaTupa: DefMapa = {
 
   npcs: [
     {
+      id: 'firmina_tupa', nome: 'DONA FIRMINA', estilo: 'firmina',
+      /* no meio da trilha, de visita ao Pajé: entre a Medalha Rodamoinho e
+         a Trovão. Conta que já andou a trilha e do pai do Zeca */
+      tx: 13, ty: 14, dir: 'cima', se: 'medalha:rodamoinho', seNao: 'medalha:trovao',
+      falas: [
+        { se: 'firmina_tupa', linhas: [
+          'O Pajé diz que o raio escolheu você. Eu já sabia desde o patuá, {crianca}.',
+          'Vai lá no terreiro do Guaraci. Eu fico aqui, que esse charco ainda me deve uma.'] },
+        { liga: 'firmina_tupa', da: { item: 'garrafada_santa', n: 2 }, linhas: [
+          'Olha só quem chegou! Vim visitar o Pajé, amigo do meu tempo de trilha.',
+          'Pois é, {crianca}: eu também andei a trilha. Parei na quinta medalha, bem aqui, num charco de raio.',
+          'O pai do Zeca também andou, sabia? Mais novo que você. Desistiu antes do porto.',
+          'Não conta pro Zeca que fui eu que contei. Toma, duas Garrafadas Santas, pro caminho.'] },
+      ],
+    },
+    {
       id: 'capanga_raio', nome: 'CAPANGA', estilo: 'capataz',
       /* o capanga da Companhia, perto da estrada, de olho nas torres.
          Vencido, desfaz a ameaça da região e some (a flag `companhia_raio`) */
@@ -172,6 +188,8 @@ export const aldeiaTupa: DefMapa = {
       id: 'menino_tupa', nome: 'MENINO', estilo: 'crianca',
       tx: 22, ty: 18, dir: 'dir',
       falas: [
+        { se: 'campeao', linhas: [
+          'Sem as torres, o raio cai onde quer! A filha do Guaraci tocou o tambor grande e a campina inteira tremeu.'] },
         { se: 'dom_faisca', linhas: [
           'Com o Dom Faísca dá pra partir pedra rachada! Tem uma aqui na aldeia, no canto de baixo.'] },
         { linhas: [

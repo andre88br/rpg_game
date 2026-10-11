@@ -121,12 +121,15 @@ export const aldeiaCatavento: DefMapa = {
       id: 'prendedora_ventos', nome: 'PRENDEDORA DE VENTOS', estilo: 'aldeao',
       tx: 17, ty: 19, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'O arame foi embora com a Companhia, e o capim dourado voltou a crescer onde era soja.',
+          'O Pererê diz que dançou com o primeiro Saci do mundo. Eu não duvido de mais nada.'] },
         { se: 'conta_penas', linhas: [
           'Seis Encantados presos, cada um na hora certa. Isso é ofício, {crianca}.'] },
         { se: 'capturados>=6', liga: 'conta_penas', paga: 500, linhas: [
           'Seis presos, você me disse? Deixa eu conferir... é verdade!',
           'Ver bicho voando é fácil. Prender no ar é que separa quem treina de quem só corre atrás.',
-          'Acendi uma conta da guia por sua conta.'] },
+          'O vento conta por mim: mais uma conta acesa na sua guia.'] },
         { linhas: [
           'Não conto quem você viu passar: conto quem você prendeu. Já são {capturados} no seu patuá.',
           'Me traga seis Encantados presos, direitinho, e acendo uma conta da sua guia.'] },

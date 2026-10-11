@@ -172,6 +172,34 @@ export function vilaHoje(): Buf {
   return b;
 }
 
+/* a mesma rua no dia em que a criança volta campeã: céu limpo, sem
+   poste nem fio, e bandeirinha de festa de uma casa à outra */
+export function vilaFesta(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 80, [[0x5a, 0x9f, 0xd8], [0x9c, 0xcf, 0xea], [0xe8, 0xf0, 0xd0]]);
+  morros(b, 62, 6, 0.05, 1.2, '#4f8f4f');
+  b.rect(0, 78, W, H - 78, P.path!);
+  b.rect(0, 100, W, 16, P.pathD!);
+  const r = rng(5);
+  for (let i = 0; i < 120; i++) b.set((r() * W) | 0, 78 + ((r() * 46) | 0), P.pathL!);
+  b.blit(T.construcao(3, 2, { roof: P.roof!, roofD: P.roofD!, roofL: P.roofL! }), 6, 44);
+  b.blit(T.construcao(3, 2, { roof: '#3f8f6f', roofD: '#2b6b52', roofL: '#5fb894' }), 86, 44);
+  b.blit(T.construcao(3, 2, { roof: '#8f6fa8', roofD: '#6a4f80', roofL: '#b094c8' }), 166, 44);
+  // dois cordões de bandeirinha, caindo em curva entre os telhados
+  const cores = ['#d9412f', '#f2c43a', '#3f8fd0', '#4fa84f', '#e87fb0'];
+  for (const [y0, fase] of [[38, 0], [30, 2]] as const) {
+    for (let x = 0; x < W; x++) {
+      const y = y0 + Math.round(6 * Math.sin((x / W) * Math.PI * 3) ** 2);
+      b.set(x, y, '#3a2a20');
+      if ((x + fase * 3) % 9 === 0) {
+        const c = cores[((x / 9) | 0) % cores.length]!;
+        for (let k = 0; k < 5; k++) b.rect(x - 2 + (k >> 1), y + 1 + k, 5 - 2 * (k >> 1), 1, c);
+      }
+    }
+  }
+  return b;
+}
+
 /* ------------------------------------------------ 4. a Companhia Mata-Seca */
 
 export function mataAntes(): Buf {

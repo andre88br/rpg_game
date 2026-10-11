@@ -55,7 +55,7 @@ const CARTOMANTE: Roteiro = [
     atores: NA_MESA,
     efeitos: [{ tipo: 'fagulhas', x: 94, y: 66 }],
     legendas: [
-      { quem: 'CARTOMANTE', texto: 'A sua sorte é boa. Acendi uma conta da sua guia, e toma, que carta boa se paga.' },
+      { quem: 'CARTOMANTE', texto: 'A sua sorte é boa: as cartas acenderam uma conta da guia. E toma, que carta boa se paga.' },
     ],
   },
 ];
@@ -206,7 +206,9 @@ const MORGANA_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 96 },
     ],
     legendas: [
-      { quem: 'MORGANA', texto: 'A MEDALHA BREU é sua. Chega aqui do meu lado, que eu mesma te entrego.' },
+      { quem: 'MORGANA', texto: 'A MEDALHA BREU é sua. No escuro ela brilha mais que no claro.' },
+      { quem: 'MORGANA', texto: 'O Solano, da Cidade do Sol, é meu irmão. Não nos falamos desde que ele foi morar onde a noite acaba.' },
+      { quem: 'MORGANA', texto: 'Leva um recado: a lua ainda pergunta por ele. Ele vai entender.' },
     ],
   },
 ];

@@ -15,6 +15,11 @@ export const remansoNorato: DefMapa = {
   interior: true,
   escuro: {},
   musica: 'breu',
+  /* a primeira chegada conta a lenda de Honorato e Maria Caninana */
+  aoChegar: {
+    quem: 'REMANSO', seNao: 'viu_cut_norato', cutscene: 'norato',
+    linhas: ['A água do remanso corre devagar, como quem tem uma história pra contar.'],
+  },
 
   chao: [
     'SSSSSSSSSSSSSSSSSSSSSSSS', // 0

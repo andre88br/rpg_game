@@ -47,6 +47,15 @@ export const casaTaina: DefMapa = {
       id: 'mae', nome: 'MÃE', estilo: 'aldeao',
       tx: 2, ty: 5, dir: 'dir',
       falas: [
+        { se: 'campeao', linhas: [
+          '{g:Campeã|Campeão} do Círculo, e ainda deixa a cama desarrumada. Tem coisa que não muda.',
+          'Vai lá na praça falar com o Zeca e o pai dele. E volta pra janta, que hoje tem peixe do Seu Tonho.'] },
+        { se: 'medalha:pedra', linhas: [
+          '{medalhas} medalhas, e o Seu Anastácio já não fala de outra coisa na vila.',
+          'Soube que o pai do Zeca largou a Companhia. Gente boa volta pro rumo, viu? Igual a você.'] },
+        { se: 'medalha:brasa', linhas: [
+          '{medalhas} medalhas! A Dona Firmina passa aqui toda semana e me mostra no mapa onde você anda.',
+          'Eu finjo que entendo de terreiro. Mas entendo de saudade. Come direito, {nome}.'] },
         { se: 'medalha:mare', linhas: [
           'Medalha em casa! Deixa eu ver isso de perto, {nome}.',
           'Sua avó dizia que quem tem a Maré no peito não se perde na água.',

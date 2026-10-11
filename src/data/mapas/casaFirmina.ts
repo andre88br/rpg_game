@@ -40,6 +40,9 @@ export const casaFirmina: DefMapa = {
           'Chegou na hora, criança. Três patuás em cima da mesa, e um deles é seu.',
           'Curupinho é teimoso de raiz, Boitatinha não esfria nunca, e Iarinha tem a água do rio inteiro.',
           'Chegue perto e escolha com calma. Escolha de patuá não se desfaz.'] },
+        { se: ['campeao', 'item:canoa'], linhas: [
+          'Oito medalhas, o Círculo e a Companhia indo embora de lancha. Eu sabia desde o patuá, {crianca}.',
+          'Eu também andei a trilha, sabia? Parei na quinta medalha, num charco de Tupã. Você foi até o fim por nós duas.'] },
         { se: 'conta_recado_mata', linhas: [
           'Fiquei sabendo que a carta chegou às mãos da Tiê. A Mata do Curupira já deve confiar em você.',
           'Vá com cuidado por lá, {crianca}. Mata funda tem dono, e o dono é de pé atrás.'] },

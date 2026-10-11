@@ -117,12 +117,15 @@ export const vilaFornalha: DefMapa = {
       id: 'mestre_patueiro', nome: 'MESTRE PATUEIRO', estilo: 'aldeao',
       tx: 17, ty: 19, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'Os fornos da carvoaria apagaram, e de noite já se vê o Boitatá andando pela encosta de novo.',
+          'O Brás acendeu a forja dele com a brasa do Encantado. Fogo que guarda, ele diz.'] },
         { se: 'conta_patua', linhas: [
           'Seis Encantados no patuá, cada um preso na hora certa. Isso é ofício, {crianca}.'] },
         { se: 'capturados>=6', liga: 'conta_patua', paga: 500, linhas: [
           'Seis presos, você me disse? Deixa eu conferir... é verdade!',
           'Ver bicho é fácil. Prender bem é que separa quem treina de quem só passeia.',
-          'Acendi uma conta da guia por sua conta.'] },
+          'Pode olhar a guia: a conta já acendeu, que patuá bem dado se paga.'] },
         { linhas: [
           'Não conto quem você viu: conto quem você prendeu. Já são {capturados} no seu patuá.',
           'Me traga seis Encantados presos, direitinho, e acendo uma conta da sua guia.'] },

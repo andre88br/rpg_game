@@ -10,6 +10,7 @@ import type { Ator, Roteiro } from '../cutscenes.ts';
 import * as O from '../../art/fundos/circulo.ts';
 import {
   trilhaAurora, mataAntiga, mataDepois, mataAntes, noiteFogueira, ceuTitulo, redemoinhoLembranca,
+  vilaFesta, lembranca,
 } from '../../art/cenas.ts';
 import { arcoMedalhas } from './comum.ts';
 
@@ -117,7 +118,7 @@ const ZECA_FINAL: Roteiro = [
     musica: 'porto',
     fundo: O.camaraArena,
     atores: [
-      { figura: { pessoa: 'paiZeca', dir: 'baixo' }, x: 30, y: 34, aparece: 0.3 },
+      { figura: { pessoa: 'tonho', dir: 'baixo' }, x: 30, y: 34, aparece: 0.3 },
       { figura: { pessoa: 'pescador', dir: 'baixo' }, x: 50, y: 34, aparece: 0.6 },
       { figura: { pessoa: 'zeca', dir: 'esq' }, x: 112, y: 64 },
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 100 },
@@ -303,10 +304,140 @@ const CAMPEAO: Roteiro = [
   },
 ];
 
+/* ----------------------------------------------- a volta para casa
+
+   Pós-jogo: a primeira chegada à Vila do Sossego depois do campeonato. A
+   vila em festa, a mãe, a Firmina, o Zeca e o pai dele — o Seu Tonho,
+   que largou a Companhia e também já andou a trilha, um dia. */
+const NA_RUA: readonly Ator[] = [
+  { figura: { pessoa: 'aldeao', dir: 'dir' }, x: 60, y: 96 },
+  { figura: { pessoa: 'firmina', dir: 'dir' }, x: 34, y: 92 },
+];
+
+const VOLTA_CASA: Roteiro = [
+  { // a vila em festa
+    musica: 'firmina',
+    fundo: vilaFesta,
+    atores: [
+      ...NA_RUA,
+      { figura: { jogador: true, dir: 'esq' }, x: 250, y: 96, ate: { x: 120, y: 96, por: 3 } },
+      { figura: { inicial: true }, x: 270, y: 90, ate: { x: 150, y: 90, por: 3 }, balanco: { amp: 3, periodo: 0.6, salto: true } },
+    ],
+    legendas: [
+      'Na Vila do Sossego, a notícia chegou antes de {nome}: de barco, de boca em boca, de vento.',
+      { quem: 'MÃE', texto: '{g:Campeã|Campeão} do Círculo! E eu fingindo que não estava com medo esse tempo todo.' },
+      { quem: 'DONA FIRMINA', texto: 'Eu disse que escolha de patuá não se desfaz, {crianca}. A sua foi das boas.' },
+    ],
+  },
+  { // o Zeca e o pai, de chapéu de palha
+    musica: 'zeca',
+    fundo: vilaFesta,
+    atores: [
+      ...NA_RUA,
+      { figura: { jogador: true, dir: 'dir' }, x: 120, y: 96 },
+      { figura: { pessoa: 'zeca', dir: 'esq' }, x: 250, y: 96, ate: { x: 160, y: 96, por: 2.4 } },
+      { figura: { pessoa: 'tonho', dir: 'esq' }, x: 270, y: 92, ate: { x: 190, y: 92, por: 2.6 } },
+    ],
+    legendas: [
+      { quem: 'ZECA', texto: 'Nove lutas, nove derrotas. E eu nem fiquei bravo, {crianca}. Quase.' },
+      { quem: 'SEU TONHO', texto: 'Eu sou o Tonho, o pai desse moleque. Obrigado por não deixar ele desistir.' },
+      { quem: 'SEU TONHO', texto: 'Eu desisti, sabia? Com a idade dele. Larguei a trilha antes do porto e fui trabalhar pros outros.' },
+      { quem: 'ZECA', texto: 'Agora a gente pesca junto. E no ano que vem eu ganho de você. Anota aí.' },
+    ],
+  },
+  { // a fogueira na praça
+    musica: 'fogueira',
+    fundo: noiteFogueira,
+    atores: [
+      { figura: { peca: 'fogueira' }, x: 108, y: 88 },
+      { figura: { pessoa: 'firmina', dir: 'dir' }, x: 74, y: 90 },
+      { figura: { jogador: true, dir: 'esq' }, x: 146, y: 92 },
+      { figura: { pessoa: 'zeca', dir: 'esq' }, x: 176, y: 94 },
+    ],
+    efeitos: [{ tipo: 'fagulhas', x: 120, y: 92 }],
+    legendas: [
+      'De noite, a vila acende uma fogueira na praça, e as crianças pedem uma história.',
+      { quem: 'DONA FIRMINA', texto: 'Era uma vez uma criança que escutou o mato de novo...' },
+    ],
+  },
+];
+
+/* ---------------------------------------------- a Cobra Norato
+
+   Primeira chegada ao Remanso: a lenda de Honorato e Maria Caninana, os
+   gêmeos que nasceram cobra. Ela afundava barco; ele salvava. */
+const NORATO: Roteiro = [
+  { // os gêmeos no rio
+    musica: 'lembranca',
+    fundo: () => lembranca(O.rioAntigo()),
+    atores: [
+      { figura: { criatura: 'cobraNorato' }, x: 70, y: 70, alfa: 0.85, balanco: { amp: 2, periodo: 2 } },
+      // a irmã: a mesma cobra, de frente para ele e mais apagada
+      { figura: { criatura: 'cobraNorato', flip: true }, x: 170, y: 72, alfa: 0.45, balanco: { amp: 3, periodo: 1.4 } },
+    ],
+    legendas: [
+      'Contam na beira do rio que uma moça teve gêmeos, e os dois nasceram cobra: Honorato e Maria Caninana.',
+      'Ela jogou os dois no rio. Maria Caninana cresceu brava, afundando barco e assustando pescador.',
+      'Honorato, a Cobra Norato, cresceu manso. Desvirava canoa, guiava quem se perdia na cheia.',
+    ],
+  },
+  { // a irmã
+    musica: 'boitata',
+    fundo: () => lembranca(O.rioAntigo(), '#0a0a1a'),
+    atores: [
+      { figura: { criatura: 'cobraNorato' }, x: 90, y: 70, alfa: 0.85, balanco: { amp: 4, periodo: 0.8 } },
+      { figura: { criatura: 'cobraNorato', flip: true }, x: 150, y: 74, alfa: 0.45, some: 2.5, balanco: { amp: 5, periodo: 0.7 } },
+    ],
+    legendas: [
+      'Um dia, a Maria Caninana quis afundar o rio inteiro. O irmão brigou com ela até o amanhecer.',
+      'Ela sumiu no fundo e nunca mais voltou. E a Norato ficou sozinha, guardando a água dos dois.',
+    ],
+  },
+  { // o remanso, hoje
+    musica: 'breu',
+    fundo: O.rioAntigo,
+    atores: [
+      { figura: { criatura: 'cobraNorato' }, x: 120, y: 70, aparece: 0.6, balanco: { amp: 2, periodo: 2.4 } },
+    ],
+    legendas: [
+      'Dizem que ela ainda quer virar gente. Só precisa de alguém que não fuja quando ela levanta a cabeça.',
+      'Lá no fundo do Remanso, alguém muito grande abre um olho amarelo.',
+    ],
+  },
+];
+
+/* ---------------------------------------------- a Romaria
+
+   Primeira entrada no salão: o Mestre da Romaria conta da festa. Uma vez
+   por ano, gente das oito regiões vinha a pé até o Círculo, e cada romeiro
+   trazia uma luta, que é o jeito de agradecer a terra. */
+const ROMARIA: Roteiro = [
+  { // os romeiros chegando
+    musica: 'circulo',
+    fundo: O.pracaCirculo,
+    atores: [
+      { figura: { pessoa: 'guarda', dir: 'baixo' }, x: 112, y: 70 },
+      { figura: { pessoa: 'aldeao', dir: 'dir' }, x: 10, y: 98, ate: { x: 70, y: 98, por: 3 } },
+      { figura: { pessoa: 'pescador', dir: 'dir' }, x: -10, y: 102, ate: { x: 50, y: 102, de: 0.4, por: 3 } },
+      { figura: { pessoa: 'garimpeiro', dir: 'esq' }, x: 250, y: 100, ate: { x: 170, y: 100, de: 0.2, por: 3 } },
+      { figura: { jogador: true, dir: 'cima' }, x: 112, y: 104 },
+    ],
+    legendas: [
+      { quem: 'MESTRE DA ROMARIA', texto: 'No tempo antigo, uma vez por ano, as oito regiões vinham a pé até o Círculo.' },
+      { quem: 'MESTRE DA ROMARIA', texto: 'Cada romeiro trazia uma luta. Luta boa é o jeito de agradecer à terra que respondeu.' },
+      { quem: 'MESTRE DA ROMARIA', texto: 'Com a Companhia, a estrada esvaziou. Agora que a terra acordou, os romeiros voltaram.' },
+      { quem: 'MESTRE DA ROMARIA', texto: 'Um atrás do outro, sem parar. Quem aguentar mais, entra no meu caderno.' },
+    ],
+  },
+];
+
 export const ROTEIROS_CIRCULO: Record<string, Roteiro> = {
   circulo: CIRCULO,
   arena: ARENA,
   zeca_final: ZECA_FINAL,
   anhanga: ANHANGA,
   campeao: CAMPEAO,
+  volta_casa: VOLTA_CASA,
+  norato: NORATO,
+  romaria: ROMARIA,
 };

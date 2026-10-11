@@ -78,6 +78,9 @@ export const mataDoCurupira: DefMapa = {
       id: 'elias', nome: 'SEU ELIAS', estilo: 'aldeao',
       tx: 14, ty: 9, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'As mudas que eu plantei nos tocos da picada já passaram do meu joelho, {crianca}.',
+          'E ninguém mais pinta X em árvore nenhuma. A mata voltou a ter dono: ela mesma.'] },
         { se: ['conta_pegadas', 'conta_mudas'], linhas: [
           'Caderno cheio e viveiro completo, os dois graças a você. A mata inteira agradece, {crianca}.'] },
         /* a entrega da carta vem ANTES de qualquer relatório de muda/pegada,

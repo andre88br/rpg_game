@@ -39,6 +39,12 @@ export const romariaCirculo: DefMapa = {
       placa: 'ROMARIA: um romeiro atrás do outro. Benzimento só a cada sete vitórias. Sair do salão encerra a sequência.' },
   ],
 
+  /* a primeira entrada: o Mestre conta da festa dos romeiros */
+  aoChegar: {
+    quem: 'MESTRE DA ROMARIA', seNao: 'viu_cut_romaria', cutscene: 'romaria',
+    linhas: ['{g:Mais uma romeira|Mais um romeiro}! Chega, chega, que a festa é grande.'],
+  },
+
   npcs: [
     {
       id: 'mestre_romaria', nome: 'MESTRE DA ROMARIA', estilo: 'guarda',

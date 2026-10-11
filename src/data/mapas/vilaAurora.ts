@@ -57,6 +57,8 @@ export const vilaAurora: DefMapa = {
       id: 'vizinho', nome: 'SEU ANASTÁCIO', estilo: 'aldeao',
       tx: 19, ty: 7, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'Eu dizia que ia contar da Medalha Maré até morrer. Agora vou ter que contar do Círculo inteiro!'] },
         { se: 'medalha:mare', linhas: [
           'Vou contar isso até morrer: {crianca} da Vila do Sossego com a Medalha Maré!'] },
         { se: 'item:carta', linhas: [
@@ -73,6 +75,8 @@ export const vilaAurora: DefMapa = {
       id: 'menina', nome: 'MENINA', estilo: 'crianca',
       tx: 8, ty: 11, dir: 'dir',
       falas: [
+        { se: 'campeao', linhas: [
+          'Meu irmão voltou da Rota da Foz! Disse que viu você passar de balão, lá no alto.'] },
         { se: 'venceu_zeca', linhas: [
           'Então foi você que ganhou do Zeca? Ele vai ficar uma semana sem falar nisso.'] },
         { linhas: ['Meu irmão desceu pra Rota da Foz e não voltou. Aposto que perdeu a luta de novo.'] },
@@ -82,6 +86,9 @@ export const vilaAurora: DefMapa = {
       id: 'velha', nome: 'DONA BENTA', estilo: 'aldeao',
       tx: 22, ty: 9, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'Oito guias, quarenta contas acesas. Nunca pensei que ia ver isso, criança.',
+          'Hoje a água entra no terreiro da Dona Mariana sozinha, com a maré. Como no tempo da minha avó.'] },
         { se: 'contas>=5', linhas: [
           'Cinco contas acesas! Então a guia se abriu e a Dona Mariana já está te esperando.'] },
         { se: 'contas>=1', linhas: [
@@ -90,6 +97,30 @@ export const vilaAurora: DefMapa = {
         { linhas: [
           'Em Porto Iara tem terreiro, criança. Mas o portão está fechado com uma guia de cinco contas.',
           'Cada conta acende com um serviço bem feito. Cinco serviços, cinco contas, e o terreiro se abre.'] },
+      ],
+    },
+    /* depois do campeonato, o rival e o pai voltam a morar na vila */
+    {
+      id: 'zeca_casa', nome: 'ZECA', estilo: 'zeca',
+      tx: 16, ty: 11, dir: 'esq', se: 'campeao',
+      falas: [
+        { linhas: [
+          'Nove a zero não é placar, {crianca}: é aviso. No ano que vem eu volto pro Círculo.',
+          'Enquanto isso, eu pesco com meu pai de madrugada. O Saci vai junto, e espanta todo peixe.'] },
+      ],
+    },
+    {
+      id: 'tonho', nome: 'SEU TONHO', estilo: 'tonho',
+      tx: 17, ty: 11, dir: 'esq', se: 'campeao',
+      falas: [
+        /* o dono do Patuá de Mestre do pote do açude */
+        { se: 'achou_pote', linhas: [
+          'Achou um pote de barro na ilhota do açude? Era meu! Escondi lá com a idade do Zeca.',
+          'Foi no dia que eu desisti da trilha. Pensei que um dia eu voltava pra buscar.',
+          'Fica com ele. Patuá parado na lama não prende bicho nenhum.'] },
+        { linhas: [
+          'Pesco de madrugada com o Mestre do Porto. Peixe pouco, rio vivo, e o moleque do lado.',
+          'Ah: se um dia você achar um pote de barro na ilhota do açude, na Rota da Foz, era meu. Pode ficar.'] },
       ],
     },
   ],
@@ -104,6 +135,12 @@ export const vilaAurora: DefMapa = {
   ],
 
   cenario: 'mata',
+  /* a volta para casa, depois do campeonato: a vila em festa, a mãe, a
+     Firmina, o Zeca e o Seu Tonho. Uma vez só */
+  aoChegar: {
+    quem: 'MÃE', se: 'campeao', seNao: 'viu_cut_volta_casa', cutscene: 'volta_casa',
+    linhas: ['{nome}! Gente, corre aqui, que chegou!'],
+  },
   passosPorEncontro: 10,
   /* o mato da vila é quintal de gente: bicho pequeno e manso, nível baixo */
   encontros: [

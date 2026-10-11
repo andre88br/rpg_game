@@ -123,7 +123,7 @@ export const bocaDaMina: DefMapa = {
           'Dizem que o Ourives procura diamante enterrado. A forquilha acha isso também.'] },
         { se: 'item:pepita>=3', pede: { item: 'pepita', n: 3 }, liga: 'conta_pepitas', paga: 900, linhas: [
           'As TRÊS! E nenhuma lascada. Você tem mão de garimpeiro, {crianca}.',
-          'Acendi uma conta da sua guia. E toma, a parte que te cabe.'] },
+          'Bateia cheia, guia acesa: mais uma conta pra você. E toma, a parte que te cabe.'] },
         { se: 'tem_forquilha', linhas: [
           'Usa a forquilha na mochila. QUENTE, você está em cima. GELADO, está longe.',
           'Uma perto das pedras do noroeste, uma no leste depois do rochedo, uma no sudoeste.',

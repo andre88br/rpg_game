@@ -50,7 +50,7 @@ const ORACULO: Roteiro = [
     atores: NA_BACIA,
     legendas: [
       { quem: 'ORÁCULO', texto: 'Quando as oito se juntarem no Círculo Dourado, quem dorme debaixo do mato vai acordar.' },
-      { quem: 'ORÁCULO', texto: 'Acendi uma conta da sua guia, {crianca}. E toma, que visão boa se paga.' },
+      { quem: 'ORÁCULO', texto: 'A água acendeu uma conta da sua guia, {crianca}. E toma, que visão boa se paga.' },
     ],
   },
 ];
@@ -244,7 +244,9 @@ const SOLANO_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 96 },
     ],
     legendas: [
-      { quem: 'SOLANO', texto: 'A MEDALHA AURORA é sua, a oitava. Chega aqui do meu lado, que eu mesmo te entrego.' },
+      { quem: 'SOLANO', texto: 'A MEDALHA AURORA é sua, a oitava. A luz que sobra dela é sua também.' },
+      { quem: 'SOLANO', texto: 'A Morgana mandou recado, não mandou? A lua ainda pergunta por mim...' },
+      { quem: 'SOLANO', texto: 'Diz pra ela que eu subo o pico toda manhã, e toda noite olho pra lua. Vou visitar, prometo.' },
     ],
   },
 ];

@@ -632,7 +632,9 @@ const MARIANA_VENCE: Roteiro = [
       { figura: { inicial: true }, x: 70, y: 84, balanco: { amp: 1, periodo: 1.6 } },
     ],
     legendas: [
-      { quem: 'DONA MARIANA', texto: 'A MEDALHA MARÉ é sua. Chega aqui do meu lado, que eu mesma te entrego.' },
+      { quem: 'DONA MARIANA', texto: 'A MEDALHA MARÉ é sua. Pendura no peito, que é lá que a água sabe achar.' },
+      { quem: 'DONA MARIANA', texto: 'Meu sonho é ver trinta barcos no largo de novo. Abre o rio, {crianca}, que eu volto a pescar.' },
+      { quem: 'DONA MARIANA', texto: 'E se passar pela Serra, diz pro Brás que eu perdi. Ele vai rir. A gente briga desde menino: água e brasa.' },
     ],
   },
 ];
@@ -1167,7 +1169,9 @@ const TIE_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
     ],
     legendas: [
-      { quem: 'TIÊ', texto: 'A MEDALHA RAIZ é sua. Chega aqui do meu lado, que eu mesma te entrego.' },
+      { quem: 'TIÊ', texto: 'A MEDALHA RAIZ é sua. Cresceu aqui, no pé da sumaúma.' },
+      { quem: 'TIÊ', texto: 'Quarenta anos atrás, a Firmina me deu uma muda de jatobá. Ainda está de pé, na porta do terreiro.' },
+      { quem: 'TIÊ', texto: 'Leva um recado pra ela: enquanto aquele jatobá estiver de pé, eu também estou.' },
     ],
   },
 ];

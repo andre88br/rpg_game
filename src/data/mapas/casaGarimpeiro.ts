@@ -42,7 +42,7 @@ export const casaGarimpeiro: DefMapa = {
           'Última, e a mais difícil. O que é, o que é: anda com os pés na cabeça?'],
           pergunta: {
             opcoes: ['O PIOLHO', 'O CHAPÉU', 'O GARIMPEIRO'], certa: 0,
-            acertou: ['O piolho! Hahaha! Três de três. Acendi uma conta da sua guia, e toma um trocado.'],
+            acertou: ['O piolho! Hahaha! Três de três. Vai uma conta acesa na guia, e um trocado de garimpeiro.'],
             errou: { linhas: ['Errou! E charada errada apaga as outras. Começa tudo de novo.'],
                      desliga: ['charada1_ok', 'charada2_ok'] },
           } },

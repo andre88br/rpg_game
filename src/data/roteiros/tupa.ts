@@ -142,7 +142,7 @@ const PAJE: Roteiro = [
     fundo: U.casaPaje,
     atores: NA_CASA_DO_PAJE,
     legendas: [
-      { quem: 'PAJÉ', texto: 'O raio escolheu você, {crianca}. Acendi uma conta da sua guia, e toma, pelo caminho.' },
+      { quem: 'PAJÉ', texto: 'O raio escolheu você, {crianca}. Por mim, mais uma conta acende na guia. E toma, pelo caminho.' },
     ],
   },
 ];
@@ -266,7 +266,9 @@ const GUARACI_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 100 },
     ],
     legendas: [
-      { quem: 'GUARACI', texto: 'A MEDALHA TROVÃO é sua. Chega aqui do meu lado, que eu mesmo te entrego.' },
+      { quem: 'GUARACI', texto: 'A MEDALHA TROVÃO é sua. Escuta: ela ronca baixinho quando vai chover.' },
+      { quem: 'GUARACI', texto: 'O Pererê mandou lembrança, né? Ele só aparece com tempestade. E eu, só quando ele aparece.' },
+      { quem: 'GUARACI', texto: 'Minha filha já toca o tambor grande. No dia que as torres caírem, ela toca pra Tupã na campina inteira.' },
     ],
   },
 ];

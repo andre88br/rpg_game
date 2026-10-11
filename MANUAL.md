@@ -1047,6 +1047,9 @@ Vencer o Chefe acende a conta e abre a estrada para a aldeia.
 - **Loja da Aldeia Tupã**, a **Casa do Pajé** (conta 3) e a **Tecelã**
   (serviço opcional das penas).
 - O **Zeca**, pela quinta vez, na estrada norte (conta 2).
+- (Opcional) Entre a Medalha Rodamoinho e a Trovão, a **Dona Firmina** está
+  de visita na aldeia (13,14). Na primeira conversa, dá **2 Garrafadas
+  Santas**.
 
 ## Conta 2 — `conta_zeca5`: o Zeca na subida do morro
 
@@ -1670,13 +1673,23 @@ recomeçar a arena não repete nenhuma.
 
 ## Depois de campeão
 
+- **A volta para casa.** A primeira chegada à **Vila do Sossego** depois do
+  campeonato toca uma cutscene com a mãe, a Dona Firmina, o Zeca e o pai
+  dele, o **Seu Tonho**. Os dois ficam morando na vila. Quem achou o pote do
+  açude da Rota da Foz descobre de quem era o Patuá de Mestre. A Canoa
+  Encantada (mochila) leva de volta.
+- **O mundo muda.** Em cada região, alguém comenta o fim: o porto com barcos,
+  as mudas da picada, a forja do Brás, o capim dourado, a campina sem torres,
+  a bateia do Tuco, o pico antes do amanhecer. A Velha do Bairro descobre de
+  quem é o terceiro retrato, e o Contador entende de onde veio o Boto.
 - A arena continua aberta, e os seis voltam com **times mais fortes**
   (seis Encantados cada, todos no 70).
-- Na praça aparecem os **oito donos de terreiro** para uma **revanche** que
-  **cresce com você**: o time deles vem no nível do seu Encantado mais forte
+- Na praça aparecem os **oito donos de terreiro**, cada um com o que mudou
+  na vida dele depois do fim, para uma **revanche** que **cresce com você**: o time deles vem no nível do seu Encantado mais forte
   mais 3 (nunca abaixo do 70), cada bicho já na forma desse nível e com os
   golpes dele. Dá para repetir quantas vezes quiser (8000 réis cada).
-- **Romaria do Círculo** (a casa ROMARIA, no sudeste da praça): o Mestre manda
+- **Romaria do Círculo** (a casa ROMARIA, no sudeste da praça): na primeira
+  entrada, o Mestre conta da festa antiga dos romeiros. Depois ele manda
   um romeiro atrás do outro, com time sorteado entre todas as espécies (menos
   o Boto e a Cobra Norato), cada bicho já na forma do nível. **Benzimento só
   a cada 7 vitórias.** Perder, ou sair do salão, encerra a sequência; o
@@ -1696,8 +1709,9 @@ recomeçar a arena não repete nenhuma.
   | cantiga | 30 fichas | Cantiga do Rasante |
 - **O Remanso da Norato**, a oeste da praça (a saída abre depois do
   campeonato): uma gruta no breu, com um véu (Visão Noturna) e uma cortina de
-  luz (Prisma) no caminho. No fundo, a **Cobra Norato** (Água/Sombra, nível
-  70, traço **Escama Velha**: golpe especial machuca 25% menos). É uma só no
+  luz (Prisma) no caminho. A primeira chegada conta a lenda de Honorato e
+  da irmã, Maria Caninana. No fundo, a **Cobra Norato** (Água/Sombra, nível
+  72, traço **Escama Velha**: golpe especial machuca 25% menos). É uma só no
   mundo e não evolui; vencida sem ser presa, volta para o mesmo lugar.
 
 ### Modo Desafio

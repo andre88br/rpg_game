@@ -81,7 +81,7 @@ const ZECA_MINAS: Roteiro = [
     musica: 'porto',
     fundo: barcoAmanhecer,
     legendas: [
-      { quem: 'ZECA', texto: 'Sabe da maior? Meu pai pediu as contas da Companhia. Voltou pra Foz e foi pescar com o Mestre do Porto.' },
+      { quem: 'ZECA', texto: 'Sabe da maior? Meu pai, o Seu Tonho, pediu as contas da Companhia. Foi pescar com o Mestre do Porto.' },
       { quem: 'ZECA', texto: 'Diz que prefere peixe pouco e rio vivo. Eu nunca vi ele tão quieto... nem tão contente.' },
     ],
   },
@@ -239,7 +239,9 @@ const UBIRAJARA_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 70 },
     ],
     legendas: [
-      { quem: 'UBIRAJARA', texto: 'A MEDALHA PEDRA é sua. Chega aqui do meu lado, que eu mesmo te entrego.' },
+      { quem: 'UBIRAJARA', texto: 'A MEDALHA PEDRA é sua. Pesada, né? Pedra boa é assim.' },
+      { quem: 'UBIRAJARA', texto: 'Meu pai cavou esta montanha com a mão e pediu licença pra Caipora em cada buraco.' },
+      { quem: 'UBIRAJARA', texto: 'Eu só quero que o meu neto cave do mesmo jeito. Com bateia, com licença, e sem draga nenhuma.' },
     ],
   },
 ];

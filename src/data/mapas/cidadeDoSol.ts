@@ -178,6 +178,9 @@ export const cidadeDoSol: DefMapa = {
       id: 'acendedor', nome: 'ACENDEDOR', estilo: 'aldeao',
       tx: 30, ty: 24, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'Sem a Companhia vendendo luz em fio, a cidade voltou a subir o pico antes do sol nascer.',
+          'E eu acendo os lampiões só por gosto. Quer correr de novo? Eu cronometro.'] },
         { se: 'conta_lampioes', linhas: [
           'Cinco lampiões antes do sol cair! Nunca vi ninguém correr assim. A conta é sua.'] },
         { se: 'corrida_lampioes', linhas: ['Corre! Olha o sol no canto!'] },

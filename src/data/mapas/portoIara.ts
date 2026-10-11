@@ -123,6 +123,9 @@ export const portoIara: DefMapa = {
           paga: 700, cutscene: 'mestre_redes', linhas: [
           'As TRÊS! Eu sabia que era bicho, e ninguém acreditava em mim.',
           'Sacizinho gosta de nó, e rede é nó que não acaba. Toma aqui pelo trabalho.'] },
+        { se: 'campeao', linhas: [
+          'Saí da barra hoje de madrugada, {crianca}! Com o Seu Tonho no remo e a Mariana no outro barco.',
+          'A comporta rachou e o rio passou cantando. A Foz tem barco de novo.'] },
         { se: 'conta_redes', seNao: 'conta_farol', linhas: [
           'Com as redes de volta eu pesco. Sair da barra é que não dá.',
           'Tem bicho morando no farol, e de noite o mar ali ferve. Isso ninguém resolve.'] },
@@ -158,6 +161,10 @@ export const portoIara: DefMapa = {
           da: { item: 'patua_mestre', n: 5 }, linhas: [
           'Doze bichos presos no patuá! Pra quem prende assim, só Patuá de Mestre.',
           'Toma cinco. E volta quando tiver vinte e quatro.'] },
+        { se: ['campeao', 'caderno_premio4'], linhas: [
+          'Agora que a Mãe-d\'Água acordou, eu entendi uma coisa sobre o Boto.',
+          'Ele me seguiu desde menino porque era recado dela: alguém tinha que guardar o rio enquanto ela dormia.',
+          'Ele ficou comigo até aparecer quem abrisse o rio. Depois foi com você. Faz sentido, não faz?'] },
         { se: 'conta_caderno', linhas: [
           'Quatro bichos anotados com a sua letra. O caderno agradece, {crianca}.',
           'Você já prendeu {capturados}. A cada 12, 24, 36 e 45 presos no patuá eu tenho um presente.'] },

@@ -216,7 +216,7 @@ const FERREIRO_FOLE: Roteiro = [
     atores: NA_FORJA,
     efeitos: [{ tipo: 'fagulhas', x: 185, y: 70 }],
     legendas: [
-      { quem: 'FERREIRO', texto: 'Acendi uma conta da guia por sua conta. E toma, pelo trabalho.' },
+      { quem: 'FERREIRO', texto: 'Cinco potes, forja acesa, e a sua guia também: mais uma conta. Toma, pelo trabalho.' },
     ],
   },
 ];
@@ -339,7 +339,9 @@ const BRAS_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
     ],
     legendas: [
-      { quem: 'BRÁS', texto: 'A MEDALHA BRASA é sua. Chega aqui do meu lado, que eu mesmo te entrego.' },
+      { quem: 'BRÁS', texto: 'A MEDALHA BRASA é sua. Ainda quente, olha. Segura pela fita.' },
+      { quem: 'BRÁS', texto: 'A Mariana contou que a gente briga desde menino? Conta pra ela que eu perdi também. Empatou.' },
+      { quem: 'BRÁS', texto: 'Quando os fornos apagarem, quero acender a forja do Boitatá de novo. Fogo que guarda, não fogo que come.' },
     ],
   },
 ];

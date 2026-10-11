@@ -140,6 +140,10 @@ export const bairroDaCuca: DefMapa = {
         { se: 'servico_retratos', seNao: 'item:cantiga_retrato', cantiga: 'cantiga_retrato', linhas: [
           'Ah, quase esqueço! Leva também esta cantiga, que a gente canta aqui desde sempre.',
           'Ela ensina MAU SONHO a quem for de Sombra, Vento, Água ou Luz. E não se gasta: serve para quantos você quiser.'] },
+        { se: ['campeao', 'servico_retratos'], linhas: [
+          'Sabe o terceiro retrato, aquele que eu nunca soube de quem era? Olha bem: capa escura, olho de fogo.',
+          'É o campeão do Círculo, o Anhangá. Só que esse retrato tem mais de cem anos, {crianca}.',
+          'Minha avó dizia que um moço assim guardava o bairro de noite. Acho que ele nunca foi embora.'] },
         { se: 'servico_retratos', linhas: [
           'Os três retratos estão na parede de novo. Obrigada, {crianca}. E cuidado com o telhado do Casarão.'] },
         { se: 'item:retrato>=3', pede: { item: 'retrato', n: 3 }, liga: 'servico_retratos', cantiga: 'cantiga_retrato',

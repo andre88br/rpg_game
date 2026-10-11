@@ -97,6 +97,21 @@ function arenaCamara(festa: boolean): Buf {
 
 /* o rio da Foz depois do torneio: a comporta da Companhia rachada ao meio,
    a água passando por cima e o leito seco enchendo de novo */
+/* o rio de antigamente, sem comporta nenhuma, no fim da tarde: o cenário
+   da lenda de Honorato e Maria Caninana */
+export function rioAntigo(): Buf {
+  const b = new Buf(W, H);
+  degrade(b, 0, 50, [[0x3a, 0x2d, 0x55], [0xc0, 0x7a, 0x6a], [0xf0, 0xc0, 0x80]]);
+  morros(b, 46, 4, 0.05, 0.9, '#4a6a4a');
+  b.rect(0, 50, W, H - 50, P.grassD!);
+  const r = rng(1042);
+  for (let i = 0; i < 90; i++) b.set((r() * W) | 0, 50 + ((r() * 74) | 0), P.grass!);
+  b.rect(0, 72, W, 36, P.waterD!);
+  for (let i = 0; i < 40; i++) b.rect((r() * W) | 0, 76 + ((r() * 28) | 0), 6, 1, P.water!);
+  for (const x of [10, 40, 74, 170, 204, 232]) arvore(b, x, 66, 26 + (x % 9), P.treeD!, P.treeD!, P.tree!);
+  return b;
+}
+
 export function rioLivre(): Buf {
   const b = new Buf(W, H);
   degrade(b, 0, 50, [[0x6a, 0xb0, 0xe8], [0xc0, 0xe4, 0xf4]]);

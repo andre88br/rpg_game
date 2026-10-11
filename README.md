@@ -144,6 +144,15 @@ leva ao Círculo Dourado. Lá, vencido, o campeão tira a coroa e se revela o
 próprio **Anhangá**, o veado branco que guarda a mata — e que esperou vinte
 anos por gente que respondesse pela terra.
 
+Os mestres têm vida própria: a Mariana e o Brás brigam desde crianças, a
+Tiê guarda a muda que a Firmina deu, o Pererê e o Guaraci nunca chegam um
+sem o outro, a Morgana e o Solano são irmãos que não se falam. No meio da
+trilha, a Dona Firmina aparece em Tupã e conta que também andou a trilha.
+Depois do campeonato, a **volta para casa** reúne a mãe, a Firmina, o Zeca
+e o pai dele, o Seu Tonho; cada região comenta o fim, as revanches dos
+mestres fecham as histórias deles, o Remanso conta a lenda de Honorato e
+Maria Caninana, e a Romaria ganha a sua festa.
+
 O começo explica o jogo: ao acordar em casa, a mãe mostra os controles e
 aponta a casa da Dona Firmina; ao entregar a primeira carta, a Firmina
 explica a trilha (guia de cinco contas, mestre, medalha e Dom, patuá). Na

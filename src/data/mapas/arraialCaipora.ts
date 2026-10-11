@@ -129,6 +129,9 @@ export const arraialCaipora: DefMapa = {
       id: 'dona_luzia', nome: 'DONA LUZIA', estilo: 'senhora',
       tx: 18, ty: 28, dir: 'baixo',
       falas: [
+        { se: 'campeao', linhas: [
+          'A draga parou, e o rio desceu limpo outra vez. O Tuco já sabe bater bateia, {crianca}.',
+          'O Ubirajara ensinou ele a pedir licença pra Caipora antes de cavar. Como antigamente.'] },
         { se: 'menino_salvo', linhas: [
           'O Tuco não sai mais do meu lado. Deus te pague, {crianca}. A mina não leva mais ninguém meu.'] },
         { se: 'escoltando_menino', liga: ['conta_menino', 'menino_salvo'], desliga: 'escoltando_menino',

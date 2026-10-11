@@ -257,7 +257,9 @@ const PERERE_VENCE: Roteiro = [
       { figura: { jogador: true, dir: 'cima' }, x: 112, y: 94 },
     ],
     legendas: [
-      { quem: 'PERERÊ', texto: 'A MEDALHA RODAMOINHO é sua. Chega aqui do meu lado, que eu mesmo te entrego.' },
+      { quem: 'PERERÊ', texto: 'A MEDALHA RODAMOINHO é sua. Segura firme, que ela gira sozinha.' },
+      { quem: 'PERERÊ', texto: 'Em Tupã, avisa o Guaraci que o vento mandou lembrança. Vento e trovão nunca chegam sozinhos.' },
+      { quem: 'PERERÊ', texto: 'E um dia eu ainda danço com o primeiro Saci do mundo. Meu avô dançou. Eu vou dançar.' },
     ],
   },
 ];
