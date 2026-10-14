@@ -563,14 +563,15 @@ export class MenuPausa {
   private naMochilaAlvo(entrada: Entrada): SaidaMenu {
     this.selAlvo = this.andar(entrada, this.selAlvo, this.op.estado.time.length);
     if (entrada.apertou('b')) { this.pagina = 'mochila'; return 'aberto'; }
-    if (entrada.apertou('a') && this.ehCantiga()) { this.cantar(); return 'aberto'; }
-    if (entrada.apertou('a')) {
-      const r = usarItemForaDeBatalha(this.op.estado, this.itemUsando!, this.selAlvo);
-      this.avisar(r.msg);
-      if (r.usou) salvarEmSlot(this.op.estado, obterSlotAtivo());
-      this.pagina = 'mochila';
-      this.selLista = Math.min(this.selLista, Math.max(0, this.itens().length - 1));
-    }
+    /* apertou() consome o botão: o A é lido uma vez só, e depois decide se
+       é cantiga ou remédio (lido duas vezes, o remédio nunca via o A) */
+    if (!entrada.apertou('a')) return 'aberto';
+    if (this.ehCantiga()) { this.cantar(); return 'aberto'; }
+    const r = usarItemForaDeBatalha(this.op.estado, this.itemUsando!, this.selAlvo);
+    this.avisar(r.msg);
+    if (r.usou) salvarEmSlot(this.op.estado, obterSlotAtivo());
+    this.pagina = 'mochila';
+    this.selLista = Math.min(this.selLista, Math.max(0, this.itens().length - 1));
     return 'aberto';
   }
 

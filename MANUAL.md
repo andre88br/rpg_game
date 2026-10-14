@@ -279,6 +279,11 @@ usar: dá para curar ou reviver quem está esperando no time, não só quem est�
 em campo. Item que não faria efeito (garrafada em quem está com o fôlego
 cheio, patuá em bicho de treinador) só avisa: não é gasto e a vez não passa.
 
+**Itens fora da batalha.** Os mesmos remédios servem andando pelo mapa:
+menu → MOCHILA → o item → quem recebe. Garrafada, Erva-Doce, Água Benta e
+Mel de Jataí funcionam assim; o patuá só serve na luta. Item que não faria
+efeito também não é gasto.
+
 **Captura.** Patuá no menu de batalha, com o bicho selvagem o mais machucado
 possível. Patuá (200), Patuá Bom (600) e Patuá de Mestre (1200, só depois da
 Medalha Rodamoinho) na loja.
