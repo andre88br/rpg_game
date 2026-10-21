@@ -20,7 +20,7 @@ import type { EstadoJogo } from './state.ts';
 import type { Armazem } from './save.ts';
 
 /* o código do site no GoatCounter: em https://CODIGO.goatcounter.com */
-export const CODIGO_GOATCOUNTER = '';
+export const CODIGO_GOATCOUNTER = 'encantados';
 
 /* só o site publicado conta — o `vite dev` de quem mexe no jogo, não */
 const HOST_PUBLICADO = 'andre88br.github.io';
