@@ -50,6 +50,7 @@ src/
 │             avisos.ts (o que placa, tranca e guia dizem ao A)
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
+│             telemetria.ts (marcos anônimos de progresso para o GoatCounter)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
 │             raro.ts (a chance da cor rara e o Amuleto do Brilho)
 │             escala.ts (a revanche que cresce: nível e forma no nível)
@@ -770,6 +771,16 @@ dentro do próprio componente, então as telas que o usam ganham a
 confirmação de graça, sem reescrever nada. Quem jogava antes dos seis slots
 tinha um save só, numa chave sem número; `migrarSaveAntigo()` o move para o
 slot 1 na primeira vez que o jogo carrega, e nunca mais toca naquela chave.
+
+**Contar até onde o pessoal chega.** `salvarEmSlot` chama
+`registrarProgresso` (`game/telemetria.ts`) depois de cada gravação. A parte
+pura, `marcosDe`, transforma o estado em marcos com caminho estável
+(`regiao/3-fogo`, `mapa/vilaFornalha`, `medalhas/4`, `capturados/25`,
+`marco/campeao`). Os que este navegador ainda não contou viram um pixel do
+GoatCounter (`/count?p=…&e=true`), e a lista do que já foi contado mora em
+`encantados:telemetria:v1`. O `main.ts` manda também a visita (`/`) e o
+`marco/jogo-novo`. Sem `CODIGO_GOATCOUNTER`, ou fora de `andre88br.github.io`
+(vite dev, testes), nada sai.
 
 **Levar o save para fora.** `game/transferencia.ts` transforma a partida em
 texto e de volta: o arquivo baixado é o próprio JSON do slot; o código é o

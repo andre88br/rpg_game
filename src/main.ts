@@ -20,11 +20,13 @@ import { MAPAS } from './data/mapas/index.ts';
 import { Mundo } from './world/mundo.ts';
 import { novoJogo, type EstadoJogo } from './game/state.ts';
 import { carregarDeSlot, definirSlotAtivo, migrarSaveAntigo } from './game/save.ts';
+import { registrarAbertura, registrarInicio } from './game/telemetria.ts';
 import * as Som from './audio/som.ts';
 
 // quem jogava antes dos seis slots tinha um save só: essa migração acontece
 // uma vez, aqui, antes de qualquer tela olhar para os slots
 migrarSaveAntigo();
+registrarAbertura();
 
 const canvas = document.getElementById('jogo') as HTMLCanvasElement | null;
 const palco = document.getElementById('palco');
@@ -163,6 +165,7 @@ function comecar(modo: Comeco, slot: number): void {
   tocarCutscene('intro', () => {
     cenas.trocar(new CenaPersonagem((personagem, nome, desafio) => {
       estado = novoJogo(nome, personagem);
+      registrarInicio();
       if (desafio) estado.flags['desafio'] = true;
       iniciarMundo();
     }));

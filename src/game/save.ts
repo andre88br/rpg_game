@@ -25,6 +25,7 @@ import { hpMaximo, xpDoNivel, MAX_GOLPES, type Encantado } from '../battle/encan
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { TAMANHO_TIME, type EstadoJogo, type Lugar } from './state.ts';
+import { registrarProgresso } from './telemetria.ts';
 
 /* chave do formato ANTIGO, de um save só — só existe para migrar quem já
    jogava antes dos slots. Nunca mais é escrita. */
@@ -221,8 +222,11 @@ export function usarArmazem(a: Armazem | null): void { armazem = a; }
 export function salvarEmSlot(e: EstadoJogo, slot: number): boolean {
   const ls = loja();
   if (!ls) return false;
-  try { ls.setItem(chaveSlot(slot), JSON.stringify(serializar(e))); return true; }
+  try { ls.setItem(chaveSlot(slot), JSON.stringify(serializar(e))); }
   catch { return false; }        // cota estourada, modo privado do Safari...
+  // toda gravação passa aqui: é o ponto de contar o que a partida alcançou
+  registrarProgresso(e);
+  return true;
 }
 
 export function carregarDeSlot(slot: number): EstadoJogo | null {

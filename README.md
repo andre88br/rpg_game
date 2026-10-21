@@ -236,6 +236,11 @@ serviços opcionais de cada região.
   quiser guardar). No outro aparelho, **IMPORTAR SAVE** na tela de título.
   O save também mora no navegador: limpar os dados do site apaga a partida,
   então vale guardar uma cópia.
+- **Contagem anônima de progresso.** O site publicado conta, no GoatCounter,
+  quantas pessoas abrem o jogo e até onde chegam (região, número de
+  medalhas, espécies capturadas, campeão), cada marco uma vez por navegador.
+  Não vai nome, save nem nada que identifique quem joga. Para ver o painel,
+  o código do site entra em `CODIGO_GOATCOUNTER`, em `src/game/telemetria.ts`.
 
 ### O Mapa do Mundo
 
