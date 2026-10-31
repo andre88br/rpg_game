@@ -21,7 +21,7 @@ import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
 import { animarEncantado, encantado3D, tamanhoDe } from './modelos/encantado3d.ts';
 import { arvoreDoTile, modeloArvore, modeloPedra } from './modelos/vegetacao.ts';
-import { casca, materialContorno, materialDesenho } from './modelos/base.ts';
+import { materialReal } from './modelos/base.ts';
 import { predio3D } from './modelos/casas.ts';
 import { AJUSTES } from './modelos/bichos.ts';
 
@@ -55,8 +55,7 @@ const N_PARTICULAS = 24;
 export class CenaBatalha3D {
   readonly cena = new THREE.Scene();
   readonly camera = new THREE.PerspectiveCamera(42, 1.5, 0.1, 200);
-  private readonly mat = materialDesenho();
-  private readonly matContorno = materialContorno();
+  private readonly mat = materialReal();
   private readonly descartaveis: { dispose(): void }[] = [];
   private bichos: Record<LadoB, THREE.Group | null> = { aliado: null, inimigo: null };
   /* cada bicho em todas as poses (só o rosto muda); a de 'normal' é o de
@@ -194,28 +193,25 @@ export class CenaBatalha3D {
       for (const [tipo, l] of porModelo) {
         const geo = this.guardar(modeloArvore(tipo as Parameters<typeof modeloArvore>[0]));
         const m = new THREE.InstancedMesh(geo, this.mat, l.length);
-        // o contorno de desenho animado, como as árvores do mundo
-        const c = new THREE.InstancedMesh(this.guardar(casca(geo, 0.05)), this.matContorno, l.length);
         l.forEach(([x, z], i) => {
           o.position.set(x, 0, z); o.rotation.set(0, i * 1.7, 0); o.scale.setScalar(1.6 + (i % 3) * 0.3);
-          o.updateMatrix(); m.setMatrixAt(i, o.matrix); c.setMatrixAt(i, o.matrix);
+          o.updateMatrix(); m.setMatrixAt(i, o.matrix);
         });
         m.castShadow = true;
-        this.cena.add(m, c);
+        this.cena.add(m);
       }
     }
     if (a.rochas) {
       const l = anel(a.interior ? 30 : 10, a.interior ? 6 : 8, a.interior ? 9 : 12, 5);
       const geo = this.guardar(modeloPedra());
       const m = new THREE.InstancedMesh(geo, this.mat, l.length);
-      const c = new THREE.InstancedMesh(this.guardar(casca(geo, 0.03)), this.matContorno, l.length);
       l.forEach(([x, z], i) => {
         o.position.set(x, 0, z); o.rotation.set(0, i, 0);
         o.scale.set(2 + (i % 3), a.interior ? 3 + (i % 4) : 1.5 + (i % 2), 2 + (i % 2));
-        o.updateMatrix(); m.setMatrixAt(i, o.matrix); c.setMatrixAt(i, o.matrix);
+        o.updateMatrix(); m.setMatrixAt(i, o.matrix);
       });
       m.castShadow = true;
-      this.cena.add(m, c);
+      this.cena.add(m);
     }
     if (a.casas) {
       for (const [x, z, giro] of [[-6, -8, 0.3], [5, -9, -0.2]] as const) {

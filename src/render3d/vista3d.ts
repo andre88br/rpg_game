@@ -24,6 +24,7 @@
    (carregar.ts): quem nunca entra num mapa 3D não baixa nada disto.
    ========================================================================= */
 import * as THREE from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { Buf, assar, larguraDe, alturaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA } from '../core/renderer.ts';
 import { contasDo, objetoAtivo, spriteDoObjeto, type DefObjeto, type Mapa } from '../world/tilemap.ts';
@@ -38,7 +39,7 @@ import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
-import { casca, materialContorno, materialDesenho } from './modelos/base.ts';
+import { materialReal, tufoDeCapim } from './modelos/base.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
   DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, luzDe, modeloDe, relevoDe, relevoNaRegiao,
@@ -104,27 +105,34 @@ const AGUA_VERTICE = /* glsl */`
   uniform float uTempo;
   uniform float uLeve;
   varying vec2 vMundo;
+  varying vec3 vPos;
   varying float vDist;
-  varying float vOnda;
   void main() {
     vec4 m = modelMatrix * vec4(position, 1.0);
     // na qualidade LEVE a água fica lisa: sem onda, sem risco, sem brilho
     float o = (sin(m.x * 1.3 + uTempo * 1.6) * 0.5 + sin(m.z * 1.7 - uTempo * 1.2) * 0.5) * (1.0 - uLeve);
     m.y += o * 0.035;
-    vOnda = o;
     vMundo = m.xz;
+    vPos = m.xyz;
     vec4 mv = viewMatrix * m;
     vDist = -mv.z;
     gl_Position = projectionMatrix * mv;
   }
 `;
 
+/* A água de verdade: a onda é calculada em cada pixel (a soma de várias
+   ondinhas, cada uma num rumo), e dela sai a normal. Com a normal vem o
+   reflexo do céu — fraco olhando de cima, forte no ângulo rasante (Fresnel)
+   — e o brilho do sol. O raso deixa ver a cor da areia; o fundo é escuro. */
 const AGUA_FRAGMENTO = /* glsl */`
   uniform float uTempo;
   uniform vec3 uRaso;
   uniform vec3 uFundo;
   uniform vec3 uEspuma;
   uniform vec3 uLuz;
+  uniform vec3 uCeu;
+  uniform vec3 uSol;
+  uniform vec3 uSolDir;
   uniform vec3 uNevoa;
   uniform float uPerto;
   uniform float uLonge;
@@ -132,20 +140,38 @@ const AGUA_FRAGMENTO = /* glsl */`
   uniform vec2 uTam;
   uniform float uLeve;
   varying vec2 vMundo;
+  varying vec3 vPos;
   varying float vDist;
-  varying float vOnda;
+  // derivada de uma ondinha: rumo d, frequência f, velocidade v, altura a
+  vec2 onda(vec2 p, vec2 d, float f, float v, float a) {
+    float k = dot(p, d) * f + uTempo * v;
+    return d * cos(k) * f * a;
+  }
   void main() {
-    // a textura tem uma borda de mar aberto em volta: fora do mapa, margem zero
     float marg = texture2D(uMargem, (vMundo + 1.0) / (uTam + 2.0)).r;
-    float risco = sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5) * (1.0 - uLeve);
-    // a espuma é uma linha: só onde a margem passa (entre a terra e a água)
-    float m = marg + 0.06 * risco;
-    float espuma = smoothstep(0.6, 0.72, m) * (1.0 - smoothstep(0.8, 0.9, m)) * 0.85;
-    vec3 cor = mix(uFundo, uRaso, clamp(marg * 1.5 + vOnda * 0.08, 0.0, 1.0));
-    float brilho = pow(max(0.0, sin(vMundo.x * 2.1 + uTempo) * sin(vMundo.y * 2.7 - uTempo * 1.3)), 14.0) * 0.4 * (1.0 - uLeve);
-    cor = cor * uLuz + espuma * uEspuma * uLuz + brilho * uLuz;
+    vec2 grad = vec2(0.0);
+    grad += onda(vMundo, normalize(vec2(1.0, 0.3)), 1.9, 1.3, 0.030);
+    grad += onda(vMundo, normalize(vec2(-0.4, 1.0)), 2.7, 1.7, 0.022);
+    grad += onda(vMundo, normalize(vec2(0.8, -0.7)), 5.3, 2.3, 0.010);
+    grad += onda(vMundo, normalize(vec2(-1.0, -0.2)), 9.1, 3.1, 0.006);
+    grad += onda(vMundo, normalize(vec2(0.2, 1.0)), 15.7, 4.3, 0.003);
+    grad *= (1.0 - uLeve);
+    vec3 n = normalize(vec3(-grad.x, 1.0, -grad.y));
+    vec3 olho = normalize(cameraPosition - vPos);
+    float fresnel = 0.04 + 0.96 * pow(1.0 - max(dot(n, olho), 0.0), 5.0);
+    // a cor da água: do fundo escuro ao raso, que é mais claro e esverdeado
+    vec3 agua = mix(uFundo, uRaso, clamp(marg * 1.6, 0.0, 1.0)) * uLuz;
+    vec3 cor = mix(agua, uCeu, clamp(fresnel + 0.04, 0.0, 0.85));
+    vec3 h = normalize(uSolDir + olho);
+    float brilho = pow(max(dot(n, h), 0.0), 220.0) * 2.2 * (1.0 - uLeve);
+    cor += uSol * brilho;
+    // a espuma: uma linha que vai e volta na beira, quebrada pelo ruído da onda
+    float m = marg + 0.06 * sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5) * (1.0 - uLeve)
+              + (grad.x + grad.y) * 0.6;
+    float espuma = smoothstep(0.6, 0.72, m) * (1.0 - smoothstep(0.8, 0.9, m)) * 0.75;
+    cor = mix(cor, uEspuma * uLuz * 1.4, espuma);
     cor = mix(cor, uNevoa, smoothstep(uPerto, uLonge, vDist));
-    gl_FragColor = vec4(cor, 0.86 + espuma * 0.14);
+    gl_FragColor = vec4(cor, mix(0.78, 0.96, clamp(fresnel * 2.0, 0.0, 1.0)) + espuma * 0.1);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -178,9 +204,7 @@ export class Vista3D {
   /* a região do mapa montado: escolhe árvore, mato e casa */
   private regiao: string | null = null;
   /* um material por tipo de modelo low-poly: cor por vértice, face plana */
-  private matModelo: THREE.MeshToonMaterial | null = null;
-  /* o contorno escuro de desenho animado (a casca de cada modelo) */
-  private matContorno: THREE.MeshBasicMaterial | null = null;
+  private matModelo: THREE.MeshStandardMaterial | null = null;
   /* as pedras de empurrar (deslizam até a casa nova) e o feixe de luz */
   private pedras: THREE.InstancedMesh | null = null;
   private pedrasPos: { x: number; z: number }[] = [];
@@ -188,7 +212,7 @@ export class Vista3D {
   private chaveFeixe = '';
   /* os prédios, para ficarem translúcidos quando o jogador passa atrás */
   private predios: { pecas: THREE.Mesh[]; x0: number; x1: number; y0: number; y1: number; fantasma: boolean }[] = [];
-  private matFantasma: THREE.MeshToonMaterial | null = null;
+  private matFantasma: THREE.MeshStandardMaterial | null = null;
 
   /* a luz de agora (só recalcula quando a chave muda) */
   private chaveLuz = '';
@@ -209,7 +233,7 @@ export class Vista3D {
      e a vista mostra um ou outro) */
   private readonly bonecos: ({ chave: string; obj: THREE.Group; bicho: boolean; pisca?: THREE.Group | null } | null)[] = [];
   private readonly modelos3D = new Map<string, THREE.Group | null>();
-  private readonly matFigura = materialDesenho();
+  private readonly matFigura = materialReal({ roughness: 0.75 }, 0.08, 0.04);
   private ultimoAtor = -1;
   /* atalho de depuração: todas as espécies em fila, em volta do jogador */
   vitrine = false;
@@ -430,6 +454,10 @@ export class Vista3D {
       const luz = new THREE.Color(l.hemiCima).multiplyScalar(l.hemi * 0.45)
         .add(new THREE.Color(l.sol).multiplyScalar(l.solForca * 0.14)).multiplyScalar(baixa);
       u['uLuz']!.value = luz;
+      // o céu que a água reflete é o do horizonte, um pouco mais escuro
+      u['uCeu']!.value = new THREE.Color(l.ceuBase).lerp(new THREE.Color(l.ceuTopo), 0.4).multiplyScalar(baixa * 0.85);
+      u['uSol']!.value = new THREE.Color(l.sol).multiplyScalar(l.solForca * 0.5 * baixa);
+      u['uSolDir']!.value = this.sol.position.clone().sub(this.sol.target.position).normalize();
       u['uNevoa']!.value = new THREE.Color(l.nevoa);
       u['uPerto']!.value = dentro ? 999 : l.nevoaPerto;
       u['uLonge']!.value = dentro ? 1000 : l.nevoaLonge;
@@ -619,11 +647,10 @@ export class Vista3D {
     this.feixe = null;
     this.chaveFeixe = '';
     this.predios = [];
-    this.matFantasma = this.guardar(materialDesenho({
+    this.matFantasma = this.guardar(materialReal({
       transparent: true, opacity: 0.35, depthWrite: false,
     }));
-    this.matModelo = this.guardar(this.balancando(materialDesenho(), 0) as THREE.MeshToonMaterial);
-    this.matContorno = this.guardar(materialContorno());
+    this.matModelo = this.guardar(this.balancando(materialReal(), 0) as THREE.MeshStandardMaterial);
     this.mapaAtual = mapa;
     this.chaveLuz = '';
 
@@ -663,7 +690,12 @@ export class Vista3D {
 
   /* material que balança no vento: o topo anda mais que a base */
   private balancando(mat: THREE.Material, forca: number): THREE.Material {
-    mat.onBeforeCompile = (s) => {
+    // encadeia com o shader que o material já tem (o grão do materialReal)
+    const antes = mat.onBeforeCompile;
+    const chaveAntes = mat.customProgramCacheKey.bind(mat);
+    mat.customProgramCacheKey = () => `${chaveAntes()}|vento${forca}`;
+    mat.onBeforeCompile = (s, r) => {
+      antes.call(mat, s, r);
       s.uniforms['uTempo'] = this.vento;
       s.vertexShader = 'uniform float uTempo;\n' + s.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
         #ifdef USE_INSTANCING
@@ -729,11 +761,15 @@ export class Vista3D {
         }
       }
     }
-    const geo = this.guardar(new THREE.BufferGeometry());
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(cor, 3));
+    const solto = new THREE.BufferGeometry();
+    solto.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    solto.setAttribute('color', new THREE.Float32BufferAttribute(cor, 3));
+    // os vértices iguais viram um só: a normal sai lisa, sem faceta de tile
+    const geo = this.guardar(mergeVertices(solto));
+    solto.dispose();
     geo.computeVertexNormals();
-    const mat = this.guardar(materialDesenho());
+    // o chão: grão fino de terra e manchas largas, para não ser cor chapada
+    const mat = this.guardar(materialReal({ roughness: 0.95 }, 0.28, 0.22));
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
     g.add(m);
@@ -875,8 +911,11 @@ export class Vista3D {
       depthWrite: false,
       uniforms: {
         uTempo: { value: 0 },
-        uRaso: { value: new THREE.Color('#3a9ccc') },
-        uFundo: { value: new THREE.Color('#1f5f9a') },
+        uRaso: { value: new THREE.Color('#2e8486') },
+        uFundo: { value: new THREE.Color('#123e5c') },
+        uCeu: { value: new THREE.Color('#9cc8e8') },
+        uSol: { value: new THREE.Color(1, 1, 1) },
+        uSolDir: { value: new THREE.Vector3(0, 1, 0) },
         uEspuma: { value: new THREE.Color('#e8f6ff') },
         uLuz: { value: new THREE.Color(1, 1, 1) },
         uNevoa: { value: new THREE.Color('#bfe3f5') },
@@ -945,13 +984,10 @@ export class Vista3D {
     for (const [a, lugares] of porModelo) {
       const forca = a === 'cacto' || a === 'seca' ? 0.01 : 0.035;
       const geo = modeloArvore(a);
-      const arv = repetido(geo, this.guardar(this.balancando(materialDesenho(), forca)), lugares.length);
-      // a casca: o contorno, balançando junto com a copa
-      const cont = repetido(casca(geo, 0.07), this.guardar(this.balancando(materialContorno(), forca)), lugares.length, false);
+      const arv = repetido(geo, this.guardar(this.balancando(materialReal({ roughness: 0.85 }, 0.3, 0.15), forca)), lugares.length);
       lugares.forEach(([x, z], i) => {
         const s = 0.9 + sorte(x, z, 2) * 0.4;
         pôr(arv, i, x, 0, z, s, sorte(x, z, 3) * 6, s * (0.9 + sorte(x, z, 4) * 0.25));
-        cont.setMatrixAt(i, o.matrix);
         arv.setColorAt(i, new THREE.Color(1, 1, 1).multiplyScalar(0.9 + sorte(x, z, 5) * 0.2));
       });
     }
@@ -959,11 +995,33 @@ export class Vista3D {
     const pedras = onde('pedra');
     const geoPedra = modeloPedra();
     const pedra = repetido(geoPedra, this.matModelo!, pedras.length);
-    const contPedra = repetido(casca(geoPedra, 0.06), this.matContorno!, pedras.length, false);
     pedras.forEach(([x, y], i) => {
       pôr(pedra, i, x + 0.5, 0, y + 0.5, 1, sorte(x, y) * 6, 0.8);
-      contPedra.setMatrixAt(i, o.matrix);
     });
+
+    // capim rasteiro: na grama, tufos de folha fina que o vento mexe; a cor
+    // é a do chão do tile, com a ponta mais clara. Na LEVE não tem.
+    const GRAMADO = new Set(['.', 'f', '#', 'o']);
+    const gramas = this.leve ? [] : rel.flatMap((r, i) => {
+      const x = i % W, y = Math.floor(i / W);
+      return GRAMADO.has(this.mapaAtual!.def.chao[y]![x]!) && !r.bloco ? [[x, y, i] as const] : [];
+    });
+    if (gramas.length) {
+      const POR_TILE = 9;
+      const capim = repetido(tufoDeCapim(),
+        this.guardar(this.balancando(materialReal({ roughness: 0.8 }, 0.1, 0.18), 0.1)),
+        gramas.length * POR_TILE, false);
+      const c = new THREE.Color();
+      gramas.forEach(([x, y, t], i) => {
+        c.set(rel[t]!.cor);
+        for (let k = 0; k < POR_TILE; k++) {
+          const s = 0.7 + sorte(x, y, k + 30) * 0.7;
+          pôr(capim, i * POR_TILE + k, x + 0.08 + sorte(x, y, k + 40) * 0.84, this.alturas[t]!, y + 0.08 + sorte(x, y, k + 50) * 0.84,
+            s, sorte(x, y, k + 60) * 6, s * (0.7 + sorte(x, y, k + 70) * 0.6));
+          capim.setColorAt(i * POR_TILE + k, c);
+        }
+      });
+    }
 
     // mato e capim: tufos finos que balançam, na cor da região
     const corMato = MATO_DA_REGIAO[this.regiao ?? 'fora'] ?? MATO_DA_REGIAO['fora']!;
@@ -1065,7 +1123,6 @@ export class Vista3D {
         const m = new THREE.Mesh(this.guardar(geo), this.matModelo!);
         m.position.set(o.tx, this.chaoEm(o.tx + 0.5, o.ty + 0.5), o.ty);
         m.castShadow = m.receiveShadow = true;
-        m.add(new THREE.Mesh(this.guardar(casca(geo, 0.04)), this.matContorno!));
         g.add(m);
         return;
       }
@@ -1125,8 +1182,6 @@ export class Vista3D {
     const m = new THREE.Mesh(this.guardar(p.geo), this.matModelo!);
     m.position.set(o.tx, 0, o.ty);
     m.castShadow = m.receiveShadow = true;
-    // o contorno da casa some junto quando ela fica translúcida
-    m.add(new THREE.Mesh(this.guardar(casca(p.geo, 0.07)), this.matContorno!));
     g.add(m);
     const pecas: THREE.Mesh[] = [m];
     // da frente do prédio até três tiles atrás dele, ele tapa quem está ali
@@ -1153,7 +1208,6 @@ export class Vista3D {
       for (const m of p.pecas) {
         if (m.material === this.matModelo || m.material === this.matFantasma) {
           m.material = tapa ? this.matFantasma! : this.matModelo!;
-          for (const c of m.children) c.visible = !tapa;
         } else {
           const mat = m.material as THREE.MeshLambertMaterial;
           mat.transparent = tapa; mat.opacity = tapa ? 0.35 : 1; mat.needsUpdate = true;

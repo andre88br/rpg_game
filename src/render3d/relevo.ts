@@ -45,16 +45,16 @@ const bloco = (altura: number, cor: string, enfeite: Enfeite): Relevo =>
 
 const TABELA: Record<string, Relevo> = {
   /* ao ar livre */
-  '.': t(0, '#72b35a'),
-  ',': t(0, '#4f9446', 'mato'),
-  '=': t(-0.03, '#d2b072'),
-  'f': t(0, '#7cba5c', 'flores'),
-  'a': t(-0.12, '#e8d296'),
+  '.': t(0, '#5f8a3c'),
+  ',': t(0, '#4e7834', 'mato'),
+  '=': t(-0.03, '#a88a5e'),
+  'f': t(0, '#648e40', 'flores'),
+  'a': t(-0.12, '#d8c49a'),
   'p': t(-0.12, '#9a7048'),
   /* o fundo d'água é areia: a margem vira prainha, e no raso a areia aparece */
   '~': { altura: -1.4, cor: '#c9b384', enfeite: 'nada', agua: true, bloco: false },
-  '#': t(0, '#5e9e4c', 'arvore'),
-  'o': t(0, '#6aa857', 'pedra'),
+  '#': t(0, '#4e7a34', 'arvore'),
+  'o': t(0, '#5a843a', 'pedra'),
   'R': bloco(1.1, '#8f887c', 'rocha'),
   /* interiores */
   '_': t(0, '#b98e5c'),
@@ -85,8 +85,8 @@ export function relevoDe(ch: string): Relevo | null { return TABELA[ch] ?? null;
    queimada na Serra, roxa de sombra no Bairro, dourada no Sol. */
 const GRAMA = new Set(['.', ',', '#', 'o', 'f']);
 const GRAMA_DA_REGIAO: Record<string, string> = {
-  agua: '#72b35a', planta: '#5a9c46', fogo: '#8f9a58', vento: '#9cc45e', raio: '#68a852',
-  terra: '#bda866', sombra: '#5f7258', luz: '#a6c85c',
+  agua: '#5f8a3c', planta: '#4a7a34', fogo: '#7e8248', vento: '#869e4c', raio: '#567e3a',
+  terra: '#a8945a', sombra: '#53624a', luz: '#8aa04a',
 };
 
 /* o relevo do tile, com a cor da região quando é grama */
@@ -206,9 +206,10 @@ export function luzDe(regiao: string | null, p: PeriodoLuz, clima: ClimaLuz, int
             solAngulo: 2.2, solAltura: 0.9 };
       break;
     default:
-      l = { ceuTopo: topo, ceuBase: base, hemiCima: '#eef6ff', hemiBaixo: '#5a7a3a', hemi: 1.0,
-            sol: '#fff2d8', solForca: 2.4, nevoa: base, nevoaPerto: 26, nevoaLonge: 52,
-            solAngulo: 2.0, solAltura: 1.0 };
+      // sol de meio da manhã, não a pino: a sombra comprida dá volume
+      l = { ceuTopo: topo, ceuBase: base, hemiCima: '#dfeeff', hemiBaixo: '#4a5a32', hemi: 0.85,
+            sol: '#fff0d4', solForca: 2.7, nevoa: base, nevoaPerto: 26, nevoaLonge: 52,
+            solAngulo: 2.0, solAltura: 0.8 };
   }
   if (clima === 'chuva' || clima === 'tempestade') {
     const k = clima === 'tempestade' ? 0.6 : 0.45;

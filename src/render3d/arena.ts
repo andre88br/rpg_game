@@ -22,15 +22,15 @@ export interface Arena {
 
 const CENARIOS: Record<Cenario, Omit<Arena, 'chao'> & { chao?: string }> = {
   praia: { chao: '#e2cb8e', plataforma: '#d6bc80', borda: '#b89a5e', mar: true, arvores: true, casas: false, rochas: false, interior: false },
-  mata: { plataforma: '#7aa858', borda: '#5a8040', mar: false, arvores: true, casas: false, rochas: true, interior: false },
+  mata: { plataforma: '#6a8a48', borda: '#4a6634', mar: false, arvores: true, casas: false, rochas: true, interior: false },
   cidade: { chao: '#c9b088', plataforma: '#b8a888', borda: '#8a7a60', mar: false, arvores: true, casas: true, rochas: false, interior: false },
   caverna: { chao: '#5a5260', plataforma: '#6c6274', borda: '#4a4252', mar: false, arvores: false, casas: false, rochas: true, interior: true },
 };
 
 /* a grama de cada região (a mesma do relevo do mapa) */
 const GRAMA: Record<string, string> = {
-  agua: '#72b35a', planta: '#5a9c46', fogo: '#8f9a58', vento: '#9cc45e', raio: '#68a852',
-  terra: '#bda866', sombra: '#5f7258', luz: '#a6c85c', fora: '#72b35a',
+  agua: '#5f8a3c', planta: '#4a7a34', fogo: '#7e8248', vento: '#869e4c', raio: '#567e3a',
+  terra: '#a8945a', sombra: '#53624a', luz: '#8aa04a', fora: '#5f8a3c',
 };
 
 export function arenaDe(cenario: Cenario, regiao: string | null): Arena {
