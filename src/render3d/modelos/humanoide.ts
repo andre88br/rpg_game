@@ -49,24 +49,30 @@ export function pessoa3D(op: OpcoesPessoa, mat: THREE.Material): THREE.Group {
     peca(caixa(0.36, 0.38, 0.22), o.roupa, 0, 0.62, 0),                  // tronco
     peca(caixa(0.38, 0.08, 0.24), o.roupaL, 0, 0.78, 0),                 // ombros
     peca(caixa(0.36, 0.08, 0.22), o.calca, 0, 0.45, 0),                  // cintura
-    peca(bola(0.2, 1), o.pele, 0, 0.98, 0, {}, [1, 1.05, 0.95]),        // cabeça
-    peca(caixa(0.05, 0.06, 0.02), '#191221', -0.075, 0.99, 0.18),        // olhos
-    peca(caixa(0.05, 0.06, 0.02), '#191221', 0.075, 0.99, 0.18),
-    peca(bola(0.205, 1), o.cabelo, 0, 1.04, -0.03, {}, [1.02, 0.85, 1.0]), // cabelo
+    // o cabeção, como o dos Encantados: olho de brilho, bochecha e sorriso
+    peca(bola(0.31, 1), o.pele, 0, 1.08, 0, {}, [1, 1.0, 0.95]),        // cabeça
+    peca(caixa(0.07, 0.09, 0.02), '#191221', -0.11, 1.08, 0.29),         // olhos
+    peca(caixa(0.07, 0.09, 0.02), '#191221', 0.11, 1.08, 0.29),
+    peca(caixa(0.03, 0.03, 0.02), '#ffffff', -0.125, 1.11, 0.3),       // brilho
+    peca(caixa(0.03, 0.03, 0.02), '#ffffff', 0.095, 1.11, 0.3),
+    peca(caixa(0.06, 0.03, 0.02), '#f2a6a6', -0.19, 1.0, 0.23),        // bochechas
+    peca(caixa(0.06, 0.03, 0.02), '#f2a6a6', 0.19, 1.0, 0.23),
+    peca(caixa(0.07, 0.02, 0.02), o.peleEsc, 0, 0.97, 0.28),            // sorriso
+    peca(bola(0.315, 1), o.cabelo, 0, 1.16, -0.04, {}, [1.02, 0.8, 1.0]), // cabelo
   ];
-  if (o.cabeloLongo) cabeca.push(peca(caixa(0.34, 0.42, 0.1), o.cabelo, 0, 0.82, -0.14));
+  if (o.cabeloLongo) cabeca.push(peca(caixa(0.52, 0.5, 0.1), o.cabelo, 0, 0.92, -0.23));
   if (o.chapeu === 'palha') {
-    cabeca.push(peca(cilindro(0.38, 0.38, 0.03, 10), o.chapeuCor, 0, 1.12, 0));
-    cabeca.push(peca(cilindro(0.17, 0.2, 0.14, 10), o.chapeuCorL, 0, 1.2, 0));
+    cabeca.push(peca(cilindro(0.5, 0.5, 0.03, 10), o.chapeuCor, 0, 1.3, 0));
+    cabeca.push(peca(cilindro(0.25, 0.28, 0.16, 10), o.chapeuCorL, 0, 1.38, 0));
   } else if (o.chapeu === 'bone') {
-    cabeca.push(peca(new THREE.SphereGeometry(0.21, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), o.chapeuCor, 0, 1.06, 0));
-    cabeca.push(peca(caixa(0.26, 0.03, 0.18), o.chapeuCorL, 0, 1.07, 0.2));
+    cabeca.push(peca(new THREE.SphereGeometry(0.32, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), o.chapeuCor, 0, 1.18, 0));
+    cabeca.push(peca(caixa(0.36, 0.03, 0.22), o.chapeuCorL, 0, 1.19, 0.31));
   } else if (o.chapeu === 'coroa') {
     for (let k = 0; k < 5; k++) {
       const a = (k / 5) * Math.PI * 2;
-      cabeca.push(peca(cone(0.05, 0.16, 4), '#e8c040', Math.cos(a) * 0.15, 1.2, Math.sin(a) * 0.15));
+      cabeca.push(peca(cone(0.06, 0.18, 4), '#e8c040', Math.cos(a) * 0.23, 1.42, Math.sin(a) * 0.23));
     }
-    cabeca.push(peca(cilindro(0.18, 0.18, 0.06, 10), '#c9a227', 0, 1.13, 0));
+    cabeca.push(peca(cilindro(0.26, 0.26, 0.07, 10), '#c9a227', 0, 1.33, 0));
   }
   const tronco = new THREE.Mesh(juntar(cabeca), mat);
   tronco.name = 'tronco';

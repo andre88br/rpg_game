@@ -233,6 +233,9 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   duas Cucas e `cobraDeFogo()` as duas Boitatás grandes. O que vai atrás
   (rabo, cabelo, asa) é desenhado primeiro, para os índices de `bichos.ts`
   ficarem simples: as primeiras peças.
+  A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
+  cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
+  (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.
 - **Encantados: o próprio desenho 2D, em sólidos** (`desenho3d.ts`). Cada
   desenho de `art/creatures.ts` é feito de primitivas — elipse, triângulo,
   retângulo, linha, pixel — numa ordem. `gravar` roda a função de desenho

@@ -1,5 +1,6 @@
 /* =========================================================================
-   Personagens humanos: 16x20, quatro direcoes e tres quadros de caminhada.
+   Personagens humanos: 16x20, quatro direcoes e tres quadros de caminhada,
+   de cabecao redondo como os Encantados.
    Um unico molde parametrizado serve para o jogador e todos os NPCs — muda
    cabelo, roupa e acessorio. O contorno automatico entra no fim.
    ========================================================================= */
@@ -20,6 +21,10 @@ export interface OpcoesPessoa {
 }
 
 interface Estilo extends Required<OpcoesPessoa> {}
+
+/* o rosto de cabecao, igual ao dos Encantados */
+const BRILHO = '#ffffff';
+const BOCHECHA = '#f2a6a6';
 
 function normalizar(op: OpcoesPessoa): Estilo {
   return {
@@ -90,44 +95,47 @@ export function spritePessoa(op: OpcoesPessoa = {}, dir: Direcao = 'baixo', quad
   pernas(b, o, dir, quadro);
 
   if (!perfil) {
-    // ----- tronco de frente/costas -----
-    b.rect(3, 13, 10, 4, o.roupa);
-    b.rect(4, 13, 8, 1, o.roupaL);
-    b.rect(2, 14, 1, 2, o.pele);          // bracos
-    b.rect(13, 14, 1, 2, o.pele);
-    b.rect(6, 12, 4, 1, o.pele);          // pescoco
-
-    // ----- cabeca -----
-    b.rect(2, 5, 12, 8, o.cabelo);
-    if (dir === 'baixo') {
-      b.rect(4, 7, 8, 5, o.pele);         // rosto
-      b.set(5, 8, P.ink!); b.set(6, 8, P.ink!);
-      b.set(9, 8, P.ink!); b.set(10, 8, P.ink!);
-      b.rect(7, 10, 2, 1, o.peleEsc);     // boca
-    } else {
-      // de costas: so cabelo, com um brilho para nao virar mancha chapada
-      b.rect(4, 6, 8, 2, o.cabeloL);
-      b.rect(5, 11, 6, 1, o.cabeloL);
-    }
-    b.rect(4, 5, 8, 1, o.cabeloL);
-    if (o.cabeloLongo) {
-      for (const x of [2, 3, 12, 13]) b.rect(x, 10, 1, 6, o.cabelo);
-      b.set(3, 10, o.cabeloL); b.set(12, 10, o.cabeloL);
-    }
-  } else {
-    // ----- perfil (desenhado virado para a direita; 'esq' espelha depois) -----
+    // ----- tronco pequeno de frente/costas -----
     b.rect(4, 13, 8, 4, o.roupa);
     b.rect(5, 13, 6, 1, o.roupaL);
-    b.rect(8, 14, 2, 3, o.pele);          // braco da frente balancando
-    b.rect(6, 12, 4, 1, o.pele);
+    b.rect(3, 14, 1, 2, o.pele);          // bracos
+    b.rect(12, 14, 1, 2, o.pele);
 
-    b.rect(3, 5, 10, 8, o.cabelo);
-    b.rect(7, 7, 6, 5, o.pele);           // rosto de perfil
-    b.set(13, 9, o.pele);                 // nariz
-    b.set(10, 8, P.ink!); b.set(11, 8, P.ink!);
-    b.rect(10, 10, 2, 1, o.peleEsc);
-    b.rect(4, 5, 8, 1, o.cabeloL);
-    if (o.cabeloLongo) { b.rect(3, 10, 2, 6, o.cabelo); b.set(3, 10, o.cabeloL); }
+    // ----- cabecao redondo -----
+    if (o.cabeloLongo) {
+      for (const x of [2, 3, 12, 13]) b.rect(x, 9, 1, 7, o.cabelo);
+      b.set(3, 9, o.cabeloL); b.set(12, 9, o.cabeloL);
+    }
+    b.ellipse(8, 7, 6, 6, o.cabelo);
+    if (dir === 'baixo') {
+      b.ellipse(8, 9, 5, 4, o.pele);      // rosto
+      b.rect(3, 3, 10, 3, o.cabelo);      // franja
+      b.rect(2, 5, 2, 5, o.cabelo); b.rect(12, 5, 2, 5, o.cabelo);
+      // olho preto de ponto de brilho, bochecha rosada e o sorriso
+      for (const x of [5, 9]) { b.rect(x, 8, 2, 2, P.ink!); b.set(x, 8, BRILHO); }
+      b.set(4, 10, BOCHECHA); b.set(11, 10, BOCHECHA);
+      b.set(7, 11, o.peleEsc); b.set(8, 11, o.peleEsc);
+    } else {
+      // de costas: so cabelo, com um brilho para nao virar mancha chapada
+      b.rect(5, 4, 5, 2, o.cabeloL);
+      b.rect(6, 11, 4, 1, o.cabeloL);
+    }
+    b.rect(5, 2, 6, 1, o.cabeloL);
+  } else {
+    // ----- perfil (desenhado virado para a direita; 'esq' espelha depois) -----
+    b.rect(5, 13, 6, 4, o.roupa);
+    b.rect(6, 13, 4, 1, o.roupaL);
+    b.rect(8, 14, 2, 3, o.pele);          // braco da frente balancando
+
+    if (o.cabeloLongo) { b.rect(3, 9, 2, 7, o.cabelo); b.set(3, 9, o.cabeloL); }
+    b.ellipse(8, 7, 6, 6, o.cabelo);
+    b.ellipse(10, 9, 4, 4, o.pele);       // rosto de perfil
+    b.rect(6, 3, 8, 3, o.cabelo);         // franja
+    b.rect(5, 5, 3, 5, o.cabelo);         // o cabelo cobrindo a orelha
+    b.rect(11, 8, 2, 2, P.ink!); b.set(11, 8, BRILHO);
+    b.set(13, 10, BOCHECHA);
+    b.set(12, 11, o.peleEsc);
+    b.rect(5, 2, 6, 1, o.cabeloL);
   }
 
   chapeu(b, o, dir);
