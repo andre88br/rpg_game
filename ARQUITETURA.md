@@ -66,14 +66,16 @@ src/
 ├─ render3d/  relevo.ts (o que cada uma das 27 letras do chão vira, o modelo
 │             de cada tipo de objeto, a luz de cada região e hora) + teste
 │             vista3d.ts (o mundo low-poly em three.js, num canvas próprio)
-│             modelos/ (base.ts: peça com cor por vértice + juntar · vegetacao.ts:
+│             modelos/ (base.ts: peça com cor por vértice + juntar, o material
+│             realista com grão, a folhagem e o capim · vegetacao.ts:
 │             as árvores de cada bioma · casas.ts: a casa da região e a
 │             construção das lojas · terreiros.ts: o terreiro de cada
 │             região, copiado do 2D ·
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
 │             gente, com braço e perna que andam · desenho3d.ts: o desenho
 │             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
-│             cada espécie · encantado3d.ts: monta e anima) + modelos.test.ts
+│             cada espécie · realistas.ts: os bichos já esculpidos em 3D
+│             (os três iniciais) · encantado3d.ts: monta e anima) + modelos.test.ts
 │             arena.ts (a arena da batalha por cenário e região, as câmeras
 │             e `focoDaCena`) + teste · batalha3d.ts (a batalha em 3D)
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
@@ -257,18 +259,34 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   reamostrada em 24×24, se sobrepõe menos de 0,80 à de outra família e
   menos de 0,88 à da própria). Clarões passam por `forcaDoClarao()`
   (`game/config.ts`, opção CLARÕES).
-  **O cenário de desenho animado** (`render3d/modelos/base.ts`):
-  `materialDesenho()` é um MeshToonMaterial de cor por vértice, com a luz em
-  três degraus (`degrausDeLuz`); `casca(geo, espessura)` infla o modelo pela
-  normal média de cada ponto e, com `materialContorno()` (BackSide, cor do
-  contorno), faz o contorno grosso de qualquer ângulo — árvores e pedras
-  (InstancedMesh gêmeas, com as mesmas matrizes e o mesmo vento), casas e
-  objetos (a casca é filha da malha e some quando a casa fica translúcida)
-  e a gente (uma casca por parte, que anda com ela). `juntarLiso` deixa
-  copa e moita redondas.
-  A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
-  cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
-  (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.
+  **O 3D realista** (`render3d/modelos/base.ts`): `materialReal()` é um
+  MeshStandardMaterial de cor por vértice com GRÃO — `comGrao` injeta no
+  shader duas escalas de ruído pela posição no mundo (fina: a textura da
+  terra, da casca, do reboco; larga: manchas). Sem imagem nenhuma: a arte
+  segue toda feita por código. `folhagem()` faz a copa em tufos entortados
+  por ruído, escura por dentro e clara onde bate o sol, com a normal puxada
+  do centro da copa; `galho()` faz tronco de cor rajada; `tufoDeCapim()` é a
+  folha fina que a vista espalha na grama (InstancedMesh, cor da instância =
+  cor do chão, e nenhum na LEVE). `balancando` (vista3d.ts) encadeia o vento
+  com o grão e põe a força na chave do programa. O chão tem os vértices
+  fundidos (`mergeVertices`) para a normal sair lisa; a água calcula a
+  onda em cada pixel (soma de ondinhas) e dela tira a normal, o reflexo do
+  céu (Fresnel) e o brilho do sol. Nada tem contorno.
+  A gente: `spritePessoa` (`art/people.ts`) segue com o cabeção no plano;
+  `pessoa3D` (`render3d/modelos/humanoide.ts`) faz uma pessoa de umas seis
+  cabeças, de tronco torneado, braço e perna em duas partes e rosto pequeno
+  (olho com íris, sobrancelha, nariz, boca, orelha), nas cores do estilo.
+- **Encantados esculpidos** (`realistas.ts`). Os três iniciais já não vêm
+  do desenho: são modelados em 3D — `varrer` faz o corpo de cobra e a cauda
+  de peixe correndo anéis por uma curva (barriga e costas pintadas pelo
+  rumo do chão, escama e placa por padrão), `chama` é a língua de fogo
+  torneada de cor acima de 1 (acende na sombra), `olho` tem globo, íris,
+  pupila (de fenda na cobra) e brilho, e fecha em pálpebra na piscada, no
+  dano e no desmaio. As cores são as do desenho (`C` de art/creatures.ts),
+  e o raro passa pelo mesmo `trocaRara` do desenho virado sólido.
+  `encantado3D` usa o esculpido quando `temModeloReal(id)`, com
+  `MAT_REAL_BICHO`, e devolve as mesmas partes (`corpo`, `cabeca`,
+  `bracoE`/`bracoD`) que a animação já conhece.
 - **Encantados: o próprio desenho 2D, em sólidos** (`desenho3d.ts`). Cada
   desenho de `art/creatures.ts` é feito de primitivas — elipse, triângulo,
   retângulo, linha, pixel — numa ordem. `gravar` roda a função de desenho

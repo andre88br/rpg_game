@@ -3,7 +3,7 @@
 import { Buf } from '../core/buf.ts';
 import { P } from './palette.ts';
 
-const C: Record<string, string> = {
+export const C: Record<string, string> = {
   // Boitata — serpente de fogo
   boi:  '#3f9a4a', boiL: '#62b866', boiD: '#2a6e34', boiB: '#f2d83a', boiBD: '#c8a828',
   fogoV: '#e0401e', fogoA: '#ff8a2a', fogoM: '#ffd23a', lingua: '#e070a0', bocaF: '#7a2a2a',

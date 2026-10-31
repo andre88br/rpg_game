@@ -275,7 +275,7 @@ export interface Desenho3D {
 }
 
 /* a troca de cor do raro: a mesma de art/raro.ts, pixel a pixel do desenho */
-function trocaRara(original: Buf, especie: string): (c: string) => string {
+export function trocaRara(original: Buf, especie: string): (c: string) => string {
   const rara = variante(original, especie);
   const mapa = new Map<string, string>();
   for (let k = 0; k < original.d.length; k++) {

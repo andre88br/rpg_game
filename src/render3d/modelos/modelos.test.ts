@@ -195,3 +195,30 @@ test('o terreiro 3D de cada região tem as cores do desenho 2D', () => {
     assert.equal(p.letreiro?.fundo, FUNDO_PLACA_TERREIRO[r], `terreiro de ${r}: placa da cor do 2D`);
   }
 });
+
+test('os iniciais esculpidos: cabeça que mexe, olho que fecha na piscada, pé virado do Curupinho', async () => {
+  const { temModeloReal } = await import('./realistas.ts');
+  for (const id of ['boitatinha', 'iarinha', 'curupinho']) {
+    assert.ok(temModeloReal(id), id);
+    const g = encantado3D(id, false, mat);
+    assert.ok(g.getObjectByName('cabeca'), `${id} sem cabeça móvel`);
+    const aberto = coresDoModelo(g.getObjectByName('cabeca')!);
+    const fechado = coresDoModelo(encantado3D(id, false, mat, 'pisca').getObjectByName('cabeca')!);
+    assert.ok([...aberto].some((c) => !fechado.has(c)), `${id}: o olho não fecha na piscada`);
+  }
+  for (const id of ['iarinha', 'curupinho']) {
+    const g = encantado3D(id, false, mat);
+    assert.ok(g.getObjectByName('bracoE') && g.getObjectByName('bracoD'), `${id} sem braços`);
+  }
+  // o pé do Curupinho aponta para trás: tem mais corpo atrás do tornozelo
+  const corpo = encantado3D('curupinho', false, mat).getObjectByName('corpo')!;
+  const pe = new THREE.Box3();
+  // só a malha do corpo (a lança, na mão, também chega no chão)
+  corpo.children.forEach((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const p = m.geometry.getAttribute('position');
+    for (let i = 0; i < p.count; i++) if (p.getY(i) < 0.05) pe.expandByPoint(new THREE.Vector3(p.getX(i), p.getY(i), p.getZ(i)));
+  });
+  assert.ok(-pe.min.z > pe.max.z, 'o pé do Curupinho vai para trás');
+});

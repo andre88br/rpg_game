@@ -17,7 +17,7 @@ assombrações são mais fofas que assustadoras.
 | Encantado, primeira forma | 32×32 | metade da altura ou mais | pequeno, perninhas curtas |
 | Encantado, evolução | 40×40 | um pouco menos de metade | maior, pose mais firme |
 | Gente | 16×20, 4 direções | redonda, linhas 2 a 12 | tronco de 4 linhas, pernas de 3 |
-| Gente em 3D | `pessoa3D` | raio 0,31 | o resto do boneco igual |
+| Gente em 3D | `pessoa3D` | raio 0,105, umas seis cabeças de altura | tronco torneado, braço e perna em duas partes |
 
 ## O rosto
 
@@ -79,16 +79,24 @@ outros. Prefira uma pose que diga quem ele é.
 
 ## Cenário e interface
 
-O mundo segue o mesmo desenho animado dos bichos.
+O plano (mapa de cima, menus, luta 2D) segue em pixel. O 3D é realista:
+luz de verdade, textura e nenhum contorno.
 
-- **3D:** tudo de cor por vértice usa `materialDesenho()` (`render3d/modelos/base.ts`),
-  com a luz em três degraus, sem degradê. Árvores, pedras, casas, objetos e
-  gente ganham a `casca`: a mesma forma, inflada e pintada por dentro na cor
-  do contorno. Copa de árvore e moita são bolas lisas (`juntarLiso`) de verde
-  vivo, com uma bola mais clara no alto.
+- **3D:** tudo de cor por vértice usa `materialReal()` (`render3d/modelos/base.ts`),
+  que põe grão e manchas no próprio shader. Cor de natureza de verdade: verde
+  de mato meio apagado, terra parda, areia clara; nada de verde-bandeira.
+  Copa de árvore é `folhagem()` (tufos irregulares, miolo escuro, ponta
+  clara), tronco é `galho()`. A grama tem capim (`tufoDeCapim`) da cor do
+  chão. O sol fica de meio da manhã, para a sombra comprida dar volume.
+- **Gente em 3D:** proporção de gente (umas seis cabeças), rosto pequeno
+  de olho com íris, nariz, boca e orelha; as cores são as do estilo plano.
+- **Bicho em 3D:** os esculpidos (`modelos/realistas.ts`) têm olho de
+  verdade (branco, íris, pupila e brilho; cobra sem branco e de pupila em
+  fenda), pele lisa, escama, placa de barriga, e fogo que acende de dentro.
+  Mantêm as cores do desenho, para o bicho continuar o mesmo.
 - **Mapa plano:** árvore, moita e pedra têm contorno escuro. A grama tem pouco
   pontilhado, porque cor chapada lê melhor que ruído.
-- **Fundo de luta:** nuvens fofas de contorno manso, sol na praia, copas
+- **Fundo de luta 2D:** nuvens fofas de contorno manso, sol na praia, copas
   redondas no horizonte e plataformas contornadas.
 - **Caixas:** canto redondo, contorno escuro, filete dourado e um brilho fino
   no alto. O miolo começa sempre em (2, 2), então trocar o desenho da caixa

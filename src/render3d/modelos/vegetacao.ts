@@ -20,25 +20,25 @@ const TRONCO = '#5e4a38', TRONCO_CLARO = '#8a7458';
 const tronco = (rT: number, rB: number, h: number, x: number, y: number, z: number,
                 giro: { x?: number; y?: number; z?: number } = {}, cor = TRONCO) => galho(rT, rB, h, cor, x, y, z, giro);
 
-const MODELOS: Record<Arvore, () => THREE.BufferGeometry> = {
+const MODELOS: Record<Arvore, (d: number) => THREE.BufferGeometry> = {
   /* a árvore de sempre: tronco que se abre em dois galhos e a copa em
      três volumes de folha */
-  mata: () => fundir([
+  mata: (d) => fundir([
     tronco(0.08, 0.15, 0.95, 0, 0.47, 0),
     tronco(0.04, 0.07, 0.6, -0.16, 1.05, 0.04, { z: 0.55 }),
     tronco(0.04, 0.07, 0.6, 0.15, 1.1, -0.04, { z: -0.5 }),
-    folhagem(0, 1.35, 0, 0.62, '#4a7a30', { semente: 1, tufos: 9, sol: '#8aa850', sombra: '#1e3416' }),
-    folhagem(-0.32, 1.25, 0.12, 0.4, '#45742c', { semente: 2, tufos: 5, sol: '#80a048', sombra: '#1e3416' }),
-    folhagem(0.3, 1.32, -0.14, 0.42, '#507e34', { semente: 3, tufos: 5, sol: '#8aa850', sombra: '#1e3416' }),
+    folhagem(0, 1.35, 0, 0.62, '#4a7a30', { detalhe: d, semente: 1, tufos: 9, sol: '#8aa850', sombra: '#1e3416' }),
+    folhagem(-0.32, 1.25, 0.12, 0.4, '#45742c', { detalhe: d, semente: 2, tufos: 5, sol: '#80a048', sombra: '#1e3416' }),
+    folhagem(0.3, 1.32, -0.14, 0.42, '#507e34', { detalhe: d, semente: 3, tufos: 5, sol: '#8aa850', sombra: '#1e3416' }),
   ]),
   /* a mata da Mata do Curupira: alta, de tronco comprido com sapopema */
-  mataAlta: () => fundir([
+  mataAlta: (d) => fundir([
     tronco(0.1, 0.17, 1.6, 0, 0.8, 0),
     tronco(0.02, 0.14, 0.4, 0.12, 0.15, 0, { z: -0.6 }),
     tronco(0.02, 0.14, 0.4, -0.1, 0.15, 0.08, { z: 0.6, x: 0.3 }),
     tronco(0.04, 0.07, 0.7, 0.2, 1.7, 0, { z: -0.6 }),
-    folhagem(0, 2.05, 0, 0.75, '#355f26', { semente: 4, tufos: 10, sol: '#6c9040', sombra: '#13240e' }),
-    folhagem(0.4, 1.8, 0.1, 0.42, '#3a6628', { semente: 5, tufos: 5, sol: '#6c9040', sombra: '#13240e' }),
+    folhagem(0, 2.05, 0, 0.75, '#355f26', { detalhe: d, semente: 4, tufos: 10, sol: '#6c9040', sombra: '#13240e' }),
+    folhagem(0.4, 1.8, 0.1, 0.42, '#3a6628', { detalhe: d, semente: 5, tufos: 5, sol: '#6c9040', sombra: '#13240e' }),
   ]),
   /* coqueiro: tronco anelado que se inclina, palmas arqueadas, cocos */
   coqueiro: () => {
@@ -60,17 +60,17 @@ const MODELOS: Record<Arvore, () => THREE.BufferGeometry> = {
     for (let k = 0; k < 4; k++) pecas.push(lisa(peca(bola(0.075, 1), '#5a4a28', x + Math.cos(k * 1.6) * 0.09, topo - 0.14, Math.sin(k * 1.6) * 0.09)));
     return fundir(pecas);
   },
-  ipeRosa: () => fundir([
+  ipeRosa: (d) => fundir([
     tronco(0.07, 0.13, 1.0, 0, 0.5, 0),
     tronco(0.04, 0.06, 0.55, 0.15, 1.05, 0, { z: -0.5 }),
-    folhagem(0, 1.4, 0, 0.6, '#c8649a', { semente: 6, tufos: 9, sol: '#f0a8cc', sombra: '#5a2a44', achatar: 0.7 }),
-    folhagem(0.32, 1.55, 0.1, 0.36, '#d070a4', { semente: 7, tufos: 5, sol: '#f4b8d4', sombra: '#5a2a44' }),
+    folhagem(0, 1.4, 0, 0.6, '#c8649a', { detalhe: d, semente: 6, tufos: 9, sol: '#f0a8cc', sombra: '#5a2a44', achatar: 0.7 }),
+    folhagem(0.32, 1.55, 0.1, 0.36, '#d070a4', { detalhe: d, semente: 7, tufos: 5, sol: '#f4b8d4', sombra: '#5a2a44' }),
   ]),
-  ipeAmarelo: () => fundir([
+  ipeAmarelo: (d) => fundir([
     tronco(0.07, 0.13, 1.0, 0, 0.5, 0),
     tronco(0.04, 0.06, 0.55, -0.15, 1.05, 0, { z: 0.5 }),
-    folhagem(0, 1.4, 0, 0.6, '#d8a828', { semente: 8, tufos: 9, sol: '#f6dc6a', sombra: '#6a4a10', achatar: 0.7 }),
-    folhagem(-0.3, 1.55, 0.05, 0.36, '#e0b030', { semente: 9, tufos: 5, sol: '#fae47a', sombra: '#6a4a10' }),
+    folhagem(0, 1.4, 0, 0.6, '#d8a828', { detalhe: d, semente: 8, tufos: 9, sol: '#f6dc6a', sombra: '#6a4a10', achatar: 0.7 }),
+    folhagem(-0.3, 1.55, 0.05, 0.36, '#e0b030', { detalhe: d, semente: 9, tufos: 5, sol: '#fae47a', sombra: '#6a4a10' }),
   ]),
   /* mandacaru: coluna e dois braços, gomos de espinho */
   cacto: () => fundir([
@@ -91,19 +91,20 @@ const MODELOS: Record<Arvore, () => THREE.BufferGeometry> = {
   ]),
   /* pinheiro da serra (araucária): tronco reto e alto, e a copa em
      andares chatos de galho, abrindo para cima feito taça */
-  pinheiro: () => fundir([
+  pinheiro: (d) => fundir([
     tronco(0.05, 0.1, 1.9, 0, 0.95, 0, {}, '#5a4434'),
-    folhagem(0, 1.95, 0, 0.62, '#2f4f2a', { semente: 10, tufos: 9, achatar: 0.32, sol: '#5a7a44', sombra: '#101c0c' }),
-    folhagem(0, 1.62, 0, 0.5, '#2c4a28', { semente: 11, tufos: 7, achatar: 0.3, sol: '#52703e', sombra: '#101c0c' }),
-    folhagem(0, 1.32, 0, 0.36, '#2a4626', { semente: 12, tufos: 5, achatar: 0.3, sol: '#4c6a3a', sombra: '#101c0c' }),
+    folhagem(0, 1.95, 0, 0.62, '#2f4f2a', { detalhe: d, semente: 10, tufos: 9, achatar: 0.32, sol: '#5a7a44', sombra: '#101c0c' }),
+    folhagem(0, 1.62, 0, 0.5, '#2c4a28', { detalhe: d, semente: 11, tufos: 7, achatar: 0.3, sol: '#52703e', sombra: '#101c0c' }),
+    folhagem(0, 1.32, 0, 0.36, '#2a4626', { detalhe: d, semente: 12, tufos: 5, achatar: 0.3, sol: '#4c6a3a', sombra: '#101c0c' }),
   ]),
-  arbusto: () => fundir([
-    folhagem(0, 0.3, 0, 0.42, '#4a7a30', { semente: 13, tufos: 7, achatar: 0.7, sol: '#86a44c', sombra: '#1e3416' }),
-    folhagem(0.26, 0.24, 0.1, 0.28, '#527e36', { semente: 14, tufos: 4, achatar: 0.75, sol: '#86a44c', sombra: '#1e3416' }),
+  arbusto: (d) => fundir([
+    folhagem(0, 0.3, 0, 0.42, '#4a7a30', { detalhe: d, semente: 13, tufos: 7, achatar: 0.7, sol: '#86a44c', sombra: '#1e3416' }),
+    folhagem(0.26, 0.24, 0.1, 0.28, '#527e36', { detalhe: d, semente: 14, tufos: 4, achatar: 0.75, sol: '#86a44c', sombra: '#1e3416' }),
   ]),
 };
 
-export function modeloArvore(a: Arvore): THREE.BufferGeometry { return MODELOS[a](); }
+/* `leve`: tufos de folha mais simples (a qualidade LEVE, para o celular) */
+export function modeloArvore(a: Arvore, leve = false): THREE.BufferGeometry { return MODELOS[a](leve ? 0 : 1); }
 export const ARVORES: readonly Arvore[] = Object.keys(MODELOS) as Arvore[];
 
 /* as árvores de cada região (pelo tipo dela), com o peso do sorteio */

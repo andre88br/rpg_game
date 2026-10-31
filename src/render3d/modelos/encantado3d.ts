@@ -1,6 +1,7 @@
 /* =========================================================================
    Os Encantados em 3D: cada um é o PRÓPRIO desenho 2D, peça por peça,
-   virado sólido (desenho3d.ts), com os ajustes da espécie (bichos.ts).
+   virado sólido (desenho3d.ts), com os ajustes da espécie (bichos.ts) —
+   menos os que já foram esculpidos em 3D de verdade (realistas.ts).
 
    O modelo é um grupo `corpo` (que a animação move inteiro) com o contorno
    escuro por fora, como o contorno do desenho, e as partes que mexem
@@ -10,7 +11,8 @@
    maior, e o lendário é o maior de todos.
    ========================================================================= */
 import * as THREE from 'three';
-import { materialDesenho } from './base.ts';
+import { materialDesenho, materialReal } from './base.ts';
+import { modeloReal, temModeloReal } from './realistas.ts';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
@@ -51,6 +53,9 @@ MAT_BICHO.onBeforeCompile = (sh) => {
     '#include <emissivemap_fragment>\n  totalEmissiveRadiance += diffuseColor.rgb * 0.28;');
 };
 
+/* o material dos bichos esculpidos: pele de verdade, um grão bem fino */
+export const MAT_REAL_BICHO = materialReal({ roughness: 0.55 }, 0.05, 0.04);
+
 /* monta o Encantado da espécie (o raro com as cores do desenho raro) */
 export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT_BICHO, pose: Pose = 'normal'): THREE.Group {
   const ficha = ESPECIES[id];
@@ -60,6 +65,19 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
   g.name = 'corpo';
   raiz.add(g);
   if (!arte) return raiz;
+  // o bicho já esculpido em 3D (por enquanto, os três iniciais)
+  if (temModeloReal(id)) {
+    const m = mat === MAT_BICHO ? MAT_REAL_BICHO : mat;
+    for (const p of modeloReal(id, raro, m, pose)) {
+      if (p.name === 'corpo#') { for (const c of [...p.children]) g.add(c); } else g.add(p);
+    }
+    g.userData['flutua'] = false;
+    g.userData['altura'] = new THREE.Box3().setFromObject(g).max.y;
+    // esculpido é mais fino que o desenho virado sólido: um tico maior,
+    // para ocupar o mesmo lugar na luta
+    raiz.scale.setScalar(tamanhoDe(id) * 1.2);
+    return raiz;
+  }
   // a pose só muda o rosto: o mesmo desenho, com o olho piscando, bravo...
   const desenhar = pose === 'normal' ? arte : () => naPose(arte, pose);
   const d = desenho3D(desenhar, id, AJUSTES[id], raro);

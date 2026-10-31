@@ -44,9 +44,8 @@ export function juntar(pecas: THREE.BufferGeometry[]): THREE.BufferGeometry {
   return g;
 }
 
-/* funde as peças com normais LISAS dentro de cada peça: a copa de árvore
-   e a moita saem redondas e fofas, como de desenho animado, em vez de
-   facetadas */
+/* funde as peças com normais LISAS dentro de cada peça (a pedra sai
+   redonda em vez de facetada) */
 export function juntarLiso(pecas: THREE.BufferGeometry[]): THREE.BufferGeometry {
   const lisas = pecas.map((p) => {
     const m = mergeVertices(p);
@@ -62,13 +61,8 @@ export function juntarLiso(pecas: THREE.BufferGeometry[]): THREE.BufferGeometry 
 
 /* ----------------------------------------------- o jeito de desenho animado
 
-   Os bichos e a gente têm contorno escuro e cor chapada; o mundo em volta
-   segue o mesmo jeito. A luz cai em três degraus (sem degradê), e cada
-   modelo ganha uma CASCA: a mesma forma, inflada um fio para fora e pintada
-   só por dentro (BackSide) da cor do contorno — o contorno grosso do
-   desenho, visto de qualquer lado. */
-
-export const COR_CONTORNO = '#191221';
+   O material dos Encantados que ainda não foram esculpidos em 3D (o
+   desenho 2D virado sólido): cor chapada, com a luz em três degraus. */
 
 let degraus: THREE.DataTexture | null = null;
 
@@ -82,32 +76,8 @@ export function degrausDeLuz(): THREE.DataTexture {
   return degraus;
 }
 
-/* o material de tudo que tem cor por vértice no mundo */
 export function materialDesenho(op: THREE.MeshToonMaterialParameters = {}): THREE.MeshToonMaterial {
   return new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: degrausDeLuz(), ...op });
-}
-
-/* o material da casca: só a cor do contorno, só por dentro */
-export function materialContorno(): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({ color: COR_CONTORNO, side: THREE.BackSide });
-}
-
-/* a casca de um modelo: os vértices empurrados para fora pela normal média
-   de cada ponto (as faces de um mesmo canto andam juntas, sem abrir fresta) */
-export function casca(geo: THREE.BufferGeometry, espessura = 0.035): THREE.BufferGeometry {
-  const so = new THREE.BufferGeometry();
-  so.setAttribute('position', geo.getAttribute('position').clone());
-  if (geo.index) so.setIndex(geo.index.clone());
-  const g = mergeVertices(so);
-  so.dispose();
-  g.computeVertexNormals();
-  const p = g.getAttribute('position'), n = g.getAttribute('normal');
-  for (let i = 0; i < p.count; i++) {
-    p.setXYZ(i, p.getX(i) + n.getX(i) * espessura, p.getY(i) + n.getY(i) * espessura, p.getZ(i) + n.getZ(i) * espessura);
-  }
-  p.needsUpdate = true;
-  g.deleteAttribute('normal');
-  return g;
 }
 
 /* ------------------------------------------------------ o jeito realista
@@ -201,6 +171,7 @@ export interface OpcoesFolhagem {
   sol?: string;          // a cor das pontas de cima, onde bate sol
   sombra?: string;       // a cor de dentro e de baixo
   semente?: number;
+  detalhe?: number;      // a subdivisão de cada tufo (0 na qualidade LEVE)
 }
 
 /* a copa: tufos entortados pelo ruído, cor do miolo escuro à ponta clara */
@@ -220,7 +191,7 @@ export function folhagem(cx: number, cy: number, cz: number, r: number, cor: str
     const px = cx + Math.cos(a) * Math.cos(e) * d;
     const py = cy + Math.sin(e) * d * ach;
     const pz = cz + Math.sin(a) * Math.cos(e) * d;
-    const g = mergeVertices(new THREE.IcosahedronGeometry(rr, 1));
+    const g = mergeVertices(new THREE.IcosahedronGeometry(rr, op.detalhe ?? 1));
     if (g.getAttribute('uv')) g.deleteAttribute('uv');
     const pos = g.getAttribute('position');
     const v = new THREE.Vector3();

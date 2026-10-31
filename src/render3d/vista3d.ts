@@ -983,7 +983,7 @@ export class Vista3D {
     for (const [x, z] of fora) juntarArvore(arvoreDoTile(this.regiao, Math.round(x * 3), Math.round(z * 3), false), x, z);
     for (const [a, lugares] of porModelo) {
       const forca = a === 'cacto' || a === 'seca' ? 0.01 : 0.035;
-      const geo = modeloArvore(a);
+      const geo = modeloArvore(a, this.leve);
       const arv = repetido(geo, this.guardar(this.balancando(materialReal({ roughness: 0.85 }, 0.3, 0.15), forca)), lugares.length);
       lugares.forEach(([x, z], i) => {
         const s = 0.9 + sorte(x, z, 2) * 0.4;
