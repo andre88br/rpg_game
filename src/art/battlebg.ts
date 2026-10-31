@@ -7,6 +7,7 @@
    ========================================================================= */
 import { Buf } from '../core/buf.ts';
 import { P } from './palette.ts';
+import { clarear } from '../core/cor.ts';
 import { LARGURA as W, ALTURA as H } from '../core/renderer.ts';
 
 export type Cenario = 'praia' | 'mata' | 'cidade' | 'caverna';
@@ -42,18 +43,32 @@ function ceu(b: Buf, c: Cenario): void {
   for (let i = 0; i < 4; i++) b.rect(0, i * 8, W, 8, faixas[i]!);
   b.rect(0, 32, W, 20, c === 'mata' ? '#e2f6ec' : '#d8f0fb');
 
+  // o céu de desenho animado: sol redondo na praia e nuvens fofas
+  if (c === 'praia') {
+    b.ellipse(206, 16, 9, 9, '#ffe27a');
+    b.ellipse(206, 16, 6, 6, '#fff2b0');
+  }
+  nuvem(b, 30, 14, 1);
+  nuvem(b, 120, 9, 0.8);
+  if (c !== 'praia') nuvem(b, 200, 20, 0.9);
+
   if (c === 'praia') {
     // mar ao fundo, com a linha de espuma
     b.rect(0, 52, W, 14, P.waterL!);
     for (let x = 0; x < W; x += 7) b.rect(x, 56, 4, 1, P.foam!);
     b.rect(0, 62, W, 6, P.water!);
   } else if (c === 'mata') {
-    // fileira de copas de árvore no horizonte
-    for (let x = -4; x < W + 8; x += 11) {
-      const h = 10 + ((x * 13) % 9);
-      b.ellipse(x, 58 - h / 2, 8, h, P.treeD!);
-      b.ellipse(x - 2, 56 - h / 2, 5, h - 3, P.tree!);
+    // fileira de copas fofas no horizonte, contornada como as árvores do mundo
+    const copas = new Buf(W + 16, 40);
+    for (let x = 0; x < W + 16; x += 13) {
+      const alto = 14 + ((x * 13) % 9);
+      copas.ellipse(x, 40 - alto, 9, 9, '#3f9e44');
+      copas.ellipse(x + 6, 44 - alto, 8, 8, '#3f9e44');
+      copas.ellipse(x - 2, 37 - alto, 4, 3, '#7ccf62');
     }
+    copas.rect(0, 32, W + 16, 8, '#2f8238');
+    copas.outline('#1f5a2a');
+    b.blit(copas, -8, 28);
   } else {
     // telhados ao longe
     for (let x = -6; x < W + 8; x += 26) {
@@ -75,6 +90,18 @@ function chao(b: Buf, c: Cenario): void {
   }
 }
 
+/* uma nuvem fofa: bolas brancas, a barriga azulada e um contorno manso */
+function nuvem(b: Buf, x: number, y: number, k: number): void {
+  const n = new Buf(Math.ceil(50 * k) + 4, Math.ceil(22 * k) + 4);
+  const e = (cx: number, cy: number, rx: number, ry: number, cor: string) =>
+    n.ellipse(Math.round(2 + cx * k), Math.round(2 + cy * k), Math.max(1, Math.round(rx * k)), Math.max(1, Math.round(ry * k)), cor);
+  e(12, 13, 10, 6, '#ffffff'); e(24, 9, 10, 8, '#ffffff'); e(36, 13, 10, 6, '#ffffff');
+  e(24, 16, 20, 3, '#e4f2fb');
+  e(21, 6, 4, 2, '#ffffff');
+  n.outline('#9cc6e2');
+  b.blit(n, x, y);
+}
+
 export function plataforma(b: Buf, cx: number, cy: number, rx: number, ry: number,
                            c: Cenario = 'praia'): void {
   const aro = c === 'mata' ? '#2d6027' : c === 'cidade' ? '#a3804f'
@@ -83,12 +110,16 @@ export function plataforma(b: Buf, cx: number, cy: number, rx: number, ry: numbe
              : c === 'caverna' ? '#57506b' : '#e0caa0';
   const topo = c === 'mata' ? '#74bf5e' : c === 'cidade' ? '#e8d5ad'
              : c === 'caverna' ? '#6d6584' : '#f2e3bd';
-  b.ellipse(cx, cy + 1, rx, ry, aro);
-  b.ellipse(cx, cy, rx - 1, ry - 1, meio);
-  b.ellipse(cx, cy - 1, rx - 4, ry - 2, topo);
-  for (let i = 0; i < 14; i++) {
-    b.set(cx - rx + ((i * 37) % (rx * 2)), cy + ((i * 13) % 3) - 1, aro);
-  }
+  // desenhada à parte para ganhar o contorno escuro, como os bichos
+  const d = new Buf(rx * 2 + 5, ry * 2 + 6);
+  const ox = rx + 2, oy = ry + 2;
+  d.ellipse(ox, oy + 1, rx, ry, aro);
+  d.ellipse(ox, oy, rx - 1, ry - 1, meio);
+  d.ellipse(ox, oy - 1, rx - 4, ry - 2, topo);
+  d.ellipse(ox - Math.round(rx * 0.35), oy - 2, Math.round(rx * 0.3), 1, clarear(topo, 40));
+  for (let i = 0; i < 10; i++) d.set(ox - rx + 3 + ((i * 37) % (rx * 2 - 6)), oy + ((i * 13) % 3), aro);
+  d.outline(P.ink!);
+  b.blit(d, cx - ox, cy - oy);
 }
 
 /* onde cada combatente fica plantado (canto superior esquerdo do sprite) */

@@ -257,6 +257,15 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   reamostrada em 24×24, se sobrepõe menos de 0,80 à de outra família e
   menos de 0,88 à da própria). Clarões passam por `forcaDoClarao()`
   (`game/config.ts`, opção CLARÕES).
+  **O cenário de desenho animado** (`render3d/modelos/base.ts`):
+  `materialDesenho()` é um MeshToonMaterial de cor por vértice, com a luz em
+  três degraus (`degrausDeLuz`); `casca(geo, espessura)` infla o modelo pela
+  normal média de cada ponto e, com `materialContorno()` (BackSide, cor do
+  contorno), faz o contorno grosso de qualquer ângulo — árvores e pedras
+  (InstancedMesh gêmeas, com as mesmas matrizes e o mesmo vento), casas e
+  objetos (a casca é filha da malha e some quando a casa fica translúcida)
+  e a gente (uma casca por parte, que anda com ela). `juntarLiso` deixa
+  copa e moita redondas.
   A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
   cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
   (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.

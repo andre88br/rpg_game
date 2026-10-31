@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { P } from '../../art/palette.ts';
 import type { OpcoesPessoa } from '../../art/people.ts';
 import type { Direcao } from '../../art/people.ts';
-import { bola, caixa, cilindro, cone, juntar, peca } from './base.ts';
+import { bola, caixa, cilindro, cone, juntar, peca, casca, materialContorno } from './base.ts';
 
 function normalizar(op: OpcoesPessoa): Required<OpcoesPessoa> {
   return {
@@ -38,6 +38,8 @@ function membro(geo: THREE.BufferGeometry, mat: THREE.Material, nome: string,
 }
 
 export const ESCALA_PESSOA = 1.3;
+
+const CONTORNO = materialContorno();
 
 export function pessoa3D(op: OpcoesPessoa, mat: THREE.Material): THREE.Group {
   const o = normalizar(op);
@@ -93,6 +95,10 @@ export function pessoa3D(op: OpcoesPessoa, mat: THREE.Material): THREE.Group {
       peca(caixa(0.14, 0.08, 0.2), o.sapato, 0, -0.37, 0.03),
     ]), mat, lado, [x, 0.41, 0]));
   }
+  // o contorno de desenho animado: uma casca em cada parte, que anda com ela
+  const partes: THREE.Mesh[] = [];
+  corpo.traverse((o) => { if ((o as THREE.Mesh).isMesh) partes.push(o as THREE.Mesh); });
+  for (const p of partes) p.add(new THREE.Mesh(casca(p.geometry, 0.035), CONTORNO));
   const raiz = new THREE.Group();
   raiz.add(corpo);
   // a câmera olha do alto: um pouco maior que a escala do tile, senão só se

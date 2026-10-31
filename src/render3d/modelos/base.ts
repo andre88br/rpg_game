@@ -6,7 +6,7 @@
    Puro three.js, sem DOM: os testes montam os modelos no node.
    ========================================================================= */
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 export interface Peca {
   geo: THREE.BufferGeometry;
@@ -41,6 +41,72 @@ export function juntar(pecas: THREE.BufferGeometry[]): THREE.BufferGeometry {
   for (const p of pecas) p.dispose();
   if (!g) throw new Error('modelo sem peças compatíveis');
   g.computeVertexNormals();
+  return g;
+}
+
+/* funde as peças com normais LISAS dentro de cada peça: a copa de árvore
+   e a moita saem redondas e fofas, como de desenho animado, em vez de
+   facetadas */
+export function juntarLiso(pecas: THREE.BufferGeometry[]): THREE.BufferGeometry {
+  const lisas = pecas.map((p) => {
+    const m = mergeVertices(p);
+    p.dispose();
+    m.computeVertexNormals();
+    return m;
+  });
+  const g = mergeGeometries(lisas, false);
+  for (const p of lisas) p.dispose();
+  if (!g) throw new Error('modelo sem peças compatíveis');
+  return g;
+}
+
+/* ----------------------------------------------- o jeito de desenho animado
+
+   Os bichos e a gente têm contorno escuro e cor chapada; o mundo em volta
+   segue o mesmo jeito. A luz cai em três degraus (sem degradê), e cada
+   modelo ganha uma CASCA: a mesma forma, inflada um fio para fora e pintada
+   só por dentro (BackSide) da cor do contorno — o contorno grosso do
+   desenho, visto de qualquer lado. */
+
+export const COR_CONTORNO = '#191221';
+
+let degraus: THREE.DataTexture | null = null;
+
+/* a rampa da luz: sombra, meia-luz, luz */
+export function degrausDeLuz(): THREE.DataTexture {
+  if (degraus) return degraus;
+  degraus = new THREE.DataTexture(new Uint8Array([150, 210, 255]), 3, 1, THREE.RedFormat);
+  degraus.minFilter = degraus.magFilter = THREE.NearestFilter;
+  degraus.generateMipmaps = false;
+  degraus.needsUpdate = true;
+  return degraus;
+}
+
+/* o material de tudo que tem cor por vértice no mundo */
+export function materialDesenho(op: THREE.MeshToonMaterialParameters = {}): THREE.MeshToonMaterial {
+  return new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: degrausDeLuz(), ...op });
+}
+
+/* o material da casca: só a cor do contorno, só por dentro */
+export function materialContorno(): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({ color: COR_CONTORNO, side: THREE.BackSide });
+}
+
+/* a casca de um modelo: os vértices empurrados para fora pela normal média
+   de cada ponto (as faces de um mesmo canto andam juntas, sem abrir fresta) */
+export function casca(geo: THREE.BufferGeometry, espessura = 0.035): THREE.BufferGeometry {
+  const so = new THREE.BufferGeometry();
+  so.setAttribute('position', geo.getAttribute('position').clone());
+  if (geo.index) so.setIndex(geo.index.clone());
+  const g = mergeVertices(so);
+  so.dispose();
+  g.computeVertexNormals();
+  const p = g.getAttribute('position'), n = g.getAttribute('normal');
+  for (let i = 0; i < p.count; i++) {
+    p.setXYZ(i, p.getX(i) + n.getX(i) * espessura, p.getY(i) + n.getY(i) * espessura, p.getZ(i) + n.getZ(i) * espessura);
+  }
+  p.needsUpdate = true;
+  g.deleteAttribute('normal');
   return g;
 }
 

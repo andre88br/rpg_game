@@ -5,18 +5,33 @@ import { P } from './palette.ts';
 import { texto, larguraTexto } from './font.ts';
 import { clarear } from '../core/cor.ts';
 
-/* caixa de dialogo / painel, com borda dupla estilo cartucho */
+/* caixa de dialogo / painel: contorno escuro, filete dourado e o miolo
+   creme, de cantos redondos como os desenhos do jogo. O miolo começa sempre
+   em (2, 2) e termina 4 antes da borda, para o texto de quem usa não mudar
+   de lugar. */
 export interface OpcoesCaixa { fundo?: string; borda?: string; borda2?: string; sombra?: boolean }
+
+/* quanto cada linha entra, nos cantos, num retângulo de canto redondo */
+const RECUO: Record<number, readonly number[]> = { 1: [1], 2: [1, 0], 3: [2, 1, 0], 4: [2, 1, 1, 0] };
+
+function arredondado(b: Buf, x: number, y: number, w: number, h: number, raio: number, cor: string): void {
+  const r = RECUO[raio] ?? [];
+  for (let j = 0; j < h; j++) {
+    const k = Math.min(j, h - 1 - j);
+    const i = k < r.length ? r[k]! : 0;
+    b.rect(x + i, y + j, w - 2 * i, 1, cor);
+  }
+}
 
 export function caixa(w: number, h: number, opt: OpcoesCaixa = {}): Buf {
   const { fundo = P.uiBg, borda = P.uiInk, borda2 = P.uiAcc, sombra = true } = opt;
   const b = new Buf(w, h);
-  if (sombra) { b.rect(2, 2, w - 2, h - 2, P.ink2); }
-  b.rect(0, 0, w - 2, h - 2, borda);
-  b.rect(1, 1, w - 4, h - 4, borda2);
-  b.rect(2, 2, w - 6, h - 6, fundo);
-  // cantinhos chanfrados
-  for (const [x, y] of [[0, 0], [w - 3, 0], [0, h - 3], [w - 3, h - 3]]) b.apagar(x, y);
+  if (sombra) arredondado(b, 2, 2, w - 2, h - 2, 4, P.ink2!);
+  arredondado(b, 0, 0, w - 2, h - 2, 4, borda);
+  arredondado(b, 1, 1, w - 4, h - 4, 3, borda2);
+  arredondado(b, 2, 2, w - 6, h - 6, 2, fundo);
+  // um brilho fino no alto do miolo, como luz batendo
+  if (w > 16 && h > 10) b.rect(5, 3, w - 12, 1, clarear(fundo, 30));
   return b;
 }
 

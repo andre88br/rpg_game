@@ -10,7 +10,8 @@ function base(color: string): Buf { const b = new Buf(TS, TS); b.rect(0, 0, TS, 
 
 export function tileGrama(seed = 1): Buf {
   const b = base(P.grass); const r = rng(seed);
-  for (let i = 0; i < 26; i++) b.set(r() * TS, r() * TS, r() < 0.55 ? P.grassD : P.grassL);
+  // pouco pontilhado: grama de desenho animado é cor chapada com uns tufinhos
+  for (let i = 0; i < 12; i++) b.set(r() * TS, r() * TS, r() < 0.55 ? P.grassD : P.grassL);
   for (let i = 0; i < CONTAS_NA_GUIA; i++) { // tufinhos de 2px
     const x = (r() * (TS - 2)) | 0, y = (r() * (TS - 2)) | 0;
     b.set(x, y, P.grassD); b.set(x + 1, y - 1, P.grassD);
@@ -83,13 +84,20 @@ export function tileCaminho(seed = 5): Buf {
   return b;
 }
 
+/* a árvore de desenho animado: tronco curto e gordinho, a copa em bolas
+   fofas de verde vivo com um brilho em cima, e o contorno escuro — a mesma
+   árvore do mundo 3D, vista de cima */
 export function tileArvore(seed = 6): Buf {
   const b = tileGrama(seed + 40);
-  b.rect(6, 10, 4, 6, P.trunkD); b.rect(7, 10, 2, 6, P.trunk);
-  b.ellipse(8, 7, 7, 6, P.tree);
-  b.ellipse(6, 5, 4, 3, P.treeL);
-  b.ellipse(11, 9, 3, 2, P.treeD);
-  b.ellipse(4, 9, 3, 2, P.treeD);
+  const a = new Buf(TS, TS);
+  a.rect(6, 11, 4, 4, '#7a5232'); a.rect(7, 11, 1, 4, '#9a6e44');
+  a.ellipse(8, 8, 5, 5, '#3f9e44');
+  a.ellipse(5, 6, 4, 4, '#4cb04c');
+  a.ellipse(11, 7, 3, 4, '#4cb04c');
+  a.ellipse(7, 4, 3, 2, '#7ccf62');
+  a.set(6, 4, '#a8e48a');
+  a.outline('#1f4a26');
+  b.blit(a, 0, 0);
   return b;
 }
 
@@ -104,9 +112,12 @@ export function tileFlores(seed = 7, color = '#f2d24b'): Buf {
 
 export function tilePedra(seed = 8): Buf {
   const b = tileGrama(seed + 21);
-  b.ellipse(8, 10, 6, 4, P.rock);
-  b.ellipse(6, 8, 3, 2, '#b5aca3');
-  b.ellipse(11, 12, 2, 1, P.rockD);
+  const p = new Buf(TS, TS);
+  p.ellipse(8, 10, 6, 4, P.rock);
+  p.ellipse(6, 8, 3, 2, '#c4bcb2');
+  p.rect(10, 12, 3, 1, P.rockD);
+  p.outline(P.ink);
+  b.blit(p, 0, 0);
   return b;
 }
 
@@ -198,10 +209,11 @@ export function construcao(wTiles: number, hTiles: number, opt: OpcoesConstrucao
 /* moita de mato alto isolada, usada fora dos tiles de grade */
 export function moita(): Buf {
   const b = new Buf(16, 14);
-  b.ellipse(8, 9, 7, 5, P.tall);
-  b.ellipse(6, 7, 4, 3, P.tallL);
-  b.ellipse(11, 10, 3, 2, P.tallD);
-  return b;
+  b.ellipse(8, 9, 6, 4, '#46a646');
+  b.ellipse(5, 8, 4, 3, '#5cba52');
+  b.ellipse(11, 9, 3, 3, '#3f9a40');
+  b.ellipse(7, 6, 2, 1, '#86d46a');
+  return b.outline('#1f4a26');
 }
 
 /* placa de madeira com seta */

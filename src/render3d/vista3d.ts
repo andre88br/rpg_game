@@ -38,6 +38,7 @@ import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
+import { casca, materialContorno, materialDesenho } from './modelos/base.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
   DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, luzDe, modeloDe, relevoDe, relevoNaRegiao,
@@ -177,7 +178,9 @@ export class Vista3D {
   /* a região do mapa montado: escolhe árvore, mato e casa */
   private regiao: string | null = null;
   /* um material por tipo de modelo low-poly: cor por vértice, face plana */
-  private matModelo: THREE.MeshLambertMaterial | null = null;
+  private matModelo: THREE.MeshToonMaterial | null = null;
+  /* o contorno escuro de desenho animado (a casca de cada modelo) */
+  private matContorno: THREE.MeshBasicMaterial | null = null;
   /* as pedras de empurrar (deslizam até a casa nova) e o feixe de luz */
   private pedras: THREE.InstancedMesh | null = null;
   private pedrasPos: { x: number; z: number }[] = [];
@@ -185,7 +188,7 @@ export class Vista3D {
   private chaveFeixe = '';
   /* os prédios, para ficarem translúcidos quando o jogador passa atrás */
   private predios: { pecas: THREE.Mesh[]; x0: number; x1: number; y0: number; y1: number; fantasma: boolean }[] = [];
-  private matFantasma: THREE.MeshLambertMaterial | null = null;
+  private matFantasma: THREE.MeshToonMaterial | null = null;
 
   /* a luz de agora (só recalcula quando a chave muda) */
   private chaveLuz = '';
@@ -206,7 +209,7 @@ export class Vista3D {
      e a vista mostra um ou outro) */
   private readonly bonecos: ({ chave: string; obj: THREE.Group; bicho: boolean; pisca?: THREE.Group | null } | null)[] = [];
   private readonly modelos3D = new Map<string, THREE.Group | null>();
-  private readonly matFigura = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+  private readonly matFigura = materialDesenho();
   private ultimoAtor = -1;
   /* atalho de depuração: todas as espécies em fila, em volta do jogador */
   vitrine = false;
@@ -616,10 +619,11 @@ export class Vista3D {
     this.feixe = null;
     this.chaveFeixe = '';
     this.predios = [];
-    this.matFantasma = this.guardar(new THREE.MeshLambertMaterial({
-      vertexColors: true, flatShading: true, transparent: true, opacity: 0.35, depthWrite: false,
+    this.matFantasma = this.guardar(materialDesenho({
+      transparent: true, opacity: 0.35, depthWrite: false,
     }));
-    this.matModelo = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), 0) as THREE.MeshLambertMaterial);
+    this.matModelo = this.guardar(this.balancando(materialDesenho(), 0) as THREE.MeshToonMaterial);
+    this.matContorno = this.guardar(materialContorno());
     this.mapaAtual = mapa;
     this.chaveLuz = '';
 
@@ -729,7 +733,7 @@ export class Vista3D {
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(cor, 3));
     geo.computeVertexNormals();
-    const mat = this.guardar(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const mat = this.guardar(materialDesenho());
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
     g.add(m);
@@ -939,19 +943,27 @@ export class Vista3D {
     }
     for (const [x, z] of fora) juntarArvore(arvoreDoTile(this.regiao, Math.round(x * 3), Math.round(z * 3), false), x, z);
     for (const [a, lugares] of porModelo) {
-      const mat = this.guardar(this.balancando(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }),
-        a === 'cacto' || a === 'seca' ? 0.01 : 0.035));
-      const arv = repetido(modeloArvore(a), mat, lugares.length);
+      const forca = a === 'cacto' || a === 'seca' ? 0.01 : 0.035;
+      const geo = modeloArvore(a);
+      const arv = repetido(geo, this.guardar(this.balancando(materialDesenho(), forca)), lugares.length);
+      // a casca: o contorno, balançando junto com a copa
+      const cont = repetido(casca(geo, 0.07), this.guardar(this.balancando(materialContorno(), forca)), lugares.length, false);
       lugares.forEach(([x, z], i) => {
         const s = 0.9 + sorte(x, z, 2) * 0.4;
         pôr(arv, i, x, 0, z, s, sorte(x, z, 3) * 6, s * (0.9 + sorte(x, z, 4) * 0.25));
-        arv.setColorAt(i, new THREE.Color(1, 1, 1).multiplyScalar(0.88 + sorte(x, z, 5) * 0.24));
+        cont.setMatrixAt(i, o.matrix);
+        arv.setColorAt(i, new THREE.Color(1, 1, 1).multiplyScalar(0.9 + sorte(x, z, 5) * 0.2));
       });
     }
 
     const pedras = onde('pedra');
-    const pedra = repetido(new THREE.DodecahedronGeometry(0.42, 0), plano('#9a9488'), pedras.length);
-    pedras.forEach(([x, y], i) => pôr(pedra, i, x + 0.5, 0.25, y + 0.5, 1, sorte(x, y) * 6, 0.8));
+    const geoPedra = modeloPedra();
+    const pedra = repetido(geoPedra, this.matModelo!, pedras.length);
+    const contPedra = repetido(casca(geoPedra, 0.06), this.matContorno!, pedras.length, false);
+    pedras.forEach(([x, y], i) => {
+      pôr(pedra, i, x + 0.5, 0, y + 0.5, 1, sorte(x, y) * 6, 0.8);
+      contPedra.setMatrixAt(i, o.matrix);
+    });
 
     // mato e capim: tufos finos que balançam, na cor da região
     const corMato = MATO_DA_REGIAO[this.regiao ?? 'fora'] ?? MATO_DA_REGIAO['fora']!;
@@ -1053,6 +1065,7 @@ export class Vista3D {
         const m = new THREE.Mesh(this.guardar(geo), this.matModelo!);
         m.position.set(o.tx, this.chaoEm(o.tx + 0.5, o.ty + 0.5), o.ty);
         m.castShadow = m.receiveShadow = true;
+        m.add(new THREE.Mesh(this.guardar(casca(geo, 0.04)), this.matContorno!));
         g.add(m);
         return;
       }
@@ -1112,8 +1125,10 @@ export class Vista3D {
     const m = new THREE.Mesh(this.guardar(p.geo), this.matModelo!);
     m.position.set(o.tx, 0, o.ty);
     m.castShadow = m.receiveShadow = true;
+    // o contorno da casa some junto quando ela fica translúcida
+    m.add(new THREE.Mesh(this.guardar(casca(p.geo, 0.07)), this.matContorno!));
     g.add(m);
-    const pecas = [m];
+    const pecas: THREE.Mesh[] = [m];
     // da frente do prédio até três tiles atrás dele, ele tapa quem está ali
     this.predios.push({ pecas, x0: o.tx - 0.3, x1: o.tx + w + 0.3, y0: o.ty - 3, y1: o.ty + alt - 0.5, fantasma: false });
     if (p.letreiro) {
@@ -1138,6 +1153,7 @@ export class Vista3D {
       for (const m of p.pecas) {
         if (m.material === this.matModelo || m.material === this.matFantasma) {
           m.material = tapa ? this.matFantasma! : this.matModelo!;
+          for (const c of m.children) c.visible = !tapa;
         } else {
           const mat = m.material as THREE.MeshLambertMaterial;
           mat.transparent = tapa; mat.opacity = tapa ? 0.35 : 1; mat.needsUpdate = true;

@@ -10,6 +10,7 @@
    maior, e o lendário é o maior de todos.
    ========================================================================= */
 import * as THREE from 'three';
+import { materialDesenho } from './base.ts';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
@@ -43,7 +44,7 @@ const MAT_CONTORNO = new THREE.MeshBasicMaterial({ color: P.ink!, side: THREE.Ba
 /* o material dos bichos: a cor do vértice, com um fio de luz própria — o
    desenho 2D é chapado e vivo, e o bicho escuro (a Matinta, o Lobisomem)
    não pode virar uma mancha preta na sombra */
-export const MAT_BICHO = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+export const MAT_BICHO = materialDesenho();
 MAT_BICHO.onBeforeCompile = (sh) => {
   sh.fragmentShader = sh.fragmentShader.replace(
     '#include <emissivemap_fragment>',

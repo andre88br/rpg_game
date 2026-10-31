@@ -77,6 +77,23 @@ outros. Prefira uma pose que diga quem ele é.
 - Bolinha pequena (`ellipse` de raio 1) vira "+" na tela. Para pinta, mancha
   ou brilho pequeno, use `rect`.
 
+## Cenário e interface
+
+O mundo segue o mesmo desenho animado dos bichos.
+
+- **3D:** tudo de cor por vértice usa `materialDesenho()` (`render3d/modelos/base.ts`),
+  com a luz em três degraus, sem degradê. Árvores, pedras, casas, objetos e
+  gente ganham a `casca`: a mesma forma, inflada e pintada por dentro na cor
+  do contorno. Copa de árvore e moita são bolas lisas (`juntarLiso`) de verde
+  vivo, com uma bola mais clara no alto.
+- **Mapa plano:** árvore, moita e pedra têm contorno escuro. A grama tem pouco
+  pontilhado, porque cor chapada lê melhor que ruído.
+- **Fundo de luta:** nuvens fofas de contorno manso, sol na praia, copas
+  redondas no horizonte e plataformas contornadas.
+- **Caixas:** canto redondo, contorno escuro, filete dourado e um brilho fino
+  no alto. O miolo começa sempre em (2, 2), então trocar o desenho da caixa
+  não mexe no texto de ninguém.
+
 ## Movimento
 
 - Parado, o bicho respira (estica uns 3% para cima, com o pé no chão) e pisca
