@@ -54,20 +54,88 @@ function chama(b: Buf, x: number, y: number, larg: number, alt: number, c1: stri
   b.tri(x + larg - 2, y, x + larg + 1, y - alt * 0.45, x + larg + 2, y, c1);
 }
 
+/* ------------------------------------------------------------- as poses
+
+   O desenho de sempre é a pose 'normal'. As outras só mudam o rosto — o
+   olho pisca, aperta quando apanha, vira x no desmaio, fecha a sobrancelha
+   no ataque — e é a animação da batalha que escolhe qual mostrar. Quem
+   desenha não sabe da pose: `olhao`, `olhoPonto` e `carinha` perguntam. */
+export type Pose = 'normal' | 'pisca' | 'ataque' | 'dano' | 'desmaio';
+export const POSES: readonly Pose[] = ['normal', 'pisca', 'ataque', 'dano', 'desmaio'];
+
+let pose: Pose = 'normal';
+
+/* desenha `desenhar` numa pose (e volta ao normal, aconteça o que for) */
+export function naPose(desenhar: () => Buf, p: Pose): Buf {
+  const antes = pose;
+  pose = p;
+  try { return desenhar(); } finally { pose = antes; }
+}
+
+/* Qual pose mostrar na luta, neste instante — a mesma regra para a batalha
+   plana e a 3D. Parado, pisca de vez em quando (`tempo` já vem defasado
+   para os dois lados não piscarem juntos). */
+export function poseNaLuta(e: { caido: boolean; avanco: number; tremor: number }, tempo: number): Pose {
+  if (e.caido) return 'desmaio';
+  if (e.tremor > 0) return 'dano';
+  if (e.avanco > 0) return 'ataque';
+  const ciclo = tempo % 3.4;
+  return ciclo < 0.13 || (ciclo > 0.3 && ciclo < 0.4 && Math.floor(tempo / 3.4) % 3 === 0) ? 'pisca' : 'normal';
+}
+
+/* o traço do olho fechado: escuro, ou claro se a cara embaixo é escura */
+function traco(b: Buf, x: number, y: number): string {
+  const c = b.get(x, y);
+  const m = c ? /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(c) : null;
+  if (!m) return C.olhoP;
+  const luz = (parseInt(m[1]!, 16) * 0.3 + parseInt(m[2]!, 16) * 0.59 + parseInt(m[3]!, 16) * 0.11) / 255;
+  return luz < 0.3 ? '#f0e8f0' : C.olhoP;
+}
+
+/* o olho está aberto? quem pinta a pupila de outra cor por cima pergunta */
+function abertos(): boolean { return pose === 'normal' || pose === 'ataque'; }
+
 /* A carinha da turma do folclore: olho preto e alto, com um ponto de brilho,
    bochecha rosada e o sorrisão. (cx, cy) é o meio, na altura dos olhos;
    `sep` é a distância de cada olho até o meio. */
 function carinha(b: Buf, cx: number, cy: number, sep: number, bochecha = C.bochecha): void {
-  for (const x of [cx - sep, cx + sep - 1]) {
-    b.rect(x, cy - 1, 2, 3, C.olhoP);
-    b.set(x, cy - 1, C.bril);
-  }
+  olhoPonto(b, cx - sep, cy, true);
+  olhoPonto(b, cx + sep - 1, cy, false);
   b.rect(cx - sep - 3, cy + 2, 2, 1, bochecha);
   b.rect(cx + sep + 2, cy + 2, 2, 1, bochecha);
   const l = sep - 1;
+  if (pose === 'dano') { b.rect(cx - 1, cy + 3, 2, 2, C.boca); return; }      // "ai!"
+  if (pose === 'desmaio') { b.line(cx - l, cy + 4, cx + l - 1, cy + 4, C.boca); return; }
   b.set(cx - l - 1, cy + 3, C.boca);
   b.line(cx - l, cy + 4, cx + l - 1, cy + 4, C.boca);
   b.set(cx + l, cy + 3, C.boca);
+}
+
+/* o olhinho de ponto (2×3, com brilho), em cada pose. x é a coluna da
+   esquerda, y a linha do meio; `esquerdo` diz para que lado ele aperta. */
+function olhoPonto(b: Buf, x: number, y: number, esquerdo: boolean): void {
+  const t = traco(b, x, y);
+  switch (pose) {
+    case 'pisca':
+      b.rect(x, y + 1, 2, 1, t);
+      return;
+    case 'dano':                                     // apertado: > <
+      if (esquerdo) { b.set(x, y - 1, t); b.set(x + 1, y, t); b.set(x, y + 1, t); }
+      else { b.set(x + 1, y - 1, t); b.set(x, y, t); b.set(x + 1, y + 1, t); }
+      return;
+    case 'desmaio':                                  // x
+      b.line(x, y - 1, x + 2, y + 1, t); b.line(x + 2, y - 1, x, y + 1, t);
+      return;
+    default:
+      b.rect(x, y - 1, 2, 3, C.olhoP);
+      b.set(x, y - 1, C.bril);
+      // atacando: a sobrancelha fecha, mais baixa do lado do meio
+      if (pose === 'ataque') {
+        const tb = traco(b, x, y - 3);
+        if (esquerdo) b.line(x - 1, y - 3, x + 1, y - 2, tb);
+        else b.line(x, y - 2, x + 2, y - 3, tb);
+      }
+  }
 }
 
 /* a Cuca de pé: jacarezinho de cabelo loiro, rabo para o lado e focinho
@@ -97,7 +165,7 @@ function cucaDePe(b: Buf, rainha: boolean): void {
   b.ellipse(8, 19, 2, 7, C.loiro);
   b.set(13, 7, C.loiroL); b.set(14, 7, C.loiroL); b.set(15, 6, C.loiroL);
   // a carinha: olhos no alto da cabeça, sorriso ao longo do focinho
-  for (const x of [14, 20]) { b.rect(x, 15, 2, 3, C.olhoP); b.set(x, 15, C.bril); }
+  olhoPonto(b, 14, 16, true); olhoPonto(b, 20, 16, false);
   b.rect(11, 19, 2, 1, C.bochecha);
   b.rect(21, 19, 3, 2, C.bochecha);
   b.set(19, 21, C.boca); b.line(20, 22, 33, 22, C.boca); b.set(34, 21, C.boca);
@@ -111,6 +179,21 @@ function cucaDePe(b: Buf, rainha: boolean): void {
 /* o olhão de desenho animado: branco redondo, pupila preta grande olhando
    um tico para o meio (`dir`) e o ponto de brilho */
 function olhao(b: Buf, x: number, y: number, r: number, dir = 0): void {
+  const s = dir < 0 ? -1 : 1;                      // −1: o olho da direita
+  const t = traco(b, x, y);
+  if (pose === 'pisca') { b.line(x - r + 1, y + 1, x + r - 1, y + 1, t); return; }
+  if (pose === 'dano') {                           // apertado: > <
+    b.line(x - s * (r - 1), y - r + 1, x + s * (r - 1), y, t);
+    b.line(x + s * (r - 1), y, x - s * (r - 1), y + r - 1, t);
+    return;
+  }
+  if (pose === 'desmaio') {                        // x
+    b.line(x - r + 1, y - r + 1, x + r - 1, y + r - 1, t);
+    b.line(x - r + 1, y + r - 1, x + r - 1, y - r + 1, t);
+    return;
+  }
+  // atacando: a sobrancelha fecha, mais baixa do lado do meio
+  if (pose === 'ataque') b.line(x - s * r, y - r - 2, x + s * (r - 1), y - r, traco(b, x, y - r - 1));
   b.ellipse(x, y, r, r, C.olho);
   b.rect(x - r + 1, y - r + 1, 2 * r - 1, 2 * r - 1, C.olho);
   if (r <= 2) {
@@ -181,7 +264,7 @@ function cobraDeFogo(b: Buf, antiga: boolean): void {
   // olhão, narinas, a boca aberta de sorriso e a língua bifurcada
   for (const [x, d] of [[15, 0], [23, -1]] as const) {
     olhao(b, x, 10, 3, d);
-    if (antiga) { b.rect(x - 1 + d, 9, 3, 4, C.olhoAzul); b.set(x - 1 + d, 9, C.bril); }
+    if (antiga && abertos()) { b.rect(x - 1 + d, 9, 3, 4, C.olhoAzul); b.set(x - 1 + d, 9, C.bril); }
   }
   b.set(17, 14, C.boiD); b.set(21, 14, C.boiD);
   // o sorriso aberto, com a língua saindo do meio
@@ -854,7 +937,7 @@ export function lobinho(): Buf {
   b.ellipse(16, 16, 6, 3, C.guaraB);
   b.tri(8, 13, 6, 17, 11, 17, C.guaraB); b.tri(24, 13, 26, 17, 21, 17, C.guaraB);
   // a carinha: olho preto com brilho, focinho, boca aberta de alegria
-  for (const x of [11, 19]) { b.rect(x, 11, 2, 3, C.olhoP); b.set(x, 11, C.bril); }
+  olhoPonto(b, 11, 12, true); olhoPonto(b, 19, 12, false);
   b.rect(8, 14, 2, 1, C.bochecha); b.rect(22, 14, 2, 1, C.bochecha);
   b.rect(15, 14, 2, 1, C.olhoP);
   b.rect(15, 16, 2, 2, C.bocaA);
@@ -920,7 +1003,11 @@ export function corpoSeco(): Buf {
   // cabeção murcho
   b.ellipse(20, 13, 9, 8, pele);
   b.ellipse(16, 9, 3, 2, peleL);
-  for (const x of [14, 22]) { b.rect(x, 11, 4, 4, peleD); b.rect(x + 1, 12, 2, 2, '#f2d23a'); }
+  for (const x of [14, 22]) {
+    if (abertos()) { b.rect(x, 11, 4, 4, peleD); b.rect(x + 1, 12, 2, 2, '#f2d23a'); }
+    else olhoPonto(b, x + 1, 13, x < 20);
+  }
+  if (pose === 'ataque') { b.line(13, 9, 17, 10, C.olhoP); b.line(22, 10, 26, 9, C.olhoP); }
   b.set(17, 18, peleD); b.line(18, 19, 22, 19, peleD); b.set(23, 18, peleD);
   b.tri(17, 5, 20, 2, 21, 6, peleD);
   return b.outline(P.ink);
@@ -956,7 +1043,7 @@ export function pisadeira(): Buf {
   for (const x of [13, 17, 21, 25]) b.tri(x - 2, 7, x, 11, x + 2, 7, cabelo);
   b.rect(10, 7, 3, 16, cabelo); b.rect(28, 7, 3, 16, cabelo);
   olhao(b, 16, 13, 3, 0); olhao(b, 24, 13, 3, -1);
-  for (const x of [16, 24]) b.set(x, 13, '#d03040');
+  if (abertos()) for (const x of [16, 24]) b.set(x, 13, '#d03040');
   b.rect(13, 17, 2, 1, C.bochecha); b.rect(26, 17, 2, 1, C.bochecha);
   b.set(18, 17, C.bocaF); b.line(19, 18, 21, 18, C.bocaF); b.set(22, 17, C.bocaF);
   return b.outline(P.ink);
@@ -1075,7 +1162,7 @@ export function ipupiara(): Buf {
   for (const x of [16, 24]) b.tri(x - 2, 4, x, 0, x + 2, 4, P.gold);
   b.tri(18, 4, 19, 2, 21, 4, P.gold);
   olhao(b, 16, 16, 3, 0); olhao(b, 24, 16, 3, -1);
-  for (const x of [16, 23]) b.rect(x, 16, 2, 2, '#4ad0e0');
+  if (abertos()) for (const x of [16, 23]) b.rect(x, 16, 2, 2, '#4ad0e0');
   b.rect(12, 20, 2, 1, '#c890b0'); b.rect(27, 20, 2, 1, '#c890b0');
   b.set(17, 21, C.bocaF); b.line(18, 22, 22, 22, C.bocaF); b.set(23, 21, C.bocaF);
   for (const [x, y] of [[4, 12], [6, 5], [35, 8], [3, 24]]) { b.ellipse(x, y, 1, 1, C.bolha); b.set(x, y - 1, '#ffffff'); }
@@ -1105,7 +1192,7 @@ export function anhanga(): Buf {
   b.rect(3, 0, 2, 2, '#4e9f3f'); b.rect(18, 0, 2, 2, '#4e9f3f');
   // olho de fogo
   olhao(b, 9, 10, 3, 0);
-  b.rect(9, 10, 2, 2, '#e8541f');
+  if (abertos()) b.rect(9, 10, 2, 2, '#e8541f');
   coroaDeFogo(b, 11, 6, 1, 3);
   b.rect(6, 15, 2, 1, C.bochecha);
   b.set(3, 16, C.bocaF); b.line(4, 17, 6, 17, C.bocaF);
@@ -1256,8 +1343,10 @@ export function pesadelo(): Buf {
   b.ellipse(20, 27, 4, 4, lua); b.ellipse(22, 26, 3, 3, sombra);
   // olhão de pupila vermelha e o sorriso torto
   olhao(b, 14, 16, 4, 0); olhao(b, 26, 16, 4, -1);
-  b.rect(14, 15, 3, 3, '#d03040'); b.rect(25, 15, 3, 3, '#d03040');
-  b.set(14, 15, C.bril); b.set(25, 15, C.bril);
+  if (abertos()) {
+    b.rect(14, 15, 3, 3, '#d03040'); b.rect(25, 15, 3, 3, '#d03040');
+    b.set(14, 15, C.bril); b.set(25, 15, C.bril);
+  }
   b.set(15, 21, '#f0e8f0'); b.line(16, 22, 24, 22, '#f0e8f0'); b.set(25, 21, '#f0e8f0');
   return b.outline(P.ink);
 }
@@ -1337,7 +1426,7 @@ export function boiuna(): Buf {
   b.ellipse(20, 15, 8, 4, barriga);
   for (const [i, cor] of (['#e0524a', '#f09a3a', P.bolt, '#5fbf6a'] as const).entries()) b.rect(12 + i * 4, 4, 4, 2, cor);
   olhao(b, 15, 10, 3, 0); olhao(b, 25, 10, 3, -1);
-  for (const x of [15, 25]) b.set(x, 9, raio);
+  if (abertos()) for (const x of [15, 25]) b.set(x, 9, raio);
   b.set(18, 13, cobra); b.set(22, 13, cobra);
   b.set(14, 15, C.bocaF); b.rect(15, 16, 11, 2, C.bocaF); b.set(26, 15, C.bocaF);
   b.set(17, 16, P.white); b.set(23, 16, P.white);
@@ -1376,7 +1465,7 @@ export function eclipse(): Buf {
   b.ellipse(20, 20, 12, 12, lua);
   b.ellipse(15, 14, 4, 2, luaL);
   olhao(b, 15, 19, 3, 0); olhao(b, 25, 19, 3, -1);
-  for (const x of [15, 24]) b.rect(x, 19, 2, 2, sol);
+  if (abertos()) for (const x of [15, 24]) b.rect(x, 19, 2, 2, sol);
   b.rect(10, 24, 2, 1, '#c86a8a'); b.rect(28, 24, 2, 1, '#c86a8a');
   b.set(16, 25, solL); b.line(17, 26, 23, 26, solL); b.set(24, 25, solL);
   return b.outline(P.ink);

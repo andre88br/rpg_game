@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { infoTipo, type TipoGolpe } from '../art/palette.ts';
 import type { Cenario } from '../art/battlebg.ts';
-import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { ARTE_CRIATURAS, POSES, poseNaLuta, type Pose } from '../art/creatures.ts';
 import { ESPECIES } from '../data/creatures.ts';
 import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
@@ -56,6 +56,9 @@ export class CenaBatalha3D {
   private readonly mat = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
   private readonly descartaveis: { dispose(): void }[] = [];
   private bichos: Record<LadoB, THREE.Group | null> = { aliado: null, inimigo: null };
+  /* cada bicho em todas as poses (só o rosto muda); a de 'normal' é o de
+     `bichos`, e as outras são montadas uma por quadro, logo depois */
+  private poses: Record<LadoB, Partial<Record<Pose, THREE.Group>>> = { aliado: {}, inimigo: {} };
   private chave = '';
   private readonly sol = new THREE.DirectionalLight('#ffffff', 2);
   private readonly ceu = new THREE.HemisphereLight('#ffffff', '#555555', 1);
@@ -89,7 +92,8 @@ export class CenaBatalha3D {
     for (const d of this.descartaveis) d.dispose();
     this.descartaveis.length = 0;
     for (const lado of ['aliado', 'inimigo'] as const) {
-      this.bichos[lado]?.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      for (const g of Object.values(this.poses[lado])) g.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      this.poses[lado] = {};
       this.bichos[lado] = null;
     }
     this.particulas.geometry.dispose();
@@ -104,7 +108,8 @@ export class CenaBatalha3D {
     this.descartaveis.length = 0;
     // os bichos de antes: a geometria é deles (o material é dividido, fica)
     for (const lado of ['aliado', 'inimigo'] as const) {
-      this.bichos[lado]?.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      for (const g of Object.values(this.poses[lado])) g.traverse((o) => { (o as THREE.Mesh).geometry?.dispose(); });
+      this.poses[lado] = {};
       this.bichos[lado] = null;
     }
     for (const o of [...this.cena.children]) {
@@ -134,6 +139,9 @@ export class CenaBatalha3D {
       // na batalha, todo mundo maior que no mapa: é o palco deles
       g.scale.multiplyScalar(1.6);
       g.userData['tamanho'] = tamanhoDe(l.especie) * 1.6;
+      g.userData['especie'] = l.especie;
+      g.userData['raro'] = l.raro;
+      this.poses[lado] = { normal: g };
       this.bichos[lado] = g;
       this.cena.add(g);
     }
@@ -238,9 +246,12 @@ export class CenaBatalha3D {
     this.ultimoTempo = q.tempo;
 
     for (const lado of ['aliado', 'inimigo'] as const) {
-      const g = this.bichos[lado];
       const l = q[lado];
-      if (!g) continue;
+      if (!this.bichos[lado]) continue;
+      // a cara do momento, pela mesma regra da batalha plana
+      const pose = poseNaLuta(l, q.tempo + (lado === 'inimigo' ? 1.7 : 0));
+      const g = this.poses[lado][pose] ?? this.bichos[lado]!;
+      for (const v of Object.values(this.poses[lado])) if (v !== g) v.visible = false;
       const base = (g.userData['tamanho'] as number) ?? 1.6;
       const tam = Math.min(1, l.entrada) * (1 - (l.preso ?? 0));
       g.scale.setScalar(base * Math.max(0.05, tam));
@@ -253,8 +264,28 @@ export class CenaBatalha3D {
       if (l.caido && l.queda <= 0) g.visible = false;
     }
 
+    this.prepararUmaPose();
     this.atualizarGolpe(q, dt);
     this.atualizarCamera(q, dt);
+  }
+
+  /* monta a próxima pose que falta (uma por quadro, para a luta não
+     engasgar no começo), no mesmo lugar e virada do bicho */
+  private prepararUmaPose(): void {
+    for (const lado of ['aliado', 'inimigo'] as const) {
+      const g = this.bichos[lado];
+      if (!g) continue;
+      const falta = POSES.find((p) => !this.poses[lado][p]);
+      if (!falta) continue;
+      const v = encantado3D(g.userData['especie'] as string, g.userData['raro'] as boolean, undefined, falta);
+      v.position.copy(g.position);
+      v.rotation.copy(g.rotation);
+      v.userData['tamanho'] = g.userData['tamanho'];
+      v.visible = false;
+      this.poses[lado][falta] = v;
+      this.cena.add(v);
+      return;
+    }
   }
 
   /* onde fica o peito de cada bicho, para o golpe sair e chegar */

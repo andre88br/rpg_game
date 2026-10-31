@@ -11,7 +11,7 @@
    ========================================================================= */
 import * as THREE from 'three';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
-import { ARTE_CRIATURAS } from '../../art/creatures.ts';
+import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
 import { desenho3D, type ParteMovel } from './desenho3d.ts';
 import { AJUSTES } from './bichos.ts';
@@ -51,7 +51,7 @@ MAT_BICHO.onBeforeCompile = (sh) => {
 };
 
 /* monta o Encantado da espécie (o raro com as cores do desenho raro) */
-export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT_BICHO): THREE.Group {
+export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT_BICHO, pose: Pose = 'normal'): THREE.Group {
   const ficha = ESPECIES[id];
   const arte = ficha ? ARTE_CRIATURAS[ficha.arte] : undefined;
   const raiz = new THREE.Group();
@@ -59,7 +59,9 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
   g.name = 'corpo';
   raiz.add(g);
   if (!arte) return raiz;
-  const d = desenho3D(arte, id, AJUSTES[id], raro);
+  // a pose só muda o rosto: o mesmo desenho, com o olho piscando, bravo...
+  const desenhar = pose === 'normal' ? arte : () => naPose(arte, pose);
+  const d = desenho3D(desenhar, id, AJUSTES[id], raro);
   for (const [nome, p] of d.partes) {
     const alvo = nome === 'corpo' ? g : new THREE.Group();
     if (alvo !== g) {

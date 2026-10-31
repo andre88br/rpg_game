@@ -127,6 +127,14 @@ export class Renderizador {
     this.ctx.drawImage(img, Math.round(x), Math.round(y), img.width / s, img.height / s);
   }
 
+  /* esticada (sx, sy) com o pé parado no lugar: `pe` é a linha do chão,
+     contada do topo — é assim que um bicho respira sem sair da plataforma */
+  spriteEsticado(img: Assado, x: number, y: number, sx: number, sy: number, pe: number): void {
+    const s = escalaDe(img);
+    const w = img.width / s, h = img.height / s;
+    this.ctx.drawImage(img, x + (w - w * sx) / 2, y + pe - pe * sy, w * sx, h * sy);
+  }
+
   /* recorte de uma imagem maior (usado para a janela da camera no mapa) */
   recorte(img: Assado, sx: number, sy: number, sw: number, sh: number,
           dx: number, dy: number): void {

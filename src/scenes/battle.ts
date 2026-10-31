@@ -17,7 +17,8 @@ import type { Entrada } from '../core/input.ts';
 import { P, infoTipo, type TipoGolpe } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { quebrar, larguraTexto } from '../art/font.ts';
-import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { ARTE_CRIATURAS, naPose, poseNaLuta, type Pose } from '../art/creatures.ts';
+import { AJUSTES } from '../render3d/modelos/bichos.ts';
 import { variante } from '../art/raro.ts';
 import { golpeEfeito, QUADROS_EFEITO, TAM_EFEITO } from '../art/effects.ts';
 import { fundoBatalha, POSTO_ALIADO, POSTO_INIMIGO, type Cenario } from '../art/battlebg.ts';
@@ -219,9 +220,10 @@ export class CenaBatalha implements Cena {
   /* O sprite é assado em dobro (32x32 vira 64x64, como num GBA) e junto vem
      a altura ÚTIL — a última linha com pixel de verdade. Sem isso um bicho
      com espaço vazio embaixo do desenho fica boiando acima da plataforma.
-     O lado inimigo usa a versão espelhada, para os dois se encararem. */
-  private sprite(arte: string, espelhar: boolean): { img: Assado; alt: number } {
-    const chave = arte + (espelhar ? '<' : '>');
+     O lado inimigo usa a versão espelhada, para os dois se encararem. Cada
+     pose (piscando, atacando, apanhando, desmaiado) é um sprite à parte. */
+  private sprite(arte: string, espelhar: boolean, pose: Pose = 'normal'): { img: Assado; alt: number } {
+    const chave = arte + (espelhar ? '<' : '>') + pose;
     let a = this.sprites.get(chave);
     if (a) return a;
 
@@ -230,7 +232,8 @@ export class CenaBatalha implements Cena {
     const idArte = raro ? arte.slice(0, -1) : arte;
     const desenho = ARTE_CRIATURAS[idArte];
     if (!desenho) throw new Error(`sem arte para ${idArte}`);
-    let cru = raro ? variante(desenho(), idArte) : desenho();
+    const posado = naPose(desenho, pose);
+    let cru = raro ? variante(posado, idArte) : posado;
     if (espelhar) {
       const virado = new Buf(cru.w, cru.h);
       virado.blit(cru, 0, 0, { flipX: true });
@@ -711,7 +714,9 @@ export class CenaBatalha implements Cena {
   private desenharCombatente(r: Renderizador, lado: Lado): void {
     const v = this.vis[lado];
     const inimigo = lado === 'inimigo';
-    const { img, alt } = this.sprite(v.arte, inimigo);
+    const pose = poseNaLuta({ caido: v.caido, avanco: this.avanco[lado], tremor: this.tremor[lado] },
+      this.relogio + (inimigo ? 1.7 : 0));
+    const { img, alt } = this.sprite(v.arte, inimigo, pose);
     const posto = inimigo ? POSTO_INIMIGO : POSTO_ALIADO;
     let x = posto.cx - larguraDe(img) / 2;
     let y = posto.base - alt;
@@ -728,12 +733,24 @@ export class CenaBatalha implements Cena {
       y -= a * 0.3;
     }
 
+    // parado, respira: estica um tico para cima com o pé no chão; quem
+    // flutua (ave, astro, assombração) sobe e desce no ar
+    const fase = this.relogio + (inimigo ? 1.3 : 0);
+    let sx = 1, sy = 1;
+    if (!v.caido && this.avanco[lado] <= 0) {
+      if (AJUSTES[v.especie]?.flutua) y += Math.round(Math.sin(fase * 2.4) * 2);
+      else { const k = Math.sin(fase * 2.2); sy = 1 + k * 0.035; sx = 1 - k * 0.015; }
+    }
+    // atacando: dá um bote, esticando para a frente
+    if (this.avanco[lado] > 0) { sx = 1.06; sy = 0.96; }
     if (v.caido) {
       const q = this.queda[lado] > 0 ? 1 - this.queda[lado] / 0.7 : 1;
       r.ctx.globalAlpha = Math.max(0, 1 - q);
       y += q * 18;
     }
-    r.sprite(img, x, y);
+    // apanhando: some e volta, piscando
+    if (this.tremor[lado] > 0 && Math.floor(this.relogio * 24) % 2 === 0) r.ctx.globalAlpha = 0.35;
+    r.spriteEsticado(img, Math.round(x), Math.round(y), sx, sy, alt);
     r.ctx.globalAlpha = 1;
 
     if (this.patuaAnim >= 0 && lado === 'inimigo') this.desenharPatua(r, posto);

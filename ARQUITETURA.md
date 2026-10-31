@@ -233,6 +233,16 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   duas Cucas e `cobraDeFogo()` as duas Boitatás grandes. O que vai atrás
   (rabo, cabelo, asa) é desenhado primeiro, para os índices de `bichos.ts`
   ficarem simples: as primeiras peças.
+  **Poses e animação.** Cada desenho tem cinco caras (`Pose` em
+  `art/creatures.ts`): normal, pisca, ataque (sobrancelha fechada), dano
+  (olho apertado `> <`) e desmaio (olho em x). Quem desenha não sabe disso:
+  `naPose(desenhar, pose)` muda a pose e `olhao`, `olhoPonto` e `carinha`
+  desenham o olho daquela pose (no rosto escuro, o traço sai claro).
+  `poseNaLuta` escolhe a pose do instante, pela mesma regra nas duas
+  batalhas: a plana guarda um sprite por pose e ainda faz o bicho respirar
+  (`spriteEsticado`, com o pé parado), boiar se `flutua`, dar o bote e
+  piscar meio transparente ao apanhar; a 3D monta o mesmo bicho em cada
+  pose (uma por quadro, depois da primeira) e mostra a da vez.
   A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
   cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
   (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.
