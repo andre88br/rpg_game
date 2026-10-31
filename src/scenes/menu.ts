@@ -28,7 +28,7 @@ import { quebrar } from '../art/font.ts';
 import { TERREIROS, contasAcesasDe, terreiroEmAberto } from '../game/quests.ts';
 import { consumir, item, quantidade } from '../data/items.ts';
 import { especie, ESPECIES_ORDEM } from '../data/creatures.ts';
-import { ARTE_CRIATURAS } from '../art/creatures.ts';
+import { BichosVivos } from '../ui/bichoVivo.ts';
 import {
   trocarPosicoes, usarItemForaDeBatalha, usavelForaDeBatalha, type EstadoJogo,
 } from '../game/state.ts';
@@ -149,7 +149,8 @@ export class MenuPausa {
   private caixaCheia: Assado;
   private caixaRaiz: Assado;
   private medalhinhas = new Map<string, Assado>();
-  private spritesCaderno = new Map<string, Assado>();
+  /* os bichos da ficha e do caderno, vivos: respiram e piscam */
+  private vivos = new BichosVivos();
   private slots: TelaSlots;
   private velSel = 0;
   private selTecla = 0;
@@ -875,7 +876,7 @@ export class MenuPausa {
     L.telaCheia(r, this.caixaCheia, titulo, 'CIMA/BAIXO: OUTRO   B VOLTAR');
     if (e.apelido) r.texto(f.nome.toUpperCase(), LARGURA - 14 - r.larguraTexto(f.nome.toUpperCase()), 12, P.uiTexto2!);
 
-    r.sprite(this.spriteCaderno(f.arte), 14, 26);
+    this.vivos.desenhar(r, f.arte, 14, 26, this.relogio);
 
     // tipos e traço
     f.tipos.forEach((tipo, k) => {
@@ -962,7 +963,7 @@ export class MenuPausa {
       return;
     }
     const esp = especie(idSel);
-    r.sprite(this.spriteCaderno(esp.arte), 160, 26);
+    this.vivos.desenhar(r, esp.arte, 160, 26, this.relogio);
     if (this.cadernoAba === 2) {
       r.texto('ONDE ACHAR', 120, 64, P.uiAccD!);
       L.paragrafo(r, textoOnde(idSel), 120, 76, 112, 6, P.uiTexto2!);
@@ -984,15 +985,6 @@ export class MenuPausa {
     L.paragrafo(r, t.descricao, 120, 76, 112, 5, P.uiTexto2!);
   }
 
-  private spriteCaderno(arte: string): Assado {
-    let a = this.spritesCaderno.get(arte);
-    if (a) return a;
-    const desenho = ARTE_CRIATURAS[arte];
-    if (!desenho) throw new Error(`sem arte para ${arte}`);
-    a = assarSuave(desenho());
-    this.spritesCaderno.set(arte, a);
-    return a;
-  }
 
   private desenharMedalhas(r: Renderizador): void {
     MEDALHAS.forEach((m, i) => {

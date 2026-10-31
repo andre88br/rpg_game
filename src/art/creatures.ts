@@ -79,8 +79,14 @@ export function poseNaLuta(e: { caido: boolean; avanco: number; tremor: number }
   if (e.caido) return 'desmaio';
   if (e.tremor > 0) return 'dano';
   if (e.avanco > 0) return 'ataque';
-  const ciclo = tempo % 3.4;
-  return ciclo < 0.13 || (ciclo > 0.3 && ciclo < 0.4 && Math.floor(tempo / 3.4) % 3 === 0) ? 'pisca' : 'normal';
+  return piscando(tempo) ? 'pisca' : 'normal';
+}
+
+/* o bicho parado está de olho fechado neste instante? Uma piscada a cada
+   3,4 s, e de três em três vezes uma dupla */
+export function piscando(tempo: number): boolean {
+  const ciclo = ((tempo % 3.4) + 3.4) % 3.4;
+  return ciclo < 0.13 || (ciclo > 0.3 && ciclo < 0.4 && Math.floor(tempo / 3.4) % 3 === 0);
 }
 
 /* o traço do olho fechado: escuro, ou claro se a cara embaixo é escura */

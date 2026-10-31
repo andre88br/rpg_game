@@ -469,7 +469,7 @@ export class CenaMundo implements Cena {
     if (f) return f;
     if (estilo.startsWith('bicho:')) {
       const arte = ARTE_CRIATURAS[estilo.slice(6)];
-      f = assarBicho(arte ? arte() : ARTE_CRIATURAS['sacizinho']!());
+      f = assarBicho(arte ?? ARTE_CRIATURAS['sacizinho']!);
     } else {
       f = assarFolha(ESTILOS[estilo] ?? ESTILOS['aldeao']!);
     }

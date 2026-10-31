@@ -12,6 +12,7 @@ import { P, infoTipo } from '../art/palette.ts';
 import * as UI from '../art/ui.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import { especie } from '../data/creatures.ts';
+import { BichosVivos } from '../ui/bichoVivo.ts';
 
 export type SaidaEscolha = 'aberto' | 'fechar';
 
@@ -24,6 +25,9 @@ export class EscolhaInicial {
   private simNao = 1;              // e no NÃO: escolher é para sempre
   private fundo: Assado;
   private retratos = new Map<string, Assado>();
+  /* os três na mesa, vivos: respiram e piscam, cada um no seu tempo */
+  private vivos = new BichosVivos();
+  private tempo = 0;
   private escolhido: ((id: string) => void) | null = null;
 
   constructor() {
@@ -46,7 +50,8 @@ export class EscolhaInicial {
     return a;
   }
 
-  atualizar(_dt: number, entrada: Entrada): SaidaEscolha {
+  atualizar(dt: number, entrada: Entrada): SaidaEscolha {
+    this.tempo += dt;
     if (this.confirmando) {
       if (entrada.apertou('esq')) this.simNao = 0;
       if (entrada.apertou('dir')) this.simNao = 1;
@@ -77,7 +82,7 @@ export class EscolhaInicial {
       const img = this.arte(id);
       // o escolhido sobe um pouco e ganha um tapete claro por baixo
       if (escolhido) r.retangulo(x - 6, 30, 60, 54, P.uiBg2!);
-      r.sprite(img, x + (48 - larguraDe(img)) / 2 - 4, escolhido ? 30 : 36);
+      this.vivos.desenhar(r, f.arte, x + (48 - larguraDe(img)) / 2 - 4, escolhido ? 30 : 36, this.tempo, i * 1.1);
       const nome = f.nome.toUpperCase();
       r.texto(nome, x + (48 - r.larguraTexto(nome)) / 2 - 4, 72,
               escolhido ? P.uiInk! : P.uiTexto2!);

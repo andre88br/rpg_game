@@ -243,6 +243,12 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   (`spriteEsticado`, com o pé parado), boiar se `flutua`, dar o bote e
   piscar meio transparente ao apanhar; a 3D monta o mesmo bicho em cada
   pose (uma por quadro, depois da primeira) e mostra a da vez.
+  Fora da luta o bicho também vive: `ui/bichoVivo.ts` (`BichosVivos`)
+  faz respirar e piscar na ficha, no caderno e na escolha do inicial; no
+  mapa plano, a folha do Encantado (`assarBicho`) guarda o desenho de olho
+  fechado e o `Ator` pisca, respira (um pixel) e dá pulinho a cada passo;
+  no mapa 3D, cada bicho tem um gêmeo de olho fechado que entra na piscada
+  (`piscando`, a mesma regra de tudo).
   A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
   cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
   (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.

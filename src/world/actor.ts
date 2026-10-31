@@ -4,6 +4,7 @@
    E isso que da a cadencia caracteristica do genero.
    ========================================================================= */
 import { assarSuave, larguraDe, alturaDe, type Assado, type Buf } from '../core/buf.ts';
+import { naPose, piscando } from '../art/creatures.ts';
 import { folhaPersonagem, type Direcao, type OpcoesPessoa } from '../art/people.ts';
 import { TS, type Mapa } from './tilemap.ts';
 import { multiplicadorVelocidade } from '../game/config.ts';
@@ -11,7 +12,8 @@ import { multiplicadorVelocidade } from '../game/config.ts';
 import { DELTAS, direcaoDe } from './direcao.ts';
 export { DELTAS, direcaoDe } from './direcao.ts';
 
-export type FolhaAssada = Record<Direcao, [Assado, Assado, Assado]>;
+/* `pisca` só existe na folha de um Encantado: o mesmo desenho de olho fechado */
+export type FolhaAssada = Record<Direcao, [Assado, Assado, Assado]> & { pisca?: Assado };
 
 export function assarFolha(op: OpcoesPessoa): FolhaAssada {
   const crua = folhaPersonagem(op);
@@ -24,14 +26,19 @@ export function assarFolha(op: OpcoesPessoa): FolhaAssada {
 
 /* Um Encantado andando pelo mapa, com a arte de batalha mesmo. Ele nao tem
    doze poses como gente tem: e o mesmo desenho nos quatro lados, e o sprite
-   e maior que o tile — quem desenha acerta os pes pela altura da imagem. */
-export function assarBicho(arte: Buf): FolhaAssada {
-  const img = assarSuave(arte);
+   e maior que o tile — quem desenha acerta os pes pela altura da imagem.
+   Vivo, ele pisca (a folha guarda o desenho de olho fechado), respira
+   parado e da pulinhos andando (o Ator cuida disso). */
+export function assarBicho(desenhar: () => Buf): FolhaAssada {
+  const img = assarSuave(desenhar());
   const trio: [Assado, Assado, Assado] = [img, img, img];
-  const saida = {} as FolhaAssada;
+  const saida = { pisca: assarSuave(naPose(desenhar, 'pisca')) } as FolhaAssada;
   for (const d of ['baixo', 'cima', 'esq', 'dir'] as Direcao[]) saida[d] = trio;
   return saida;
 }
+
+/* o relogio de quem esta vivo no mapa (sem DOM nos testes, comeca do zero) */
+function agora(): number { return (globalThis.performance?.now() ?? 0) / 1000; }
 
 export const VEL_ANDAR = 0.20;   // segundos por tile
 export const VEL_CORRER = 0.115;
@@ -81,7 +88,14 @@ export class Ator {
      mais pixels do que ocupa, e medir por ela jogava o personagem meio corpo
      para cima e meio sprite para o lado — em cima da casa, fora do vão */
   get desenhoX(): number { return this.px + (TS - larguraDe(this.quadro())) / 2; }
-  get desenhoY(): number { return this.py + TS - alturaDe(this.quadro()); }
+  get desenhoY(): number { return this.py + TS - alturaDe(this.quadro()) - this.pulo(); }
+
+  /* o Encantado vivo: um pulinho a cada passo; parado, respira (sobe um pixel) */
+  private pulo(): number {
+    if (!this.folha.pisca) return 0;
+    if (this.movendo) return Math.round(Math.abs(Math.sin(this.progresso * Math.PI)) * 2);
+    return Math.sin(agora() * 2.2 + this.tx * 0.9) > 0.2 ? 1 : 0;
+  }
 
   /* tile logo a frente, para conversar ou interagir */
   frente(): { tx: number; ty: number } {
@@ -167,7 +181,10 @@ export class Ator {
 
   quadro(): Assado {
     const poses = this.folha[this.dir];
-    if (!this.movendo) return poses[0];
+    if (!this.movendo) {
+      const pisca = this.folha.pisca;
+      return pisca && piscando(agora() + this.tx * 0.7 + this.ty * 1.3) ? pisca : poses[0];
+    }
     // um passo, dois quadros: meio-passo e passo completo
     return this.progresso < 0.5 ? (this.pe ? poses[1] : poses[2]) : poses[0];
   }
