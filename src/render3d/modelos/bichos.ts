@@ -16,50 +16,50 @@ const cabelo = (c: string, cx: number, cy: number, r: number, comprido: number) 
 
 export const AJUSTES: Record<string, Ajuste> = {
   // desenhados de lado: a cabeça para a direita (1) ou para a esquerda (−1);
-  // as pernas (pares) vão uma de cada lado
+  // as pernas (pares, as primeiras peças) vão uma de cada lado
   piragua: { perfil: 1, fundo: 0.75, flutua: true },
   piraguacu: { perfil: 1, fundo: 0.75, flutua: true },
-  salamanca: { perfil: -1, fundo: 0.7, pares: [7, 8, 9, 10], parZ: 3.5 },
-  teiniagua: { perfil: 1, fundo: 0.7, pares: [3, 4, 5, 6], parZ: 4 },
-  tatuTrovao: { perfil: 1, fundo: 0.8, pares: [1, 2, 3, 4], parZ: 6 },
-  tatuacu: { perfil: 1, fundo: 0.8, pares: [1, 2, 3, 4], parZ: 7 },
-  anhanga: { perfil: -1, fundo: 0.6, pares: [0, 1, 2, 3], parZ: 3.5 },
-  minhocao: { perfil: 1, fundo: 0.8 },
+  tatuTrovao: { perfil: 1, fundo: 0.8, pares: [0, 1, 2, 3], parZ: 6 },
+  tatuacu: { perfil: 1, fundo: 0.8, pares: [0, 1, 2, 3], parZ: 7 },
   boto: { perfil: -1, fundo: 0.7 },
+  anhanga: { perfil: -1, fundo: 0.6, pares: [0, 1, 2, 3], parZ: 3.5 },
 
   // cabelo comprido descendo pelas costas
   // (o cabelo de trás do desenho 2D — as primeiras peças — sai: em 3D
   // ele viraria um bloco na frente do rosto)
   iarinha: { sem: [0, 1], extras: cabelo('#2a2630', 16, 11, 8, 11) },
   iaraMae: { sem: [0, 1], extras: cabelo('#2a2630', 20, 14, 10, 15) },
-  // o rabo do Lobo-Guará e do Lobisomem (as duas primeiras peças) vai atrás
+  ipupiara: { sem: [0, 1], extras: cabelo('#2f7a5a', 20, 13, 9, 15) },
+  pisadeira: { sem: [0, 1], extras: cabelo('#1a1424', 20, 11, 9, 14) },
+  caiporinha: { sem: [0, 1, 2, 3, 4, 5], extras: cabelo('#e8743a', 16, 12, 8, 9) },
+
+  // rabo (e a garupa da Mula) atrás do corpo: as primeiras peças
   lobinho: { atras: [0, 1] },
   lobisomem: { atras: [0, 1] },
-  // o rabo aceso (e a garupa da Mula) vão atrás do corpo
   boitatinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
   boitatao: { atras: [2, 3, 4, 5, 6, 7] },
   mboitata: { atras: [2, 3, 4, 5, 6, 7] },
   mulinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
   mulaSemCabeca: { atras: [0, 1, 2, 3, 4, 5, 6] },
-  caiporinha: { sem: [0, 1, 2, 3, 4, 5], extras: cabelo('#e8743a', 16, 12, 8, 9) },
-  ipupiara: { extras: cabelo('#2f7a5a', 20, 9, 8, 14) },
-  pisadeira: { extras: cabelo('#1a1424', 20, 7, 5, 10) },
+  salamanca: { atras: [0, 1] },
+  teiniagua: { atras: [0, 1] },
 
-  // asas que batem (a da esquerda do desenho é a asaE)
-  uirapuru: { flutua: true, partes: { asaE: [0, 2], asaD: [1, 3] } },
-  uirapuruRei: { flutua: true, partes: { asaE: [4, 5], asaD: [6, 7] } },
-  matinta: { flutua: true, partes: { asaE: [0, 2], asaD: [1, 3] } },
-  matintaPerera: { flutua: true, partes: { asaE: [0, 2, 3, 4], asaD: [1, 5, 6, 7] } },
-  relampo: { flutua: true, partes: { asaE: [0, 1, 4], asaD: [2, 3, 5] } },
-  faisquinha: { flutua: true, partes: { asaE: [0, 2], asaD: [1, 3] } },
+  // asas que batem: as primeiras peças de cada desenho (a da esquerda é a asaE)
+  faisquinha: { flutua: true, partes: { asaE: [0], asaD: [1] } },
+  relampo: { flutua: true, partes: { asaE: [0, 1], asaD: [2, 3] } },
+  matinta: { flutua: true, partes: { asaE: [0], asaD: [1] } },
+  matintaPerera: { flutua: true, partes: { asaE: [0], asaD: [1] } },
+  uirapuru: { flutua: true, partes: { asaE: [0], asaD: [1] } },
+  uirapuruRei: { flutua: true, partes: { asaE: [0, 1], asaD: [2, 3] } },
 
   // astros e assombrações: flutuam
-  // Jaci: o céu é um disco atrás, e a sombra que come a lua é fina, por cima
-  jaci: { flutua: true, atras: [0], fundoDe: { 0: 1.5, 7: 2.5 } },
-  eclipse: { flutua: true },
+  jaci: { flutua: true },
+  // o disco do sol é chato, para a lua com a cara aparecer na frente
+  eclipse: { flutua: true, fundoDe: { 12: 3 } },
   luzeiro: { flutua: true },
   estrelaDalva: { flutua: true },
   maeDoOuro: { flutua: true },
   fogoFatuo: { flutua: true },
   almaPenada: { flutua: true },
+  pesadelo: { flutua: true },
 };

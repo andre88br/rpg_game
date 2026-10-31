@@ -224,14 +224,15 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
   perna em grupos de pivô na junta: anda balançando, respira parada e nada
   do peito para cima.
-- **A turma do folclore, de cabeção.** Curupira, Saci, Iara, Caipora,
-  Cuca, Lobo-Guará e Lobisomem, Boitatá (as três formas) e Mula seguem um estilo só, de boneco de
-  cabeça grande: `carinha()` em `art/creatures.ts` põe o olho preto com
-  brilho, a bochecha rosada e o sorrisão, e `cucaDePe()` desenha as duas
-  Cucas. Os de olho grande de desenho animado (Boitatá, Mula, Lobisomem)
-  usam `olhao()`; o fogo de três cores é `coroaDeFogo()`, a cabeça da Mula
-  é `fogoComCara()` e as duas Boitatás grandes saem de `cobraDeFogo()`. O cabelo de trás da Iara e da Caiporinha sai no 3D (`sem` em
-  `bichos.ts`) e volta como `extras` atrás da cabeça.
+- **Os Encantados, de cabeção.** Os 54 seguem um estilo só, de desenho
+  animado: cabeça grande, olho preto com brilho, bochecha rosada e sorriso.
+  Em `art/creatures.ts`, `carinha()` faz o rosto de olhinho, `olhao()` o
+  olho grande de branco, `bocaAberta()` o riso aberto, `coroaDeFogo()` o
+  fogo de três cores e `chamaComCara()` as chamas com rosto (a cabeça da
+  Mula, a Mãe-do-Ouro, o Fogo-Fátuo, a Lamparina). `cucaDePe()` desenha as
+  duas Cucas e `cobraDeFogo()` as duas Boitatás grandes. O que vai atrás
+  (rabo, cabelo, asa) é desenhado primeiro, para os índices de `bichos.ts`
+  ficarem simples: as primeiras peças.
 - **Encantados: o próprio desenho 2D, em sólidos** (`desenho3d.ts`). Cada
   desenho de `art/creatures.ts` é feito de primitivas — elipse, triângulo,
   retângulo, linha, pixel — numa ordem. `gravar` roda a função de desenho
