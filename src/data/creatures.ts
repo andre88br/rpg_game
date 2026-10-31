@@ -227,7 +227,7 @@ const LISTA: readonly Especie[] = [
     base: { hp: 54, atq: 52, def: 56, esp: 40, vel: 38 },
     taxaCaptura: 190, xpBase: 55, crescimento: 'rapido',
     arte: 'caiporinha', categoria: 'Bicho do Mato',
-    sobre: 'Anda montada em porco-do-mato. Dá azar em caçador que não pede licença.',
+    sobre: 'Ainda não tem porco-do-mato pra montar, mas já dá azar em caçador que não pede licença.',
     aprende: [
       { nv: 1, golpe: 'investida' }, { nv: 1, golpe: 'folha_afiada' },
       { nv: 7, golpe: 'rosnado' }, { nv: 12, golpe: 'cipo' },

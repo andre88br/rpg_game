@@ -32,8 +32,11 @@ export const AJUSTES: Record<string, Ajuste> = {
   boto: { perfil: -1, fundo: 0.7 },
 
   // cabelo comprido descendo pelas costas
-  iarinha: { extras: cabelo('#1b4a6b', 16, 8, 7, 11) },
-  iaraMae: { extras: cabelo('#1b4a6b', 20, 12, 8, 14) },
+  // (o cabelo de trás do desenho 2D — as primeiras peças — sai: em 3D
+  // ele viraria um bloco na frente do rosto)
+  iarinha: { sem: [0, 1], extras: cabelo('#2a2630', 16, 11, 8, 11) },
+  iaraMae: { sem: [0, 1], extras: cabelo('#2a2630', 20, 14, 10, 15) },
+  caiporinha: { sem: [0, 1, 2, 3, 4, 5], extras: cabelo('#e8743a', 16, 12, 8, 9) },
   ipupiara: { extras: cabelo('#2f7a5a', 20, 9, 8, 14) },
   pisadeira: { extras: cabelo('#1a1424', 20, 7, 5, 10) },
 

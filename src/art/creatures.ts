@@ -7,11 +7,24 @@ const C: Record<string, string> = {
   // Boitata — serpente de fogo
   boi:  '#d9452a', boiL: '#f2845a', boiD: '#9e2d18', boiB: '#f7d9a8',
   // Iara — sereia das aguas
-  iar:  '#3a8fd5', iarL: '#7fc4ef', iarD: '#245f9e', iarH: '#1b4a6b',
-  pele: '#e0a97e', peleD: '#b8794f',
+  iar:  '#5e9460', iarL: '#86b878', iarD: '#3e6e44', iarH: '#2a2630',
+  pele: '#b8805c', peleD: '#8e5c3c',
   // Curupira — guardiao da mata
   cur:  '#4e9f3f', curL: '#79c45f', curD: '#33702a',
   fogoC:'#e8541f', fogoCL:'#ffa63a',
+  // a turma do folclore, de cabeção (carinha e cucaDePe)
+  olhoP: '#1a1420', bochecha: '#f2a6a6', bochechaE: '#e48a86', boca: '#3a2226',
+  peleC: '#e8c9a0', peleCD: '#c9a078', peleM: '#a06a4a', saci: '#86573d',
+  cabeloF: '#cf3f2e', cabeloFL: '#ec6a50',            // o fogo do Curupira
+  cabeloC: '#e8743a', cabeloCL: '#f6a066',            // a Caipora
+  lanca: '#9a7a52', lancaD: '#6e5434', ponta: '#b8b8c0', pontaL: '#e4e4ea',
+  pintura: '#cf4b3a', bolha: '#9fd4f0', iarHL: '#4a4452',
+  gorro: '#d63b2f', gorroD: '#9c2620', gorroL: '#f0655a',
+  cachimbo: '#ece0b0', cachimboD: '#b8a878', vento: '#bfe9e0', ventoD: '#7fc4b8',
+  palha: '#d8b860', palhaD: '#a88a3a',
+  porco: '#6a5446', porcoL: '#8a7262', porcoD: '#3e3028', focinho: '#e8a0a0',
+  cuca: '#6f9a4a', cucaL: '#8ab862', cucaD: '#46682e', cucaB: '#c8d898', cucaBD: '#9ab070',
+  loiro: '#e8c46a', loiroL: '#f6e0a0', manto: '#5a2a5e', mantoL: '#7a4a82',
   // gerais
   olho: '#ffffff', pup: '#191221', bril: '#ffffff',
   sombra: '#00000000',
@@ -39,6 +52,60 @@ function olho(b: Buf, x: number, y: number, r = 3, dir = 1): void {
   b.ellipse(x, y, r, r, C.olho);
   b.ellipse(x + dir, y, r - 1, r - 1, C.pup);
   b.set(x - dir, y - 1, C.bril);
+}
+
+/* A carinha da turma do folclore: olho preto e alto, com um ponto de brilho,
+   bochecha rosada e o sorrisão. (cx, cy) é o meio, na altura dos olhos;
+   `sep` é a distância de cada olho até o meio. */
+function carinha(b: Buf, cx: number, cy: number, sep: number, bochecha = C.bochecha): void {
+  for (const x of [cx - sep, cx + sep - 1]) {
+    b.rect(x, cy - 1, 2, 3, C.olhoP);
+    b.set(x, cy - 1, C.bril);
+  }
+  b.rect(cx - sep - 3, cy + 2, 2, 1, bochecha);
+  b.rect(cx + sep + 2, cy + 2, 2, 1, bochecha);
+  const l = sep - 1;
+  b.set(cx - l - 1, cy + 3, C.boca);
+  b.line(cx - l, cy + 4, cx + l - 1, cy + 4, C.boca);
+  b.set(cx + l, cy + 3, C.boca);
+}
+
+/* a Cuca de pé: jacarezinho de cabelo loiro, rabo para o lado e focinho
+   para a direita. A rainha ganha coroa e cabelo mais comprido. */
+function cucaDePe(b: Buf, rainha: boolean): void {
+  // cabelo loiro atrás da cabeça, até os ombros (ou até a cintura)
+  b.ellipse(15, 15, 9, 9, C.loiro);
+  b.rect(6, 15, 7, rainha ? 17 : 12, C.loiro);
+  // rabo, saindo para a esquerda lá embaixo
+  b.tri(14, 32, 1, 39, 16, 37, C.cuca);
+  // pernas
+  b.rect(14, 34, 4, 4, C.cuca); b.rect(21, 34, 4, 4, C.cuca);
+  // corpo e a barriga de couro claro, com as listras
+  b.ellipse(19, 29, 7, 6, C.cuca);
+  b.ellipse(19, 30, 4, 5, C.cucaB);
+  for (const y of [28, 31, 34]) b.line(17, y, 21, y, C.cucaBD);
+  // bracinhos
+  b.ellipse(11, 28, 2, 4, C.cuca); b.ellipse(27, 28, 2, 4, C.cuca);
+  // cabeção e focinho comprido, de ponta redonda
+  b.ellipse(17, 16, 9, 8, C.cuca);
+  b.ellipse(28, 19, 9, 4, C.cuca);
+  b.ellipse(28, 17, 7, 1, C.cucaL);
+  b.set(35, 16, C.cucaD); b.set(33, 16, C.cucaD);          // narinas
+  // franja e mechas caindo do lado esquerdo do rosto
+  b.ellipse(16, 9, 10, 3, C.loiro);
+  for (const x of [9, 13, 17, 21]) b.tri(x - 2, 11, x + 2, 11, x, 13, C.loiro);
+  b.ellipse(8, 19, 2, 7, C.loiro);
+  b.set(13, 7, C.loiroL); b.set(14, 7, C.loiroL); b.set(15, 6, C.loiroL);
+  // a carinha: olhos no alto da cabeça, sorriso ao longo do focinho
+  for (const x of [14, 20]) { b.rect(x, 15, 2, 3, C.olhoP); b.set(x, 15, C.bril); }
+  b.rect(11, 19, 2, 1, C.bochecha);
+  b.rect(21, 19, 3, 2, C.bochecha);
+  b.set(19, 21, C.boca); b.line(20, 22, 33, 22, C.boca); b.set(34, 21, C.boca);
+  if (rainha) {
+    b.rect(11, 4, 11, 2, P.goldD);
+    for (const x of [12, 16, 20]) b.tri(x - 2, 5, x, 0, x + 2, 5, P.gold);
+    b.set(16, 3, '#e05a5a');
+  }
 }
 
 /* ---------------- BOITATINHA (Fogo, inicial) ---------------- */
@@ -78,45 +145,31 @@ export function boitatinha(): Buf {
 /* ---------------- IARINHA (Água, inicial) ---------------- */
 export function iarinha(): Buf {
   const b = new Buf(32, 32);
-
-  // cauda (cy 24, ocupa 17..31)
-  b.ellipse(16, 24, 7, 7, C.iar);
-  b.ellipse(16, 23, 4, 5, C.iarL);            // brilho central
-  // escamas: tracinhos escuros so nas laterais, para nao virar listra
-  for (let i = 0; i < 3; i++) {
-    b.line(10, 21 + i * 3, 12, 21 + i * 3, C.iarD);
-    b.line(20, 21 + i * 3, 22, 21 + i * 3, C.iarD);
-  }
-  // nadadeira caudal: dois lobos discretos
-  b.tri(16, 28, 7, 31, 15, 31, C.iarL);
-  b.tri(16, 28, 25, 31, 17, 31, C.iarL);
-  b.line(16, 28, 16, 31, C.iarD);
-
-  // torso (cy 16)
-  b.ellipse(16, 16, 5, 4, C.pele);
-  b.ellipse(16, 18, 5, 2, C.iarL);            // top de escamas
-  b.ellipse(11, 17, 2, 3, C.pele);            // bracos
-  b.ellipse(21, 17, 2, 3, C.pele);
-
-  // cabeca (cy 8)
-  b.ellipse(16, 8, 6, 6, C.pele);
-
-  // cabelo: franja por cima e mechas longas descendo pelos lados
-  b.ellipse(16, 4, 7, 3, C.iarH);
-  b.ellipse(16, 3, 5, 2, C.iarD);
-  for (const x of [9, 10, 22, 23]) for (let y = 4; y <= 19; y++) b.set(x, y, C.iarH);
-  for (const x of [10, 22]) for (let y = 4; y <= 9; y++) b.set(x, y, C.iarD);
-  b.line(11, 4, 21, 4, C.iarH);               // franja
-
-  // rosto
-  olho(b, 13, 8, 2, 1);
-  olho(b, 19, 8, 2, -1);
-  b.set(15, 11, C.peleD); b.set(16, 11, C.peleD);
-
+  // cabelo preto e liso caindo pelas costas
+  b.ellipse(16, 11, 8, 7, C.iarH);
+  b.rect(8, 11, 17, 11, C.iarH);
+  // cauda de peixe, enrolando para a direita, com a nadadeira
+  b.ellipse(16, 25, 5, 4, C.iar);
+  b.ellipse(21, 29, 4, 2, C.iar);
+  b.tri(23, 29, 30, 24, 28, 31, C.iarL);
+  b.line(13, 25, 15, 26, C.iarD); b.line(17, 26, 19, 25, C.iarD);
+  // tronco, braços e o top de folha
+  b.ellipse(16, 20, 4, 3, C.pele);
+  b.ellipse(11, 21, 1, 3, C.pele); b.ellipse(21, 21, 1, 3, C.pele);
+  b.rect(13, 19, 7, 2, C.iarL);
+  // cabeção
+  b.ellipse(16, 12, 7, 7, C.pele);
+  // franja reta e as mechas da frente
+  b.ellipse(16, 7, 8, 3, C.iarH);
+  b.rect(9, 8, 15, 2, C.iarH);
+  b.rect(8, 9, 2, 12, C.iarH); b.rect(23, 9, 2, 12, C.iarH);
+  // a pintura vermelha atravessando o rosto, de mecha a mecha
+  b.rect(10, 12, 13, 2, C.pintura);
+  b.set(13, 5, C.iarHL); b.set(14, 5, C.iarHL);
+  carinha(b, 16, 13, 3);
   // bolhinhas
-  // bolhinhas: circulos de verdade, senao viram sujeirinha na tela
-  for (const [x, y] of [[4, 10], [6, 4], [27, 6], [29, 14], [3, 21]]) {
-    b.ellipse(x, y, 1, 1, C.iarL); b.set(x, y, '#cde8ff'); b.set(x, y - 1, '#ffffff');
+  for (const [x, y] of [[4, 10], [5, 4], [28, 7], [29, 15]]) {
+    b.ellipse(x, y, 1, 1, C.bolha); b.set(x, y - 1, '#ffffff');
   }
   return b.outline(P.ink);
 }
@@ -124,22 +177,31 @@ export function iarinha(): Buf {
 /* ---------------- CURUPINHO (Planta, inicial) ---------------- */
 export function curupinho(): Buf {
   const b = new Buf(32, 32);
-  // pernas
-  b.rect(13, 22, 3, 6, C.pele); b.rect(17, 22, 3, 6, C.pele);
-  // pes VIRADOS PARA TRAS — a marca registrada do Curupira:
-  // o calcanhar aponta para frente e os dedos para tras (para cima na tela)
-  b.ellipse(12, 28, 3, 2, C.pele); b.ellipse(20, 28, 3, 2, C.pele);
-  for (const x of [10, 12, 14]) { b.set(x, 26, C.pele); b.set(x, 25, C.peleD); }
-  for (const x of [18, 20, 22]) { b.set(x, 26, C.pele); b.set(x, 25, C.peleD); }
-  b.ellipse(16, 19, 8, 6, C.cur);            // corpo/folhagem
-  b.ellipse(16, 18, 5, 3, C.curL);
-  b.tri(8, 19, 2, 16, 9, 23, C.curD);        // folhas laterais
-  b.tri(24, 19, 30, 16, 23, 23, C.curD);
-  b.ellipse(16, 11, 6, 6, C.pele);           // cabeca
-  b.ellipse(16, 15, 7, 2, C.curD);           // gola de folhas
-  chama(b, 16, 6, 6, 8, C.fogoC, C.fogoCL);  // cabelo de fogo
-  olho(b, 13, 11, 2, 1); olho(b, 19, 11, 2, -1);
-  b.rect(15, 14, 3, 1, C.peleD);             // boca
+  // lança, atrás de tudo
+  b.line(26, 7, 26, 30, C.lanca);
+  b.tri(24, 8, 26, 2, 28, 8, C.ponta);
+  // pernas e pés VIRADOS PARA TRÁS — a marca registrada do Curupira:
+  // o calcanhar vem para a frente e os dedos apontam para trás (para cima)
+  b.rect(13, 25, 2, 4, C.peleC); b.rect(17, 25, 2, 4, C.peleC);
+  b.ellipse(13, 29, 2, 1, C.peleC); b.ellipse(18, 29, 2, 1, C.peleC);
+  b.set(12, 28, C.peleCD); b.set(19, 28, C.peleCD);
+  // tronco pequeno e braços — o direito segura a lança
+  b.ellipse(16, 21, 4, 4, C.peleC);
+  b.ellipse(11, 21, 1, 3, C.peleC);
+  b.ellipse(23, 21, 3, 1, C.peleC);
+  // saia de folhas
+  b.ellipse(16, 24, 6, 2, C.cur);
+  for (let x = 11; x <= 21; x += 2) b.tri(x - 1, 24, x + 1, 24, x, 28, x % 4 === 1 ? C.curD : C.cur);
+  // cabeção
+  b.ellipse(16, 13, 7, 7, C.peleC);
+  // cabelo de fogo, espetado
+  b.ellipse(16, 8, 8, 3, C.cabeloF);
+  for (const [x0, y0, x1, y1, x2, y2] of [[7, 10, 7, 2, 12, 6], [10, 7, 12, 0, 16, 6], [14, 6, 17, 0, 19, 6],
+    [17, 6, 22, 1, 22, 8], [20, 7, 26, 3, 25, 11]] as const) b.tri(x0, y0, x1, y1, x2, y2, C.cabeloF);
+  b.tri(11, 9, 13, 12, 15, 9, C.cabeloF);       // mechas caindo na testa
+  b.tri(16, 9, 18, 12, 20, 9, C.cabeloF);
+  b.tri(13, 3, 15, 1, 16, 5, C.cabeloFL);
+  carinha(b, 16, 14, 3);
   return b.outline(P.ink);
 }
 
@@ -188,43 +250,34 @@ export function boitatao(): Buf {
 /* IARA-MÃE — a senhora das aguas, coroada */
 export function iaraMae(): Buf {
   const b = new Buf(40, 40);
-
-  b.ellipse(20, 31, 9, 9, C.iar);            // cauda
-  b.ellipse(20, 30, 5, 7, C.iarL);
-  for (let i = 0; i < 3; i++) {
-    b.line(12, 27 + i * 4, 15, 27 + i * 4, C.iarD);
-    b.line(25, 27 + i * 4, 28, 27 + i * 4, C.iarD);
-  }
-  b.tri(20, 35, 5, 39, 19, 39, C.iarL);      // cauda aberta
-  b.tri(20, 35, 35, 39, 21, 39, C.iarL);
-  b.line(20, 35, 20, 39, C.iarD);
-
-  b.ellipse(20, 21, 6, 5, C.pele);           // torso
-  b.ellipse(20, 23, 6, 3, C.iarL);
-  b.ellipse(13, 22, 2, 4, C.pele);           // bracos
-  b.ellipse(27, 22, 2, 4, C.pele);
-
-  b.ellipse(20, 12, 7, 7, C.pele);           // cabeca
-
-  // cabelo muito longo
-  b.ellipse(20, 7, 9, 4, C.iarH);
-  b.ellipse(20, 6, 6, 2, C.iarD);
-  for (const x of [11, 12, 13, 27, 28, 29]) for (let y = 7; y <= 26; y++) b.set(x, y, C.iarH);
-  for (const x of [12, 28]) for (let y = 7; y <= 14; y++) b.set(x, y, C.iarD);
-  b.line(14, 7, 26, 7, C.iarH);
-
+  // cabelo preto, comprido até a cauda
+  b.ellipse(20, 14, 10, 9, C.iarH);
+  b.rect(10, 14, 21, 15, C.iarH);
+  // cauda grande, enrolando para a direita
+  b.ellipse(20, 31, 7, 5, C.iar);
+  b.ellipse(27, 36, 6, 2, C.iar);
+  b.tri(31, 36, 39, 28, 38, 39, C.iarL);
+  for (const x of [15, 19, 23]) b.line(x, 31, x + 2, 32, C.iarD);
+  // tronco, braços e o top de folha
+  b.ellipse(20, 25, 6, 4, C.pele);
+  b.ellipse(13, 26, 2, 4, C.pele); b.ellipse(27, 26, 2, 4, C.pele);
+  b.rect(15, 24, 11, 2, C.iarL);
+  b.rect(17, 26, 7, 1, C.iarD);
+  // cabeção
+  b.ellipse(20, 15, 9, 8, C.pele);
+  // franja e mechas da frente, e a pintura vermelha de mecha a mecha
+  b.ellipse(20, 9, 10, 4, C.iarH);
+  b.rect(11, 10, 19, 2, C.iarH);
+  b.rect(10, 11, 2, 16, C.iarH); b.rect(29, 11, 2, 16, C.iarH);
+  b.rect(12, 15, 17, 3, C.pintura);
+  b.set(16, 7, C.iarHL); b.set(17, 7, C.iarHL); b.set(18, 6, C.iarHL);
   // coroa de corais
-  b.rect(15, 3, 11, 3, P.gold);
-  b.rect(15, 5, 11, 1, P.goldD);
-  for (const x of [15, 20, 25]) b.tri(x - 2, 3, x, 0, x + 2, 3, P.gold);
-  b.set(20, 1, '#cde8ff');
-
-  olho(b, 16, 12, 2, 1);
-  olho(b, 24, 12, 2, -1);
-  b.set(19, 15, C.peleD); b.set(20, 15, C.peleD);
-
-  for (const [x, y] of [[4, 12], [7, 6], [34, 9], [36, 17], [3, 24]]) {
-    b.ellipse(x, y, 1, 1, C.iarL); b.set(x, y, '#cde8ff'); b.set(x, y - 1, '#ffffff');
+  b.rect(15, 3, 11, 2, P.goldD);
+  for (const x of [16, 20, 24]) b.tri(x - 2, 4, x, 0, x + 2, 4, P.gold);
+  b.set(20, 2, '#cde8ff');
+  carinha(b, 20, 16, 4);
+  for (const [x, y] of [[4, 12], [6, 5], [35, 8], [36, 17], [3, 24]]) {
+    b.ellipse(x, y, 1, 1, C.bolha); b.set(x, y - 1, '#ffffff');
   }
   return b.outline(P.ink);
 }
@@ -232,42 +285,35 @@ export function iaraMae(): Buf {
 /* CURUPIRÁ — o guardiao adulto da mata, com bordunа */
 export function curupira(): Buf {
   const b = new Buf(40, 40);
-
-  // pernas e pes virados para tras
-  b.rect(16, 27, 4, 8, C.pele); b.rect(21, 27, 4, 8, C.pele);
-  b.ellipse(15, 36, 4, 2, C.pele); b.ellipse(25, 36, 4, 2, C.pele);
-  for (const x of [12, 14, 16]) { b.set(x, 34, C.pele); b.set(x, 33, C.peleD); }
-  for (const x of [24, 26, 28]) { b.set(x, 34, C.pele); b.set(x, 33, C.peleD); }
-
-  // corpo com armadura de folhas
-  b.ellipse(20, 23, 10, 8, C.cur);
-  b.ellipse(20, 21, 6, 4, C.curL);
-  for (const [x, y] of [[13, 20], [27, 20], [15, 27], [25, 27], [20, 29]])
-    b.ellipse(x, y, 3, 2, C.curD);
-  b.tri(10, 23, 2, 19, 11, 28, C.curD);      // folhas laterais
-  b.tri(30, 23, 38, 19, 29, 28, C.curD);
-
-  // bracos
-  b.ellipse(11, 22, 3, 3, C.pele);
-  b.ellipse(29, 22, 3, 3, C.pele);
-
-  // borduna (porrete de madeira) na mao direita
-  b.rect(31, 10, 4, 16, P.trunk);
-  b.rect(30, 8, 6, 5, P.trunkD);
-  b.set(31, 9, '#8a5c32'); b.set(34, 11, '#8a5c32');
-
-  // cabeca
-  b.ellipse(20, 14, 8, 7, C.pele);
-  b.ellipse(20, 19, 9, 2, C.curD);           // gola de folhas
-
+  // lança comprida, atrás de tudo
+  b.line(33, 8, 33, 38, C.lanca);
+  b.line(34, 8, 34, 38, C.lancaD);
+  b.tri(30, 10, 33, 1, 37, 10, C.ponta);
+  b.tri(32, 9, 33, 4, 34, 9, C.pontaL);
+  // pernas e pés virados para trás
+  b.rect(16, 31, 3, 5, C.peleC); b.rect(21, 31, 3, 5, C.peleC);
+  b.ellipse(16, 36, 3, 1, C.peleC); b.ellipse(23, 36, 3, 1, C.peleC);
+  b.set(14, 35, C.peleCD); b.set(25, 35, C.peleCD);
+  // tronco e braços
+  b.ellipse(20, 26, 6, 5, C.peleC);
+  b.ellipse(13, 26, 2, 4, C.peleC);
+  b.ellipse(29, 25, 4, 2, C.peleC);
+  // saia de folhas, comprida
+  b.ellipse(20, 30, 8, 2, C.cur);
+  for (let x = 13; x <= 27; x += 2) b.tri(x - 1, 30, x + 1, 30, x, 35, x % 4 === 1 ? C.curD : C.cur);
+  // colar de dentes
+  for (const x of [17, 20, 23]) b.tri(x - 1, 23, x + 1, 23, x, 25, '#f0e8d0');
+  // cabeção
+  b.ellipse(20, 15, 9, 8, C.peleC);
   // cabelo de fogo, bem maior
-  chama(b, 20, 8, 8, 10, C.fogoC, C.fogoCL);
-  chama(b, 13, 10, 4, 6, C.fogoC, C.fogoCL);
-  chama(b, 27, 10, 4, 6, C.fogoC, C.fogoCL);
-
-  olho(b, 16, 14, 2, 1);
-  olho(b, 24, 14, 2, -1);
-  b.rect(18, 17, 4, 1, C.peleD);
+  b.ellipse(20, 9, 10, 4, C.cabeloF);
+  for (const [x0, y0, x1, y1, x2, y2] of [[9, 12, 6, 3, 14, 7], [11, 8, 12, 0, 18, 6], [16, 6, 20, 0, 23, 6],
+    [21, 6, 28, 0, 28, 9], [26, 8, 34, 5, 31, 14], [9, 10, 4, 12, 11, 15]] as const) b.tri(x0, y0, x1, y1, x2, y2, C.cabeloF);
+  b.tri(13, 11, 15, 14, 18, 11, C.cabeloF);
+  b.tri(19, 11, 21, 14, 24, 11, C.cabeloF);
+  b.tri(14, 4, 17, 1, 18, 6, C.cabeloFL);
+  b.tri(23, 4, 27, 2, 26, 7, C.cabeloFL);
+  carinha(b, 20, 16, 4);
   return b.outline(P.ink);
 }
 
@@ -319,95 +365,58 @@ export function piragua(): Buf {
 /* ---------------- SACIZINHO (Vento, selvagem) ---------------- */
 export function sacizinho(): Buf {
   const b = new Buf(32, 32);
-  const pele = '#4a3a3a', peleL = '#6b5555', gorro = '#d63b2f', gorroD = '#9c2620';
-  const vento = '#bfe9e0', ventoD = '#7fc4b8';
-
   // redemoinho no lugar do pé: o Saci nunca encosta direito no chão
-  b.ellipse(16, 28, 11, 3, ventoD);
-  b.ellipse(16, 27, 8, 2, vento);
-  b.line(4, 26, 7, 24, ventoD);
-  b.line(28, 26, 25, 24, ventoD);
-
+  b.ellipse(16, 30, 9, 1, C.ventoD);
+  b.ellipse(16, 29, 6, 1, C.vento);
   // a perna única
-  b.rect(14, 21, 5, 5, pele);
-  b.ellipse(16, 26, 4, 2, peleL);
-
-  // tronco e bracinhos
-  b.ellipse(16, 18, 6, 4, pele);
-  b.ellipse(16, 19, 4, 2, peleL);
-  b.ellipse(9, 17, 2, 3, pele);
-  b.ellipse(23, 16, 2, 3, pele);
-
-  // cabeça, com espaço de sobra abaixo do gorro para o rosto caber
-  b.ellipse(16, 11, 7, 6, pele);
-  b.ellipse(16, 13, 5, 3, peleL);
-
-  // gorro vermelho: copa baixa, aba marcada e a ponta caindo para trás
-  b.ellipse(16, 4, 7, 3, gorro);
-  b.ellipse(16, 3, 5, 2, '#f0655a');
-  b.tri(10, 4, 3, 1, 12, 2, gorro);
-  b.ellipse(3, 1, 2, 2, gorroD);
-  b.rect(8, 6, 17, 2, gorroD);                 // aba, bem acima dos olhos
-
-  // rosto travesso
-  olho(b, 13, 11, 2, 1);
-  olho(b, 19, 11, 2, -1);
-  b.line(13, 14, 19, 14, '#c9553f');           // sorriso largo
-  b.set(12, 13, '#c9553f'); b.set(20, 13, '#c9553f');
-
-  // cachimbo saindo do canto da boca, com a fumacinha
-  b.rect(21, 14, 4, 1, P.trunkD);
-  b.rect(24, 12, 2, 3, P.trunk);
-  for (const [x, y] of [[27, 10], [29, 7], [28, 4]]) b.ellipse(x, y, 1, 1, '#d9d9d9');
+  b.rect(15, 26, 3, 3, C.saci);
+  // tronco, braços, a bolsa vermelha e o calção
+  b.ellipse(16, 22, 4, 3, C.saci);
+  b.ellipse(11, 22, 1, 3, C.saci); b.ellipse(21, 22, 1, 3, C.saci);
+  b.line(13, 19, 19, 25, C.gorro);
+  b.rect(18, 24, 4, 3, C.gorro); b.set(20, 25, C.gorroD);
+  b.rect(13, 25, 7, 2, C.gorro);
+  // cabeção
+  b.ellipse(16, 14, 7, 6, C.saci);
+  // gorro vermelho: alto, com a ponta caindo para trás
+  b.ellipse(16, 7, 8, 3, C.gorro);
+  b.tri(9, 8, 12, 0, 23, 8, C.gorro);
+  b.tri(11, 3, 13, 0, 15, 4, C.gorroL);
+  b.rect(8, 9, 17, 2, C.gorroD);
+  carinha(b, 16, 14, 3, C.bochechaE);
+  // cachimbo no canto da boca, com a fumacinha
+  b.line(19, 18, 23, 18, C.cachimbo);
+  b.rect(23, 15, 3, 4, C.cachimbo);
+  b.rect(23, 15, 3, 1, C.cachimboD);
+  for (const [x, y] of [[27, 12], [29, 8], [28, 4]]) b.ellipse(x, y, 1, 1, '#d9d9d9');
   return b.outline(P.ink);
 }
 
 /* ---------------- CAIPORINHA (Planta, selvagem) ---------------- */
 export function caiporinha(): Buf {
   const b = new Buf(32, 32);
-  const pelo = '#8a5a34', peloL = '#ab7748', peloD = '#5e3a20';
-  const folha = '#4e9f3f', folhaD = '#33702a';
-
-  // cajado, atrás de tudo
-  b.rect(26, 7, 2, 21, P.trunk);
-  b.ellipse(27, 7, 3, 2, P.trunkD);
-  b.set(26, 12, P.trunkD); b.set(27, 18, P.trunkD);
-
-  // pernas curtas e pés
-  b.rect(11, 25, 4, 5, peloD); b.rect(17, 25, 4, 5, peloD);
-  b.ellipse(12, 30, 3, 1, peloD); b.ellipse(20, 30, 3, 1, peloD);
-
-  // corpo baixo e redondo, bem abaixo da cabeça
-  b.ellipse(16, 23, 8, 5, pelo);
-  b.ellipse(16, 24, 5, 3, peloL);
-  b.ellipse(8, 22, 2, 3, pelo);               // bracinhos
-  b.ellipse(24, 22, 2, 3, pelo);
-
-  // orelhas pontudas, desenhadas antes da cabeça para ficarem atrás dela
-  b.tri(8, 12, 6, 2, 14, 10, pelo);
-  b.tri(24, 12, 26, 2, 18, 10, pelo);
-  b.tri(9, 10, 8, 5, 12, 10, peloD);
-  b.tri(23, 10, 24, 5, 20, 10, peloD);
-
-  // cabeça grande
-  b.ellipse(16, 13, 8, 7, pelo);
-  b.ellipse(16, 16, 5, 3, peloL);
-
-  // focinho de porco-do-mato, com presinhas
-  b.ellipse(16, 17, 3, 2, '#c08a68');
-  b.set(15, 17, peloD); b.set(17, 17, peloD);
-  b.line(12, 18, 11, 15, '#f0e8d0');
-  b.line(20, 18, 21, 15, '#f0e8d0');
-
-  // coroa de folhas, encaixada na testa e sem cobrir as orelhas
-  b.ellipse(16, 8, 6, 2, folha);
-  b.tri(11, 8, 8, 3, 14, 7, folhaD);
-  b.tri(16, 7, 15, 2, 19, 6, folha);
-  b.tri(21, 8, 24, 3, 18, 7, folhaD);
-  b.line(11, 9, 21, 9, folhaD);
-
-  olho(b, 12, 13, 2, 1);
-  olho(b, 20, 13, 2, -1);
+  // cabelo laranja atrás da cabeça, até os ombros
+  b.ellipse(16, 12, 9, 8, C.cabeloC);
+  b.rect(7, 12, 19, 8, C.cabeloC);
+  for (const x of [8, 11, 21, 24]) b.tri(x - 1, 19, x + 1, 19, x, 22, C.cabeloC);
+  // pernas
+  b.rect(13, 26, 2, 3, C.peleM); b.rect(17, 26, 2, 3, C.peleM);
+  b.ellipse(13, 29, 2, 1, C.peleM); b.ellipse(18, 29, 2, 1, C.peleM);
+  // tronco, braços, o top de palha e a saia de folhas
+  b.ellipse(16, 22, 4, 3, C.peleM);
+  b.ellipse(11, 22, 1, 3, C.peleM); b.ellipse(21, 22, 1, 3, C.peleM);
+  b.rect(13, 20, 7, 2, C.palha);
+  for (const x of [13, 15, 17, 19]) b.set(x, 22, C.palhaD);
+  b.ellipse(16, 25, 5, 2, C.cur);
+  for (let x = 12; x <= 20; x += 2) b.tri(x - 1, 25, x + 1, 25, x, 28, x % 4 === 0 ? C.curD : C.cur);
+  // cabeção
+  b.ellipse(16, 13, 7, 7, C.peleM);
+  // franja repicada
+  b.ellipse(16, 8, 8, 3, C.cabeloC);
+  for (const x of [11, 14, 17, 20]) b.tri(x - 1, 9, x + 1, 9, x + 1, 12, C.cabeloC);
+  b.rect(8, 9, 2, 10, C.cabeloC); b.rect(23, 9, 2, 10, C.cabeloC);
+  b.set(13, 6, C.cabeloCL); b.set(14, 6, C.cabeloCL); b.set(15, 5, C.cabeloCL);
+  carinha(b, 16, 14, 3, C.bochechaE);
   return b.outline(P.ink);
 }
 
@@ -588,47 +597,31 @@ export function maeDoOuro(): Buf {
 /* ---------------- SACI (Vento, evoluído) ---------------- */
 export function saci(): Buf {
   const b = new Buf(40, 40);
-  const pele = '#4a3a3a', peleL = '#6b5555', gorro = '#d63b2f', gorroD = '#9c2620', gorroL = '#f0655a';
-  const vento = '#bfe9e0', ventoD = '#7fc4b8';
-
-  // redemoinho maior, agora quase engolindo a perna inteira
-  b.ellipse(20, 35, 15, 4, ventoD);
-  b.ellipse(20, 34, 11, 3, vento);
-  b.line(4, 32, 9, 29, ventoD); b.line(36, 32, 31, 29, ventoD);
-  b.line(2, 36, 8, 34, ventoD); b.line(38, 36, 32, 34, ventoD);
-
-  // a perna única, mais longa
-  b.rect(17, 25, 6, 8, pele);
-  b.ellipse(20, 33, 5, 2, peleL);
-
-  // tronco largo, um braço erguido segurando o cachimbo bem alto
-  b.ellipse(20, 22, 8, 5, pele);
-  b.ellipse(20, 23, 5, 3, peleL);
-  b.rect(28, 14, 3, 9, pele);                  // braço erguido
-  b.ellipse(11, 21, 3, 4, pele);                // braço caído
-
-  // cabeça, maior e mais redonda que a do Sacizinho
-  b.ellipse(20, 13, 9, 7, pele);
-  b.ellipse(20, 15, 6, 3, peleL);
-
-  // gorro maior, aba larga, ponta bem jogada para trás
-  b.ellipse(20, 4, 9, 4, gorro);
-  b.ellipse(20, 3, 6, 2, gorroL);
-  b.tri(11, 5, 1, 2, 14, 3, gorro);
-  b.ellipse(1, 2, 2, 2, gorroD);
-  b.rect(9, 7, 22, 3, gorroD);                  // aba
-
-  // rosto de riso escancarado — o dono da graça toda
-  olho(b, 16, 13, 3, 1); olho(b, 24, 13, 3, -1);
-  b.tri(15, 16, 20, 20, 25, 16, '#c9553f');     // boca aberta, triangular
-  b.line(16, 17, 24, 17, '#7a2e22');
-
-  // cachimbo na mão erguida, fumaça grande
-  b.rect(30, 14, 4, 2, P.trunkD);
-  b.ellipse(35, 12, 3, 2, P.trunk);
-  for (const [x, y, r] of [[38, 9, 1], [39, 5, 2], [37, 1, 2]] as const) {
-    b.ellipse(x, y, r, r, '#e8e8e8');
-  }
+  // redemoinho maior, quase engolindo a perna
+  b.ellipse(20, 37, 14, 2, C.ventoD);
+  b.ellipse(20, 36, 10, 1, C.vento);
+  b.line(3, 33, 8, 31, C.ventoD); b.line(37, 33, 32, 31, C.ventoD);
+  // a perna única
+  b.rect(18, 31, 4, 5, C.saci);
+  // tronco, braços, a bolsa e o calção
+  b.ellipse(20, 26, 6, 5, C.saci);
+  b.ellipse(12, 26, 2, 4, C.saci); b.ellipse(28, 26, 2, 4, C.saci);
+  b.line(15, 22, 24, 29, C.gorro); b.line(16, 22, 25, 29, C.gorro);
+  b.rect(22, 28, 6, 4, C.gorro); b.rect(22, 28, 6, 1, C.gorroD); b.set(25, 30, P.gold);
+  b.rect(15, 30, 10, 2, C.gorro);
+  // cabeção
+  b.ellipse(20, 16, 9, 8, C.saci);
+  // gorro alto, ponta jogada para trás
+  b.ellipse(20, 8, 10, 3, C.gorro);
+  b.tri(10, 9, 13, 0, 29, 9, C.gorro);
+  b.tri(13, 4, 14, 1, 17, 5, C.gorroL);
+  b.rect(10, 11, 21, 2, C.gorroD);
+  carinha(b, 20, 17, 4, C.bochechaE);
+  // cachimbo maior, fumaça grande
+  b.line(24, 21, 30, 21, C.cachimbo);
+  b.rect(30, 17, 4, 5, C.cachimbo);
+  b.rect(30, 17, 4, 1, C.cachimboD);
+  for (const [x, y, r] of [[34, 13, 1], [36, 9, 2], [34, 4, 2]] as const) b.ellipse(x, y, r, r, '#e8e8e8');
   return b.outline(P.ink);
 }
 
@@ -895,27 +888,32 @@ export function mapinguari(): Buf {
 /* ---------------- CAIPORA (Terra/Planta, exclusiva) ---------------- */
 export function caipora(): Buf {
   const b = new Buf(40, 40);
-  const porco = '#5a4a3e', porcoL = '#7a6a5a', pele = '#a8683e', cabelo = '#e0552e', cabeloL = '#f2884a';
-
-  // o porco-do-mato que ela monta
-  b.ellipse(20, 30, 14, 7, porco);
-  b.ellipse(18, 28, 6, 2, porcoL);
-  b.ellipse(34, 30, 5, 4, porco);
-  b.ellipse(38, 31, 2, 2, '#3a2e24');                  // focinho
-  b.tri(33, 27, 35, 22, 37, 27, porco);                // orelha
-  for (const x of [10, 16, 25, 30]) b.rect(x, 35, 3, 5, '#3a2e24');
-
-  // a Caipora, pequena, de cabelo de fogo, montada
-  b.ellipse(19, 20, 5, 6, pele);
-  b.rect(12, 18, 3, 7, pele);                          // braço com o galho
-  b.line(11, 12, 13, 26, '#6b4a2e');
-  b.ellipse(11, 11, 3, 2, '#4f8a3a');                  // folhas na ponta do galho
-  b.ellipse(19, 11, 5, 5, pele);
-  for (const [x, y, r] of [[15, 7, 3], [19, 5, 4], [23, 7, 3], [25, 11, 2]] as const) {
-    b.ellipse(x, y, r, r, cabelo);
-  }
-  b.ellipse(19, 4, 2, 1, cabeloL);
-  olho(b, 17, 11, 2, 1); olho(b, 21, 11, 2, -1);
+  // o porco-do-mato que ela monta, gorducho
+  b.ellipse(19, 31, 13, 6, C.porco);
+  b.ellipse(17, 29, 7, 2, C.porcoL);
+  for (const x of [9, 14, 24, 29]) b.rect(x, 35, 3, 4, C.porcoD);
+  b.ellipse(32, 29, 6, 5, C.porco);                        // cabeça do porco
+  b.tri(29, 25, 30, 20, 33, 24, C.porco);                  // orelha
+  b.ellipse(37, 31, 2, 2, C.focinho);
+  b.set(37, 30, C.porcoD); b.set(37, 32, C.porcoD);
+  b.line(34, 33, 33, 36, '#f0e8d0');                       // presinha
+  b.rect(31, 27, 2, 2, C.olhoP); b.set(31, 27, '#ffffff');
+  // a Caipora montada, de cabelo de fogo, com o galho na mão
+  b.ellipse(16, 13, 9, 8, C.cabeloC);                      // cabelo atrás
+  b.rect(7, 13, 19, 8, C.cabeloC);
+  b.ellipse(16, 24, 4, 3, C.peleM);                        // tronco
+  b.rect(13, 22, 7, 2, C.palha);
+  b.ellipse(10, 23, 1, 3, C.peleM);
+  b.line(8, 9, 10, 27, P.trunk);                           // o galho
+  b.ellipse(8, 8, 3, 2, C.cur);
+  b.ellipse(21, 24, 1, 3, C.peleM);
+  b.ellipse(16, 14, 7, 7, C.peleM);                        // cabeção
+  b.ellipse(16, 9, 8, 3, C.cabeloC);
+  for (const x of [11, 14, 17, 20]) b.tri(x - 1, 10, x + 1, 10, x + 1, 13, C.cabeloC);
+  for (const [x0, x1] of [[9, 12], [15, 18], [21, 24]] as const) b.tri(x0, 7, x0 + 1, 2, x1, 7, C.cabeloC);
+  b.rect(8, 10, 2, 10, C.cabeloC); b.rect(23, 10, 2, 10, C.cabeloC);
+  b.set(13, 7, C.cabeloCL); b.set(14, 7, C.cabeloCL);
+  carinha(b, 16, 15, 3, C.bochechaE);
   return b.outline(P.ink);
 }
 
@@ -979,21 +977,7 @@ export function corpoSeco(): Buf {
 /* ---------------- CUCA (Sombra) ---------------- */
 export function cuca(): Buf {
   const b = new Buf(40, 40);
-  const pele = '#4f8a4a', peleL = '#7ab070', peleD = '#2f5e2e', manto = '#5a2a5e', mantoL = '#7a4a82';
-  b.tri(6, 39, 20, 14, 34, 39, manto);                                  // manto de velha
-  b.tri(12, 39, 20, 20, 28, 39, mantoL);
-  b.ellipse(8, 26, 3, 5, pele); b.ellipse(32, 26, 3, 5, pele);          // mãos de garra
-  b.line(6, 30, 5, 33, '#e8e0d0'); b.line(34, 30, 35, 33, '#e8e0d0');
-  // cabeça de jacaré, focinho comprido para o lado
-  b.ellipse(18, 12, 8, 7, pele);
-  b.ellipse(29, 14, 9, 4, pele);
-  b.ellipse(29, 12, 8, 2, peleL);
-  b.line(21, 16, 37, 16, peleD);
-  for (const x of [24, 28, 32, 36]) b.tri(x - 1, 16, x + 1, 16, x, 18, '#e8e0d0');
-  for (const [x, y] of [[13, 7], [18, 5], [23, 7]] as const) b.ellipse(x, y, 2, 1, peleD);   // escamas
-  b.ellipse(19, 10, 3, 3, '#f2d23a'); b.rect(19, 8, 1, 5, P.ink);       // olho de réptil
-  // cabelo branco de velha
-  for (const [x, y] of [[10, 6], [11, 10], [12, 14], [9, 12]] as const) b.ellipse(x, y, 2, 3, '#e8e4dc');
+  cucaDePe(b, false);
   return b.outline(P.ink);
 }
 
@@ -1120,7 +1104,7 @@ export function ipupiara(): Buf {
   b.ellipse(20, 30, 9, 4, marL);
   b.tri(32, 28, 40, 20, 39, 34, marD);
   // torso e braços compridos de água
-  b.ellipse(20, 20, 8, 7, C.iarH);
+  b.ellipse(20, 20, 8, 7, '#1b4a6b');
   b.ellipse(20, 22, 5, 4, marL);
   b.ellipse(9, 19, 3, 7, mar); b.ellipse(31, 19, 3, 7, mar);
   for (const [x, d] of [[8, -1], [32, 1]] as const) b.line(x, 25, x + d * 3, 28, marL);
@@ -1276,27 +1260,10 @@ export function almaPenada(): Buf {
 /* ---------------- CUCA-RAINHA (Sombra/Água, evolução da Cuca) ---------------- */
 export function cucaRainha(): Buf {
   const b = new Buf(40, 40);
-  const pele = '#3f7a44', peleL = '#6aa068', peleD = '#24502a', manto = '#3a1a4a', mantoL = '#5e2e6e';
-  b.ellipse(20, 37, 19, 3, '#2a4a3a');                  // o brejo
-  b.tri(3, 38, 20, 12, 37, 38, manto);
-  b.tri(10, 38, 20, 18, 30, 38, mantoL);
-  // caldeirão na frente
-  b.ellipse(20, 32, 8, 5, '#2a2a30');
-  b.ellipse(20, 28, 8, 2, '#7ac070');
-  for (const [x, y] of [[17, 25], [22, 24], [20, 22]] as const) b.ellipse(x, y, 1, 1, '#a8e8a0');
-  b.ellipse(6, 24, 3, 5, pele); b.ellipse(34, 24, 3, 5, pele);
-  b.line(5, 28, 4, 31, '#e8e0d0'); b.line(35, 28, 36, 31, '#e8e0d0');
-  // cabeça de jacaré, de frente, com coroa
-  b.ellipse(20, 12, 9, 7, pele);
-  b.ellipse(20, 17, 7, 3, pele);
-  b.ellipse(20, 16, 6, 1, peleL);
-  b.line(13, 18, 27, 18, peleD);
-  for (const x of [14, 17, 20, 23, 26]) b.tri(x - 1, 18, x + 1, 18, x, 20, '#e8e0d0');
-  b.ellipse(15, 10, 3, 3, '#f2d23a'); b.rect(15, 8, 1, 5, P.ink);
-  b.ellipse(25, 10, 3, 3, '#f2d23a'); b.rect(25, 8, 1, 5, P.ink);
-  b.rect(13, 3, 15, 2, P.goldD);
-  for (const x of [14, 20, 26]) b.tri(x - 2, 4, x, 0, x + 2, 4, P.gold);
-  for (const [x, y] of [[9, 8], [10, 13], [30, 8], [31, 13]] as const) b.ellipse(x, y, 2, 3, '#e8e4dc');
+  // o manto de rainha, atrás
+  b.tri(4, 39, 19, 12, 34, 39, C.manto);
+  b.tri(10, 39, 19, 18, 28, 39, C.mantoL);
+  cucaDePe(b, true);
   return b.outline(P.ink);
 }
 
