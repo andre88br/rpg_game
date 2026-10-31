@@ -588,11 +588,11 @@ const LISTA: readonly Especie[] = [
 
   /* --------------------- do Bairro da Cuca --------------------- */
   {
-    id: 'lobinho', nome: 'Lobinho', tipos: ['sombra'],
+    id: 'lobinho', nome: 'Lobo-Guará', tipos: ['sombra'],
     base: { hp: 48, atq: 62, def: 42, esp: 44, vel: 70 },
     taxaCaptura: 170, xpBase: 64, crescimento: 'rapido',
     arte: 'lobinho', categoria: 'Filhote da Lua',
-    sobre: 'Nasce em sétimo filho de sexta-feira. Uiva baixinho pra lua e se esconde quando ela olha de volta.',
+    sobre: 'Orelhudo, de meia preta nas patas. Uiva baixinho pra lua e se esconde quando ela olha de volta.',
     aprende: [
       { nv: 1, golpe: 'arranhao' }, { nv: 1, golpe: 'sombra_fria' },
       { nv: 12, golpe: 'rosnado' }, { nv: 20, golpe: 'mau_olhado' },

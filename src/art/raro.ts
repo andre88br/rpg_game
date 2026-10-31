@@ -47,7 +47,7 @@ export function corRara(cor: string, giro: number): string {
   return hex((h + giro) % 360, s, l, alfa);
 }
 
-/* bicho quase sem cor (o Lobinho cinza, o Corpo-Seco) mal mudaria só com o
+/* bicho quase sem cor (o Corpo-Seco) mal mudaria só com o
    giro: nele os cinzas do meio ganham um banho leve da cor nova */
 function tingirCinza(cor: string, matiz: number): string {
   const v = hsl(cor);

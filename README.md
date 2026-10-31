@@ -326,7 +326,7 @@ serviços opcionais da região.
 Das Minas da Caipora: **Minhoquinha** (Terra) → **Minhocão** · **Mapinguari**
 (Terra) · **Caipora** (Terra/Planta), exclusiva de quem faz os dois serviços
 opcionais da região.
-Do Bairro da Cuca: **Lobinho** (Sombra) → **Lobisomem** · **Corpo-Seco**
+Do Bairro da Cuca: **Lobo-Guará** (Sombra) → **Lobisomem** · **Corpo-Seco**
 (Sombra/Terra) · **Cuca** (Sombra) · **Pisadeira** (Sombra/Vento), exclusiva
 de quem faz os dois serviços opcionais da região.
 Da Cidade do Sol: **Luzeiro** (Luz) → **Estrela-d'Alva** · **Lamparina**

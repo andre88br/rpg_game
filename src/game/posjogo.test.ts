@@ -78,7 +78,7 @@ test('Desafio: quem desmaia é solto, mas o último fica', () => {
   b.hp = 0;
   assert.deepEqual(soltarDesmaiados(e), [], 'fora do Desafio ninguém sai');
   e.flags['desafio'] = true;
-  assert.deepEqual(soltarDesmaiados(e), ['Lobinho']);
+  assert.deepEqual(soltarDesmaiados(e), ['Lobo-Guará']);
   assert.deepEqual(e.time, [a]);
   a.hp = 0;
   assert.deepEqual(soltarDesmaiados(e), [], 'o último fica, para o jogo não travar');

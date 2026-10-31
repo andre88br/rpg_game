@@ -224,8 +224,8 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   (`humanoide.ts`) usa as cores do `ESTILOS` do desenho plano, com braço e
   perna em grupos de pivô na junta: anda balançando, respira parada e nada
   do peito para cima.
-- **A turma do folclore, de cabeção.** Curupira, Saci, Iara, Caipora e
-  Cuca (as duas formas de cada um) seguem um estilo só, de boneco de
+- **A turma do folclore, de cabeção.** Curupira, Saci, Iara, Caipora,
+  Cuca e o Lobo-Guará (as duas formas de cada um) seguem um estilo só, de boneco de
   cabeça grande: `carinha()` em `art/creatures.ts` põe o olho preto com
   brilho, a bochecha rosada e o sorrisão, e `cucaDePe()` desenha as duas
   Cucas. O cabelo de trás da Iara e da Caiporinha sai no 3D (`sem` em

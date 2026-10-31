@@ -208,7 +208,7 @@ presente e de quem ela evolui). "Contato" é golpe físico.
 | Sete Cores | Arco-da-Velha, Boiúna | não pega nenhum estado alterado |
 | Cavador | Minhoquinha, Minhocão | a fuga nunca falha |
 | Couro Grosso | Mapinguari, Juma | pancada física machuca 25% menos |
-| Lua Cheia | Lobinho, Lobisomem | à noite (18h às 6h, pelo relógio do aparelho), bate 30% mais |
+| Lua Cheia | Lobo-Guará, Lobisomem | à noite (18h às 6h, pelo relógio do aparelho), bate 30% mais |
 | Assombrado | Corpo-Seco, Alma-Penada | contato: 30% de quebranto em quem bateu |
 | Acalanto | Cuca, Cuca-Rainha | bate 50% mais em quem está no sono |
 | Peso no Peito | Pisadeira, Pesadelo | no fim do turno, o adversário no sono perde 1/8 da vida |
@@ -248,7 +248,7 @@ tempo que faz aparece **o dobro**.
 
 | | quem |
 |---|---|
-| da noite | Lobinho, Lobisomem, Matinta, Matinta-Perera, Cuca, Corpo-Seco, Alma-Penada, Pisadeira, Lamparina |
+| da noite | Lobo-Guará, Lobisomem, Matinta, Matinta-Perera, Cuca, Corpo-Seco, Alma-Penada, Pisadeira, Lamparina |
 | do dia | Luzeiro, Estrela-d'Alva, Uirapuru, Mãe-do-Ouro |
 | gosta de chuva | Iarinha, Piraguá, Minhoquinha |
 | gosta de ventania | Sacizinho, Matinta |
@@ -1382,7 +1382,7 @@ Cava Funda ─(oeste, Dom Escavar)→ Rua do Breu ─→ Bairro da Cuca ─(oest
 
 **Como entrar.** Na borda oeste da Cava Funda, linhas 20-21, terra
 desmoronada fecha a estrada: só o **Dom Escavar** (Medalha Pedra) abre.
-Espécies novas: **Lobinho** (Sombra) → **Lobisomem** no 42, **Corpo-Seco**
+Espécies novas: **Lobo-Guará** (Sombra) → **Lobisomem** no 42, **Corpo-Seco**
 (Sombra/Terra), a **Cuca** e, para quem faz os dois serviços, a
 **Pisadeira** (Sombra/Vento). Sombra leva 2x de **Luz** — e só de Luz. Suba
 com o time perto de 58-61.
@@ -1772,7 +1772,7 @@ nível máximo, é a recompensa por continuar treinando.
 | Arco-da-Velha → **Boiúna** (55) | Água/Raio |
 | Minhoquinha → Minhocão (40) | — |
 | Mapinguari → **Juma** (54) | Terra |
-| Lobinho → Lobisomem (42) | — |
+| Lobo-Guará → Lobisomem (42) | — |
 | Corpo-Seco → **Alma-Penada** (54) | Sombra/Terra |
 | Cuca → **Cuca-Rainha** (56) | Sombra/Água |
 | Pisadeira → **Pesadelo** (56) | Sombra/Vento |

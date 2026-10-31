@@ -24,6 +24,8 @@ const C: Record<string, string> = {
   palha: '#d8b860', palhaD: '#a88a3a',
   porco: '#6a5446', porcoL: '#8a7262', porcoD: '#3e3028', focinho: '#e8a0a0',
   cuca: '#6f9a4a', cucaL: '#8ab862', cucaD: '#46682e', cucaB: '#c8d898', cucaBD: '#9ab070',
+  guara: '#e8873a', guaraB: '#fbf3e4', guaraC: '#f2d6b0', guaraP: '#3a2a24',
+  lobo: '#c8602e', crina: '#2e2228', bocaA: '#d86a7a',
   loiro: '#e8c46a', loiroL: '#f6e0a0', manto: '#5a2a5e', mantoL: '#7a4a82',
   // gerais
   olho: '#ffffff', pup: '#191221', bril: '#ffffff',
@@ -917,41 +919,74 @@ export function caipora(): Buf {
   return b.outline(P.ink);
 }
 
-/* ---------------- LOBINHO (Sombra) ---------------- */
+/* ---------------- LOBO-GUARÁ (Sombra) ---------------- */
+/* o filhote, sentado e de frente: orelhão, cara de raposa, peito branco,
+   as "meias" pretas do guará e o rabo de ponta branca */
 export function lobinho(): Buf {
   const b = new Buf(32, 32);
-  const pelo = '#4a4658', peloL = '#6e6a82', peloD = '#2e2a3a', olhoC = '#f2d23a';
-  b.tri(3, 22, 1, 13, 8, 20, peloD);                    // rabo
-  b.ellipse(15, 22, 9, 6, pelo);                        // corpo
-  b.ellipse(14, 24, 5, 3, peloL);
-  for (const x of [9, 13, 18, 21]) b.rect(x, 26, 3, 5, peloD);
-  b.ellipse(22, 13, 7, 6, pelo);                        // cabeça
-  b.tri(17, 9, 18, 2, 21, 8, pelo); b.tri(27, 9, 26, 2, 23, 8, pelo);   // orelhas
-  b.tri(19, 8, 19, 5, 20, 8, '#9c8ab0');
-  b.ellipse(27, 16, 4, 3, peloL);                       // focinho
-  b.set(30, 15, P.ink);
-  b.ellipse(20, 12, 2, 2, olhoC); b.set(20, 12, P.ink);
-  b.ellipse(25, 12, 2, 2, olhoC); b.set(25, 12, P.ink);
+  // rabo, saindo para a direita, atrás de tudo
+  b.ellipse(24, 27, 6, 3, C.guara);
+  b.ellipse(29, 25, 2, 2, C.guaraB);
+  // corpo sentado, as ancas e o peito branco
+  b.ellipse(10, 28, 3, 2, C.guara); b.ellipse(22, 28, 3, 2, C.guara);
+  b.ellipse(16, 24, 7, 6, C.guara);
+  b.ellipse(16, 22, 4, 4, C.guaraB);
+  b.tri(13, 25, 16, 28, 19, 25, C.guaraB);
+  // as patas da frente, de meia preta
+  b.rect(12, 25, 3, 5, C.guaraP); b.rect(17, 25, 3, 5, C.guaraP);
+  b.ellipse(13, 30, 2, 1, C.guaraP); b.ellipse(18, 30, 2, 1, C.guaraP);
+  // orelhões, de dentro creme e ponta escura
+  b.tri(5, 13, 6, 1, 13, 7, C.guara); b.tri(27, 13, 26, 1, 19, 7, C.guara);
+  b.tri(7, 11, 7, 4, 11, 8, C.guaraC); b.tri(25, 11, 25, 4, 21, 8, C.guaraC);
+  b.tri(6, 3, 6, 1, 8, 3, C.guaraP); b.tri(26, 3, 26, 1, 24, 3, C.guaraP);
+  // cabeção, a parte branca da cara e os tufos da bochecha
+  b.ellipse(16, 12, 9, 7, C.guara);
+  b.tri(14, 6, 16, 3, 18, 6, C.guara);
+  b.ellipse(16, 16, 6, 3, C.guaraB);
+  b.tri(8, 13, 6, 17, 11, 17, C.guaraB); b.tri(24, 13, 26, 17, 21, 17, C.guaraB);
+  // a carinha: olho preto com brilho, focinho, boca aberta de alegria
+  for (const x of [11, 19]) { b.rect(x, 11, 2, 3, C.olhoP); b.set(x, 11, C.bril); }
+  b.rect(8, 14, 2, 1, C.bochecha); b.rect(22, 14, 2, 1, C.bochecha);
+  b.rect(15, 14, 2, 1, C.olhoP);
+  b.rect(15, 16, 2, 2, C.bocaA);
+  b.set(15, 16, C.boca); b.set(16, 16, C.boca);
   return b.outline(P.ink);
 }
 
 /* ---------------- LOBISOMEM (Sombra, evolução) ---------------- */
+/* o guará crescido, mais escuro e bravo: a crina preta arrepiada no
+   cangote, as sobrancelhas fechadas e os dentes à mostra */
 export function lobisomem(): Buf {
   const b = new Buf(40, 40);
-  const pelo = '#3a3648', peloL = '#5e5a74', peloD = '#221e2e', olhoC = '#f24a3a';
-  b.rect(12, 30, 6, 9, peloD); b.rect(23, 30, 6, 9, peloD);            // pernas em pé
-  b.ellipse(20, 22, 11, 11, pelo);                                      // tronco
-  b.ellipse(20, 24, 6, 6, peloL);
-  b.ellipse(7, 22, 4, 8, pelo); b.ellipse(33, 22, 4, 8, pelo);         // braços
-  for (const [x, d] of [[5, -1], [35, 1]] as const) {                  // garras
-    b.line(x, 29, x + d, 33, '#e8e0d0'); b.line(x + 2 * d, 29, x + 3 * d, 33, '#e8e0d0');
-  }
-  b.ellipse(20, 10, 8, 7, pelo);                                        // cabeça
-  b.tri(13, 6, 13, -1, 17, 4, pelo); b.tri(27, 6, 27, -1, 23, 4, pelo);
-  b.ellipse(20, 14, 5, 3, peloL);                                       // focinho
-  b.rect(16, 16, 9, 2, '#7a1e1a');
-  for (const x of [17, 20, 23]) b.tri(x - 1, 16, x + 1, 16, x, 18, '#e8e0d0');
-  b.ellipse(16, 9, 2, 1, olhoC); b.ellipse(24, 9, 2, 1, olhoC);
+  // rabo grande, de ponta branca, atrás de tudo
+  b.ellipse(30, 33, 7, 4, C.lobo);
+  b.ellipse(36, 31, 3, 3, C.guaraB);
+  // corpo sentado, ancas e peito
+  b.ellipse(11, 35, 4, 3, C.lobo); b.ellipse(29, 35, 4, 3, C.lobo);
+  b.ellipse(20, 29, 9, 8, C.lobo);
+  b.ellipse(20, 27, 5, 5, C.guaraB);
+  b.tri(16, 30, 20, 34, 24, 30, C.guaraB);
+  // patas compridas de meia preta
+  b.rect(14, 30, 4, 7, C.guaraP); b.rect(22, 30, 4, 7, C.guaraP);
+  b.ellipse(16, 37, 3, 1, C.guaraP); b.ellipse(24, 37, 3, 1, C.guaraP);
+  // a crina preta, arrepiada atrás da cabeça
+  for (const x of [12, 16, 20, 24, 28]) b.tri(x - 3, 10, x - 1, 4, x + 3, 10, C.crina);
+  // orelhões
+  b.tri(5, 16, 6, 1, 15, 8, C.lobo); b.tri(35, 16, 34, 1, 25, 8, C.lobo);
+  b.tri(8, 13, 8, 5, 13, 9, C.guaraC); b.tri(32, 13, 32, 5, 27, 9, C.guaraC);
+  b.tri(5, 4, 6, 1, 9, 3, C.guaraP); b.tri(35, 4, 34, 1, 31, 3, C.guaraP);
+  // cabeção, cara branca e tufos
+  b.ellipse(20, 15, 11, 8, C.lobo);
+  b.ellipse(20, 20, 8, 3, C.guaraB);
+  b.tri(10, 16, 7, 21, 13, 21, C.guaraB); b.tri(30, 16, 33, 21, 27, 21, C.guaraB);
+  // cara brava: sobrancelha fechada, olho bravo e a boca de dentes
+  for (const x of [14, 24]) { b.rect(x, 14, 3, 2, C.olhoP); b.set(x + (x < 20 ? 2 : 0), 14, C.bril); }
+  b.line(12, 11, 16, 13, C.olhoP); b.line(28, 11, 24, 13, C.olhoP);
+  b.rect(10, 18, 2, 1, C.bochecha); b.rect(29, 18, 2, 1, C.bochecha);
+  b.rect(19, 17, 3, 1, C.olhoP);
+  b.ellipse(20, 21, 3, 2, C.bocaA);
+  b.line(17, 19, 23, 19, C.boca);
+  b.tri(17, 20, 18, 20, 18, 21, '#ffffff'); b.tri(22, 20, 23, 20, 22, 21, '#ffffff');
   return b.outline(P.ink);
 }
 

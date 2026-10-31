@@ -40,7 +40,7 @@ test('as espécies de horário e de clima existem', () => {
   }
 });
 
-test('o mato do momento: de noite o Lobinho aparece mais, de dia menos, nunca zero', () => {
+test('o mato do momento: de noite o Lobo-Guará aparece mais, de dia menos, nunca zero', () => {
   const t = [{ especie: 'lobinho', min: 5, max: 6, peso: 10 }, { especie: 'cabritinha', min: 5, max: 6, peso: 10 }];
   assert.equal(tabelaDoMomento(t, 'noite', 'limpo')[0]!.peso, 10 * NA_HORA);
   assert.equal(tabelaDoMomento(t, 'dia', 'limpo')[0]!.peso, 10 * FORA_DE_HORA);
