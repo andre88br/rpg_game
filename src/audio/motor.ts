@@ -1,7 +1,9 @@
 /* =========================================================================
    O sintetizador: WebAudio puro, no espírito de um console portátil —
    ondas de pulso para a melodia, triângulo para o baixo, ruído para a
-   bateria e para os efeitos.
+   bateria e para os efeitos. A música que pede (`instrumentos`) troca o
+   pulso pelos instrumentos de cá: viola caipira, rabeca e pífano, e o
+   terno de forró (zabumba, bacalhau, triângulo) no lugar da bateria.
 
    Nada toca antes do primeiro toque ou tecla (o navegador não deixa); o
    pedido de música feito antes disso fica guardado e começa na hora que o
@@ -11,7 +13,7 @@
    cada 25 ms olha 150 ms adiante), que é o jeito de o ritmo não tremer
    quando o quadro do jogo atrasa.
    ========================================================================= */
-import { compilar, duracaoPasso, type Compilada, type Musica, type Voz, type Batida } from './partitura.ts';
+import { compilar, duracaoPasso, type Compilada, type Instrumento, type Musica, type Voz, type Batida } from './partitura.ts';
 
 export type Forma = 'pulso12' | 'pulso25' | 'pulso50' | 'triangulo' | 'seno';
 
@@ -40,6 +42,14 @@ const VOZES: Record<Voz, { forma: Forma; vol: number; solta: number }> = {
   contracanto: { forma: 'pulso50', vol: 0.07, solta: 0.85 },
   baixo: { forma: 'triangulo', vol: 0.26, solta: 0.92 },
   arpejo: { forma: 'pulso12', vol: 0.045, solta: 0.7 },
+};
+
+/* o volume de cada instrumento, pela voz que ele toca: a viola dedilhando o
+   arpejo fica por baixo, a rabeca e o pífano cantam a melodia */
+const VOL_INSTRUMENTO: Record<Exclude<Instrumento, 'chip'>, Partial<Record<Voz, number>>> = {
+  viola: { melodia: 0.16, contracanto: 0.1, arpejo: 0.07, baixo: 0.2 },
+  rabeca: { melodia: 0.12, contracanto: 0.07, arpejo: 0.05, baixo: 0.12 },
+  pifano: { melodia: 0.13, contracanto: 0.08, arpejo: 0.05, baixo: 0.1 },
 };
 
 const ADIANTE = 0.15;
@@ -142,6 +152,77 @@ export class Motor {
     o.stop(t0 + dur + 0.08);
   }
 
+  /* ---------------------------------------------- os instrumentos de cá */
+
+  /* viola caipira: corda dobrada (a nota e a oitava, um tico desafinadas
+     entre si), dedilhada — o brilho fecha logo e o som morre sozinho */
+  private viola(destino: AudioNode, freq: number, t0: number, dur: number, vol: number): void {
+    const filtro = this.ctx.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.Q.value = 1.2;
+    filtro.frequency.setValueAtTime(Math.min(6000, freq * 9), t0);
+    filtro.frequency.exponentialRampToValueAtTime(Math.max(300, freq * 1.6), t0 + 0.35);
+    const g = this.ctx.createGain();
+    const soa = Math.max(0.25, Math.min(1.4, dur + 0.35));
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.003);
+    g.gain.exponentialRampToValueAtTime(vol * 0.02, t0 + soa);
+    filtro.connect(g).connect(destino);
+    for (const [mult, peso] of [[1, 1], [1.004, 0.6], [2, 0.35]] as const) {
+      const o = this.ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(freq * mult, t0);
+      const p = this.ctx.createGain();
+      p.gain.value = peso * 0.5;
+      o.connect(p).connect(filtro);
+      o.start(t0);
+      o.stop(t0 + soa + 0.05);
+    }
+  }
+
+  /* rabeca e pífano: notas sustentadas, que entram suave e ganham vibrato
+     depois do ataque. A rabeca é de arco (serrote, filtrado, áspero); o
+     pífano é sopro (quase seno, com um fio de ar no começo). */
+  private sustentada(destino: AudioNode, inst: 'rabeca' | 'pifano', freq: number, t0: number,
+                     dur: number, vol: number): void {
+    const rabeca = inst === 'rabeca';
+    const o = this.ctx.createOscillator();
+    o.type = rabeca ? 'sawtooth' : 'triangle';
+    o.frequency.setValueAtTime(freq, t0);
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = rabeca ? 5.6 : 6.2;
+    const prof = this.ctx.createGain();
+    prof.gain.setValueAtTime(0, t0);
+    prof.gain.linearRampToValueAtTime(freq * (rabeca ? 0.009 : 0.005), t0 + Math.min(0.25, dur * 0.6));
+    lfo.connect(prof).connect(o.frequency);
+    const filtro = this.ctx.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.frequency.value = rabeca ? 2600 : 3800;
+    filtro.Q.value = rabeca ? 2.5 : 0.7;
+    const g = this.ctx.createGain();
+    const ataque = rabeca ? 0.045 : 0.025;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + ataque);
+    g.gain.setTargetAtTime(vol * 0.8, t0 + ataque, 0.12);
+    g.gain.setTargetAtTime(0, t0 + Math.max(ataque, dur * 0.92), 0.03);
+    o.connect(filtro).connect(g).connect(destino);
+    o.start(t0); lfo.start(t0);
+    o.stop(t0 + dur + 0.2); lfo.stop(t0 + dur + 0.2);
+    // o fio de ar do pífano, e o chiado da crina da rabeca, no ataque
+    this.chiado(destino, rabeca
+      ? { filtro: 'bandpass', de: Math.min(5000, freq * 3), dur: 0.06, vol: vol * 0.25, q: 3 }
+      : { filtro: 'bandpass', de: Math.min(6000, freq * 2), dur: 0.08, vol: vol * 0.35, q: 2 }, t0);
+  }
+
+  private tocarNota(destino: AudioNode, voz: Voz, inst: Instrumento | undefined, freq: number,
+                    t0: number, dur: number): void {
+    const v = VOZES[voz];
+    if (!inst || inst === 'chip') { this.nota(destino, v.forma, freq, t0, dur * v.solta, v.vol); return; }
+    const vol = VOL_INSTRUMENTO[inst][voz] ?? v.vol;
+    if (inst === 'viola') this.viola(destino, freq, t0, dur, vol);
+    else this.sustentada(destino, inst, freq, t0, dur * 0.95, vol);
+  }
+
   private chiado(destino: AudioNode, c: Chiado, t0: number): void {
     const src = this.ctx.createBufferSource();
     src.buffer = this.ruido;
@@ -167,6 +248,25 @@ export class Motor {
         break;
       case 'chimbal': this.chiado(destino, { filtro: 'highpass', de: 7000, dur: 0.035, vol: 0.07 }, t0); break;
       case 'aberto': this.chiado(destino, { filtro: 'highpass', de: 6000, dur: 0.12, vol: 0.06 }, t0); break;
+      // a zabumba: couro grave e largo, com o toque da baqueta por cima
+      case 'zabumba':
+        this.nota(destino, 'seno', 118, t0, 0.24, 0.55, 46);
+        this.chiado(destino, { filtro: 'lowpass', de: 1400, ate: 300, dur: 0.05, vol: 0.18 }, t0);
+        break;
+      // o bacalhau: a vareta fina no couro de baixo, seco e estalado
+      case 'bacalhau':
+        this.chiado(destino, { filtro: 'bandpass', de: 2600, dur: 0.05, vol: 0.16, q: 4 }, t0);
+        this.nota(destino, 'triangulo', 520, t0, 0.04, 0.08, 380);
+        break;
+      // o triângulo: ferro que canta agudo; abafado na mão, quase só o toque
+      case 'triangulo': case 'trianguloAberto': {
+        const aberto = b === 'trianguloAberto';
+        const dur = aberto ? 0.32 : 0.05;
+        for (const [f, v] of [[4180, 0.03], [6250, 0.018], [9300, 0.01]] as const) {
+          this.nota(destino, 'seno', f, t0, dur, aberto ? v : v * 0.7);
+        }
+        break;
+      }
     }
   }
 
@@ -230,10 +330,7 @@ export class Motor {
     while (f.inicio + f.passo * dp < limite) {
       const t0 = f.inicio + f.passo * dp;
       const p = f.porPasso[f.passo]!;
-      for (const n of p.notas) {
-        const v = VOZES[n.voz];
-        this.nota(f.saida, v.forma, n.freq, t0, n.dur * dp * v.solta, v.vol);
-      }
+      for (const n of p.notas) this.tocarNota(f.saida, n.voz, f.comp.instrumentos[n.voz], n.freq, t0, n.dur * dp);
       for (const b of p.batidas) this.batida(f.saida, b.batida, t0);
       f.passo++;
       if (f.passo >= f.comp.passos) {

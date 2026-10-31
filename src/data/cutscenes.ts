@@ -744,6 +744,8 @@ interface Esconderijo {
   dir: Direcao;
   onde: string;        // a primeira página: o lugar
   chao: string;        // "no capim", "na areia"...
+  provoca: string;     // o que ESTE Sacizinho diz — cada um tem a sua graça
+  fuga: string;        // e como ele some, que cada esconderijo é um
 }
 
 function sacizinhoAchado(e: Esconderijo): Roteiro {
@@ -768,7 +770,7 @@ function sacizinhoAchado(e: Esconderijo): Roteiro {
         { figura: { jogador: true, dir: e.dir }, x: e.ate.x, y: e.ate.y },
       ],
       legendas: [
-        { quem: 'SACIZINHO', texto: 'Hi-hi-hi! Achou, é? A rede é minha agora. Quer? Vem pegar!' },
+        { quem: 'SACIZINHO', texto: e.provoca },
         'Sacizinho foge de quem chega perto. Encurrale ele num canto, sem ter pra onde pular.',
       ],
     },
@@ -800,7 +802,7 @@ function sacizinhoVencido(e: Esconderijo): Roteiro {
       ],
       efeitos: [{ tipo: 'poeira', x: e.saci.x + 16, y: e.saci.y + 34, aparece: 0.2, some: 2.8 }],
       legendas: [
-        'Num assobio, ele vira redemoinho e some no vento, rindo até o fim.',
+        e.fuga,
         'A REDE DE PESCA é sua. O Mestre do Porto vai gostar de ver.',
       ],
     },
@@ -813,6 +815,8 @@ const NO_PAREDAO: Esconderijo = {
   de: { x: -20, y: 86 }, ate: { x: 70, y: 86 }, dir: 'dir',
   onde: 'Atrás das pedras do paredão, no capim alto, alguém ri baixinho.',
   chao: 'no capim',
+  provoca: 'Hi-hi-hi! Achou, é? A rede é minha agora. Quer? Vem pegar!',
+  fuga: 'Num assobio, ele vira redemoinho e some no vento, rindo até o fim.',
 };
 
 /* na nesga de areia atrás do farol, em Porto Iara */
@@ -821,6 +825,8 @@ const ATRAS_DO_FAROL: Esconderijo = {
   de: { x: -20, y: 88 }, ate: { x: 40, y: 88 }, dir: 'dir',
   onde: 'Na nesga de areia atrás do farol, onde ninguém do porto passa, um gorro vermelho.',
   chao: 'na areia',
+  provoca: 'Hi-hi! Veio buscar a rede? Amarrei com nó de marinheiro. Quero ver desatar!',
+  fuga: 'Ele pula na amurada do farol, vira redemoinho e some no vento salgado.',
 };
 
 /* no beco entre a venda e a casa do pescador, em Porto Iara */
@@ -829,6 +835,8 @@ const NO_BECO: Esconderijo = {
   de: { x: 148, y: 150 }, ate: { x: 148, y: 92 }, dir: 'cima',
   onde: 'No beco entre a venda e a casa do pescador, um assobio vem da sombra.',
   chao: 'no chão do beco',
+  provoca: 'Psiu! Tá procurando isto aqui? Hi-hi-hi! Pega se for capaz!',
+  fuga: 'Ele rodopia no beco, levanta um redemoinho de poeira e some por cima dos telhados.',
 };
 
 /* =========================================================================

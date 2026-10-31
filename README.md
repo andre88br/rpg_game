@@ -200,8 +200,10 @@ cavernas. Na **batalha**, três: o bicho do mato, o treinador da estrada e o
 chefe (dono de terreiro, o Zeca, os guardiões e os bichos-chefe), com
 fanfarra de vitória no fim. Por cima de tudo, os **efeitos** (golpe, dano,
 patuá, porta, menu) e as vinhetas curtas (cura, medalha, nível, captura).
-Como a arte, **o som também é feito por código**, sem nenhum arquivo de
-áudio. Volumes separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
+Na Foz, dentro de casa e nas lutas de bicho e de treinador, quem toca são
+**instrumentos de cá**: rabeca, viola caipira, pífano e o terno de forró
+(zabumba, bacalhau e triângulo). Como a arte, **o som também é feito por
+código**, sem nenhum arquivo de áudio. Volumes separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
 
 **Acessibilidade.** Nada no jogo pisca mais de três vezes por segundo, e
 **menu → OPÇÕES → CLARÕES → SUAVES** baixa os clarões (relâmpago, evolução,

@@ -40,7 +40,7 @@ export const casaEncruzilhada: DefMapa = {
         { cura: true, linhas: [
           'Encoste os patuás na gamela, {crianca}, que a água benta faz o resto.',
           '...pronto. Time inteiro de pé outra vez.',
-          'E fique tranquila: se apagar no mato da região, é aqui que você acorda.'] },
+          'E fique {g:tranquila|tranquilo}: se apagar no mato da região, é aqui que você acorda.'] },
       ],
     },
     {

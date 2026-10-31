@@ -43,7 +43,7 @@ export const benzimentoPortoIara: DefMapa = {
         { cura: true, linhas: [
           'Encoste os patuás na gamela, criança, que a água benta faz o resto.',
           '...pronto. Time inteiro de pé outra vez.',
-          'E fique tranquila: se apagar no mato, é aqui que você acorda.'] },
+          'E fique {g:tranquila|tranquilo}: se apagar no mato, é aqui que você acorda.'] },
       ],
     },
     /* o Rezador: faz lembrar golpe esquecido, a dinheiro (scenes/rezador.ts) */

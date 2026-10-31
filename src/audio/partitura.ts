@@ -26,11 +26,20 @@ export const PASSOS_POR_COMPASSO = 16;
 const MEIO = PASSOS_POR_COMPASSO / 2;
 
 export type EstiloBaixo = 'baiao' | 'marcha' | 'galope' | 'lento' | 'passeio' | 'nenhum';
-export type EstiloBateria = 'baiao' | 'rock' | 'batalha' | 'suave' | 'marcha' | 'nenhuma';
+export type EstiloBateria = 'baiao' | 'rock' | 'batalha' | 'suave' | 'marcha' | 'forro' | 'forroLuta' | 'nenhuma';
 export type EstiloArpejo = 'sobe' | 'colcheia' | 'nenhum';
 
 export type Voz = 'melodia' | 'contracanto' | 'baixo' | 'arpejo';
-export type Batida = 'bumbo' | 'caixa' | 'chimbal' | 'aberto';
+export type Batida = 'bumbo' | 'caixa' | 'chimbal' | 'aberto'
+  /* o terno de forró: a zabumba (o couro grave e o bacalhau, a vareta no
+     couro de baixo) e o triângulo, abafado na mão ou aberto */
+  | 'zabumba' | 'bacalhau' | 'triangulo' | 'trianguloAberto';
+
+/* Quem toca cada voz. 'chip' é o som de console portátil de sempre; os
+   outros são os instrumentos do Nordeste e do interior, sintetizados no
+   motor: a viola caipira (corda dobrada, dedilhada), a rabeca (de arco,
+   com vibrato) e o pífano (flauta de taquara). */
+export type Instrumento = 'chip' | 'viola' | 'rabeca' | 'pifano';
 
 export interface Musica {
   bpm: number;
@@ -46,6 +55,8 @@ export interface Musica {
   /* volume da faixa inteira, 1 = o de sempre. Os temas do mundo tocam mais
      baixo que os de cutscene, por baixo dos efeitos e das conversas. */
   ganho?: number;
+  /* quem toca cada voz; voz sem instrumento aqui é 'chip' */
+  instrumentos?: Partial<Record<Voz, Instrumento>>;
 }
 
 export interface NotaTocada { passo: number; dur: number; freq: number; voz: Voz }
@@ -55,6 +66,7 @@ export interface Compilada {
   bpm: number;
   passos: number;
   vinheta: boolean;
+  instrumentos: Partial<Record<Voz, Instrumento>>;
   notas: NotaTocada[];
   batidas: GolpeBateria[];
 }
@@ -138,6 +150,15 @@ const BATERIAS: Record<Exclude<EstiloBateria, 'nenhuma'>, readonly (readonly [nu
             [4, 'caixa'], [5, 'chimbal'], [6, 'bumbo'], [7, 'aberto']],
   suave: [[0, 'bumbo'], [4, 'chimbal']],
   marcha: [[0, 'bumbo'], [4, 'caixa'], [6, 'chimbal']],
+  // o baião de pé de serra: zabumba no 1 e no "e" do 2, bacalhau no
+  // contratempo, e o triângulo correndo abafado com o aberto no meio
+  forro: [[0, 'zabumba'], [0, 'triangulo'], [1, 'triangulo'], [2, 'trianguloAberto'],
+          [3, 'zabumba'], [3, 'triangulo'], [4, 'bacalhau'], [4, 'triangulo'],
+          [5, 'triangulo'], [6, 'trianguloAberto'], [7, 'triangulo']],
+  // na luta, o mesmo terno apertado: zabumba dobrando e o bacalhau em cima
+  forroLuta: [[0, 'zabumba'], [0, 'triangulo'], [1, 'triangulo'], [2, 'bacalhau'],
+              [2, 'trianguloAberto'], [3, 'zabumba'], [4, 'bacalhau'], [4, 'triangulo'],
+              [5, 'zabumba'], [6, 'bacalhau'], [6, 'trianguloAberto'], [7, 'triangulo']],
 };
 
 /* a raiz do baixo mora entre mi 2 e ré# 3: nem grave demais, nem alto */
@@ -221,7 +242,8 @@ export function compilar(m: Musica): Compilada {
 
   notas.sort((a, b) => a.passo - b.passo);
   batidas.sort((a, b) => a.passo - b.passo);
-  return { bpm: m.bpm, passos: n * PASSOS_POR_COMPASSO, vinheta: m.vinheta === true, notas, batidas };
+  return { bpm: m.bpm, passos: n * PASSOS_POR_COMPASSO, vinheta: m.vinheta === true,
+           instrumentos: { ...m.instrumentos }, notas, batidas };
 }
 
 /* quanto dura um passo (semicolcheia), em segundos */

@@ -115,7 +115,7 @@ export const vilaAurora: DefMapa = {
       falas: [
         /* o dono do Patuá de Mestre do pote do açude */
         { se: 'achou_pote', linhas: [
-          'Achou um pote de barro na ilhota do açude? Era meu! Escondi lá com a idade do Zeca.',
+          'Achou um pote de barro na ilhota do açude? Era meu! Escondi lá quando tinha a idade do Zeca.',
           'Foi no dia que eu desisti da trilha. Pensei que um dia eu voltava pra buscar.',
           'Fica com ele. Patuá parado na lama não prende bicho nenhum.'] },
         { linhas: [

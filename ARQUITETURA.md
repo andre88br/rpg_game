@@ -82,7 +82,8 @@ src/
 │             notas; baixo, bateria e arpejo saem dos acordes) + teste
 │             musicas.ts (os temas das cutscenes, do mundo, da batalha e as vinhetas)
 │             temas.ts (qual tema toca em cada mapa e em cada batalha) + teste
-│             motor.ts (o sintetizador WebAudio: pulso, triângulo, ruído)
+│             motor.ts (o sintetizador WebAudio: pulso, triângulo, ruído,
+│             e viola, rabeca, pífano e o terno de forró)
 │             som.ts (o que as cenas chamam: música, vinheta, efeito)
 ├─ ui/        listas.ts (time e mochila, iguais na batalha e no menu)
 │             mapas.ts (o Mapa do Mundo e a planta de cada lugar)
@@ -303,7 +304,15 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
 Nenhum arquivo de áudio: `src/audio/motor.ts` é um sintetizador pequeno em
 WebAudio, no espírito de um console portátil — onda de pulso (12,5%, 25% e
 50%) para melodia e arpejo, triângulo para o baixo, ruído filtrado para a
-bateria e para os efeitos.
+bateria e para os efeitos. Uma música pode trocar o pulso pelos
+instrumentos de cá (`instrumentos: { melodia: 'rabeca', arpejo: 'viola' }`):
+a **viola caipira** é corda dobrada (a nota, a mesma desafinada um tico e a
+oitava, em serrote) num filtro que fecha logo, como o dedilhado; a
+**rabeca** é serrote filtrado com ataque lento, vibrato que entra depois e
+o chiado da crina; o **pífano** é quase seno, com vibrato e um fio de ar.
+As baterias `forro` e `forroLuta` tocam o terno: **zabumba** (couro grave
+e o toque da baqueta), **bacalhau** (vareta seca) e **triângulo** (abafado
+ou aberto).
 
 **A música é texto.** Cada música em `audio/musicas.ts` é só a melodia e os
 acordes:

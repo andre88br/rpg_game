@@ -173,7 +173,7 @@ const LISTA: readonly Item[] = [
     descricao: 'Ensina Feixe a Luz, Fogo, Raio ou Água. Prêmio da Joalheira do Sol.' },
   { id: 'cantiga_sol', nome: 'Cantiga do Sol a Pino', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'cantiga', golpe: 'sol_a_pino', tipos: ['luz', 'fogo', 'planta', 'vento'] },
-    descricao: 'Ensina Sol a Pino a Luz, Fogo, Planta ou Vento. Prêmio do Contador de Bichos.' },
+    descricao: 'Ensina o golpe Sol a Pino a Encantado de Luz, Fogo, Planta ou Vento. Prêmio do Contador de Bichos.' },
   { id: 'amuleto_brilho', nome: 'Amuleto do Brilho', preco: 0, emBatalha: false, chave: true,
     efeito: { k: 'nenhum' },
     descricao: 'Do Contador de Bichos. Na mochila, dobra a chance de achar um Encantado de cor rara.' },

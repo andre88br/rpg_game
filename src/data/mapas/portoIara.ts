@@ -156,7 +156,7 @@ export const portoIara: DefMapa = {
         { se: ['conta_caderno', 'capturados>=24'], seNao: 'caderno_premio2', liga: 'caderno_premio2',
           cantiga: 'cantiga_sol', linhas: [
           'Vinte e quatro presos! Isso merece a cantiga que minha avó cantava ao meio-dia.',
-          'É a Cantiga do Sol a Pino. Ensina a Luz, Fogo, Planta e Vento, e não se gasta.'] },
+          'É a Cantiga do Sol a Pino. Ensina o golpe a bicho de Luz, Fogo, Planta ou Vento, e não se gasta.'] },
         { se: ['conta_caderno', 'capturados>=12'], seNao: 'caderno_premio1', liga: 'caderno_premio1',
           da: { item: 'patua_mestre', n: 5 }, linhas: [
           'Doze bichos presos no patuá! Pra quem prende assim, só Patuá de Mestre.',

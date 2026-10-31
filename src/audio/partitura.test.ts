@@ -68,3 +68,14 @@ test('só as vinhetas deixam de repetir', () => {
     assert.equal(compilar(m).vinheta, vinhetas.includes(id as IdMusica), id);
   }
 });
+
+test('a Foz e as lutas tocam com os instrumentos de cá', () => {
+  for (const id of ['mundoFoz', 'casa', 'batalhaSelvagem', 'batalhaTreinador'] as IdMusica[]) {
+    const c = compilar(MUSICAS[id]);
+    assert.ok(Object.values(c.instrumentos).some((i) => i !== 'chip'), `${id} ainda é só chip`);
+  }
+  const foz = compilar(MUSICAS.mundoFoz);
+  assert.ok(foz.batidas.some((b) => b.batida === 'zabumba') && foz.batidas.some((b) => b.batida === 'trianguloAberto'),
+    'a Foz sem o terno de forró');
+  assert.ok(foz.notas.some((n) => n.voz === 'contracanto'), 'a Foz sem o pífano respondendo');
+});

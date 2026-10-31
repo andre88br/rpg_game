@@ -345,14 +345,20 @@ export const MUSICAS = {
      compassos, para o laço não cansar) e mais baixos (`ganho`), por baixo
      dos efeitos e das conversas. Quem escolhe qual toca é audio/temas.ts. */
 
-  /* a Foz: baião praiano em ré maior, de rede balançando */
+  /* a Foz: baião de beira de rio, em ré. A rabeca canta a toada do
+     pescador, a viola dedilha, a zabumba e o triângulo marcam; na segunda
+     parte o pífano responde por baixo, como quem conversa de canoa em canoa */
   mundoFoz: {
-    bpm: 104, baixo: 'baiao', bateria: 'suave', arpejo: 'colcheia', ganho: 0.7,
-    acordes: ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D', 'Bm', 'G', 'D', 'A', 'G', 'A', 'D', 'D'],
-    melodia: `a4 d5 f#5:4 e5 d5 a4:4 | b4 d5 g5:6 f#5:2 e5:4 | f#5:4 a5:4 f#5 e5 d5:4 | e5:6 c#5:2 a4:8 |
-              a4 d5 f#5:4 a5 f#5 d6:4 | b5:4 a5 g5 d5:8 | c#5 e5 a5:4 g5 e5 c#5:4 | d5:12 -:4 |
-              f#5 b5 d6:4 c#6 b5 f#5:4 | g5:4 b5:4 d6:6 b5:2 | a5:4 f#5 d5 a4:4 d5:4 | e5:6 g5:2 c#5:8 |
-              b4 d5 g5:4 b5 a5 g5:4 | a4 c#5 e5:4 a5 g5 e5:4 | f#5:4 e5 d5 a4 d5 f#5:4 | d5:12 -:4`,
+    bpm: 100, baixo: 'baiao', bateria: 'forro', arpejo: 'colcheia', ganho: 0.7,
+    instrumentos: { melodia: 'rabeca', contracanto: 'pifano', arpejo: 'viola', baixo: 'viola' },
+    acordes: ['D', 'D', 'G', 'A', 'D', 'Bm', 'Em', 'A', 'G', 'A', 'D', 'Bm', 'Em', 'A', 'D', 'D'],
+    melodia: `a4 d5 f#5:3 e5:1 d5 a4 d5:4 | f#5 a5 b5:3 a5:1 f#5:4 -:4 | g5:3 f#5:1 e5 d5 b4:4 d5:4 | e5 f#5 e5 c#5 a4:8 |
+              a4 d5 f#5:3 e5:1 d5 f#5 a5:4 | b5:3 a5:1 f#5 d5 f#5:8 | g5 f#5 e5 b4 e5:4 g5:4 | f#5 e5 c#5:4 e5:8 |
+              d6:3 b5:1 g5 b5 d6:4 b5:4 | c#6:3 a5:1 e5 a5 c#6:8 | d6 c#6 b5 a5 f#5:4 a5:4 | b5:4 a5 f#5 d5:8 |
+              e5 g5 b5:3 a5:1 g5 e5 b4:4 | c#5 e5 a5:3 g5:1 f#5 e5 c#5:4 | d5 f#5 a5:4 f#5 e5 d5:4 | d5:12 -:4`,
+    contracanto: `-:16 | -:16 | -:16 | -:16 | -:16 | -:16 | -:16 | -:16 |
+                  b4:8 d5:8 | c#5:8 e5:8 | f#5:8 d5:8 | d5:8 b4:8 |
+                  g4:8 b4:8 | a4:8 c#5:8 | a4:8 f#4:8 | f#4:12 -:4`,
   },
   /* a Mata: toada em lá dórico, o arpejo subindo como cipó */
   mundoMata: {
@@ -435,9 +441,11 @@ export const MUSICAS = {
     melodia: `a4:4 c5:2 e5:2 a5:6 g5:2 | f5:4 e5:2 d5:2 c5:8 | e5:2 g5:2 c6:4 b5:2 a5:2 g5:4 | d5:6 e5:2 g5:8 |
               a5:4 c6:4 b5:2 a5:2 e5:4 | f5:2 a5:2 c6:6 b5:2 a5:4 | d5:2 f5:2 a5:4 g5:2 f5:2 e5:4 | g#5:6 b5:2 e5:8`,
   },
-  /* dentro de casa: modinha baixinha em dó, sem bateria */
+  /* dentro de casa: modinha baixinha em dó, sem bateria — o pífano canta
+     e a viola acompanha, como num alpendre de fim de tarde */
   casa: {
     bpm: 76, baixo: 'passeio', arpejo: 'colcheia', ganho: 0.6,
+    instrumentos: { melodia: 'pifano', arpejo: 'viola', baixo: 'viola' },
     acordes: ['C', 'Am', 'F', 'G', 'C', 'Am', 'Dm', 'G'],
     melodia: `e5:4 g5:4 c6:6 b5:2 | a5:4 e5:4 c5:8 | f5 a5 c6:4 a5 f5 c5:4 | d5:6 g5:2 b5:8 |
               c6:4 b5 a5 g5:4 e5:4 | a5:4 c6 b5 a5:8 | f5 a5 d6:4 c6:4 a5:4 | b5:6 a5:2 g5:8`,
@@ -459,17 +467,21 @@ export const MUSICAS = {
 
   /* ---------------------------------------------------------- batalha */
 
-  /* bicho do mato: corrida curta em mi menor */
+  /* bicho do mato: corrida curta em mi menor, rabeca riscada e o terno de
+     forró apertado, como xaxado de cangaço */
   batalhaSelvagem: {
-    bpm: 152, baixo: 'galope', bateria: 'batalha', arpejo: 'sobe', ganho: 0.85,
+    bpm: 152, baixo: 'galope', bateria: 'forroLuta', arpejo: 'sobe', ganho: 0.85,
+    instrumentos: { melodia: 'rabeca', arpejo: 'viola' },
     acordes: ['Em', 'C', 'D', 'B7', 'Em', 'C', 'Am', 'B7'],
     melodia: `e5:1 -:1 e5:1 -:1 g5 b5 e6:4 d6 b5 | c6:4 g5 e5 c6:4 b5 g5 |
               d6:1 -:1 d6:1 -:1 a5 f#5 d6:4 e6 f#6 | d#6:4 b5:4 f#5:4 a5:4 |
               g5 b5 e6:4 g6 f#6 e6:4 | e6 d6 c6 b5 g5:4 e5:4 | a5 c6 e6:4 d6 c6 a5:4 | b5:4 a5:4 f#5 d#5 b4:4`,
   },
-  /* treinador na estrada: sol menor, de quem quer mostrar serviço */
+  /* treinador na estrada: sol menor, de quem quer mostrar serviço — a
+     rabeca puxa, a viola responde e a zabumba não deixa ninguém parado */
   batalhaTreinador: {
-    bpm: 144, baixo: 'galope', bateria: 'batalha', arpejo: 'colcheia', ganho: 0.85,
+    bpm: 144, baixo: 'galope', bateria: 'forroLuta', arpejo: 'colcheia', ganho: 0.85,
+    instrumentos: { melodia: 'rabeca', arpejo: 'viola' },
     acordes: ['Gm', 'Eb', 'F', 'D', 'Gm', 'Bb', 'Cm', 'D7'],
     melodia: `g5:3 g5:1 bb5 d6 g6:4 f6 d6 | eb6:4 d6 c6 bb5:4 g5:4 | f5:3 f5:1 a5 c6 f6:4 eb6 c6 | d6:4 a5:4 f#5:8 |
               g5 bb5 d6 g6 f6:4 d6:4 | f6 d6 bb5 f5 bb5:4 d6:4 | eb6 d6 c6 g5 eb5:4 c6:4 | d6:4 c6 a5 f#5:4 d5:4`,

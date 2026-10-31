@@ -106,7 +106,7 @@ export const rotaFoz: DefMapa = {
         { linhas: [
           'Esse atalho ali do lado não leva a lugar nenhum: é só volta.',
           'Mais pro sul tem um moleque com uma tranca atravessada na estrada.',
-          'Se a sua criatura cair, volta pra vila. Apagado no mato não é lugar de ninguém.'] },
+          'Se o time inteiro cair, alguém te carrega de volta pra casa. Apagado no mato não é lugar de ninguém.'] },
       ],
     },
     {
