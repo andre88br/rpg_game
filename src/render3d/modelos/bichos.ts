@@ -21,12 +21,9 @@ export const AJUSTES: Record<string, Ajuste> = {
   piraguacu: { perfil: 1, fundo: 0.75, flutua: true },
   salamanca: { perfil: -1, fundo: 0.7, pares: [7, 8, 9, 10], parZ: 3.5 },
   teiniagua: { perfil: 1, fundo: 0.7, pares: [3, 4, 5, 6], parZ: 4 },
-  mulinha: { perfil: -1, fundo: 0.7, pares: [0, 1, 2, 3], parZ: 3.5 },
-  mulaSemCabeca: { perfil: -1, fundo: 0.7, pares: [0, 1, 2, 3], parZ: 4 },
   tatuTrovao: { perfil: 1, fundo: 0.8, pares: [1, 2, 3, 4], parZ: 6 },
   tatuacu: { perfil: 1, fundo: 0.8, pares: [1, 2, 3, 4], parZ: 7 },
   anhanga: { perfil: -1, fundo: 0.6, pares: [0, 1, 2, 3], parZ: 3.5 },
-  mboitata: { perfil: -1, fundo: 0.7 },
   minhocao: { perfil: 1, fundo: 0.8 },
   boto: { perfil: -1, fundo: 0.7 },
 
@@ -38,6 +35,12 @@ export const AJUSTES: Record<string, Ajuste> = {
   // o rabo do Lobo-Guará e do Lobisomem (as duas primeiras peças) vai atrás
   lobinho: { atras: [0, 1] },
   lobisomem: { atras: [0, 1] },
+  // o rabo aceso (e a garupa da Mula) vão atrás do corpo
+  boitatinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
+  boitatao: { atras: [2, 3, 4, 5, 6, 7] },
+  mboitata: { atras: [2, 3, 4, 5, 6, 7] },
+  mulinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
+  mulaSemCabeca: { atras: [0, 1, 2, 3, 4, 5, 6] },
   caiporinha: { sem: [0, 1, 2, 3, 4, 5], extras: cabelo('#e8743a', 16, 12, 8, 9) },
   ipupiara: { extras: cabelo('#2f7a5a', 20, 9, 8, 14) },
   pisadeira: { extras: cabelo('#1a1424', 20, 7, 5, 10) },

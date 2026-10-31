@@ -225,10 +225,12 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   perna em grupos de pivô na junta: anda balançando, respira parada e nada
   do peito para cima.
 - **A turma do folclore, de cabeção.** Curupira, Saci, Iara, Caipora,
-  Cuca e o Lobo-Guará (as duas formas de cada um) seguem um estilo só, de boneco de
+  Cuca, Lobo-Guará e Lobisomem, Boitatá (as três formas) e Mula seguem um estilo só, de boneco de
   cabeça grande: `carinha()` em `art/creatures.ts` põe o olho preto com
   brilho, a bochecha rosada e o sorrisão, e `cucaDePe()` desenha as duas
-  Cucas. O cabelo de trás da Iara e da Caiporinha sai no 3D (`sem` em
+  Cucas. Os de olho grande de desenho animado (Boitatá, Mula, Lobisomem)
+  usam `olhao()`; o fogo de três cores é `coroaDeFogo()`, a cabeça da Mula
+  é `fogoComCara()` e as duas Boitatás grandes saem de `cobraDeFogo()`. O cabelo de trás da Iara e da Caiporinha sai no 3D (`sem` em
   `bichos.ts`) e volta como `extras` atrás da cabeça.
 - **Encantados: o próprio desenho 2D, em sólidos** (`desenho3d.ts`). Cada
   desenho de `art/creatures.ts` é feito de primitivas — elipse, triângulo,

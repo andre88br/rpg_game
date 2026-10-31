@@ -5,7 +5,9 @@ import { P } from './palette.ts';
 
 const C: Record<string, string> = {
   // Boitata — serpente de fogo
-  boi:  '#d9452a', boiL: '#f2845a', boiD: '#9e2d18', boiB: '#f7d9a8',
+  boi:  '#3f9a4a', boiL: '#62b866', boiD: '#2a6e34', boiB: '#f2d83a', boiBD: '#c8a828',
+  fogoV: '#e0401e', fogoA: '#ff8a2a', fogoM: '#ffd23a', lingua: '#e070a0', bocaF: '#7a2a2a',
+  olhoAzul: '#4ab0f0',
   // Iara — sereia das aguas
   iar:  '#5e9460', iarL: '#86b878', iarD: '#3e6e44', iarH: '#2a2630',
   pele: '#b8805c', peleD: '#8e5c3c',
@@ -26,6 +28,8 @@ const C: Record<string, string> = {
   cuca: '#6f9a4a', cucaL: '#8ab862', cucaD: '#46682e', cucaB: '#c8d898', cucaBD: '#9ab070',
   guara: '#e8873a', guaraB: '#fbf3e4', guaraC: '#f2d6b0', guaraP: '#3a2a24',
   lobo: '#c8602e', crina: '#2e2228', bocaA: '#d86a7a',
+  lobi: '#8a5432', lobiL: '#c08a5a', lobiD: '#5a3420', focinhoL: '#3a2420', linguaL: '#d8343a',
+  camisa: '#5aa0a0', camisaD: '#3e7a7a', calcao: '#5a5458', garra: '#f0e8d0',
   loiro: '#e8c46a', loiroL: '#f6e0a0', manto: '#5a2a5e', mantoL: '#7a4a82',
   // gerais
   olho: '#ffffff', pup: '#191221', bril: '#ffffff',
@@ -34,7 +38,7 @@ const C: Record<string, string> = {
   cab:  '#c9a876', cabL: '#e8d4a8', cabD: '#8f7248',
   chif: '#5a4a38', chifL: '#7a6650', chifD: '#3a2f22',
   // Mula-sem-Cabeça — assombracao da estrada
-  mul:  '#4a2e28', mulL: '#6b4a3c', mulD: '#2c1a16', pesc: '#ff6a22', pescL: '#ffc23c',
+  mul:  '#6e3220', mulL: '#8a4430', mulD: '#4a2016', casco: '#2a1612', pesc: '#ff6a22', pescL: '#ffc23c',
   // Salamanca — guardia da mina
   sal:  '#c9622e', salL: '#e88a4a', salD: '#8a3e18',
   esc:  '#4a4038', escL: '#6b5f52', escD: '#2e2822',
@@ -110,37 +114,92 @@ function cucaDePe(b: Buf, rainha: boolean): void {
   }
 }
 
+/* o olhão de desenho animado: branco redondo, pupila preta grande olhando
+   um tico para o meio (`dir`) e o ponto de brilho */
+function olhao(b: Buf, x: number, y: number, r: number, dir = 0): void {
+  b.ellipse(x, y, r, r, C.olho);
+  b.rect(x - r + 1, y - r + 1, 2 * r - 1, 2 * r - 1, C.olho);
+  const p = r - 1;
+  b.rect(x - p + 1 + dir, y - p + 1, Math.max(2, 2 * p - 1), 2 * p, C.olhoP);
+  b.set(x - p + 1 + dir, y - p + 1, C.bril);
+}
+
+/* fogo de desenho: a borda vermelha, o laranja e o miolo amarelo */
+function coroaDeFogo(b: Buf, x: number, y: number, larg: number, alt: number): void {
+  chama(b, x, y, larg, alt, C.fogoV, C.fogoA);
+  b.tri(x - larg * 0.3, y, x, y - alt * 0.35, x + larg * 0.3, y, C.fogoM);
+}
+
+/* a cabeça da Mula: um fogo de gota com olhão e sorriso */
+function fogoComCara(b: Buf, cx: number, cy: number, rx: number, ry: number): void {
+  b.ellipse(cx, cy, rx, ry, C.fogoV);
+  b.tri(cx - rx, cy, cx - rx + 1, cy - ry - 4, cx - 1, cy - ry + 1, C.fogoV);
+  b.tri(cx - 3, cy - ry + 1, cx + 1, cy - ry - 5, cx + 3, cy - ry + 1, C.fogoV);
+  b.tri(cx + 1, cy - ry + 1, cx + rx, cy - ry - 3, cx + rx, cy, C.fogoV);
+  b.ellipse(cx, cy + 1, rx - 1, ry - 1, C.fogoA);
+  b.ellipse(cx, cy + 2, rx - 3, ry - 3, C.fogoM);
+  const r = rx >= 8 ? 3 : 2;
+  olhao(b, cx - r - 1, cy, r, 0); olhao(b, cx + r + 1, cy, r, -1);
+  b.set(cx - 2, cy + ry - 2, C.olhoP);
+  b.line(cx - 1, cy + ry - 1, cx + 1, cy + ry - 1, C.olhoP);
+  b.set(cx + 2, cy + ry - 2, C.olhoP);
+}
+
+/* a Boitatá crescida, em pé sobre as voltas do corpo; a Mboitatá é a mais
+   velha, de fogo maior e os olhos azuis de todo bicho que morreu no fogo */
+function cobraDeFogo(b: Buf, antiga: boolean): void {
+  // a volta de baixo e o rabo de ponta acesa
+  b.ellipse(20, 35, 13, 4, C.boi);
+  b.ellipse(20, 36, 9, 2, C.boiB);
+  b.tri(30, 35, 36, 24, 35, 37, C.boi);
+  coroaDeFogo(b, 36, 24, 4, antiga ? 10 : 8);
+  // o corpo em pé, de barriga listrada
+  b.ellipse(19, 29, 7, 6, C.boi);
+  b.rect(13, 18, 12, 10, C.boi);
+  b.rect(16, 18, 6, 15, C.boiB);
+  for (let y = 20; y <= 32; y += 2) b.line(16, y, 21, y, C.boiBD);
+  // cabeção, cara amarela e a coroa de fogo
+  b.ellipse(19, 13, 10, 7, C.boi);
+  b.ellipse(19, 15, 8, 5, C.boiB);
+  coroaDeFogo(b, 19, 8, antiga ? 10 : 8, antiga ? 9 : 8);
+  if (antiga) { coroaDeFogo(b, 10, 9, 3, 6); coroaDeFogo(b, 28, 9, 3, 6); }
+  // olhão, narinas, a boca aberta de sorriso e a língua bifurcada
+  for (const [x, d] of [[15, 0], [23, -1]] as const) {
+    olhao(b, x, 10, 3, d);
+    if (antiga) { b.rect(x - 1 + d, 9, 3, 4, C.olhoAzul); b.set(x - 1 + d, 9, C.bril); }
+  }
+  b.set(17, 14, C.boiD); b.set(21, 14, C.boiD);
+  // o sorriso aberto, com a língua saindo do meio
+  b.set(13, 15, C.bocaF); b.set(14, 16, C.bocaF);
+  b.rect(15, 17, 9, 2, C.bocaF);
+  b.set(24, 16, C.bocaF); b.set(25, 15, C.bocaF);
+  b.line(19, 19, 19, 22, C.lingua);
+  b.set(18, 23, C.lingua); b.set(20, 23, C.lingua);
+  for (const [x, y] of [[6, 6], [33, 4], [5, 16]] as const) b.ellipse(x, y, 1, 1, C.fogoA);
+}
+
 /* ---------------- BOITATINHA (Fogo, inicial) ---------------- */
 export function boitatinha(): Buf {
   const b = new Buf(32, 32);
-
-  // corpo enrolado: duas voltas visiveis, a de baixo maior
-  b.ellipse(16, 26, 12, 5, C.boi);
-  b.ellipse(16, 27, 8, 3, C.boiB);            // barriga clara
-  b.ellipse(16, 21, 9, 4, C.boi);             // volta de cima
-  b.ellipse(16, 22, 5, 2, C.boiB);
-  b.line(7, 24, 25, 24, C.boiD);              // separacao entre as duas voltas
-  b.ellipse(24, 24, 3, 3, C.boiD);            // ponta da cauda saindo do lado
-  b.ellipse(27, 23, 2, 2, C.boi);
-
-  // pescoco curto ligando cabeca ao corpo
-  b.rect(13, 16, 6, 4, C.boi);
-
-  // cabeca
-  b.ellipse(16, 12, 7, 6, C.boi);
-  b.ellipse(16, 15, 5, 3, C.boiB);            // focinho claro
-  b.set(14, 14, C.boiD); b.set(18, 14, C.boiD); // narinas
-  b.line(13, 16, 19, 16, C.boiD);             // linha da boca
-
-  // crista de fogo, acima da cabeca, sem invadir o rosto
-  chama(b, 16, 7, 6, 7, '#ff6a22', '#ffc23c');
-
-  // olhos
-  olho(b, 12, 11, 2, 1);
-  olho(b, 20, 11, 2, -1);
-
-  // lingua bifurcada
-  b.line(16, 18, 16, 20, '#e8541f');
+  // o rabo enrolando para a direita, com a pontinha acesa
+  b.ellipse(22, 29, 5, 2, C.boi);
+  b.tri(24, 29, 27, 21, 27, 30, C.boi);
+  coroaDeFogo(b, 27, 21, 3, 6);
+  // o corpo em pé, de barriga amarela listrada
+  b.ellipse(15, 25, 5, 6, C.boi);
+  b.rect(11, 15, 9, 8, C.boi);
+  b.rect(13, 15, 5, 15, C.boiB);
+  for (let y = 18; y <= 29; y += 2) b.line(13, y, 17, y, C.boiBD);
+  // cabeção e a cara amarela
+  b.ellipse(16, 10, 8, 6, C.boi);
+  b.ellipse(16, 12, 6, 4, C.boiB);
+  coroaDeFogo(b, 16, 6, 7, 7);
+  // olhão, narinas, sorriso e a língua bifurcada
+  olhao(b, 13, 8, 2, 0); olhao(b, 19, 8, 2, -1);
+  b.set(15, 11, C.boiD); b.set(17, 11, C.boiD);
+  b.set(12, 12, C.bocaF); b.line(13, 13, 19, 13, C.bocaF); b.set(20, 12, C.bocaF);
+  b.line(16, 14, 16, 17, C.lingua);
+  b.set(15, 18, C.lingua); b.set(17, 18, C.lingua);
   return b.outline(P.ink);
 }
 
@@ -212,40 +271,7 @@ export function curupinho(): Buf {
 /* BOITATÃO — a serpente de fogo adulta, guardia dos campos */
 export function boitatao(): Buf {
   const b = new Buf(40, 40);
-
-  // tres voltas do corpo, a de baixo bem larga
-  b.ellipse(20, 34, 16, 6, C.boi);
-  b.ellipse(20, 35, 11, 4, C.boiB);
-  b.ellipse(20, 28, 13, 5, C.boi);
-  b.ellipse(20, 29, 8, 3, C.boiB);
-  b.line(6, 31, 34, 31, C.boiD);
-  b.ellipse(20, 23, 10, 4, C.boi);
-  b.ellipse(20, 24, 6, 2, C.boiB);
-  b.line(9, 26, 31, 26, C.boiD);
-  b.ellipse(33, 27, 3, 3, C.boiD);           // cauda saindo do lado
-  b.ellipse(36, 25, 2, 2, C.boi);
-
-  b.rect(15, 17, 10, 4, C.boi);              // pescoco
-
-  // cabeca maior e mais angulosa
-  b.ellipse(20, 12, 9, 7, C.boi);
-  b.ellipse(20, 16, 6, 3, C.boiB);
-  b.set(17, 15, C.boiD); b.set(23, 15, C.boiD);
-  b.line(15, 18, 25, 18, C.boiD);
-  b.set(15, 19, P.white); b.set(17, 19, P.white);   // presas
-  b.set(23, 19, P.white); b.set(25, 19, P.white);
-
-  // chifres
-  b.tri(12, 8, 7, 1, 15, 7, C.boiD);
-  b.tri(28, 8, 33, 1, 25, 7, C.boiD);
-
-  // juba de fogo
-  chama(b, 20, 7, 8, 10, '#ff6a22', '#ffc23c');
-  chama(b, 12, 9, 4, 6, '#ff6a22', '#ffc23c');
-  chama(b, 28, 9, 4, 6, '#ff6a22', '#ffc23c');
-
-  olho(b, 15, 11, 3, 1);
-  olho(b, 25, 11, 3, -1);
+  cobraDeFogo(b, false);
   return b.outline(P.ink);
 }
 
@@ -494,50 +520,35 @@ export function cabraCabriola(): Buf {
 /* ---------------- MULINHA (Fogo, inicial da serra) ---------------- */
 export function mulinha(): Buf {
   const b = new Buf(32, 32);
-
-  // pernas e cascos
-  b.rect(10, 23, 3, 6, C.mulD); b.rect(19, 23, 3, 6, C.mulD);
-  b.rect(10, 19, 3, 5, C.mul); b.rect(19, 19, 3, 5, C.mul);
-
-  // corpo alongado de mula
-  b.ellipse(16, 18, 10, 6, C.mul);
-  b.ellipse(16, 20, 7, 3, C.mulL);
-  b.ellipse(23, 17, 3, 4, C.mul);               // garupa
-
-  // pescoco sem cabeca: chama saindo direto do busto
-  b.rect(11, 12, 6, 7, C.mul);
-  chama(b, 14, 8, 6, 9, C.pesc, C.pescL);
-  b.ellipse(14, 12, 3, 2, '#ffe8a0');            // brilho onde a cabeca deveria estar
-
-  // orelhas longas, no lugar de onde a cabeca era
-  b.tri(9, 6, 6, 0, 11, 5, C.mulD);
-  b.tri(19, 6, 22, 0, 17, 5, C.mulD);
-
-  // rabo em brasa
-  chama(b, 27, 20, 3, 6, C.pesc, C.pescL);
+  // o rabo em brasa e a garupa, atrás
+  coroaDeFogo(b, 26, 22, 3, 7);
+  b.ellipse(21, 22, 5, 5, C.mulD);
+  b.rect(20, 24, 3, 7, C.mulD);                 // a perna de trás
+  // o peito e as duas pernas da frente
+  b.ellipse(15, 20, 6, 5, C.mul);
+  b.rect(10, 17, 10, 3, C.mul);
+  b.rect(10, 23, 4, 8, C.mul); b.rect(16, 23, 4, 8, C.mul);
+  b.rect(10, 30, 4, 1, C.casco); b.rect(16, 30, 4, 1, C.casco);
+  b.ellipse(15, 17, 4, 1, C.mulD);              // o corte do pescoço
+  // a cabeça que não tem: um fogo com cara, flutuando acima do pescoço
+  fogoComCara(b, 15, 8, 6, 5);
   return b.outline(P.ink);
 }
 
 /* ---------------- MULA-SEM-CABEÇA (Fogo, evoluida) ---------------- */
 export function mulaSemCabeca(): Buf {
   const b = new Buf(40, 40);
-
-  b.rect(12, 29, 4, 8, C.mulD); b.rect(24, 29, 4, 8, C.mulD);
-  b.rect(12, 24, 4, 6, C.mul); b.rect(24, 24, 4, 6, C.mul);
-
-  b.ellipse(20, 22, 13, 7, C.mul);
-  b.ellipse(20, 24, 9, 4, C.mulL);
-  b.ellipse(30, 21, 4, 5, C.mul);               // garupa maior
-
-  // busto sem cabeca, com o pescoco em brasa aberta
-  b.rect(14, 14, 8, 9, C.mul);
-  b.ellipse(18, 14, 5, 3, C.mulD);               // corte do pescoco
-  chama(b, 18, 9, 9, 12, C.pesc, C.pescL);
-  chama(b, 10, 12, 4, 7, C.pesc, C.pescL);
-  chama(b, 26, 12, 4, 7, C.pesc, C.pescL);
-  b.set(18, 14, '#ffe8a0'); b.set(19, 15, '#ffcf6a');
-
-  chama(b, 35, 24, 4, 7, C.pesc, C.pescL);       // rabo em brasa
+  coroaDeFogo(b, 33, 27, 4, 10);
+  b.ellipse(27, 27, 6, 6, C.mulD);
+  b.rect(26, 29, 4, 9, C.mulD);
+  b.ellipse(19, 26, 8, 6, C.mul);
+  b.rect(12, 21, 14, 4, C.mul);
+  b.rect(12, 29, 5, 9, C.mul); b.rect(21, 29, 5, 9, C.mul);
+  b.rect(12, 37, 5, 2, C.casco); b.rect(21, 37, 5, 2, C.casco);
+  b.ellipse(19, 21, 6, 1, C.mulD);
+  // o pescoço ainda solta faísca
+  for (const [x, y] of [[13, 18], [25, 18]] as const) b.ellipse(x, y, 1, 1, C.fogoA);
+  fogoComCara(b, 19, 10, 8, 7);
   return b.outline(P.ink);
 }
 
@@ -958,35 +969,39 @@ export function lobinho(): Buf {
    cangote, as sobrancelhas fechadas e os dentes à mostra */
 export function lobisomem(): Buf {
   const b = new Buf(40, 40);
-  // rabo grande, de ponta branca, atrás de tudo
-  b.ellipse(30, 33, 7, 4, C.lobo);
-  b.ellipse(36, 31, 3, 3, C.guaraB);
-  // corpo sentado, ancas e peito
-  b.ellipse(11, 35, 4, 3, C.lobo); b.ellipse(29, 35, 4, 3, C.lobo);
-  b.ellipse(20, 29, 9, 8, C.lobo);
-  b.ellipse(20, 27, 5, 5, C.guaraB);
-  b.tri(16, 30, 20, 34, 24, 30, C.guaraB);
-  // patas compridas de meia preta
-  b.rect(14, 30, 4, 7, C.guaraP); b.rect(22, 30, 4, 7, C.guaraP);
-  b.ellipse(16, 37, 3, 1, C.guaraP); b.ellipse(24, 37, 3, 1, C.guaraP);
-  // a crina preta, arrepiada atrás da cabeça
-  for (const x of [12, 16, 20, 24, 28]) b.tri(x - 3, 10, x - 1, 4, x + 3, 10, C.crina);
-  // orelhões
-  b.tri(5, 16, 6, 1, 15, 8, C.lobo); b.tri(35, 16, 34, 1, 25, 8, C.lobo);
-  b.tri(8, 13, 8, 5, 13, 9, C.guaraC); b.tri(32, 13, 32, 5, 27, 9, C.guaraC);
-  b.tri(5, 4, 6, 1, 9, 3, C.guaraP); b.tri(35, 4, 34, 1, 31, 3, C.guaraP);
-  // cabeção, cara branca e tufos
-  b.ellipse(20, 15, 11, 8, C.lobo);
-  b.ellipse(20, 20, 8, 3, C.guaraB);
-  b.tri(10, 16, 7, 21, 13, 21, C.guaraB); b.tri(30, 16, 33, 21, 27, 21, C.guaraB);
-  // cara brava: sobrancelha fechada, olho bravo e a boca de dentes
-  for (const x of [14, 24]) { b.rect(x, 14, 3, 2, C.olhoP); b.set(x + (x < 20 ? 2 : 0), 14, C.bril); }
-  b.line(12, 11, 16, 13, C.olhoP); b.line(28, 11, 24, 13, C.olhoP);
-  b.rect(10, 18, 2, 1, C.bochecha); b.rect(29, 18, 2, 1, C.bochecha);
-  b.rect(19, 17, 3, 1, C.olhoP);
-  b.ellipse(20, 21, 3, 2, C.bocaA);
-  b.line(17, 19, 23, 19, C.boca);
-  b.tri(17, 20, 18, 20, 18, 21, '#ffffff'); b.tri(22, 20, 23, 20, 22, 21, '#ffffff');
+  // o rabo, atrás de tudo
+  b.tri(25, 31, 38, 25, 31, 35, C.lobi);
+  b.tri(33, 27, 38, 25, 35, 29, C.lobiL);
+  // pernas, pés e o calção rasgado
+  b.rect(14, 32, 4, 5, C.lobi); b.rect(22, 32, 4, 5, C.lobi);
+  b.ellipse(15, 37, 3, 1, C.lobi); b.ellipse(25, 37, 3, 1, C.lobi);
+  b.rect(13, 29, 14, 3, C.calcao);
+  for (const x of [14, 18, 22, 26]) b.tri(x - 1, 31, x + 1, 31, x, 34, C.calcao);
+  // a camisa rasgada
+  b.ellipse(20, 25, 7, 6, C.camisa);
+  for (const x of [14, 17, 20, 23, 26]) b.tri(x - 1, 29, x + 1, 29, x, 32, C.camisa);
+  b.tri(17, 20, 23, 20, 20, 24, C.lobiL);
+  // braços abertos, de garra para cima
+  b.ellipse(11, 23, 3, 2, C.camisaD); b.ellipse(29, 23, 3, 2, C.camisaD);
+  b.ellipse(6, 23, 3, 2, C.lobi); b.ellipse(34, 23, 3, 2, C.lobi);
+  b.ellipse(4, 20, 3, 3, C.lobi); b.ellipse(36, 20, 3, 3, C.lobi);
+  for (const x of [2, 4, 6]) b.line(x, 17, x, 15, C.garra);
+  for (const x of [34, 36, 38]) b.line(x, 17, x, 15, C.garra);
+  // orelhas, cabeção e os tufos da bochecha
+  b.tri(10, 9, 9, 0, 16, 5, C.lobi); b.tri(30, 9, 31, 0, 24, 5, C.lobi);
+  b.tri(11, 7, 11, 2, 14, 5, C.lobiL); b.tri(29, 7, 29, 2, 26, 5, C.lobiL);
+  b.ellipse(20, 12, 10, 8, C.lobi);
+  b.tri(17, 5, 20, 1, 23, 5, C.lobi);
+  b.tri(11, 13, 7, 18, 13, 18, C.lobi); b.tri(29, 13, 33, 18, 27, 18, C.lobi);
+  b.ellipse(20, 15, 6, 4, C.lobiL);
+  // a cara: olhão, sobrancelha, focinho e o sorriso de presas
+  olhao(b, 15, 10, 3, 0); olhao(b, 25, 10, 3, -1);
+  b.line(12, 6, 17, 6, C.lobiD); b.line(23, 6, 28, 6, C.lobiD);
+  b.rect(18, 13, 4, 2, C.focinhoL); b.set(18, 13, C.lobiL);
+  // o sorriso de presas, com a língua vermelha
+  b.set(14, 16, C.bocaF); b.rect(15, 17, 11, 2, C.bocaF); b.set(26, 16, C.bocaF);
+  b.rect(19, 18, 4, 2, C.linguaL);
+  b.set(16, 17, P.white); b.set(24, 17, P.white);
   return b.outline(P.ink);
 }
 
@@ -1104,28 +1119,7 @@ export function jaci(): Buf {
 /* ---------------- MBOITATÁ (Fogo, 3ª forma da Boitatinha) ---------------- */
 export function mboitata(): Buf {
   const b = new Buf(40, 40);
-  const azul = '#4ab0f0', azulL = '#b8e8ff';
-  // corpo em "S" de fogo, escamas escuras no dorso
-  for (const [x, y, r] of [[8, 34, 6], [16, 31, 6], [24, 33, 6], [31, 29, 5], [30, 22, 5]] as const) {
-    b.ellipse(x, y, r, r - 1, C.boi);
-    b.ellipse(x, y + 1, r - 3, r - 3, C.boiB);
-    b.set(x, y - r + 1, C.boiD);
-  }
-  chama(b, 4, 32, 4, 8, '#ff6a22', '#ffc23c');         // ponta da cauda acesa
-  // pescoço e cabeça grandes, olhando para a esquerda
-  b.rect(24, 13, 8, 9, C.boi);
-  b.ellipse(22, 11, 11, 7, C.boi);
-  b.ellipse(15, 14, 6, 3, C.boiB);                      // mandíbula clara
-  b.line(8, 14, 22, 14, C.boiD);
-  for (const x of [10, 13, 16]) b.tri(x - 1, 14, x + 1, 14, x, 17, P.white);
-  b.tri(26, 6, 34, -1, 30, 8, C.boiD);                  // chifres
-  b.tri(20, 5, 24, -1, 24, 6, C.boiD);
-  // os olhos de todo bicho que morreu no fogo: três de cada lado, azuis
-  for (const [x, y] of [[17, 9], [21, 8], [25, 9]] as const) {
-    b.ellipse(x, y, 2, 2, azul); b.set(x, y, azulL);
-  }
-  chama(b, 34, 12, 4, 9, '#ff6a22', '#ffc23c');         // juba
-  chama(b, 30, 16, 3, 6, '#ff6a22', '#ffc23c');
+  cobraDeFogo(b, true);
   return b.outline(P.ink);
 }
 
