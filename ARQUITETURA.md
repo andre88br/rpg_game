@@ -271,7 +271,11 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   com o grão e põe a força na chave do programa. O chão tem os vértices
   fundidos (`mergeVertices`) para a normal sair lisa; a água calcula a
   onda em cada pixel (soma de ondinhas) e dela tira a normal, o reflexo do
-  céu (Fresnel) e o brilho do sol. Nada tem contorno.
+  céu (Fresnel) e o brilho do sol. Na areia, a onda sobe e volta:
+  `distanciaDoMar` grava em cada vértice do chão (atributo `aMar`) a
+  distância até a água, e `comMare` (no shader do chão) avança e recua a
+  frente da lâmina com o tempo, deixa a areia molhada (mais escura e lisa)
+  e põe a espuma na ponta. Nada tem contorno.
   A gente: `spritePessoa` (`art/people.ts`) segue com o cabeção no plano;
   `pessoa3D` (`render3d/modelos/humanoide.ts`) faz uma pessoa de umas seis
   cabeças, de tronco torneado, braço e perna em duas partes e rosto pequeno

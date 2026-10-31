@@ -180,7 +180,7 @@ e o templo esculpido no penhasco vermelho nas Minas, o sobrado torto e o
 casarão de lua no Bairro da Cuca, e cal e ouro na Cidade do Sol.
 
 O **mundo inteiro** se joga em **3D**: as oito regiões e o Círculo
-Dourado, por fora e por dentro, com relevo, água de onda e reflexo, mata de
+Dourado, por fora e por dentro, com relevo, água de onda e reflexo, mar que sobe e desce na areia, mata de
 folhagem e capim que o vento mexe, as casas de cada região, a gente em
 proporção de gente e os Encantados em 3D (os três iniciais já esculpidos,
 de olho, escama e fogo de verdade), e as batalhas numa arena 3D com a cara

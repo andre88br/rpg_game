@@ -710,6 +710,82 @@ export class Vista3D {
     return mat;
   }
 
+  /* Para cada vértice do chão, a distância (em tiles) até a água mais perto,
+     só na areia: é por ela que a onda sobe. Fora da areia, 99. O valor só
+     depende da posição, então os vértices repetidos continuam se fundindo. */
+  private distanciaDoMar(pos: number[], rel: Relevo[]): number[] {
+    const W = this.largura, H = this.altura, chao = this.mapaAtual!.def.chao;
+    const ALCANCE = 3;
+    const areia = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && chao[y]![x] === 'a';
+    const agua = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && rel[y * W + x]!.agua;
+    const saida: number[] = [];
+    for (let i = 0; i < pos.length; i += 3) {
+      const px = pos[i]!, pz = pos[i + 2]!;
+      // a areia em volta do ponto (o canto toca quatro tiles; o centro, um)
+      let naAreia = false;
+      for (const [dx, dz] of [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25]] as const) {
+        if (areia(Math.floor(px + dx), Math.floor(pz + dz))) naAreia = true;
+      }
+      let d = 99;
+      if (naAreia) {
+        const tx = Math.floor(px), tz = Math.floor(pz);
+        for (let y = tz - ALCANCE; y <= tz + ALCANCE; y++) {
+          for (let x = tx - ALCANCE; x <= tx + ALCANCE; x++) {
+            if (!agua(x, y)) continue;
+            // distância do ponto ao quadrado do tile d'água
+            const ex = Math.max(x - px, 0, px - (x + 1)), ez = Math.max(y - pz, 0, pz - (y + 1));
+            d = Math.min(d, Math.hypot(ex, ez));
+          }
+        }
+      }
+      saida.push(d);
+    }
+    return saida;
+  }
+
+  /* A onda na praia: a frente da água sobe pela areia e volta, num ciclo de
+     uns nove segundos que muda de tempo ao longo da praia. Por onde a lâmina
+     passa, a areia fica molhada (mais escura e lisa, refletindo o sol), com
+     uma linha de espuma na ponta. Encadeia com o grão do materialReal. */
+  private comMare(mat: THREE.MeshStandardMaterial): THREE.MeshStandardMaterial {
+    const antes = mat.onBeforeCompile;
+    const chaveAntes = mat.customProgramCacheKey.bind(mat);
+    mat.customProgramCacheKey = () => `${chaveAntes()}|mare`;
+    mat.onBeforeCompile = (sh, r) => {
+      antes.call(mat, sh, r);
+      sh.uniforms['uTempo'] = this.vento;
+      sh.vertexShader = 'attribute float aMar;\nvarying float vMar;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+        '#include <begin_vertex>\n  vMar = aMar;');
+      sh.fragmentShader = 'uniform float uTempo;\nvarying float vMar;\n' + sh.fragmentShader.replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+        if (vMar < 3.0) {
+          // o tempo da onda muda devagar ao longo da praia
+          float lugar = fbm3(vec3(vPosMundo.x * 0.12, 0.0, vPosMundo.z * 0.12));
+          float fase = fract(uTempo * 0.11 + lugar * 0.7);
+          // cada onda chega a uma altura: umas mais longe, outras mais perto
+          float forca = 0.55 + 0.45 * fbm3(vec3(floor(uTempo * 0.11 + lugar * 0.7) * 3.7, vPosMundo.x * 0.15, vPosMundo.z * 0.15));
+          float alcance = 1.25 * forca;
+          float sobe = smoothstep(0.0, 0.28, fase);
+          float desce = 1.0 - smoothstep(0.28, 1.0, fase);
+          float frente = -0.15 + (alcance + 0.15) * min(sobe, desce);
+          // a borda da frente, recortada pelo ruído
+          float d = vMar + (fbm3(vPosMundo * 6.0) - 0.5) * 0.12;
+          float lamina = 1.0 - smoothstep(frente - 0.06, frente, d);
+          float funda = clamp((frente - d) * 1.2, 0.0, 1.0);
+          float espuma = (1.0 - smoothstep(0.0, 0.07, abs(d - frente))) * smoothstep(-0.1, 0.1, frente) * (0.45 + 0.55 * sobe);
+          // a areia molhada: a faixa até onde as ondas costumam chegar, que
+          // seca um pouco e volta a molhar no ciclo (sem salto de uma onda à outra)
+          float ate = 1.05 + 0.25 * lugar;
+          float molhado = (1.0 - smoothstep(ate - 0.1, ate + 0.25, d)) * (0.78 + 0.22 * cos(6.2832 * (fase - 0.28)));
+          diffuseColor.rgb *= mix(1.0, 0.68, molhado);
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.04, 0.17, 0.19), lamina * (0.3 + 0.6 * funda));
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9, 0.95, 0.95), espuma * 0.85);
+          roughnessFactor = mix(roughnessFactor, 0.3, molhado);
+          roughnessFactor = mix(roughnessFactor, 0.08, lamina * (1.0 - espuma));
+        }`);
+    };
+    return mat;
+  }
+
   /* O chão inteiro numa malha só. Cada tile vira quatro triângulos em
      volta do centro: o centro fica na altura do tile (é onde se pisa), os
      cantos na média dos vizinhos — o barranco vira rampa chanfrada, e a cor
@@ -764,12 +840,13 @@ export class Vista3D {
     const solto = new THREE.BufferGeometry();
     solto.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     solto.setAttribute('color', new THREE.Float32BufferAttribute(cor, 3));
+    solto.setAttribute('aMar', new THREE.Float32BufferAttribute(this.distanciaDoMar(pos, rel), 1));
     // os vértices iguais viram um só: a normal sai lisa, sem faceta de tile
     const geo = this.guardar(mergeVertices(solto));
     solto.dispose();
     geo.computeVertexNormals();
     // o chão: grão fino de terra e manchas largas, para não ser cor chapada
-    const mat = this.guardar(materialReal({ roughness: 0.95 }, 0.28, 0.22));
+    const mat = this.guardar(this.comMare(materialReal({ roughness: 0.95 }, 0.28, 0.22)));
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
     g.add(m);
