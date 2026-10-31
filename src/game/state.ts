@@ -77,7 +77,7 @@ export function novoJogo(nome = 'TAINÁ', personagem = 'taina'): EstadoJogo {
     romaria: { seq: 0, recorde: 0 },
     repelente: 0,
   };
-  adicionar(est.mochila, 'patua', 10);
+  // os patuás vêm da Dona Firmina, junto com o primeiro Encantado
   adicionar(est.mochila, 'garrafada', 5);
   adicionar(est.mochila, 'erva_doce', 2);
   return est;

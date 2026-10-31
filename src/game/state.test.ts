@@ -90,3 +90,7 @@ test('personagem desconhecido cai no pronome padrão, sem quebrar', () => {
   const e = novoJogo('QUEM QUER QUE SEJA', 'ninguem_assim');
   assert.equal(pronomeDe(e), 'ela');
 });
+
+test('jogo novo começa sem patuá: quem dá os dez é a Dona Firmina, com o inicial', () => {
+  assert.equal(quantidade(novoJogo().mochila, 'patua'), 0);
+});

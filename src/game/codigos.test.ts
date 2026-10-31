@@ -46,6 +46,7 @@ test('o pulo entrega as medalhas e os Dons das regiões anteriores, e nada além
     for (const [j, d] of DONS.entries()) assert.equal(e.flags[`dom_${d}`] === true, j <= i, `${pulo}: dom_${d}`);
     assert.equal(e.time.length, 1);
     assert.equal(e.flags['inicial_curupinho'], true);
+    assert.ok(quantidade(e.mochila, 'patua') >= 10, `${pulo}: pulou a Dona Firmina e ficou sem patuá`);
   });
 });
 

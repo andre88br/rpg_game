@@ -23,8 +23,8 @@
 import { vista3D } from '../render3d/carregar.ts';
 import type { Vista3D } from '../render3d/vista3d.ts';
 import { obterVisao3D } from '../game/config.ts';
-import { assar, type Assado } from '../core/buf.ts';
-import type { Renderizador } from '../core/renderer.ts';
+import { assar, larguraDe, type Assado } from '../core/buf.ts';
+import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada, Acao } from '../core/input.ts';
 import {
@@ -38,6 +38,7 @@ import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS } from '../art/creatures.ts';
 import * as UI from '../art/ui.ts';
 import { larguraTexto } from '../art/font.ts';
+import { DICA_CAPTURA, proximaDica } from '../game/dicas.ts';
 import { acaso } from '../core/rng.ts';
 import {
   criar, evoluir, ficha, nome as nomeDe, type Encantado,
@@ -131,6 +132,8 @@ export interface PedidoBatalha {
   podePrender?: boolean;
   /* a luta saiu de um mapa desenhado em 3D: a arena também é 3D */
   em3D?: boolean;
+  /* falas de dica que entram logo depois do "apareceu" (a da primeira captura) */
+  dica?: readonly string[];
   /* o tipo da região (render3d: a grama, as árvores e a luz da arena) */
   regiao?: string | null;
 }
@@ -161,6 +164,10 @@ export class CenaMundo implements Cena {
   private dialogo!: Dialogo<NpcVivo>;
   private faixaNome: Assado | null = null;
   private tempoFaixa = 0;
+  /* a dica da primeira hora que está na tela (game/dicas.ts), e quantos
+     passos ao ar livre já se deu nesta sessão (a do menu espera uns) */
+  private dica: { img: Assado; t: number } | null = null;
+  private passosFora = 0;
   private pintor!: PintorMundo;
   private tempoAnim = 0;
 
@@ -602,11 +609,13 @@ export class CenaMundo implements Cena {
        objeto `trunfo`, nunca num "!" que quebraria a luta */
     e.flags[`inicial_${id}`] = true;
     adicionar(e.mochila, 'mapa');
+    adicionar(e.mochila, 'patua', 10);
     salvar(e);
     this.abrirConversa('DONA FIRMINA', [
       `${nomeDe(bicho)} é seu, ${e.nome}. Trate bem e ele trata melhor.`,
-      'E leva também este MAPA DO MUNDO. Ele vai se enchendo conforme você anda.',
-      'O mapa de cada região, com a planta dos lugares, fica escondido nela mesma. Olhe pelos cantos.',
+      'E leva estes 10 PATUÁS. Bicho do mato só entra no patuá cansado: primeiro luta um pouco, depois joga o patuá.',
+      'Quanto menos vida ele tiver, mais fácil entra. No mato alto aqui da vila mesmo tem Encantado pra começar.',
+      'E este MAPA DO MUNDO, que vai se enchendo conforme você anda. O mapa de cada região fica escondido nela mesma.',
       'Agora sente um pouco. Tem uma coisa que você precisa saber antes de sair por aí.',
     ]);
     /* a cutscene da Companhia chegando à Foz entra quando essa conversa
@@ -949,6 +958,7 @@ export class CenaMundo implements Cena {
   atualizar(dt: number, entrada: Entrada): void {
     this.tempoAnim += dt;
     if (this.tempoFaixa > 0) this.tempoFaixa -= dt;
+    if (this.dica && (this.dica.t -= dt) <= 0) this.dica = null;
 
     if (this.corte.ativo) { this.corte.atualizar(dt, entrada); return; }
 
@@ -1058,6 +1068,7 @@ export class CenaMundo implements Cena {
     if (this.carencia > 0) this.carencia -= dt;
 
     if (chegou) this.aoPisarNoTile();
+    if (!this.dica && !this.falando && !this.duelo) this.olharDica();
 
     // espia o A em vez de usá-lo: sem nada na frente, o A fica mudo. Uma
     // conversa que abriu neste mesmo quadro (o "Código aceito", que termina
@@ -1106,6 +1117,7 @@ export class CenaMundo implements Cena {
 
   /* o jogador acabou de ocupar um tile novo: é aqui que o mundo reage */
   private aoPisarNoTile(): void {
+    if (!this.def.interior) this.passosFora++;
     const p = this.op.estado.posicao;
     p.mapa = this.def.id; p.tx = this.jogador.tx; p.ty = this.jogador.ty;
     p.dir = this.jogador.dir;
@@ -1301,13 +1313,37 @@ export class CenaMundo implements Cena {
   /* para o atalho de teste do navegador */
   forcarClima(c: Clima): void { this.clima = c; }
 
+  /* a próxima dica da primeira hora que serve agora: aparece numa faixa
+     embaixo, some sozinha e nunca mais volta (a flag `dica_<id>`) */
+  private olharDica(): void {
+    const e = this.op.estado, j = this.jogador;
+    const d = proximaDica(e.flags, {
+      interior: this.def.interior === true,
+      temTime: e.time.length > 0,
+      pertoDeAlguem: this.visiveis().some((n) => Math.abs(n.ator.tx - j.tx) + Math.abs(n.ator.ty - j.ty) <= 2),
+      noMato: this.mapa.temEncontro(j.tx, j.ty),
+      passosFora: this.passosFora,
+    });
+    if (!d) return;
+    e.flags[`dica_${d.id}`] = true;
+    const caixa = UI.caixa(larguraTexto(d.texto) + 16, 18);
+    UI.textoNaCaixa(caixa, d.texto, 8, 5);
+    this.dica = { img: assar(caixa), t: 4.5 };
+  }
+
   /* um passo no mato alto: às vezes vira encontro */
   private talvezEncontro(): void {
     const passo = passoNoMato(this.op.estado, this.def, this.climaAqui(), acaso);
     if (passo.k === 'fumoAcabou') this.abrirConversa('', ['O cheiro do fumo passou. O mato volta a ter bicho.']);
     if (passo.k !== 'luta') return;
     this.lugarDoEncontro = passo.lugar;
+    // a primeira luta com bicho do mato, de patuá na mochila e ninguém pego
+    // ainda: a dica de como se captura entra logo depois do "apareceu"
+    const e = this.op.estado;
+    const ensina = !e.flags['dica_captura'] && e.capturados.length === 0 && quantidade(e.mochila, 'patua') > 0;
+    if (ensina) e.flags['dica_captura'] = true;
     this.batalhar({
+      ...(ensina ? { dica: DICA_CAPTURA } : {}),
       podePrender: passo.podePrender,
       oponentes: [passo.oponente],
       cenario: this.def.cenario ?? 'praia',
@@ -1398,6 +1434,13 @@ export class CenaMundo implements Cena {
       const t = Math.min(1, this.tempoFaixa / 0.4);
       r.ctx.globalAlpha = t;
       r.sprite(this.faixaNome, 6, 6);
+      r.ctx.globalAlpha = 1;
+    }
+
+    // a dica da primeira hora: embaixo, no meio, acendendo e apagando devagar
+    if (this.dica) {
+      r.ctx.globalAlpha = Math.min(1, this.dica.t / 0.4, (4.5 - this.dica.t) / 0.3);
+      r.sprite(this.dica.img, Math.round((LARGURA - larguraDe(this.dica.img)) / 2), ALTURA - 26);
       r.ctx.globalAlpha = 1;
     }
 

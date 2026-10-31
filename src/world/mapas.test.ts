@@ -8,6 +8,7 @@
    ========================================================================= */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { DICAS } from '../game/dicas.ts';
 import { Mapa, type ContextoMapa, type DefMapa } from './tilemap.ts';
 import { Mundo } from './mundo.ts';
 import { MAPAS, MAPA_INICIAL } from '../data/mapas/index.ts';
@@ -392,14 +393,18 @@ test('dá para conversar com todo NPC sem atravessar parede', () => {
 
 /* ---------------------------------------------------- o começo do jogo */
 
-test('quem acorda em casa é recebido com os controles e o caminho da Firmina', () => {
+test('quem acorda em casa aprende a andar e o caminho da Firmina; o resto vem nas dicas', () => {
   assert.equal(MAPA_INICIAL, 'casaTaina');
   const c = MAPAS['casaTaina']!.aoChegar!;
   assert.ok(c, 'a casa não tem boas-vindas');
   assert.deepEqual([c.seNao].flat().sort(), ['escolheu_inicial', 'viu_boas_vindas'], 'save antigo veria de novo');
   assert.deepEqual([c.liga].flat(), ['viu_boas_vindas'], 'as boas-vindas tocariam toda vez');
   const texto = c.linhas.join(' ');
-  for (const palavra of ['A ', 'B ', 'MENU', 'Firmina']) assert.ok(texto.includes(palavra), `faltou falar de "${palavra.trim()}"`);
+  for (const palavra of ['andar', 'Firmina']) assert.ok(texto.includes(palavra), `faltou falar de "${palavra}"`);
+  assert.ok(c.linhas.length <= 3, 'a mãe voltou a despejar os controles antes do primeiro passo');
+  // os outros controles chegam na hora em que servem (game/dicas.ts)
+  const dicas = DICAS.map((d) => d.texto).join(' ');
+  for (const palavra of ['A:', 'B ', 'MENU']) assert.ok(dicas.includes(palavra), `nenhuma dica ensina "${palavra.trim()}"`);
 });
 
 test('a Dona Firmina explica a trilha quando entrega a primeira carta', () => {

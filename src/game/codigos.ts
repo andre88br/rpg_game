@@ -116,6 +116,8 @@ export function aplicarPulo(e: EstadoJogo, pulo: Pulo): DefPulo {
     guardar(e, criar('curupinho', NIVEL_INICIAL));
     e.flags['inicial_curupinho'] = true;
   }
+  // quem pula a Foz pula também a mesa da Dona Firmina, que dá os patuás
+  if (quantidade(e.mochila, 'patua') === 0) adicionar(e.mochila, 'patua', 10);
   if (pulo === 'regiao2') {
     if (!e.flags['deu_carta_tie'] && !e.flags['conta_recado_mata']) {
       e.flags['deu_carta_tie'] = true;

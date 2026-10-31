@@ -164,8 +164,12 @@ e o pai dele, o Seu Tonho; cada região comenta o fim, as revanches dos
 mestres fecham as histórias deles, o Remanso conta a lenda de Honorato e
 Maria Caninana, e a Romaria ganha a sua festa.
 
-O começo explica o jogo: ao acordar em casa, a mãe mostra os controles e
-aponta a casa da Dona Firmina; ao entregar a primeira carta, a Firmina
+O começo explica o jogo aos poucos: ao acordar em casa, a mãe ensina a
+andar e aponta a casa da Dona Firmina; os outros controles chegam em
+faixas curtas na hora em que servem (falar perto de alguém, correr na
+primeira rua, o mato alto, o menu depois de uns passos). Com o inicial, a
+Firmina entrega os 10 patuás e explica como se pega bicho, e a primeira
+luta no mato lembra a dica. Ao entregar a primeira carta, a Firmina
 explica a trilha (guia de cinco contas, mestre, medalha e Dom, patuá). Na
 caixa de diálogo, uma frase nunca fica cortada entre duas páginas.
 

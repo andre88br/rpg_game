@@ -51,6 +51,7 @@ src/
 │             codigos.ts (os códigos secretos e o pacote de cada pulo)
 │             transferencia.ts (o save como arquivo .json ou código para colar)
 │             telemetria.ts (marcos anônimos de progresso para o GoatCounter)
+│             dicas.ts (os controles ensinados na hora em que servem)
 │             golpes.ts (o que o Rezador faz lembrar, a cantiga, ensinar)
 │             raro.ts (a chance da cor rara e o Amuleto do Brilho)
 │             escala.ts (a revanche que cresce: nível e forma no nível)

@@ -99,6 +99,8 @@ export interface OpcoesCenaBatalha {
   em3D?: boolean;
   /* o tipo da região de onde a luta saiu (a grama e a luz da arena) */
   regiao?: string | null;
+  /* falas de dica que entram logo depois do "apareceu" (a da primeira captura) */
+  dica?: readonly string[];
   /* entrouNoTime: um Encantado capturado agora mesmo entrou no time (e não
      na caixa) — é o sinal para o mundo oferecer a troca de ordem */
   aoTerminar: (r: Resultado, entrouNoTime: boolean) => void;
@@ -194,7 +196,7 @@ export class CenaBatalha implements Cena {
     };
     this.entradaSprite = { aliado: 0, inimigo: 0 };
 
-    this.enfileirar(this.b.abrir());
+    this.enfileirar([...this.b.abrir(), ...(this.op.dica ?? []).map((t) => ({ k: 'texto', t }) as const)]);
   }
 
   /* fotografia do Encantado no momento em que ele ENTRA em campo */

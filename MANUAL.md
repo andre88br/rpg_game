@@ -16,10 +16,15 @@ não para contar passos.
 confirmar; X ou Shift para correr e voltar; Esc para o menu. No celular: o
 direcional e os botões A, B e MENU na tela.
 
-**O começo.** Num jogo novo, a mãe explica os controles assim que você
-acorda e diz onde mora a Dona Firmina (a casa de telhado grande, à direita
-da sua, com placa na porta). Depois de escolher o patuá, a Firmina explica
-como a trilha funciona e entrega a primeira carta.
+**O começo.** Num jogo novo, a mãe ensina a andar assim que você acorda e
+diz onde mora a Dona Firmina (a casa de telhado grande, à direita da sua,
+com placa na porta). Os outros controles aparecem numa faixa embaixo da
+tela, cada um na hora em que serve: **A** para falar quando há alguém
+perto, **B** para correr na primeira rua, o aviso do **mato alto** e o
+**MENU** depois de uns passos. Junto com o patuá do inicial, a Firmina
+entrega **10 patuás** e explica a captura: bicho do mato só entra cansado,
+e com pouca vida entra mais fácil. A primeira luta no mato repete a dica.
+Depois, a Firmina explica como a trilha funciona e entrega a primeira carta.
 
 **Visão 3D.** O mundo inteiro aparece em 3D. Para voltar ao mapa plano:
 menu → **OPÇÕES** → **VISÃO** → **PLANA**. Se o celular esquentar ou
