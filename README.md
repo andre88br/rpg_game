@@ -199,6 +199,11 @@ patuá, porta, menu) e as vinhetas curtas (cura, medalha, nível, captura).
 Como a arte, **o som também é feito por código**, sem nenhum arquivo de
 áudio. Volumes separados em **menu → OPÇÕES → MÚSICA / EFEITOS**.
 
+**Acessibilidade.** Nada no jogo pisca mais de três vezes por segundo, e
+**menu → OPÇÕES → CLARÕES → SUAVES** baixa os clarões (relâmpago, evolução,
+golpes no 3D) a um quarto. O tipo, a vida e o status sempre têm nome ou
+número escrito, não só cor.
+
 ## Rodar
 
 ```bash

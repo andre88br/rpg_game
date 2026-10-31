@@ -124,3 +124,15 @@ test('tecla própria: uma por ação, sem repetir, e o padrão limpa', async () 
   usarArmazemConfig(m);
   assert.deepEqual(obterTeclas(), {}, 'gravação estragada não derruba');
 });
+
+test('clarões: normais por padrão; suaves acendem a um quarto e ficam gravados', async () => {
+  const { obterClaroesSuaves, definirClaroesSuaves, forcaDoClarao } = await import('./config.ts');
+  const ls = memoria();
+  usarArmazemConfig(ls);
+  assert.equal(obterClaroesSuaves(), false);
+  assert.equal(forcaDoClarao(), 1);
+  definirClaroesSuaves(true);
+  usarArmazemConfig(ls);            // uma sessão nova lê o que ficou gravado
+  assert.equal(obterClaroesSuaves(), true);
+  assert.equal(forcaDoClarao(), 0.25);
+});

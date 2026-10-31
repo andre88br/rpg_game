@@ -37,7 +37,10 @@ de título tem **IMPORTAR SAVE** (sem nenhuma partida gravada, é o botão
 
 **Opções e controles.** Em menu → **OPÇÕES**: **VELOCIDADE** (andar e
 animações), **TEXTO** (as letras: NORMAL, RÁPIDO ou DE UMA VEZ), **VISÃO**,
-**QUALIDADE**, **MÚSICA**, **EFEITOS** e **TECLAS**. Em TECLAS, A numa ação
+**QUALIDADE**, **CLARÕES**, **MÚSICA**, **EFEITOS** e **TECLAS**. **CLARÕES
+SUAVES** deixa bem mais fracos o relâmpago da tempestade, o clarão da
+evolução e a luz dos golpes no 3D, para quem se incomoda com luz que pisca.
+Em TECLAS, A numa ação
 e depois a tecla nova (Esc desiste); **VOLTAR AO PADRÃO** limpa tudo. As
 teclas de sempre continuam valendo. Controle de videogame: cruz ou
 analógico andam, A confirma, B volta, Start/Select abrem o menu. Na tela do

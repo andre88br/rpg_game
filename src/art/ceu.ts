@@ -8,6 +8,7 @@
    ========================================================================= */
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Clima, Periodo } from '../game/tempo.ts';
+import { forcaDoClarao } from '../game/config.ts';
 
 /* cor e força do filtro de cada período; `leve` é o da batalha */
 const FILTRO: Record<Periodo, { cor: string; alfa: number } | null> = {
@@ -109,7 +110,7 @@ export function desenharClima(r: Renderizador, c: Clima, tempo: number): void {
       r.retangulo(0, 0, LARGURA, ALTURA, '#101828');
       r.ctx.globalAlpha = 1;
       riscos(r, 110, tempo, 2.2, -5, 9, '#c8d8f8', 0.6);
-      const luz = clarao(tempo);
+      const luz = clarao(tempo) * forcaDoClarao();
       if (luz > 0) {
         r.ctx.globalAlpha = luz;
         r.retangulo(0, 0, LARGURA, ALTURA, '#f0f4ff');

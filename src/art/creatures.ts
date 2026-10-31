@@ -249,14 +249,13 @@ function chamaComCara(b: Buf, cx: number, cy: number, rx: number, ry: number,
   b.set(cx + 2, cy + ry - 2, C.olhoP);
 }
 
-/* a Boitatá crescida, em pé sobre as voltas do corpo; a Mboitatá é a mais
-   velha, de fogo maior e os olhos azuis de todo bicho que morreu no fogo */
-function cobraDeFogo(b: Buf, antiga: boolean): void {
+/* a Boitatá crescida, em pé sobre as voltas do corpo */
+function cobraDeFogo(b: Buf): void {
   // a volta de baixo e o rabo de ponta acesa
   b.ellipse(20, 35, 13, 4, C.boi);
   b.ellipse(20, 36, 9, 2, C.boiB);
   b.tri(30, 35, 36, 24, 35, 37, C.boi);
-  coroaDeFogo(b, 36, 24, 4, antiga ? 10 : 8);
+  coroaDeFogo(b, 36, 24, 4, 8);
   // o corpo em pé, de barriga listrada
   b.ellipse(19, 29, 7, 6, C.boi);
   b.rect(13, 18, 12, 10, C.boi);
@@ -265,13 +264,9 @@ function cobraDeFogo(b: Buf, antiga: boolean): void {
   // cabeção, cara amarela e a coroa de fogo
   b.ellipse(19, 13, 10, 7, C.boi);
   b.ellipse(19, 15, 8, 5, C.boiB);
-  coroaDeFogo(b, 19, 8, antiga ? 10 : 8, antiga ? 9 : 8);
-  if (antiga) { coroaDeFogo(b, 10, 9, 3, 6); coroaDeFogo(b, 28, 9, 3, 6); }
+  coroaDeFogo(b, 19, 8, 8, 8);
   // olhão, narinas, a boca aberta de sorriso e a língua bifurcada
-  for (const [x, d] of [[15, 0], [23, -1]] as const) {
-    olhao(b, x, 10, 3, d);
-    if (antiga && abertos()) { b.rect(x - 1 + d, 9, 3, 4, C.olhoAzul); b.set(x - 1 + d, 9, C.bril); }
-  }
+  olhao(b, 15, 10, 3, 0); olhao(b, 23, 10, 3, -1);
   b.set(17, 14, C.boiD); b.set(21, 14, C.boiD);
   // o sorriso aberto, com a língua saindo do meio
   b.set(13, 15, C.bocaF); b.set(14, 16, C.bocaF);
@@ -375,7 +370,7 @@ export function curupinho(): Buf {
 /* BOITATÃO — a serpente de fogo adulta, guardia dos campos */
 export function boitatao(): Buf {
   const b = new Buf(40, 40);
-  cobraDeFogo(b, false);
+  cobraDeFogo(b);
   return b.outline(P.ink);
 }
 
@@ -604,10 +599,14 @@ export function mulaSemCabeca(): Buf {
   coroaDeFogo(b, 33, 27, 4, 10);
   b.ellipse(27, 27, 6, 6, C.mulD);
   b.rect(26, 29, 4, 9, C.mulD);
+  // empinada: de pé nas patas de trás, as da frente no ar, de casco em brasa
   b.ellipse(19, 26, 8, 6, C.mul);
   b.rect(12, 21, 14, 4, C.mul);
-  b.rect(12, 29, 5, 9, C.mul); b.rect(21, 29, 5, 9, C.mul);
-  b.rect(12, 37, 5, 2, C.casco); b.rect(21, 37, 5, 2, C.casco);
+  b.rect(19, 29, 5, 9, C.mul);
+  b.rect(19, 37, 5, 2, C.casco);
+  for (let k = 0; k < 4; k++) { b.line(13, 22 + k, 6, 15 + k, C.mul); b.line(13, 27 + k, 7, 21 + k, C.mul); }
+  b.rect(3, 13, 4, 4, C.casco); b.rect(4, 20, 4, 4, C.casco);
+  coroaDeFogo(b, 4, 13, 2, 5); coroaDeFogo(b, 5, 20, 2, 4);
   b.ellipse(19, 21, 6, 1, C.mulD);
   // o pescoço ainda solta faísca
   for (const [x, y] of [[13, 18], [25, 18]] as const) b.ellipse(x, y, 1, 1, C.fogoA);
@@ -1138,7 +1137,31 @@ export function jaci(): Buf {
 /* ---------------- MBOITATÁ (Fogo, 3ª forma da Boitatinha) ---------------- */
 export function mboitata(): Buf {
   const b = new Buf(40, 40);
-  cobraDeFogo(b, true);
+  // a mais velha não fica em pé: se arrasta em "S" pelo campo, com o
+  // pescoço erguido na esquerda e a ponta do rabo acesa na direita
+  coroaDeFogo(b, 37, 23, 3, 9);
+  for (const [x, y, rx] of [[33, 30, 4], [26, 34, 6], [17, 34, 6]] as const) {
+    b.ellipse(x, y, rx, 4, C.boi);
+    b.rect(x - rx + 2, y + 2, 2 * rx - 3, 2, C.boiB);
+  }
+  for (const x of [22, 29]) b.set(x, 31, C.boiD);
+  // o pescoço, de barriga listrada, e a cabeça grande
+  b.rect(6, 16, 10, 18, C.boi);
+  b.rect(8, 18, 6, 15, C.boiB);
+  for (let y = 20; y <= 32; y += 2) b.line(8, y, 13, y, C.boiBD);
+  b.ellipse(12, 12, 10, 7, C.boi);
+  b.ellipse(12, 14, 8, 5, C.boiB);
+  coroaDeFogo(b, 12, 7, 9, 8);
+  coroaDeFogo(b, 24, 9, 3, 6);
+  // os olhos azuis de todo bicho que morreu no fogo
+  for (const [x, d] of [[8, 0], [16, -1]] as const) {
+    olhao(b, x, 10, 3, d);
+    if (abertos()) { b.rect(x - 1 + d, 9, 3, 4, C.olhoAzul); b.set(x - 1 + d, 9, C.bril); }
+  }
+  b.set(10, 14, C.boiD); b.set(14, 14, C.boiD);
+  b.set(6, 15, C.bocaF); b.rect(7, 16, 10, 2, C.bocaF); b.set(17, 15, C.bocaF);
+  b.line(12, 18, 12, 21, C.lingua); b.set(11, 22, C.lingua); b.set(13, 22, C.lingua);
+  for (const [x, y] of [[30, 4], [35, 12], [3, 4]] as const) b.ellipse(x, y, 1, 1, C.fogoA);
   return b.outline(P.ink);
 }
 
@@ -1334,26 +1357,28 @@ export function cucaRainha(): Buf {
 export function pesadelo(): Buf {
   const b = new Buf(40, 40);
   const sombra = '#2e2240', sombraL = '#4a3a62', lua = '#f2e8b8';
-  // o manto de sombra, de barra em fiapos
-  b.ellipse(20, 20, 16, 15, sombra);
-  b.rect(4, 20, 33, 12, sombra);
-  for (const x of [6, 12, 18, 24, 30, 35]) b.tri(x - 3, 31, x, 38, x + 3, 31, sombra);
-  b.ellipse(13, 10, 6, 3, sombraL);
-  // os chifrinhos e as mãos de unha
-  b.tri(9, 8, 6, 0, 13, 5, sombra); b.tri(31, 8, 34, 0, 27, 5, sombra);
-  for (const [x, d] of [[3, -1], [37, 1]] as const) {
-    b.ellipse(x, 26, 2, 3, sombraL);
-    for (const k of [-1, 1]) b.line(x + k, 29, x + k + d, 32, '#f0e8f0');
+  // o manto que se abre até o chão, de barra em fiapos
+  b.tri(20, 8, 3, 36, 37, 36, sombra);
+  for (const x of [5, 11, 17, 23, 29, 35]) b.tri(x - 3, 35, x, 40, x + 3, 35, sombra);
+  b.tri(20, 16, 12, 36, 28, 36, sombraL);
+  // os braços compridos, abertos, de unha de fora
+  b.rect(4, 18, 12, 3, sombra); b.rect(24, 18, 12, 3, sombra);
+  for (const [x, d] of [[3, -1], [36, 1]] as const) {
+    b.ellipse(x, 19, 2, 3, sombraL);
+    for (const k of [-1, 1]) b.line(x + k, 16, x + k + d, 13, '#f0e8f0');
   }
+  // o capuz com chifres e a cara
+  b.tri(13, 6, 10, 0, 16, 4, sombra); b.tri(27, 6, 30, 0, 24, 4, sombra);
+  b.ellipse(20, 11, 8, 8, sombra);
+  b.ellipse(16, 6, 3, 2, sombraL);
   // a lua minguante no peito
-  b.ellipse(20, 27, 4, 4, lua); b.ellipse(22, 26, 3, 3, sombra);
-  // olhão de pupila vermelha e o sorriso torto
-  olhao(b, 14, 16, 4, 0); olhao(b, 26, 16, 4, -1);
+  b.ellipse(20, 27, 3, 3, lua); b.ellipse(21, 26, 2, 2, sombraL);
+  olhao(b, 16, 11, 3, 0); olhao(b, 24, 11, 3, -1);
   if (abertos()) {
-    b.rect(14, 15, 3, 3, '#d03040'); b.rect(25, 15, 3, 3, '#d03040');
-    b.set(14, 15, C.bril); b.set(25, 15, C.bril);
+    b.rect(16, 10, 2, 3, '#d03040'); b.rect(23, 10, 2, 3, '#d03040');
+    b.set(16, 10, C.bril); b.set(23, 10, C.bril);
   }
-  b.set(15, 21, '#f0e8f0'); b.line(16, 22, 24, 22, '#f0e8f0'); b.set(25, 21, '#f0e8f0');
+  b.set(17, 15, '#f0e8f0'); b.line(18, 16, 22, 16, '#f0e8f0'); b.set(23, 15, '#f0e8f0');
   return b.outline(P.ink);
 }
 
@@ -1418,24 +1443,28 @@ export function fogoFatuo(): Buf {
 export function boiuna(): Buf {
   const b = new Buf(40, 40);
   const cobra = '#24505e', cobraL = '#3e7486', barriga = '#9ad0d8', barrigaD = '#6aa4b0', raio = P.bolt;
-  // as voltas na água e o rabo com o raio na ponta
-  b.ellipse(20, 36, 19, 3, P.waterD);
-  b.ellipse(10, 33, 7, 4, cobra); b.ellipse(30, 33, 7, 4, cobra);
-  b.ellipse(10, 31, 4, 1, cobraL); b.ellipse(30, 31, 4, 1, cobraL);
-  b.line(36, 28, 38, 22, raio); b.line(38, 22, 35, 22, raio); b.line(35, 22, 37, 15, raio);
-  // o corpo em pé, de barriga clara listrada
-  b.rect(14, 16, 12, 18, cobra);
-  b.rect(17, 18, 6, 15, barriga);
-  for (let y = 20; y <= 32; y += 2) b.line(17, y, 22, y, barrigaD);
-  // cabeção de cobra grande, com o arco-íris por cima
-  b.ellipse(20, 12, 11, 8, cobra);
-  b.ellipse(20, 15, 8, 4, barriga);
-  for (const [i, cor] of (['#e0524a', '#f09a3a', P.bolt, '#5fbf6a'] as const).entries()) b.rect(12 + i * 4, 4, 4, 2, cor);
-  olhao(b, 15, 10, 3, 0); olhao(b, 25, 10, 3, -1);
-  if (abertos()) for (const x of [15, 25]) b.set(x, 9, raio);
-  b.set(18, 13, cobra); b.set(22, 13, cobra);
-  b.set(14, 15, C.bocaF); b.rect(15, 16, 11, 2, C.bocaF); b.set(26, 15, C.bocaF);
-  b.set(17, 16, P.white); b.set(23, 16, P.white);
+  // a cobra grande saindo do rio: as costas em corcovas à esquerda, o rabo
+  // de raio na ponta, e o pescoço erguido à direita
+  b.line(2, 22, 4, 16, raio); b.line(4, 16, 1, 16, raio); b.line(1, 16, 3, 10, raio);
+  for (const [x, y] of [[5, 30], [14, 29]] as const) {
+    b.ellipse(x, y, 5, 6, cobra);
+    b.ellipse(x - 1, y - 3, 2, 2, cobraL);
+  }
+  b.rect(23, 16, 10, 18, cobra);
+  b.rect(25, 18, 6, 15, barriga);
+  for (let y = 20; y <= 32; y += 2) b.line(25, y, 30, y, barrigaD);
+  // o rio por cima, engolindo a metade de baixo das corcovas
+  b.rect(0, 33, 40, 7, P.waterD);
+  b.ellipse(20, 34, 19, 1, P.water);
+  // cabeção, com o arco-íris por cima e o olho de luz de navio
+  b.ellipse(28, 12, 11, 8, cobra);
+  b.ellipse(28, 15, 8, 4, barriga);
+  for (const [i, cor] of (['#e0524a', '#f09a3a', P.bolt, '#5fbf6a'] as const).entries()) b.rect(20 + i * 4, 4, 4, 2, cor);
+  olhao(b, 23, 10, 3, 0); olhao(b, 33, 10, 3, -1);
+  if (abertos()) for (const x of [23, 33]) b.set(x, 9, raio);
+  b.set(26, 13, cobra); b.set(30, 13, cobra);
+  b.set(22, 15, C.bocaF); b.rect(23, 16, 11, 2, C.bocaF); b.set(34, 15, C.bocaF);
+  b.set(25, 16, P.white); b.set(31, 16, P.white);
   return b.outline(P.ink);
 }
 
@@ -1531,28 +1560,27 @@ export function botoEncantado(): Buf {
 export function cobraNorato(): Buf {
   const b = new Buf(40, 40);
   const cobra = '#2e6a4a', cobraL = '#4a8e66', barriga = '#d8d090', barrigaD = '#aaa060', mancha = '#1a4a30';
-  // as voltas do corpo no barranco
-  b.ellipse(20, 35, 18, 4, cobra);
-  b.ellipse(20, 36, 13, 2, barriga);
-  b.ellipse(31, 30, 7, 4, cobra);
-  b.tri(36, 29, 39, 22, 38, 31, cobra);
-  for (const [x, y] of [[8, 34], [30, 28], [26, 35]] as const) b.rect(x, y, 3, 2, mancha);
-  // o corpo em pé e a barriga listrada
-  b.rect(13, 16, 13, 18, cobra);
-  b.rect(16, 18, 7, 15, barriga);
-  for (let y = 20; y <= 32; y += 2) b.line(16, y, 22, y, barrigaD);
-  for (const y of [20, 27]) { b.rect(13, y, 2, 3, mancha); b.rect(24, y + 2, 2, 3, mancha); }
-  // cabeção, de cara clara, e o chapéu de palha de quem anda de gente
-  b.ellipse(19, 12, 11, 8, cobra);
-  b.ellipse(19, 15, 8, 4, barriga);
-  b.ellipse(13, 9, 3, 2, cobraL);
-  b.ellipse(19, 5, 11, 2, '#e0c070');
-  b.ellipse(19, 3, 6, 3, '#e0c070');
-  b.rect(13, 4, 13, 1, '#a8883a');
-  olhao(b, 15, 11, 3, 0); olhao(b, 23, 11, 3, -1);
-  b.rect(10, 15, 2, 1, C.bochecha); b.rect(27, 15, 2, 1, C.bochecha);
-  b.set(15, 16, C.bocaF); b.line(16, 17, 22, 17, C.bocaF); b.set(23, 16, C.bocaF);
-  b.line(19, 18, 19, 20, C.lingua); b.set(18, 21, C.lingua); b.set(20, 21, C.lingua);
+  // deitada no barranco, enrolada em espiral, só a cabeça de chapéu erguida
+  b.ellipse(18, 31, 17, 8, cobra);
+  b.ellipse(18, 31, 12, 5, cobraL);
+  b.ellipse(18, 31, 7, 3, cobra);
+  b.rect(16, 31, 5, 1, cobraL);
+  for (const [x, y] of [[5, 30], [30, 28], [12, 36], [25, 35]] as const) b.rect(x, y, 3, 2, mancha);
+  // o pescoço saindo do meio da espiral
+  b.rect(25, 17, 8, 13, cobra);
+  b.rect(27, 19, 4, 10, barriga);
+  for (let y = 21; y <= 27; y += 2) b.line(27, y, 30, y, barrigaD);
+  // a cabeça clara e o chapéu de palha de quem anda de gente
+  b.ellipse(29, 12, 10, 7, cobra);
+  b.ellipse(29, 15, 7, 4, barriga);
+  b.ellipse(24, 9, 3, 2, cobraL);
+  b.ellipse(29, 5, 10, 2, '#e0c070');
+  b.ellipse(29, 3, 5, 3, '#e0c070');
+  b.rect(24, 4, 11, 1, '#a8883a');
+  olhao(b, 25, 11, 3, 0); olhao(b, 33, 11, 3, -1);
+  b.rect(20, 15, 2, 1, C.bochecha); b.rect(36, 15, 2, 1, C.bochecha);
+  b.set(25, 16, C.bocaF); b.line(26, 17, 32, 17, C.bocaF); b.set(33, 16, C.bocaF);
+  b.line(29, 18, 29, 20, C.lingua); b.set(28, 21, C.lingua); b.set(30, 21, C.lingua);
   return b.outline(P.ink);
 }
 

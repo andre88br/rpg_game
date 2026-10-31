@@ -33,7 +33,7 @@ function loja(): Armazem | null {
 /* usado pelos testes: troca o armazém por um de mentira */
 export function usarArmazemConfig(a: Armazem | null): void {
   armazem = a; velocidade = undefined; visao3d = undefined; qualidade = undefined; volumes = {};
-  texto = undefined; teclas = undefined;
+  texto = undefined; teclas = undefined; claroesSuaves = undefined;
 }
 
 let velocidade: Velocidade | undefined;
@@ -71,6 +71,27 @@ export function definirVisao3D(v: boolean): void {
   visao3d = v;
   try { loja()?.setItem(CHAVE_VISAO, v ? 'sim' : 'nao'); } catch { /* nada a fazer */ }
 }
+
+/* Clarões SUAVES (acessibilidade): o relâmpago da tempestade, o clarão
+   branco da evolução e a luz dos golpes no 3D acendem bem mais fraco —
+   para quem se incomoda, ou é sensível, a luz que pisca. */
+const CHAVE_CLAROES = 'encantados:config:claroes:v1';
+let claroesSuaves: boolean | undefined;
+
+export function obterClaroesSuaves(): boolean {
+  if (claroesSuaves !== undefined) return claroesSuaves;
+  claroesSuaves = false;
+  try { if (loja()?.getItem(CHAVE_CLAROES) === 'suaves') claroesSuaves = true; } catch { /* fica no padrão */ }
+  return claroesSuaves;
+}
+
+export function definirClaroesSuaves(v: boolean): void {
+  claroesSuaves = v;
+  try { loja()?.setItem(CHAVE_CLAROES, v ? 'suaves' : 'normais'); } catch { /* nada a fazer */ }
+}
+
+/* quanto um clarão acende: inteiro, ou um quarto dele com clarões suaves */
+export function forcaDoClarao(): number { return obterClaroesSuaves() ? 0.25 : 1; }
 
 /* A qualidade do 3D. LEVE tira as sombras, baixa a resolução, aquieta a
    água e o vento e põe menos mata em volta do mapa: é para o celular que

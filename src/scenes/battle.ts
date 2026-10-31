@@ -34,7 +34,7 @@ import { item as fichaItem } from '../data/items.ts';
 import * as L from '../ui/listas.ts';
 import * as Som from '../audio/som.ts';
 import { guardar, registrar, type EstadoJogo } from '../game/state.ts';
-import { multiplicadorTexto } from '../game/config.ts';
+import { forcaDoClarao, multiplicadorTexto } from '../game/config.ts';
 import { periodo, type Clima } from '../game/tempo.ts';
 import { desenharClima, tingir } from '../art/ceu.ts';
 import { vista3D } from '../render3d/carregar.ts';
@@ -696,7 +696,7 @@ export class CenaBatalha implements Cena {
     this.desenharFaixa(r, 'aliado');
 
     if (this.brilho > 0) {          // clarão da evolução
-      r.ctx.globalAlpha = Math.min(1, this.brilho);
+      r.ctx.globalAlpha = Math.min(1, this.brilho) * forcaDoClarao();
       r.retangulo(0, 0, LARGURA, ALTURA, P.white!);
       r.ctx.globalAlpha = 1;
     }
@@ -748,8 +748,9 @@ export class CenaBatalha implements Cena {
       r.ctx.globalAlpha = Math.max(0, 1 - q);
       y += q * 18;
     }
-    // apanhando: some e volta, piscando
-    if (this.tremor[lado] > 0 && Math.floor(this.relogio * 24) % 2 === 0) r.ctx.globalAlpha = 0.35;
+    // apanhando: esmaece enquanto treme (sem piscar: luz que pisca mais de
+    // três vezes por segundo incomoda, e pode fazer mal a quem é sensível)
+    if (this.tremor[lado] > 0) r.ctx.globalAlpha = 0.6;
     r.spriteEsticado(img, Math.round(x), Math.round(y), sx, sy, alt);
     r.ctx.globalAlpha = 1;
 

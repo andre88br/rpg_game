@@ -38,7 +38,7 @@ export const AJUSTES: Record<string, Ajuste> = {
   lobisomem: { atras: [0, 1] },
   boitatinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
   boitatao: { atras: [2, 3, 4, 5, 6, 7] },
-  mboitata: { atras: [2, 3, 4, 5, 6, 7] },
+  mboitata: { atras: [0, 1, 2, 3, 4] },
   mulinha: { atras: [0, 1, 2, 3, 4, 5, 6] },
   mulaSemCabeca: { atras: [0, 1, 2, 3, 4, 5, 6] },
   salamanca: { atras: [0, 1] },

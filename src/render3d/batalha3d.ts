@@ -15,6 +15,7 @@ import * as THREE from 'three';
 import { infoTipo, type TipoGolpe } from '../art/palette.ts';
 import type { Cenario } from '../art/battlebg.ts';
 import { ARTE_CRIATURAS, POSES, poseNaLuta, type Pose } from '../art/creatures.ts';
+import { forcaDoClarao } from '../game/config.ts';
 import { ESPECIES } from '../data/creatures.ts';
 import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
@@ -323,7 +324,7 @@ export class CenaBatalha3D {
       }
       this.clarao.color.set(infoTipo(p.tipo).cor);
       this.clarao.position.copy(de.clone().lerp(para, k));
-      this.clarao.intensity = 3;
+      this.clarao.intensity = 3 * forcaDoClarao();
     } else this.clarao.intensity = 0;
 
     if (this.acerto) {
@@ -344,7 +345,7 @@ export class CenaBatalha3D {
         }
         this.clarao.color.set(infoTipo(ac.tipo).cor);
         this.clarao.position.copy(centro);
-        this.clarao.intensity = 5 * (1 - k);
+        this.clarao.intensity = 5 * (1 - k) * forcaDoClarao();
       }
     }
     this.particulas.count = n;

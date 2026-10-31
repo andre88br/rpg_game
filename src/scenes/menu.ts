@@ -45,13 +45,13 @@ import {
   VELS_TEXTO, NOME_VEL_TEXTO, obterVelTexto, definirVelTexto,
   ACOES_TECLA, obterTeclas, definirTecla, limparTeclas, type AcaoTecla,
   VELOCIDADES, NOME_VELOCIDADE, obterVelocidade, definirVelocidade, obterVisao3D, definirVisao3D, obterQualidade, definirQualidade,
-  NOME_VOLUME, obterVolume, definirVolume, proximoVolume,
+  NOME_VOLUME, obterVolume, definirVolume, proximoVolume, obterClaroesSuaves, definirClaroesSuaves,
 } from '../game/config.ts';
 import * as Som from '../audio/som.ts';
 
 /* as linhas da página de OPÇÕES: as quatro primeiras trocam de valor com A
    ou com as setas para os lados; as duas de baixo são ações, só com A */
-const OPCOES = ['VELOCIDADE', 'TEXTO', 'VISÃO', 'QUALIDADE', 'MÚSICA', 'EFEITOS', 'TECLAS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
+const OPCOES = ['VELOCIDADE', 'TEXTO', 'VISÃO', 'QUALIDADE', 'CLARÕES', 'MÚSICA', 'EFEITOS', 'TECLAS', 'BAIXAR SAVE', 'COPIAR CÓDIGO'] as const;
 type Opcao = (typeof OPCOES)[number];
 const ACOES: ReadonlySet<Opcao> = new Set<Opcao>(['TECLAS', 'BAIXAR SAVE', 'COPIAR CÓDIGO']);
 
@@ -279,6 +279,12 @@ export class MenuPausa {
         const leve = obterQualidade() === 'alta';
         definirQualidade(leve ? 'leve' : 'alta');
         this.avisar(leve ? 'QUALIDADE LEVE: MAIS LEVE PARA O CELULAR.' : 'QUALIDADE ALTA.', 2.4);
+        break;
+      }
+      case 'CLARÕES': {
+        const suaves = !obterClaroesSuaves();
+        definirClaroesSuaves(suaves);
+        this.avisar(suaves ? 'CLARÕES SUAVES: A LUZ QUE PISCA ACENDE FRACO.' : 'CLARÕES NORMAIS.', 2.4);
         break;
       }
       case 'MÚSICA': case 'EFEITOS': {
@@ -792,13 +798,14 @@ export class MenuPausa {
           TECLAS: '',
           VISÃO: obterVisao3D() ? '3D' : 'PLANA',
           QUALIDADE: obterQualidade() === 'alta' ? 'ALTA' : 'LEVE',
+          CLARÕES: obterClaroesSuaves() ? 'SUAVES' : 'NORMAIS',
           MÚSICA: NOME_VOLUME[obterVolume('musica')],
           EFEITOS: NOME_VOLUME[obterVolume('efeitos')],
           'BAIXAR SAVE': '',
           'COPIAR CÓDIGO': '',
         };
         OPCOES.forEach((op, i) => {
-          const y = 30 + i * 12;
+          const y = 29 + i * 11;
           const sel = i === this.velSel;
           if (sel) r.texto('=', 16, y, P.uiAccD!);
           r.texto(op, 28, y, sel ? P.uiAccD! : P.uiInk!);

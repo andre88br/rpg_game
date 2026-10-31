@@ -249,6 +249,12 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   fechado e o `Ator` pisca, respira (um pixel) e dá pulinho a cada passo;
   no mapa 3D, cada bicho tem um gêmeo de olho fechado que entra na piscada
   (`piscando`, a mesma regra de tudo).
+  **Regras de arte com teste.** `GUIA_DE_ESTILO.md` (na raiz) diz como
+  desenhar; duas regras dele são conferidas: `art/poses.test.ts` (o rosto
+  muda em toda pose) e `art/silhuetas.test.ts` (cada sombra, recortada e
+  reamostrada em 24×24, se sobrepõe menos de 0,80 à de outra família e
+  menos de 0,88 à da própria). Clarões passam por `forcaDoClarao()`
+  (`game/config.ts`, opção CLARÕES).
   A gente segue o mesmo estilo: `spritePessoa` (`art/people.ts`) desenha o
   cabeção redondo com olho de brilho, bochecha e sorriso, e `pessoa3D`
   (`render3d/modelos/humanoide.ts`) faz o boneco de cabeça grande.
