@@ -39,6 +39,7 @@ import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { ambienteDoCeu } from './ambiente.ts';
+import { carregarModelosGlb } from './modelos/glb.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { materialReal, tufoDeCapim, RUIDO_FUNCOES } from './modelos/base.ts';
 import { ONDA_GLSL, marAberto, texturaDaCosta } from './mar.ts';
@@ -296,6 +297,8 @@ export class Vista3D {
   private readonly sombraMat = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
 
   constructor() {
+    // os Encantados de arquivo (.glb) começam a baixar já; até chegarem, vale o esculpido
+    void carregarModelosGlb(import.meta.env.BASE_URL);
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'mundo3d';
     this.canvas.style.display = 'none';

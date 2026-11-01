@@ -13,6 +13,7 @@
 import * as THREE from 'three';
 import { materialDesenho, materialReal } from './base.ts';
 import { modeloReal, temModeloReal } from './realistas.ts';
+import { modeloGlb } from './glb.ts';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
@@ -65,7 +66,16 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
   g.name = 'corpo';
   raiz.add(g);
   if (!arte) return raiz;
-  // o bicho já esculpido em 3D (por enquanto, os três iniciais)
+  // o modelo de arquivo (.glb), se a espécie tem e ele já baixou
+  const arquivo = modeloGlb(id);
+  if (arquivo) {
+    g.add(arquivo);
+    g.userData['flutua'] = AJUSTES[id]?.flutua ?? false;
+    g.userData['altura'] = new THREE.Box3().setFromObject(g).max.y;
+    raiz.scale.setScalar(tamanhoDe(id) * 1.2);
+    return raiz;
+  }
+  // o bicho esculpido em 3D
   if (temModeloReal(id)) {
     const m = mat === MAT_BICHO ? MAT_REAL_BICHO : mat;
     for (const p of modeloReal(id, raro, m, pose)) {
