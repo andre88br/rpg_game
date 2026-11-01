@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { materialDesenho, materialReal } from './base.ts';
 import { modeloReal, temModeloReal } from './realistas.ts';
 import { modeloGlb } from './glb.ts';
+import { animarEsqueleto } from './esqueleto.ts';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
@@ -72,6 +73,9 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
     g.add(arquivo);
     g.userData['flutua'] = AJUSTES[id]?.flutua ?? false;
     g.userData['altura'] = new THREE.Box3().setFromObject(g).max.y;
+    // o modelo de arquivo tem só a frente pintada com detalhe: na luta, o
+    // aliado vira mais para a câmera, para não ficar de costas
+    g.userData['deFrente'] = true;
     raiz.scale.setScalar(tamanhoDe(id) * 1.2);
     return raiz;
   }
@@ -166,4 +170,6 @@ export function animarEncantado(raiz: THREE.Group, acao: AcaoEncantado, t: numbe
     default:
       break;
   }
+  // os ossos do modelo de arquivo, se ele tem
+  animarEsqueleto(g, acao, t, relogio);
 }

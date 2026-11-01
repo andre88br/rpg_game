@@ -26,6 +26,11 @@ tem arquivo continua com o esculpido.
    costas pegam a cor borrada (sem olho e boca atrás da cabeça), e a cor vai
    linear, como o glTF pede (senão o jogo clareia tudo).
 6. Pôr a espécie em `MODELOS_GLB` e olhar na luta (`npm run dev`).
+7. Para mexer braço, cabeça e perna: um esqueleto em
+   `src/render3d/modelos/esqueleto.ts` (as juntas e a regra de que osso é
+   cada vértice, pela posição), registrado em `ESQUELETOS` com o nome do
+   arquivo. As medidas saem de fatias do modelo acertado (onde o braço
+   descola do corpo, onde fica o pescoço, onde o calção acaba).
 
 A imagem boa é de frente, corpo inteiro, fundo liso e sem texto. O TripoSR
 só vê a frente: as costas são inventadas e saem mais simples.

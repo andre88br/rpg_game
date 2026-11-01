@@ -33,6 +33,7 @@ import { P } from '../art/palette.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
 import { GIRO_DA_DIRECAO, animarPessoa, pessoa3D } from './modelos/humanoide.ts';
 import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
+import { clone as clonarComOssos } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS, piscando, type Pose } from '../art/creatures.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
@@ -618,7 +619,7 @@ export class Vista3D {
       }
       this.modelos3D.set(chave, m);
     }
-    return m ? m.clone() : null;
+    return m ? (clonarComOssos(m) as THREE.Group) : null;
   }
 
   private posicionarAtores(atores: readonly Ator3D[], tempo: number): void {

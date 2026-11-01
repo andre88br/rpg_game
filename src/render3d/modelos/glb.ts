@@ -5,11 +5,13 @@
    fica o esculpido de sempre.
 
    O modelo é acertado na chegada: de pé no chão (y = 0), no meio, virado
-   para +z e com a altura dos esculpidos. Partes que a animação conhece
-   (`cabeca`, `bracoE`...) valem se o arquivo tiver nós com esses nomes;
-   sem elas, o bicho respira, pula e avança inteiro.
+   para +z e com a altura dos esculpidos. Se o arquivo tem esqueleto feito
+   à mão (esqueleto.ts), a malha ganha os ossos e mexe braço, cabeça, perna;
+   sem ele, o bicho respira, pula e avança inteiro.
    ========================================================================= */
 import * as THREE from 'three';
+import { clone as clonarComOssos } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { ESQUELETOS, armar } from './esqueleto.ts';
 
 /* as espécies que têm arquivo, e o nome do arquivo (o Saci crescido usa o
    mesmo do Sacizinho: o tamanho da espécie já o deixa maior) */
@@ -33,7 +35,7 @@ export function carregarModelosGlb(base: string): Promise<void> {
     await Promise.all(arquivos.map(async (nome) => {
       try {
         const gltf = await loader.loadAsync(`${base}modelos/${nome}.glb`);
-        const modelo = acertar(gltf.scene);
+        const modelo = acertar(gltf.scene, nome);
         for (const [id, arq] of Object.entries(MODELOS_GLB)) if (arq === nome) prontos.set(id, modelo);
       } catch {
         // sem o arquivo, fica o esculpido
@@ -44,7 +46,7 @@ export function carregarModelosGlb(base: string): Promise<void> {
 }
 
 /* põe o modelo de pé, no meio, do tamanho certo */
-function acertar(cena: THREE.Object3D): THREE.Group {
+function acertar(cena: THREE.Object3D, nome: string): THREE.Group {
   const caixa = new THREE.Box3().setFromObject(cena);
   const alto = Math.max(0.001, caixa.max.y - caixa.min.y);
   const s = ALTURA / alto;
@@ -61,11 +63,23 @@ function acertar(cena: THREE.Object3D): THREE.Group {
   });
   const g = new THREE.Group();
   g.add(cena);
-  return g;
+  const esq = ESQUELETOS[nome];
+  if (!esq) return g;
+  // com esqueleto: a malha vai para o lugar final (sem escala nem
+  // deslocamento) e troca por uma de ossos
+  g.updateMatrixWorld(true);
+  const armado = new THREE.Group();
+  g.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const geo = m.geometry.clone().applyMatrix4(m.matrixWorld);
+    armado.add(armar(geo, m.material as THREE.Material, esq));
+  });
+  return armado;
 }
 
 /* uma cópia do modelo da espécie, se ele já chegou */
 export function modeloGlb(id: string): THREE.Group | null {
   const m = prontos.get(id);
-  return m ? m.clone(true) : null;
+  return m ? (clonarComOssos(m) as THREE.Group) : null;
 }
