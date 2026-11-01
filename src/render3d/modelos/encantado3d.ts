@@ -71,7 +71,7 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
     for (const p of modeloReal(id, raro, m, pose)) {
       if (p.name === 'corpo#') { for (const c of [...p.children]) g.add(c); } else g.add(p);
     }
-    g.userData['flutua'] = false;
+    g.userData['flutua'] = AJUSTES[id]?.flutua ?? false;
     g.userData['altura'] = new THREE.Box3().setFromObject(g).max.y;
     // esculpido é mais fino que o desenho virado sólido: um tico maior,
     // para ocupar o mesmo lugar na luta
