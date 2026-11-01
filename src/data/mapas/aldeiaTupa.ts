@@ -142,7 +142,7 @@ export const aldeiaTupa: DefMapa = {
     },
     {
       id: 'zeca5', nome: 'ZECA', estilo: 'zeca',
-      tx: 27, ty: 2, dir: 'baixo',
+      tx: 27, ty: 2, dir: 'baixo', seNao: 'venceu_zeca5',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 2600,
         liga: 'conta_zeca5',
@@ -156,8 +156,6 @@ export const aldeiaTupa: DefMapa = {
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1 },
       },
       falas: [
-        { se: 'venceu_zeca5', linhas: [
-          'O Morro do Trovão é logo ali em cima. Dizem que no cume mora um Relampo que ninguém prende.'] },
         { batalha: true, linhas: [
           'Foz, mata, serra, campo, e agora aqui. Se eu ganhar uma vez, uma só, já valeu a viagem.'] },
       ],

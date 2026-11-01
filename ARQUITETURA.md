@@ -793,7 +793,10 @@ campo torto seria pior do que voltar com um item a menos.
 **A Companhia com rosto.** O vilão não tem mecânica própria: é feito das
 peças que já existiam. Cada capanga é um `DefNPC` com `treinador`, `se` na
 medalha da região e `seNao` no próprio `venceu_<id>` — aparece depois da
-cerimônia, some depois de vencido —, e liga `companhia_<tipo>` para quem
+cerimônia, some depois de vencido (saindo correndo: `vaiEmboraCorrendo`,
+em `scenes/mundo/treinadores.ts`, reconhece todo treinador com `seNao` no
+próprio `venceu_<id>`, e a cena o faz correr uns passos antes de tirá-lo
+do mapa; o Zeca usa a mesma regra) —, e liga `companhia_<tipo>` para quem
 quiser reagir a ele depois. O Doutor Ferraz é o treinador de
 `mapas/escritorioCompanhia.ts`, com a cutscene `ferraz` (em
 `roteiros/sol.ts`) depois da derrota. O fim depende dele em dois lugares: a

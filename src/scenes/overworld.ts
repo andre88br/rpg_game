@@ -79,7 +79,7 @@ import { TelaPoder } from './poder.ts';
 import { Dialogo, type Conversa } from './mundo/dialogo.ts';
 import { CorteDaGuia } from './mundo/corteGuia.ts';
 import { PintorMundo, balaoSusto, relogioDoSol } from './mundo/pintor.ts';
-import { avistou, fichaDoTreinador, premiarVitoria, timeDoTreinador } from './mundo/treinadores.ts';
+import { avistou, fichaDoTreinador, premiarVitoria, timeDoTreinador, vaiEmboraCorrendo } from './mundo/treinadores.ts';
 import { passoNoMato, rotaDeFuga } from './mundo/encontros.ts';
 import { fimDaRomaria, proximoRomeiro } from './mundo/romaria.ts';
 
@@ -117,6 +117,12 @@ interface Sobreposta {
 
 /* um treinador que avistou o jogador e está vindo */
 interface Duelo { npc: NpcVivo; fase: 'susto' | 'andando' | 'falando' | 'lutando'; t: number }
+
+/* quem perdeu e sai correndo: quantos passos já deu, e de onde veio (para
+   não voltar no mesmo tile) */
+interface Fuga { npc: NpcVivo; passos: number; deX: number; deY: number }
+/* quantos passos o perdedor corre antes de sumir de vista */
+const PASSOS_FUGA = 6;
 
 export interface PedidoBatalha {
   oponentes: Encantado[];
@@ -190,6 +196,7 @@ export class CenaMundo implements Cena {
   private fade = 0;
 
   private duelo: Duelo | null = null;
+  private fuga: Fuga | null = null;
   /* o tempo que faz, sorteado ao chegar numa região (não vai para o save) */
   private clima: Clima = 'limpo';
   /* a luta de agora é da Romaria; e o lugar do bicho do mato (Desafio) */
@@ -324,6 +331,7 @@ export class CenaMundo implements Cena {
     this.marcarVisita(id);
     this.dialogo.conversa = null;
     this.duelo = null;
+    this.fuga = null;
 
     this.sumidos.clear();
     this.npcs = this.def.npcs
@@ -368,7 +376,7 @@ export class CenaMundo implements Cena {
     /* quem só estava ali enquanto o serviço não estava feito vai embora na
        hora: o Sacizinho que largou a rede, o bicho do farol que perdeu */
     const antes = this.npcs.length;
-    this.npcs = this.npcs.filter((n) => serve(this.op.estado, n.def));
+    this.npcs = this.npcs.filter((n) => n === this.fuga?.npc || serve(this.op.estado, n.def));
     /* e quem passou a estar ali aparece na hora, sem precisar sair e voltar:
        os Sacizinhos do cais depois do recado, o bicho do farol, o Curupira */
     for (const d of this.def.npcs) {
@@ -750,6 +758,10 @@ export class CenaMundo implements Cena {
       this.recontarOcupados();
     }
     d.npc.ator.olharPara(this.jogador.tx, this.jogador.ty);
+    /* o Zeca perdeu: fala e sai correndo (o cenário não o tira de cena antes) */
+    if (r !== 'captura' && vaiEmboraCorrendo(d.npc.def)) {
+      this.fuga = { npc: d.npc, passos: 0, deX: d.npc.ator.tx, deY: d.npc.ator.ty };
+    }
     this.atualizarCenario();
     /* bicho preso no patuá não fica mais parado no cais */
     if (r === 'captura') this.sumirNpc(d.npc);
@@ -945,6 +957,27 @@ export class CenaMundo implements Cena {
     }
   }
 
+  /* O perdedor corre para longe do jogador, sem voltar pelo tile de onde
+     veio, e some depois de alguns passos — ou antes, se der com a parede. */
+  private correrFuga(dt: number): void {
+    const f = this.fuga!;
+    const a = f.npc.ator;
+    if (a.movendo) {
+      if (a.atualizar(dt)) { f.passos++; this.recontarOcupados(); }
+      return;
+    }
+    const d = f.passos < PASSOS_FUGA ? rotaDeFuga(a, this.jogador, (x, y) =>
+      !(x === f.deX && y === f.deY) && !this.mapa.solido(x, y)
+      && !ocupadaPorPedra(this.pedras, x, y)
+      && !this.npcs.some((o) => o !== f.npc && o.ator.tx === x && o.ator.ty === y)
+      && !(this.seguidor && this.seguidor.tx === x && this.seguidor.ty === y)) : null;
+    if (!d) { this.fuga = null; this.sumirNpc(f.npc); return; }
+    f.deX = a.tx; f.deY = a.ty;
+    a.dir = d;
+    a.comandar(this.mapa, d, true);
+    this.recontarOcupados();
+  }
+
   /* chamado quando o jogador termina um passo: quem estiver do lado, foge */
   private espantarFujoes(): void {
     for (const npc of this.npcs) {
@@ -1032,6 +1065,9 @@ export class CenaMundo implements Cena {
       if (this.duelo.fase !== 'lutando') this.aproximar(dt);
       return;
     }
+
+    // ---- quem perdeu sai correndo: o jogador assiste ----
+    if (this.fuga) { this.correrFuga(dt); return; }
 
     // ---- deslizando numa poça: o passo segue sozinho ----
     if (this.deslizando) { this.deslizar(dt); this.andarRondas(dt); return; }

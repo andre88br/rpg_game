@@ -9,7 +9,8 @@ import { novoJogo } from '../../game/state.ts';
 import { quantidade } from '../../data/items.ts';
 import { covasAbertas } from '../../world/pedras.ts';
 import type { DefMapa, DefTreinador } from '../../world/tilemap.ts';
-import { avistou, fichaDoTreinador, premiarVitoria, timeDoTreinador } from './treinadores.ts';
+import { avistou, fichaDoTreinador, premiarVitoria, timeDoTreinador, vaiEmboraCorrendo } from './treinadores.ts';
+import { MAPAS } from '../../data/mapas/index.ts';
 import { passoNoMato, rotaDeFuga } from './encontros.ts';
 import { fimDaRomaria } from './romaria.ts';
 
@@ -93,4 +94,20 @@ test('covas abertas: só as que a flag ainda não tapou', () => {
     { tipo: 'placa', tx: 3, ty: 3 },
   ];
   assert.deepEqual(covasAbertas(objetos, (f) => f === 'tapou_1'), [{ tx: 2, ty: 2, flag: 'tapou_2' }]);
+});
+
+test('quem só fica até perder sai correndo; bicho e quem fica no posto, não', () => {
+  const t = { classe: 'RIVAL', time: [] } as unknown as DefTreinador;
+  assert.equal(vaiEmboraCorrendo({ id: 'z', seNao: 'venceu_z', treinador: t }), true);
+  assert.equal(vaiEmboraCorrendo({ id: 'z', seNao: ['campeao', 'venceu_z'], treinador: t }), true);
+  assert.equal(vaiEmboraCorrendo({ id: 'z', treinador: t }), false);
+  assert.equal(vaiEmboraCorrendo({ id: 'z', seNao: 'venceu_outro', treinador: t }), false);
+  assert.equal(vaiEmboraCorrendo({ id: 'z', seNao: 'venceu_z' }), false);
+  assert.equal(vaiEmboraCorrendo({ id: 'z', seNao: 'venceu_z', treinador: { ...t, selvagem: true } }), false);
+});
+
+test('todo Zeca que luta foge depois de perder, e não volta ao mesmo lugar', () => {
+  const zecas = Object.values(MAPAS).flatMap((d) => d.npcs).filter((n) => n.estilo === 'zeca' && n.treinador);
+  assert.ok(zecas.length >= 10);
+  for (const z of zecas) assert.ok(vaiEmboraCorrendo(z), `${z.id} continua parado depois de perder`);
 });

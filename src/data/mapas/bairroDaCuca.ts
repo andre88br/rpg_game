@@ -113,7 +113,7 @@ export const bairroDaCuca: DefMapa = {
     },
     {
       id: 'zeca7', nome: 'ZECA', estilo: 'zeca',
-      tx: 1, ty: 19, dir: 'baixo',
+      tx: 1, ty: 19, dir: 'baixo', seNao: 'venceu_zeca7',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3400, liga: 'conta_zeca7',
         // no primeiro encontro, a cutscene conta da cantiga da avó e do Casarão vendido
@@ -126,8 +126,6 @@ export const bairroDaCuca: DefMapa = {
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1, agua_benta: 1 },
       },
       falas: [
-        { se: 'venceu_zeca7', linhas: [
-          'O Casarão é logo ali. Tem uma Cuca no sótão, e eu não subo lá nem pago.'] },
         { batalha: true, linhas: [
           'O Casarão é a oeste, e o caminho passa por mim. Como sempre.'] },
       ],

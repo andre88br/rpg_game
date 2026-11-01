@@ -58,7 +58,7 @@ export const igarapeCurupira: DefMapa = {
     },
     {
       id: 'zeca2', nome: 'ZECA', estilo: 'zeca',
-      tx: 9, ty: 15, dir: 'cima',
+      tx: 9, ty: 15, dir: 'cima', seNao: 'venceu_zeca2',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 1200,
         liga: 'conta_zeca_mata',
@@ -70,8 +70,6 @@ export const igarapeCurupira: DefMapa = {
         falaDerrota: 'De novo?! Tudo bem, tudo bem. Some com essa rocha daqui, {crianca}.',
       },
       falas: [
-        { se: 'venceu_zeca2', linhas: [
-          'Vou treinar mais um pouco antes de aparecer de novo. Não conta pros outros que perdi.'] },
         { batalha: true, linhas: [
           'Segui você até aqui a nado, viu? Isso é que é rival de verdade.',
           'A rocha continua minha até você provar que merece passar.'] },

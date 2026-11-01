@@ -106,7 +106,7 @@ export const arraialCaipora: DefMapa = {
     },
     {
       id: 'zeca6', nome: 'ZECA', estilo: 'zeca',
-      tx: 1, ty: 19, dir: 'baixo',
+      tx: 1, ty: 19, dir: 'baixo', seNao: 'venceu_zeca6',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 4, premio: 3000,
         // no primeiro encontro, a cutscene conta do pai dele de volta ao mar
@@ -119,8 +119,6 @@ export const arraialCaipora: DefMapa = {
         esperta: true, itens: { garrafada_forte: 2, erva_doce: 1 },
       },
       falas: [
-        { se: 'venceu_zeca6', linhas: [
-          'Lá no fundo da Cava tem um bicho de um olho só. Nem eu desço lá.'] },
         { batalha: true, linhas: [
           'A estrada da Cava Funda passa por mim. E eu não saio da frente de graça.'] },
       ],

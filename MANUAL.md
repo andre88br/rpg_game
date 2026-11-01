@@ -26,6 +26,11 @@ entrega **10 patuás** e explica a captura: bicho do mato só entra cansado,
 e com pouca vida entra mais fácil. A primeira luta no mato repete a dica.
 Depois, a Firmina explica como a trilha funciona e entrega a primeira carta.
 
+**O Zeca não fica para conversa.** Cada vez que perde, ele solta a fala de
+derrota e sai correndo pelo caminho até sumir — não adianta voltar ao lugar
+para falar com ele. Os capangas da Companhia fazem o mesmo. No Círculo
+Dourado, que zera as vitórias a cada entrada, ele volta na tentativa seguinte.
+
 **Visão 3D.** O mundo inteiro aparece em 3D. Para voltar ao mapa plano:
 menu → **OPÇÕES** → **VISÃO** → **PLANA**. Se o celular esquentar ou
 engasgar, **QUALIDADE** → **LEVE** (sem sombras, resolução menor, água e

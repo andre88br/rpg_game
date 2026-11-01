@@ -94,7 +94,7 @@ export const vilaFornalha: DefMapa = {
     },
     {
       id: 'zeca3', nome: 'ZECA', estilo: 'zeca',
-      tx: 16, ty: 32, dir: 'cima',
+      tx: 16, ty: 32, dir: 'cima', seNao: 'venceu_zeca3',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 1800,
         liga: 'venceu_zeca3',
@@ -107,8 +107,6 @@ export const vilaFornalha: DefMapa = {
         esperta: true, itens: { garrafada: 2 },
       },
       falas: [
-        { se: 'venceu_zeca3', linhas: [
-          'Vou treinar mais um pouco antes de aparecer de novo. Não conta pros outros que eu perdi.'] },
         { batalha: true, linhas: [
           'Terceira vez, viu? Isso já é perseguição da minha parte. Não que eu vá admitir isso.'] },
       ],

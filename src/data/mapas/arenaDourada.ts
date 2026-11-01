@@ -222,7 +222,7 @@ export const arenaDourada: DefMapa = {
     },
     {
       id: 'zeca9', nome: 'ZECA', estilo: 'zeca',
-      tx: 5, ty: 10, dir: 'dir', seNao: 'campeao',
+      tx: 5, ty: 10, dir: 'dir', seNao: ['campeao', 'venceu_zeca9'],
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 6, premio: 8000, esperta: true,
         // na primeira vez, a cutscene: o pai na arquibancada, e o redemoinho
@@ -238,13 +238,12 @@ export const arenaDourada: DefMapa = {
         },
       },
       falas: [
-        { se: 'venceu_zeca9', linhas: ['Tá bom. TÁ BOM. Vai lá e ganha do Anhangá, senão eu nunca vou te perdoar.'] },
         { batalha: true, linhas: ['Oito medalhas cada um. Nove vezes eu te barrei. Essa é a última, e é pra valer!'] },
       ],
     },
     {
       id: 'zeca9_b', nome: 'ZECA', estilo: 'zeca',
-      tx: 9, ty: 10, dir: 'esq', se: 'campeao',
+      tx: 9, ty: 10, dir: 'esq', se: 'campeao', seNao: 'venceu_zeca9_b',
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 6, premio: 10000, esperta: true,
         itens: { garrafada_forte: 4, erva_doce: 2, agua_benta: 2 },
@@ -258,7 +257,6 @@ export const arenaDourada: DefMapa = {
         },
       },
       falas: [
-        { se: 'venceu_zeca9_b', linhas: ['Tá bom. TÁ BOM. Vai lá e ganha do Anhangá, senão eu nunca vou te perdoar.'] },
         { batalha: true, linhas: ['Oito medalhas cada um. Nove vezes eu te barrei. Essa é a última, e é pra valer!'] },
       ],
     },

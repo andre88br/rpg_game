@@ -76,7 +76,7 @@ export const rotaFoz: DefMapa = {
   npcs: [
     {
       id: 'zeca', nome: 'ZECA', estilo: 'zeca',
-      tx: 13, ty: 25, dir: 'cima',
+      tx: 13, ty: 25, dir: 'cima', seNao: 'venceu_zeca',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 600,
         liga: 'conta_estrada',
@@ -87,9 +87,6 @@ export const rotaFoz: DefMapa = {
         falaDerrota: 'Aaah! Tudo bem, tudo bem. Tira essa tranca daí e vai embora.',
       },
       falas: [
-        { se: 'venceu_zeca', linhas: [
-          'Vai logo, antes que eu mude de ideia e arme a tranca de novo.',
-          'Mas que você joga bem, joga. Isso eu não tiro de você.'] },
         /* falar com ele vale o mesmo que ser visto: quem desce pela outra
            faixa da estrada não escapa do desafio por um tile de diferença */
         { batalha: true, linhas: [

@@ -69,3 +69,13 @@ export function premiarVitoria(e: EstadoJogo, id: string, t: DefTreinador): void
   if (t.premio) e.dinheiro += t.premio;
   if (t.da) adicionar(e.mochila, t.da.item, t.da.n ?? 1);
 }
+
+/* Quem só fica no mapa até perder (`seNao: 'venceu_<id>'` — o Zeca, os
+   capangas) não some num piscar depois da luta: dá a fala de derrota e sai
+   correndo. Bicho não corre: bicho vencido some como sempre sumiu. */
+export function vaiEmboraCorrendo(d: { id: string; seNao?: string | readonly string[];
+                                       treinador?: DefTreinador }): boolean {
+  if (!d.treinador || d.treinador.selvagem) return false;
+  const nao = d.seNao === undefined ? [] : typeof d.seNao === 'string' ? [d.seNao] : d.seNao;
+  return nao.includes(`venceu_${d.id}`);
+}

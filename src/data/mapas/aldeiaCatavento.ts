@@ -98,7 +98,7 @@ export const aldeiaCatavento: DefMapa = {
     },
     {
       id: 'zeca4', nome: 'ZECA', estilo: 'zeca',
-      tx: 16, ty: 32, dir: 'cima',
+      tx: 16, ty: 32, dir: 'cima', seNao: 'venceu_zeca4',
       treinador: {
         classe: 'MOLEQUE DA VILA', visao: 5, premio: 2200,
         liga: 'venceu_zeca4',
@@ -111,8 +111,6 @@ export const aldeiaCatavento: DefMapa = {
         esperta: true, itens: { garrafada_forte: 2 },
       },
       falas: [
-        { se: 'venceu_zeca4', linhas: [
-          'Vai lá. O topo é seu — por enquanto. Eu ainda não desisti, viu?'] },
         { batalha: true, linhas: [
           'Quarta vez, {crianca}. Foz, mata, serra, e agora aqui. Isso já é hábito meu.'] },
       ],

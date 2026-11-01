@@ -192,7 +192,7 @@ export const cidadeDoSol: DefMapa = {
     },
     {
       id: 'zeca8', nome: 'ZECA', estilo: 'zeca',
-      tx: 29, ty: 1, dir: 'baixo',
+      tx: 29, ty: 1, dir: 'baixo', seNao: 'venceu_zeca8',
       treinador: {
         classe: 'RIVAL DE SEMPRE', visao: 4, premio: 5000, liga: 'conta_zeca8',
         // no primeiro encontro, a cutscene lembra do paredão da Rota da Foz
@@ -205,8 +205,6 @@ export const cidadeDoSol: DefMapa = {
         esperta: true, itens: { garrafada_forte: 3, erva_doce: 1, agua_benta: 1 },
       },
       falas: [
-        { se: 'venceu_zeca8', linhas: [
-          'Quando você for {campea}, lembra de mim, tá? Eu fui o primeiro a te desafiar.'] },
         { batalha: true, linhas: [
           'A subida do Pico é aqui. E eu estou na frente dela, como sempre estive.'] },
       ],

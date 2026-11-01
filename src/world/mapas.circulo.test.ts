@@ -46,7 +46,8 @@ test('cada adversário tem gêmeo de campeão, e entrar na arena apaga todas as 
     assert.ok(zera.has(`venceu_${n.id}`), `${n.id}: a vitória não se apaga ao entrar`);
     for (const c of n.treinador!.time) assert.ok(c.nivel <= 70, `${n.id}: nível ${c.nivel} acima do teto (70)`);
     if (n.id.endsWith('_b')) { assert.equal(n.se, 'campeao'); continue; }
-    assert.equal(n.seNao, 'campeao');
+    // o Zeca também some depois de perder (foge); a arena o traz de volta
+    assert.ok([n.seNao].flat().includes('campeao'), `${n.id} devia sair quando há campeão`);
     assert.ok(def.npcs.some((x) => x.id === `${n.id}_b`), `${n.id} sem gêmeo de campeão`);
   }
   const anhanga = def.npcs.find((n) => n.id === 'anhanga')!.treinador!;
