@@ -39,7 +39,8 @@ import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { objeto3D } from './modelos/objetos.ts';
-import { materialReal, tufoDeCapim } from './modelos/base.ts';
+import { materialReal, tufoDeCapim, RUIDO_FUNCOES } from './modelos/base.ts';
+import { ONDA_GLSL, marAberto, texturaDaCosta } from './mar.ts';
 import { MATO_DA_REGIAO, arvoreDoTile, modeloArvore, modeloPedra, type Arvore } from './modelos/vegetacao.ts';
 import {
   DEITADOS, NIVEL_AGUA, PAREDE_CORTADA, luzDe, modeloDe, relevoDe, relevoNaRegiao,
@@ -123,7 +124,14 @@ const AGUA_VERTICE = /* glsl */`
 /* A água de verdade: a onda é calculada em cada pixel (a soma de várias
    ondinhas, cada uma num rumo), e dela sai a normal. Com a normal vem o
    reflexo do céu — fraco olhando de cima, forte no ângulo rasante (Fresnel)
-   — e o brilho do sol. O raso deixa ver a cor da areia; o fundo é escuro. */
+   — e o brilho do sol.
+
+   No mar aberto vêm as CRISTAS (render3d/mar.ts): a textura da costa diz a
+   que distância da terra cada ponto está e para que lado fica o largo; as
+   cristas andam do largo para a beira, empinam chegando, quebram a um tile
+   e pouco da areia e viram espuma — a mesma espuma que, no shader do chão,
+   sobe na areia como lâmina. Na beira a água fica rasa e transparente, sem
+   a linha reta do tile. */
 const AGUA_FRAGMENTO = /* glsl */`
   uniform float uTempo;
   uniform vec3 uRaso;
@@ -136,19 +144,26 @@ const AGUA_FRAGMENTO = /* glsl */`
   uniform vec3 uNevoa;
   uniform float uPerto;
   uniform float uLonge;
-  uniform sampler2D uMargem;
+  uniform sampler2D uCosta;
   uniform vec2 uTam;
   uniform float uLeve;
   varying vec2 vMundo;
   varying vec3 vPos;
   varying float vDist;
+  ${RUIDO_FUNCOES}
+  ${ONDA_GLSL}
   // derivada de uma ondinha: rumo d, frequência f, velocidade v, altura a
   vec2 onda(vec2 p, vec2 d, float f, float v, float a) {
     float k = dot(p, d) * f + uTempo * v;
     return d * cos(k) * f * a;
   }
+  vec4 costa(vec2 p) { return texture2D(uCosta, (p + 1.0) / (uTam + 2.0)); }
+  float distCosta(vec2 p) { return costa(p).r * 10.2 - 1.0; }
   void main() {
-    float marg = texture2D(uMargem, (vMundo + 1.0) / (uTam + 2.0)).r;
+    vec4 c = costa(vMundo);
+    // a distância até a terra, com a borda recortada pelo ruído
+    float d = c.r * 10.2 - 1.0 + (fbm3(vec3(vMundo * 1.7, 0.0)) - 0.5) * 0.35;
+    float noMar = c.g * (1.0 - uLeve);
     vec2 grad = vec2(0.0);
     grad += onda(vMundo, normalize(vec2(1.0, 0.3)), 1.9, 1.3, 0.030);
     grad += onda(vMundo, normalize(vec2(-0.4, 1.0)), 2.7, 1.7, 0.022);
@@ -156,22 +171,60 @@ const AGUA_FRAGMENTO = /* glsl */`
     grad += onda(vMundo, normalize(vec2(-1.0, -0.2)), 9.1, 3.1, 0.006);
     grad += onda(vMundo, normalize(vec2(0.2, 1.0)), 15.7, 4.3, 0.003);
     grad *= (1.0 - uLeve);
+
+    // as cristas: o rumo do largo é o gradiente da distância
+    float face = 0.0, branco = 0.0;
+    if (noMar > 0.01 && d < 10.0) {
+      float e = 0.4;
+      vec2 largo = vec2(distCosta(vMundo + vec2(e, 0.0)) - distCosta(vMundo - vec2(e, 0.0)),
+                        distCosta(vMundo + vec2(0.0, e)) - distCosta(vMundo - vec2(0.0, e)));
+      largo = length(largo) > 0.0001 ? normalize(largo) : vec2(0.0, 1.0);
+      float fase = faseDaOnda(vMundo, uTempo);
+      float dH = 0.0;
+      for (int k = 0; k < 3; k++) {
+        float dk = ONDA_PASSO * (1.0 - fase + float(k));
+        float forca = forcaDaOnda(vMundo, uTempo, float(k) + 1.0);
+        // empina chegando na beira e quebra a pouco mais de um tile dela
+        float empina = forca * (0.3 + 0.7 * (1.0 - smoothstep(1.2, 9.0, dk)));
+        float quebra = 1.0 - smoothstep(0.5, 1.7, dk);
+        float x = d - dk;                       // > 0: atrás da crista; < 0: na frente
+        float w = x < 0.0 ? 0.3 : 0.95;         // a frente é mais íngreme
+        float perfil = exp(-(x * x) / (w * w));
+        float amp = 0.08 * empina * (1.0 - 0.6 * quebra);
+        dH += amp * (-2.0 * x / (w * w)) * perfil;
+        face += perfil * empina * (x < 0.0 ? 1.0 : 0.35) * (1.0 - quebra);
+        // a espuma da quebra: a crista que rola, e o rastro atrás dela
+        float rolo = smoothstep(-0.1, 0.03, x) * (1.0 - smoothstep(0.05, 0.12 + 0.55 * quebra, x));
+        branco = max(branco, rolo * quebra * (0.6 + 0.4 * forca));
+      }
+      grad += largo * dH * noMar;
+      // a espuma se desfaz em retalhos, mais ainda no rastro
+      float retalho = fbm3(vec3(vMundo * 2.6, uTempo * 0.35));
+      branco *= smoothstep(0.3, 0.6, retalho + branco * 0.25) * noMar;
+      // a renda de espuma que fica boiando perto da beira
+      float renda = smoothstep(0.66, 0.8, fbm3(vec3(vMundo * 3.2, uTempo * 0.07))) * (1.0 - smoothstep(0.2, 1.5, d));
+      branco = max(branco, renda * 0.3 * noMar);
+    }
+
     vec3 n = normalize(vec3(-grad.x, 1.0, -grad.y));
     vec3 olho = normalize(cameraPosition - vPos);
     float fresnel = 0.04 + 0.96 * pow(1.0 - max(dot(n, olho), 0.0), 5.0);
-    // a cor da água: do fundo escuro ao raso, que é mais claro e esverdeado
-    vec3 agua = mix(uFundo, uRaso, clamp(marg * 1.6, 0.0, 1.0)) * uLuz;
+    // a cor da água: do fundo escuro ao raso, mais claro e esverdeado
+    float raso = 1.0 - smoothstep(0.0, 3.5, d);
+    vec3 agua = mix(uFundo, uRaso, raso) * uLuz;
+    // a luz atravessando a crista que empina: um verde-água mais claro
+    agua += vec3(0.02, 0.08, 0.07) * clamp(face, 0.0, 1.0) * uLuz;
     vec3 cor = mix(agua, uCeu, clamp(fresnel + 0.04, 0.0, 0.85));
     vec3 h = normalize(uSolDir + olho);
     float brilho = pow(max(dot(n, h), 0.0), 220.0) * 2.2 * (1.0 - uLeve);
-    cor += uSol * brilho;
-    // a espuma: uma linha que vai e volta na beira, quebrada pelo ruído da onda
-    float m = marg + 0.06 * sin(vMundo.x * 4.0 + uTempo * 2.0) * sin(vMundo.y * 3.0 - uTempo * 1.5) * (1.0 - uLeve)
-              + (grad.x + grad.y) * 0.6;
-    float espuma = smoothstep(0.6, 0.72, m) * (1.0 - smoothstep(0.8, 0.9, m)) * 0.75;
-    cor = mix(cor, uEspuma * uLuz * 1.4, espuma);
+    cor += uSol * brilho * (1.0 - branco);
+    cor = mix(cor, uEspuma * uLuz * 1.4, clamp(branco, 0.0, 1.0) * 0.9);
     cor = mix(cor, uNevoa, smoothstep(uPerto, uLonge, vDist));
-    gl_FragColor = vec4(cor, mix(0.78, 0.96, clamp(fresnel * 2.0, 0.0, 1.0)) + espuma * 0.1);
+    // na beira a água fica fina e transparente (some a linha do tile),
+    // menos a espuma, que chega até a areia
+    float alfa = mix(0.8, 0.96, clamp(fresnel * 2.0, 0.0, 1.0)) * smoothstep(-0.12, 0.22, d);
+    alfa = max(alfa, clamp(branco, 0.0, 1.0) * 0.95 * smoothstep(-0.25, 0.05, d));
+    gl_FragColor = vec4(cor, alfa);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -717,7 +770,9 @@ export class Vista3D {
     const W = this.largura, H = this.altura, chao = this.mapaAtual!.def.chao;
     const ALCANCE = 3;
     const areia = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && chao[y]![x] === 'a';
-    const agua = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && rel[y * W + x]!.agua;
+    // só o mar aberto faz onda: rio e lagoa no meio da terra, não
+    const mar = marAberto(W, H, (x, y) => rel[y * W + x]!.agua);
+    const agua = (x: number, y: number) => x < 0 || y < 0 || x >= W || y >= H ? false : mar[y * W + x] === 1;
     const saida: number[] = [];
     for (let i = 0; i < pos.length; i += 3) {
       const px = pos[i]!, pz = pos[i + 2]!;
@@ -726,8 +781,25 @@ export class Vista3D {
       for (const [dx, dz] of [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25]] as const) {
         if (areia(Math.floor(px + dx), Math.floor(pz + dz))) naAreia = true;
       }
+      // dentro do mar (os quatro lados do ponto são mar): distância
+      // negativa até a terra, para o fundo raso sair sempre debaixo d'água
+      let noMar = true;
+      for (const [dx, dz] of [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25]] as const) {
+        if (!agua(Math.floor(px + dx), Math.floor(pz + dz))) noMar = false;
+      }
       let d = 99;
-      if (naAreia) {
+      if (noMar) {
+        const tx = Math.floor(px), tz = Math.floor(pz);
+        let ate = ALCANCE;
+        for (let y = tz - ALCANCE; y <= tz + ALCANCE; y++) {
+          for (let x = tx - ALCANCE; x <= tx + ALCANCE; x++) {
+            if (agua(x, y) || x < 0 || y < 0 || x >= W || y >= H) continue;
+            const ex = Math.max(x - px, 0, px - (x + 1)), ez = Math.max(y - pz, 0, pz - (y + 1));
+            ate = Math.min(ate, Math.hypot(ex, ez));
+          }
+        }
+        d = -ate;
+      } else if (naAreia) {
         const tx = Math.floor(px), tz = Math.floor(pz);
         for (let y = tz - ALCANCE; y <= tz + ALCANCE; y++) {
           for (let x = tx - ALCANCE; x <= tx + ALCANCE; x++) {
@@ -756,13 +828,14 @@ export class Vista3D {
       sh.uniforms['uTempo'] = this.vento;
       sh.vertexShader = 'attribute float aMar;\nvarying float vMar;\n' + sh.vertexShader.replace('#include <begin_vertex>',
         '#include <begin_vertex>\n  vMar = aMar;');
-      sh.fragmentShader = 'uniform float uTempo;\nvarying float vMar;\n' + sh.fragmentShader.replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-        if (vMar < 3.0) {
+      sh.fragmentShader = sh.fragmentShader.replace('void main() {', `uniform float uTempo;\nvarying float vMar;\n${ONDA_GLSL}\nvoid main() {`)
+        .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+        if (vMar < 3.0 || vPosMundo.y < ${(NIVEL_AGUA + 0.03).toFixed(2)}) {
           // o tempo da onda muda devagar ao longo da praia
-          float lugar = fbm3(vec3(vPosMundo.x * 0.12, 0.0, vPosMundo.z * 0.12));
-          float fase = fract(uTempo * 0.11 + lugar * 0.7);
+          float lugar = lugarDaOnda(vPosMundo.xz);
+          float fase = faseDaOnda(vPosMundo.xz, uTempo);
           // cada onda chega a uma altura: umas mais longe, outras mais perto
-          float forca = 0.55 + 0.45 * fbm3(vec3(floor(uTempo * 0.11 + lugar * 0.7) * 3.7, vPosMundo.x * 0.15, vPosMundo.z * 0.15));
+          float forca = forcaDaOnda(vPosMundo.xz, uTempo, 0.0);
           float alcance = 1.25 * forca;
           float sobe = smoothstep(0.0, 0.28, fase);
           float desce = 1.0 - smoothstep(0.28, 1.0, fase);
@@ -771,6 +844,11 @@ export class Vista3D {
           float d = vMar + (fbm3(vPosMundo * 6.0) - 0.5) * 0.12;
           float lamina = 1.0 - smoothstep(frente - 0.06, frente, d);
           float funda = clamp((frente - d) * 1.2, 0.0, 1.0);
+          // abaixo do nível do mar a areia está sempre debaixo d'água: é o
+          // fundo que aparece pela água rasa e transparente da beira
+          float submersa = 1.0 - smoothstep(${(NIVEL_AGUA - 0.12).toFixed(2)}, ${(NIVEL_AGUA + 0.03).toFixed(2)}, vPosMundo.y);
+          lamina = max(lamina, submersa);
+          funda = max(funda, submersa);
           float espuma = (1.0 - smoothstep(0.0, 0.07, abs(d - frente))) * smoothstep(-0.1, 0.1, frente) * (0.45 + 0.55 * sobe);
           // a areia molhada: a faixa até onde as ondas costumam chegar, que
           // seca um pouco e volta a molhar no ciclo (sem salto de uma onda à outra)
@@ -959,27 +1037,13 @@ export class Vista3D {
   /* a lâmina d'água: um shader com ondas, espuma rente à margem e brilho */
   private montarAgua(g: THREE.Group, rel: Relevo[]): void {
     const W = this.largura, H = this.altura, M = 40;
-    // a textura da margem: forte na água colada em terra, fraca logo depois
-    const dados = new Uint8Array((W + 2) * (H + 2) * 4);
-    const agua = (x: number, y: number) => x < 0 || y < 0 || x >= W || y >= H || rel[y * W + x]!.agua;
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        let v = 0;
-        if (agua(x, y)) {
-          for (let dy = -2; dy <= 2; dy++) {
-            for (let dx = -2; dx <= 2; dx++) {
-              if (!agua(x + dx, y + dy)) v = Math.max(v, Math.max(Math.abs(dx), Math.abs(dy)) === 1 ? 140 : 50);
-            }
-          }
-        } else v = 255;
-        const i = ((y + 1) * (W + 2) + x + 1) * 4;
-        dados[i] = dados[i + 1] = dados[i + 2] = v; dados[i + 3] = 255;
-      }
-    }
-    const margem = this.guardar(new THREE.DataTexture(dados, W + 2, H + 2, THREE.RGBAFormat));
-    margem.magFilter = margem.minFilter = THREE.LinearFilter;
-    margem.wrapS = margem.wrapT = THREE.ClampToEdgeWrapping;
-    margem.needsUpdate = true;
+    // a textura da costa (render3d/mar.ts): distância até a terra e o que é mar aberto
+    const ehAgua = (x: number, y: number) => rel[y * W + x]!.agua;
+    const dados = texturaDaCosta(W, H, ehAgua, marAberto(W, H, ehAgua));
+    const costa = this.guardar(new THREE.DataTexture(dados, W + 2, H + 2, THREE.RGBAFormat));
+    costa.magFilter = costa.minFilter = THREE.LinearFilter;
+    costa.wrapS = costa.wrapT = THREE.ClampToEdgeWrapping;
+    costa.needsUpdate = true;
 
     const mat = this.guardar(new THREE.ShaderMaterial({
       vertexShader: AGUA_VERTICE,
@@ -998,7 +1062,7 @@ export class Vista3D {
         uNevoa: { value: new THREE.Color('#bfe3f5') },
         uPerto: { value: 26 },
         uLonge: { value: 52 },
-        uMargem: { value: margem },
+        uCosta: { value: costa },
         uTam: { value: new THREE.Vector2(W, H) },
         uLeve: { value: this.leve ? 1 : 0 },
       },

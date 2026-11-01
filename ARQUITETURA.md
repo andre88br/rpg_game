@@ -76,6 +76,8 @@ src/
 │             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
 │             cada espécie · realistas.ts: os bichos já esculpidos em 3D
 │             (os três iniciais) · encantado3d.ts: monta e anima) + modelos.test.ts
+│             mar.ts (mar aberto, a distância até a costa e o ritmo das
+│             ondas, dividido entre a água e a areia) + teste
 │             arena.ts (a arena da batalha por cenário e região, as câmeras
 │             e `focoDaCena`) + teste · batalha3d.ts (a batalha em 3D)
 │             carregar.ts (baixa a vista só quando precisa; sem WebGL, fica no
@@ -271,11 +273,18 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   com o grão e põe a força na chave do programa. O chão tem os vértices
   fundidos (`mergeVertices`) para a normal sair lisa; a água calcula a
   onda em cada pixel (soma de ondinhas) e dela tira a normal, o reflexo do
-  céu (Fresnel) e o brilho do sol. Na areia, a onda sobe e volta:
-  `distanciaDoMar` grava em cada vértice do chão (atributo `aMar`) a
-  distância até a água, e `comMare` (no shader do chão) avança e recua a
-  frente da lâmina com o tempo, deixa a areia molhada (mais escura e lisa)
-  e põe a espuma na ponta. Nada tem contorno.
+  céu (Fresnel) e o brilho do sol. **O mar** (`render3d/mar.ts`): mar
+  aberto é a água ligada à borda do mapa (`marAberto`; rio e lagoa não
+  fazem onda), e `texturaDaCosta` guarda por tile a distância até a terra
+  e o que é mar. No shader da água, as cristas andam do largo para a beira
+  pelo gradiente dessa distância (contornando cais e pedras), empinam,
+  quebram a um tile e pouco da costa e viram espuma; na beira a água fica
+  rasa e transparente. Na areia, `distanciaDoMar` grava em cada vértice do
+  chão (atributo `aMar`) a distância até o mar — negativa no fundo, que
+  sai sempre debaixo d'água — e `comMare` (no shader do chão) sobe e
+  desce a lâmina, deixa a areia molhada e põe a espuma na ponta. Os dois
+  shaders usam o mesmo ritmo (`ONDA_GLSL`): a crista chega na beira
+  quando a lâmina começa a subir. Nada tem contorno.
   A gente: `spritePessoa` (`art/people.ts`) segue com o cabeção no plano;
   `pessoa3D` (`render3d/modelos/humanoide.ts`) faz uma pessoa de umas seis
   cabeças, de tronco torneado, braço e perna em duas partes e rosto pequeno

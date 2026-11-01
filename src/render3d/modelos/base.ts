@@ -89,8 +89,8 @@ export function materialDesenho(op: THREE.MeshToonMaterialParameters = {}): THRE
    escura). Sem imagem nenhuma e sem mapear peça por peça: a arte continua
    toda feita por código. */
 
-const RUIDO_GLSL = `
-varying vec3 vPosMundo;
+/* o ruído em GLSL (também usado pela água e pela onda na areia) */
+export const RUIDO_FUNCOES = `
 float hash3(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float ruido3(vec3 x) {
   vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
@@ -99,6 +99,7 @@ float ruido3(vec3 x) {
 }
 float fbm3(vec3 p) { return 0.55 * ruido3(p) + 0.3 * ruido3(p * 2.03) + 0.15 * ruido3(p * 4.11); }
 `;
+const RUIDO_GLSL = 'varying vec3 vPosMundo;\n' + RUIDO_FUNCOES;
 
 /* põe o grão num material de cor por vértice. `grao` é a força do fino,
    `manchas` a das manchas largas. Encadeia com quem já mexia no shader. */
