@@ -19,6 +19,13 @@ tem arquivo continua com o esculpido.
 4. Acertar: `venv/bin/python -I acerta.py saida/0/mesh.glb public/modelos/<nome>.glb`
    — de pé (o "para cima" do TripoSR é z), virado para +z, pé no chão, sem
    caco solto, sem a escada da grade e sem o verde do fundo nas cores.
-5. Pôr a espécie em `MODELOS_GLB` e olhar na luta (`npm run dev`).
+5. Repintar com a própria imagem (melhor que a cor que o TripoSR inventa):
+   `venv/bin/python -I pinta.py public/modelos/<nome>.glb saida/0/input.png public/modelos/<nome>.glb`
+   — desespelha o modelo (o TripoSR devolve o bicho espelhado), projeta a
+   imagem de frente (sem os traços pretos do desenho, menos no rosto), as
+   costas pegam a cor borrada (sem olho e boca atrás da cabeça), e a cor vai
+   linear, como o glTF pede (senão o jogo clareia tudo).
+6. Pôr a espécie em `MODELOS_GLB` e olhar na luta (`npm run dev`).
 
-O TripoSR só vê a frente: as costas são inventadas e saem mais pobres.
+A imagem boa é de frente, corpo inteiro, fundo liso e sem texto. O TripoSR
+só vê a frente: as costas são inventadas e saem mais simples.
