@@ -11,8 +11,12 @@
    ========================================================================= */
 import * as THREE from 'three';
 
-/* as espécies que têm arquivo (vazio até chegar o primeiro) */
-export const MODELOS_GLB: readonly string[] = [];
+/* as espécies que têm arquivo, e o nome do arquivo (o Saci crescido usa o
+   mesmo do Sacizinho: o tamanho da espécie já o deixa maior) */
+export const MODELOS_GLB: Readonly<Record<string, string>> = {
+  sacizinho: 'sacizinho',
+  saci: 'sacizinho',
+};
 
 /* a altura que o modelo ganha (a mesma dos esculpidos, antes do tamanho da espécie) */
 const ALTURA = 0.95;
@@ -22,13 +26,15 @@ let pedido: Promise<void> | null = null;
 
 /* baixa os arquivos (uma vez); quem chama não precisa esperar */
 export function carregarModelosGlb(base: string): Promise<void> {
-  if (pedido || MODELOS_GLB.length === 0) return pedido ?? Promise.resolve();
+  const arquivos = [...new Set(Object.values(MODELOS_GLB))];
+  if (pedido || arquivos.length === 0) return pedido ?? Promise.resolve();
   pedido = import('three/examples/jsm/loaders/GLTFLoader.js').then(async ({ GLTFLoader }) => {
     const loader = new GLTFLoader();
-    await Promise.all(MODELOS_GLB.map(async (id) => {
+    await Promise.all(arquivos.map(async (nome) => {
       try {
-        const gltf = await loader.loadAsync(`${base}modelos/${id}.glb`);
-        prontos.set(id, acertar(gltf.scene));
+        const gltf = await loader.loadAsync(`${base}modelos/${nome}.glb`);
+        const modelo = acertar(gltf.scene);
+        for (const [id, arq] of Object.entries(MODELOS_GLB)) if (arq === nome) prontos.set(id, modelo);
       } catch {
         // sem o arquivo, fica o esculpido
       }
@@ -47,7 +53,11 @@ function acertar(cena: THREE.Object3D): THREE.Group {
   cena.scale.setScalar(s);
   cena.traverse((o) => {
     const m = o as THREE.Mesh;
-    if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; }
+    if (!m.isMesh) return;
+    m.castShadow = true; m.receiveShadow = true;
+    // o material que vem do gerador é chapado: um tico de brilho de pele
+    const mat = m.material as THREE.MeshStandardMaterial;
+    if (mat.isMeshStandardMaterial) { mat.roughness = 0.62; mat.metalness = 0; mat.envMapIntensity = 0.5; }
   });
   const g = new THREE.Group();
   g.add(cena);
