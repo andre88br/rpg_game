@@ -33,15 +33,12 @@ import { P } from '../art/palette.ts';
 import { ESTILO_DA_REGIAO, predio3D } from './modelos/casas.ts';
 import { GIRO_DA_DIRECAO, animarPessoa, pessoa3D } from './modelos/humanoide.ts';
 import { animarEncantado, encantado3D } from './modelos/encantado3d.ts';
-import { clone as clonarComOssos } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { ESTILOS, type Direcao } from '../art/people.ts';
 import { ARTE_CRIATURAS, piscando, type Pose } from '../art/creatures.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { ambienteDoCeu } from './ambiente.ts';
-import { carregarModelosGlb } from './modelos/glb.ts';
-import { OLHO, prepararBonecos } from './modelos/boneco2d.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { materialReal, tufoDeCapim, RUIDO_FUNCOES } from './modelos/base.ts';
 import { ONDA_GLSL, marAberto, texturaDaCosta } from './mar.ts';
@@ -299,9 +296,6 @@ export class Vista3D {
   private readonly sombraMat = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.28, depthWrite: false });
 
   constructor() {
-    // os Encantados de arquivo (.glb) começam a baixar já; até chegarem, vale o esculpido
-    void carregarModelosGlb(import.meta.env.BASE_URL);
-    prepararBonecos(import.meta.env.BASE_URL);
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'mundo3d';
     this.canvas.style.display = 'none';
@@ -339,7 +333,6 @@ export class Vista3D {
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
     this.esconderPredios(q.alvoX, q.alvoY);
-    OLHO.camera = this.camera;
     this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
     // na LEVE o vento para: árvore, mato e corrente ficam quietos
     this.vento.value = this.leve ? 0 : q.tempo;
@@ -622,7 +615,7 @@ export class Vista3D {
       }
       this.modelos3D.set(chave, m);
     }
-    return m ? (clonarComOssos(m) as THREE.Group) : null;
+    return m ? m.clone() : null;
   }
 
   private posicionarAtores(atores: readonly Ator3D[], tempo: number): void {

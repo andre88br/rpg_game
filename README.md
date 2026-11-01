@@ -182,9 +182,8 @@ casarão de lua no Bairro da Cuca, e cal e ouro na Cidade do Sol.
 O **mundo inteiro** se joga em **3D**: as oito regiões e o Círculo
 Dourado, por fora e por dentro, com relevo, água de onda e reflexo, mar que sobe e desce na areia, mata de
 folhagem e capim que o vento mexe, as casas de cada região, a gente em
-proporção de gente e os Encantados esculpidos em 3D (de olho, pelo,
-escama, pena e fogo de verdade; o Saci e o Sacizinho são ilustração
-animada por partes, de pé no cenário), e as batalhas numa arena 3D com a cara
+proporção de gente e os 54 Encantados esculpidos em 3D (de olho, pelo,
+escama, pena e fogo de verdade), e as batalhas numa arena 3D com a cara
 do lugar. Só o desenho muda; conversa, batalha, menu e
 save são os de sempre. Vem ligado; quem prefere o mapa plano troca em
 **menu → OPÇÕES → VISÃO**. Em **QUALIDADE**, a opção **LEVE** tira as

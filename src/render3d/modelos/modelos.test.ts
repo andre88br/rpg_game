@@ -86,7 +86,6 @@ import { ARTE_CRIATURAS } from '../../art/creatures.ts';
 import { ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { animarPessoa, pessoa3D } from './humanoide.ts';
 import { animarEncantado, encantado3D, tamanhoDe } from './encantado3d.ts';
-import { BONECOS } from './boneco2d.ts';
 
 const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
 
@@ -128,20 +127,14 @@ test('todo Encantado 3D sai do próprio desenho: as cores dele, de pé, do taman
     const maiores = [...conta.entries()].sort((x, y) => y[1] - x[1]).slice(0, 2).map(([c]) => c);
     const g = encantado3D(id, false, mat);
     assert.ok(g.getObjectByName('corpo'), id);
+    const cores = coresDoModelo(g);
+    for (const c of maiores) assert.ok(cores.has(c), `${id}: falta a cor ${c} do desenho`);
     const caixa = new THREE.Box3().setFromObject(g);
     const alto = caixa.max.y - caixa.min.y, t = tamanhoDe(id);
     assert.ok(alto > 0.5 * t && alto < 1.6 * t, `${id}: altura ${alto.toFixed(2)}`);
     assert.ok(caixa.min.y > -0.05, `${id}: afunda no chão (${caixa.min.y.toFixed(2)})`);
-    if (BONECOS[id]) {
-      // o desenhado: a cor é a da ilustração; o raro ganha outro tom
-      const tom = (o: THREE.Object3D) => ((o.getObjectByProperty('isSkinnedMesh', true) as THREE.Mesh).material as THREE.MeshStandardMaterial).color.getHexString();
-      assert.notEqual(tom(g), tom(encantado3D(id, true, mat)), `${id}: o raro tem o mesmo tom`);
-    } else {
-      const cores = coresDoModelo(g);
-      for (const c of maiores) assert.ok(cores.has(c), `${id}: falta a cor ${c} do desenho`);
-      const raro = coresDoModelo(encantado3D(id, true, mat));
-      assert.ok([...raro].some((c) => !cores.has(c)), `${id}: o raro tem as mesmas cores`);
-    }
+    const raro = coresDoModelo(encantado3D(id, true, mat));
+    assert.ok([...raro].some((c) => !cores.has(c)), `${id}: o raro tem as mesmas cores`);
     assert.ok(t >= 0.8 && t <= 1.4, `${id}: tamanho ${t}`);
   }
   assert.ok(tamanhoDe('mboitata') > tamanhoDe('boitatinha'), 'a forma de cima é maior');

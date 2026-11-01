@@ -20,7 +20,6 @@ import { ESPECIES } from '../data/creatures.ts';
 import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
 import { animarEncantado, encantado3D, tamanhoDe } from './modelos/encantado3d.ts';
-import { OLHO } from './modelos/boneco2d.ts';
 import { arvoreDoTile, modeloArvore, modeloPedra } from './modelos/vegetacao.ts';
 import { materialReal } from './modelos/base.ts';
 import { predio3D } from './modelos/casas.ts';
@@ -138,9 +137,7 @@ export class CenaBatalha3D {
       while (dif < -Math.PI) dif += Math.PI * 2;
       // (quem foi desenhado de perfil mostra mais o lado, que é o desenho dele)
       const deLado = AJUSTES[l.especie]?.perfil !== undefined;
-      // (o modelo de arquivo, de costas lisas, vira mais a frente para a câmera)
-      const deFrente = (g.getObjectByName('corpo')?.userData['deFrente'] as boolean | undefined) === true;
-      g.rotation.y = paraOutro + dif * (lado === 'inimigo' ? (deLado ? 0.3 : 0.65) : deFrente ? 0.8 : 0.2);
+      g.rotation.y = paraOutro + dif * (lado === 'inimigo' ? (deLado ? 0.3 : 0.65) : 0.2);
       // na batalha, todo mundo maior que no mapa: é o palco deles
       g.scale.multiplyScalar(1.6);
       g.userData['tamanho'] = tamanhoDe(l.especie) * 1.6;
@@ -259,7 +256,6 @@ export class CenaBatalha3D {
     const dt = this.ultimoTempo < 0 ? 0 : Math.max(0, Math.min(0.1, q.tempo - this.ultimoTempo));
     this.ultimoTempo = q.tempo;
 
-    OLHO.camera = this.camera;
     for (const lado of ['aliado', 'inimigo'] as const) {
       const l = q[lado];
       if (!this.bichos[lado]) continue;

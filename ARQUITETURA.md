@@ -78,15 +78,8 @@ src/
 │             fogo, olho, estrela, manto, asa, nadadeira, rosto) ·
 │             esculpidos/*.ts: os 54 Encantados, por família (iniciais, fogo,
 │             agua, mata, ar, terra, sombra, ceu; gente.ts: o corpo de
-│             gente-bicho) · realistas.ts: o índice deles · glb.ts: o
-│             Encantado de arquivo (.glb em public/modelos/, vale no lugar do
-│             esculpido) · boneco2d.ts: o Encantado DESENHADO (PNG em
-│             public/modelos/, de pé e virado para a câmera, a imagem presa
-│             a ossos por peso de pixel; hoje o Saci e o Sacizinho; vale
-│             antes do .glb e do esculpido) · esqueleto.ts: os ossos feitos à mão do .glb (peso
-│             por posição) e a animação deles · sdf.ts + materiais.ts: escultura por campo de
-│             distância e pele/pano de luz física (protótipo do Saci) ·
-│             encantado3d.ts: monta e anima) + modelos.test.ts
+│             gente-bicho) · realistas.ts: o índice deles · encantado3d.ts:
+│             monta e anima) + modelos.test.ts
 │             mar.ts (mar aberto, a distância até a costa e o ritmo das
 │             ondas, dividido entre a água e a areia) + teste
 │             arena.ts (a arena da batalha por cenário e região, as câmeras
