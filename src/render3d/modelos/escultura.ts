@@ -17,7 +17,7 @@ export type Escultura = (k: Kit) => THREE.Group[];
 
 /* ------------------------------------------------------------ ferramentas */
 
-export const esfera = (r: number, cor: string, p: V3, esc?: V3, giro: Giro = {}, seg = 16) =>
+export const esfera = (r: number, cor: string, p: V3, esc?: V3, giro: Giro = {}, seg = 18) =>
   lisa(peca(new THREE.SphereGeometry(r, seg, Math.round(seg * 0.7)), cor, ...p, giro, esc));
 export const tubo = (rT: number, rB: number, h: number, cor: string, p: V3, giro: Giro = {}, esc?: V3) =>
   lisa(peca(new THREE.CylinderGeometry(rT, rB, h, 12, 2), cor, ...p, giro, esc));

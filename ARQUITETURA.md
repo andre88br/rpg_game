@@ -74,8 +74,12 @@ src/
 │             objetos.ts: placa, guia, espelho, lampião... · humanoide.ts: a
 │             gente, com braço e perna que andam · desenho3d.ts: o desenho
 │             2D de cada bicho refeito em sólidos · bichos.ts: os ajustes de
-│             cada espécie · realistas.ts: os bichos já esculpidos em 3D
-│             (os três iniciais) · encantado3d.ts: monta e anima) + modelos.test.ts
+│             cada espécie · escultura.ts: o kit de escultura (corpo varrido,
+│             fogo, olho, estrela, manto, asa, nadadeira, rosto) ·
+│             esculpidos/*.ts: os 54 Encantados, por família (iniciais, fogo,
+│             agua, mata, ar, terra, sombra, ceu; gente.ts: o corpo de
+│             gente-bicho) · realistas.ts: o índice deles · encantado3d.ts:
+│             monta e anima) + modelos.test.ts
 │             mar.ts (mar aberto, a distância até a costa e o ritmo das
 │             ondas, dividido entre a água e a areia) + teste
 │             arena.ts (a arena da batalha por cenário e região, as câmeras
@@ -289,14 +293,22 @@ desenhado naquele quadro (batalha, título, mapa plano), o canvas some.
   `pessoa3D` (`render3d/modelos/humanoide.ts`) faz uma pessoa de umas seis
   cabeças, de tronco torneado, braço e perna em duas partes e rosto pequeno
   (olho com íris, sobrancelha, nariz, boca, orelha), nas cores do estilo.
-- **Encantados esculpidos** (`realistas.ts`). Os três iniciais já não vêm
-  do desenho: são modelados em 3D — `varrer` faz o corpo de cobra e a cauda
+- **Encantados esculpidos** (`realistas.ts`, `escultura.ts`, `esculpidos/`).
+  Os 54 já não vêm do desenho: são modelados em 3D, um arquivo por família,
+  com o kit de `escultura.ts` — `varrer` faz o corpo de cobra e a cauda
   de peixe correndo anéis por uma curva (barriga e costas pintadas pelo
   rumo do chão, escama e placa por padrão), `chama` é a língua de fogo
   torneada de cor acima de 1 (acende na sombra), `olho` tem globo, íris,
   pupila (de fenda na cobra) e brilho, e fecha em pálpebra na piscada, no
   dano e no desmaio. As cores são as do desenho (`C` de art/creatures.ts),
-  e o raro passa pelo mesmo `trocaRara` do desenho virado sólido.
+  e o raro passa pelo mesmo `trocaRara` do desenho virado sólido. O kit
+  tem ainda `estrela` (extrusão de borda redonda), `manto` (cone de barra
+  em bicos), `asa` (penas em leque, no pivô `asaE`/`asaD`), `nadadeira`,
+  `rosto` (os dois olhos, sobrancelha, nariz e boca), `fogueira`, `pernas4`,
+  `facetada` (pirâmide, cristal) e `escala`; `esculpidos/gente.ts` monta o
+  corpo de gente-bicho (Saci, Caipora, Lobisomem, Pisadeira) e `fechar`
+  entrega as partes. O teste confere, para todos, as duas cores principais
+  do desenho, a altura, o pé no chão e o raro diferente.
   `encantado3D` usa o esculpido quando `temModeloReal(id)`, com
   `MAT_REAL_BICHO`, e devolve as mesmas partes (`corpo`, `cabeca`,
   `bracoE`/`bracoD`) que a animação já conhece.

@@ -7,9 +7,11 @@
    As cores são as do desenho (art/creatures.ts), então o bicho continua o
    mesmo; o raro troca as cores pelo mesmo mapa do raro 2D.
 
-   Por enquanto só os três iniciais (o protótipo do estilo). Cada modelo
-   devolve as mesmas partes que a animação conhece: `corpo`, `cabeca` e,
-   quando tem, `bracoE`/`bracoD` e `cauda`.
+   Os 54 estão aqui, por família (esculpidos/*.ts), montados com o kit de
+   escultura.ts. Cada modelo devolve as mesmas partes que a animação
+   conhece: `corpo`, `cabeca` e, quando tem, `bracoE`/`bracoD`, `asaE`/`asaD`
+   e `cauda`. O desenho virado sólido (desenho3d.ts) fica para a espécie
+   nova que ainda não foi esculpida.
    ========================================================================= */
 import * as THREE from 'three';
 import { ARTE_CRIATURAS, type Pose } from '../../art/creatures.ts';
@@ -20,6 +22,10 @@ import { boitatinha, curupinho, iarinha } from './esculpidos/iniciais.ts';
 import { FOGO } from './esculpidos/fogo.ts';
 import { AGUA } from './esculpidos/agua.ts';
 import { MATA } from './esculpidos/mata.ts';
+import { AR } from './esculpidos/ar.ts';
+import { TERRA } from './esculpidos/terra.ts';
+import { SOMBRA } from './esculpidos/sombra.ts';
+import { CEU } from './esculpidos/ceu.ts';
 
 /* ----------------------------------------------------------------- entrada */
 
@@ -30,6 +36,10 @@ const MODELOS: Record<string, Escultura> = {
   ...FOGO,
   ...AGUA,
   ...MATA,
+  ...AR,
+  ...TERRA,
+  ...SOMBRA,
+  ...CEU,
 };
 
 export function temModeloReal(id: string): boolean { return id in MODELOS; }

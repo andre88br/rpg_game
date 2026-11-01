@@ -90,7 +90,8 @@ luz de verdade, textura e nenhum contorno.
   chão. O sol fica de meio da manhã, para a sombra comprida dar volume.
 - **Gente em 3D:** proporção de gente (umas seis cabeças), rosto pequeno
   de olho com íris, nariz, boca e orelha; as cores são as do estilo plano.
-- **Bicho em 3D:** os esculpidos (`modelos/realistas.ts`) têm olho de
+- **Bicho em 3D:** todos são esculpidos (`modelos/esculpidos/`, com o kit
+  de `modelos/escultura.ts`) e têm olho de
   verdade (branco, íris, pupila e brilho; cobra sem branco e de pupila em
   fenda), pele lisa, escama, placa de barriga, e fogo que acende de dentro.
   Mantêm as cores do desenho, para o bicho continuar o mesmo.
@@ -115,6 +116,6 @@ luz de verdade, textura e nenhum contorno.
 
 1. Desenhou com os ajudantes do rosto?
 2. `npm test` passou, inclusive o de poses e o de silhuetas?
-3. Olhou o bicho em 3D (`tools/bichos3d.html`, no `npm run dev`) de frente,
-   de lado e de costas?
+3. Esculpiu o bicho em 3D (`modelos/esculpidos/`, na família dele) com as
+   duas cores principais do desenho, e olhou de frente, de lado e de costas?
 4. A descrição (`sobre`, em `data/creatures.ts`) combina com o desenho?
