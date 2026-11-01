@@ -33,14 +33,14 @@ const MEIO = -0.01;
 export const ESQUELETO_SACI: Esqueleto = {
   ossos: {
     tronco: { junta: [MEIO, 0.38, 0.02], pai: null },
-    cabeca: { junta: [MEIO, 0.7, -0.01], pai: 'tronco' },
+    cabeca: { junta: [MEIO, 0.66, -0.015], pai: 'tronco' },
     gorro: { junta: [-0.08, 0.84, -0.04], pai: 'cabeca' },
     bracoE: { junta: [0.1, 0.61, -0.01], pai: 'tronco' },
     bracoD: { junta: [-0.12, 0.61, -0.01], pai: 'tronco' },
     perna: { junta: [-0.02, 0.33, 0.03], pai: null },
     joelho: { junta: [-0.02, 0.17, 0.05], pai: 'perna' },
   },
-  pesos(x, y) {
+  pesos(x, y, z) {
     const d = x - MEIO;
     // o braço: longe do meio, entre a cintura e o pescoço (a mão desce até
     // 0,37; o toco da perna cortada, embaixo, fica com o corpo)
@@ -50,9 +50,12 @@ export const ESQUELETO_SACI: Esqueleto = {
     const dentro = 0.15 - 0.075 * passa(0.5, 0.6, y);
     const bracoE = passa(dentro, dentro + 0.04, d) * altura;
     const bracoD = passa(dentro, dentro + 0.04, -d) * altura;
-    // a cabeça, do pescoço para cima; a ponta do gorro, caída do lado
-    const cab = passa(0.685, 0.725, y);
-    const ponta = passa(-0.085, -0.11, x) * (1 - passa(0.78, 0.83, y));
+    // a cabeça, da base do pescoço para cima, inteira e dura: a dobra fica
+    // no pescoço, longe do queixo (senão o giro amassa a cara); embaixo,
+    // só o meio, que o lado é ombro
+    const cab = passa(0.63, 0.68, y) * Math.max(1 - passa(0.08, 0.11, Math.abs(d)), passa(0.7, 0.72, y));
+    // a ponta do gorro, caída do lado e para trás (o rosto fica de fora)
+    const ponta = passa(-0.085, -0.11, x) * (1 - passa(0.78, 0.83, y)) * (1 - passa(-0.04, -0.01, z));
     // a perna, abaixo do calção (sem o toco do outro lado)
     const perna = (1 - passa(0.29, 0.33, y)) * (1 - passa(0.035, 0.06, x));
     const joelho = 1 - passa(0.15, 0.19, y);
@@ -143,9 +146,9 @@ export function animarEsqueleto(g: THREE.Object3D, acao: AcaoEncantado, t: numbe
   if (bd) { bd.rotation.z = -ar * 0.3 + balanco; bd.rotation.y = Math.sin(relogio * 1.1 + 1) * 0.15; }
   // a cabeça olha em volta, de banda, sapeca
   if (cab) {
-    cab.rotation.y = Math.sin(relogio * 0.7) * 0.35;
-    cab.rotation.z = Math.sin(relogio * 0.9) * 0.1;
-    cab.rotation.x = -ar * 0.08;
+    cab.rotation.y = Math.sin(relogio * 0.7) * 0.22;
+    cab.rotation.z = Math.sin(relogio * 0.9) * 0.07;
+    cab.rotation.x = -ar * 0.05;
   }
   // o gorro vem atrasado, sacudindo com o pulo
   if (gorro) { gorro.rotation.x = Math.cos(f - 0.6) * 0.2; gorro.rotation.z = Math.sin(relogio * 0.9 - 0.7) * 0.25; }
@@ -160,7 +163,7 @@ export function animarEsqueleto(g: THREE.Object3D, acao: AcaoEncantado, t: numbe
       if (be) { be.rotation.y = -k * 1.2; be.rotation.z = -k * 0.2; }
       if (bd) { bd.rotation.y = k * 1.2; bd.rotation.z = k * 0.2; }
       tronco.rotation.x = k * 0.25;
-      if (cab) cab.rotation.set(-k * 0.2, 0, 0);
+      if (cab) cab.rotation.set(-k * 0.12, 0, 0);
       if (joelho) joelho.rotation.x = k * 0.9;
       if (perna) perna.rotation.x = k * 0.2;
       if (gorro) gorro.rotation.x = -k * 0.5;
@@ -169,7 +172,7 @@ export function animarEsqueleto(g: THREE.Object3D, acao: AcaoEncantado, t: numbe
     case 'dano':
       if (t < 0.4) {
         const k = Math.sin((t / 0.4) * Math.PI);
-        if (cab) cab.rotation.set(-0.45 * k, 0, 0.15 * k);
+        if (cab) cab.rotation.set(-0.25 * k, 0, 0.1 * k);
         if (be) be.rotation.z = 0.7 * k;
         if (bd) bd.rotation.z = -0.7 * k;
         if (gorro) gorro.rotation.x = 0.6 * k;
@@ -180,7 +183,7 @@ export function animarEsqueleto(g: THREE.Object3D, acao: AcaoEncantado, t: numbe
       const k = Math.min(1, t / 0.6);
       if (be) be.rotation.set(0, 0, -0.8 * k);
       if (bd) bd.rotation.set(0, 0, 0.8 * k);
-      if (cab) cab.rotation.set(0.4 * k, 0, 0);
+      if (cab) cab.rotation.set(0.3 * k, 0, 0);
       if (gorro) gorro.rotation.set(0, 0, 0);
       tronco.rotation.set(0, 0, 0);
       break;

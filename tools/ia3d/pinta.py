@@ -52,7 +52,10 @@ cor = cv2.remap(limpa, px.astype(np.float32).reshape(-1, 1), py.astype(np.float3
 borrada = cv2.GaussianBlur(limpa, (0, 0), 14)
 cor_costas = cv2.remap(borrada, px.astype(np.float32).reshape(-1, 1), py.astype(np.float32).reshape(-1, 1), cv2.INTER_LINEAR).reshape(-1, 3)
 nz = m.vertex_normals[:, 2]
-peso = np.clip((0.25 - nz) / 0.5, 0, 1)[:, None]          # 0 de frente, 1 de costas
+# o detalhe só onde a superfície olha bem para a imagem; de lado, a projeção
+# de frente escorre (o olho esticado na bochecha) e fica só a cor
+peso = np.clip((0.6 - nz) / 0.4, 0, 1)[:, None]           # 0 de frente, 1 de lado e de costas
+peso = peso * peso * (3 - 2 * peso)
 cor = cor * (1 - peso) + cor_costas * peso
 cor = cor[:, ::-1]                           # BGR -> RGB
 # o glTF guarda cor de vértice LINEAR: a cor de tela (sRGB) é convertida,
