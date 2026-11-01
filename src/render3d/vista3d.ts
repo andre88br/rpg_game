@@ -38,6 +38,7 @@ import { ARTE_CRIATURAS, piscando, type Pose } from '../art/creatures.ts';
 import { ESPECIES, ESPECIES_ORDEM } from '../data/creatures.ts';
 import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts';
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
+import { ambienteDoCeu } from './ambiente.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { materialReal, tufoDeCapim, RUIDO_FUNCOES } from './modelos/base.ts';
 import { ONDA_GLSL, marAberto, texturaDaCosta } from './mar.ts';
@@ -354,6 +355,8 @@ export class Vista3D {
     const aspecto = this.larguraTela / Math.max(1, this.alturaTela);
     if (b.camera.aspect !== aspecto) { b.camera.aspect = aspecto; b.camera.updateProjectionMatrix(); }
     b.atualizar(q);
+    const ca = b.ceuAmbiente;
+    if (ca) b.cena.environment = ambienteDoCeu(this.renderer, ca.topo, ca.base, ca.chao, ca.sol);
     this.renderer.render(b.cena, b.camera);
   }
 
@@ -483,9 +486,13 @@ export class Vista3D {
     const l = luzDe(q.regiao ?? null, q.periodo ?? 'dia', q.clima ?? 'limpo', dentro);
     this.ceu.color.set(l.hemiCima);
     this.ceu.groundColor.set(l.hemiBaixo);
-    this.ceu.intensity = l.hemi;
+    // o céu entra também como ambiente refletido: a luz do hemisfério cai
+    this.ceu.intensity = l.hemi * 0.55;
     this.sol.color.set(l.sol);
     this.sol.intensity = l.solForca;
+    this.cena.environment = ambienteDoCeu(this.renderer, dentro ? '#5a4a3a' : l.ceuTopo, dentro ? '#4a3a2a' : l.ceuBase,
+      l.hemiBaixo, new THREE.Vector3(Math.cos(l.solAngulo), 0.4 + l.solAltura, Math.sin(l.solAngulo) * 0.6 + 0.3));
+    this.cena.environmentIntensity = dentro ? 0.35 : 0.7;
     const cx = this.largura / 2, cz = this.altura / 2, raio = Math.max(this.largura, this.altura) / 2 + 4;
     const dist = 30;
     this.sol.position.set(cx + Math.cos(l.solAngulo) * dist, 8 + l.solAltura * 22, cz + Math.sin(l.solAngulo) * dist * 0.6 + 8);

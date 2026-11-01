@@ -12,7 +12,7 @@ export type Tinta = (c: string) => string;
 export type Giro = { x?: number; y?: number; z?: number };
 export type V3 = [number, number, number];
 /* o que toda espécie recebe: a tinta (troca as cores do raro), o material e a pose */
-export interface Kit { t: Tinta; mat: THREE.Material; pose: Pose }
+export interface Kit { t: Tinta; mat: THREE.Material; pose: Pose; chave: string }   // chave: espécie e raro
 export type Escultura = (k: Kit) => THREE.Group[];
 
 /* ------------------------------------------------------------ ferramentas */

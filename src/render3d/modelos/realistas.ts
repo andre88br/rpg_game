@@ -26,6 +26,8 @@ import { AR } from './esculpidos/ar.ts';
 import { TERRA } from './esculpidos/terra.ts';
 import { SOMBRA } from './esculpidos/sombra.ts';
 import { CEU } from './esculpidos/ceu.ts';
+import { saciReal } from './esculpidos/saci.ts';
+import { escala } from './escultura.ts';
 
 /* ----------------------------------------------------------------- entrada */
 
@@ -42,6 +44,14 @@ const MODELOS: Record<string, Escultura> = {
   ...CEU,
 };
 
+/* O protótipo do Saci de cinema (campo de distância, pele e pano de
+   verdade): ainda fora do jogo — montar leva uns 2 s, e a luta engasgaria.
+   As ferramentas de revisão o chamam por aqui. */
+export const PROTOTIPOS: Record<string, Escultura> = {
+  sacizinho: (k) => saciReal(k, k.chave),
+  saci: (k) => escala(saciReal(k, k.chave), 1.12),
+};
+
 export function temModeloReal(id: string): boolean { return id in MODELOS; }
 
 /* as partes do bicho esculpido; o corpo vem com o nome 'corpo#' (o grupo
@@ -51,5 +61,5 @@ export function modeloReal(id: string, raro: boolean, mat: THREE.Material, pose:
   if (!f) return [];
   const arte = ARTE_CRIATURAS[especie(id).arte]!;
   const t: Tinta = raro ? trocaRara(arte(), id) : (c) => c;
-  return f({ t, mat, pose });
+  return f({ t, mat, pose, chave: `${id}|${raro ? 'raro' : 'comum'}` });
 }

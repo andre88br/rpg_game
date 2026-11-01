@@ -225,9 +225,16 @@ export class CenaBatalha3D {
     }
   }
 
+  /* as cores do céu para o mapa de ambiente (a vista monta, ela tem o renderer) */
+  ceuAmbiente: { topo: string; base: string; chao: string; sol: THREE.Vector3 } | null = null;
+
   private aplicarLuz(q: QuadroBatalha, a: Arena): void {
     const l = luzDe(q.regiao, q.periodo, q.clima, a.interior);
-    this.ceu.color.set(l.hemiCima); this.ceu.groundColor.set(l.hemiBaixo); this.ceu.intensity = l.hemi;
+    // o céu entra também como ambiente refletido: a luz do hemisfério cai
+    this.ceu.color.set(l.hemiCima); this.ceu.groundColor.set(l.hemiBaixo); this.ceu.intensity = l.hemi * 0.55;
+    this.ceuAmbiente = { topo: a.interior ? '#3a3040' : l.ceuTopo, base: a.interior ? '#2a2230' : l.ceuBase,
+      chao: a.interior ? '#1a1418' : l.hemiBaixo, sol: this.sol.position.clone() };
+    this.cena.environmentIntensity = a.interior ? 0.4 : 0.75;
     this.sol.color.set(l.sol); this.sol.intensity = l.solForca;
     // a mesma névoa e o mesmo fundo de um quadro para o outro: trocar o
     // objeto da névoa faz o three.js recompilar todo material, todo quadro
