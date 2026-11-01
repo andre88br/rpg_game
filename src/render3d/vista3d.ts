@@ -41,6 +41,7 @@ import { obterQualidade, obterVisao3D, type Qualidade } from '../game/config.ts'
 import { CenaBatalha3D, type QuadroBatalha } from './batalha3d.ts';
 import { ambienteDoCeu } from './ambiente.ts';
 import { carregarModelosGlb } from './modelos/glb.ts';
+import { OLHO, prepararBonecos } from './modelos/boneco2d.ts';
 import { objeto3D } from './modelos/objetos.ts';
 import { materialReal, tufoDeCapim, RUIDO_FUNCOES } from './modelos/base.ts';
 import { ONDA_GLSL, marAberto, texturaDaCosta } from './mar.ts';
@@ -300,6 +301,7 @@ export class Vista3D {
   constructor() {
     // os Encantados de arquivo (.glb) começam a baixar já; até chegarem, vale o esculpido
     void carregarModelosGlb(import.meta.env.BASE_URL);
+    prepararBonecos(import.meta.env.BASE_URL);
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'mundo3d';
     this.canvas.style.display = 'none';
@@ -337,6 +339,7 @@ export class Vista3D {
     this.aplicarLuz(q);
     this.posicionarCamera(q, novo);
     this.esconderPredios(q.alvoX, q.alvoY);
+    OLHO.camera = this.camera;
     this.posicionarAtores(this.vitrine ? this.comVitrine(q) : q.atores, q.tempo);
     // na LEVE o vento para: árvore, mato e corrente ficam quietos
     this.vento.value = this.leve ? 0 : q.tempo;

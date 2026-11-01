@@ -15,6 +15,7 @@ import { materialDesenho, materialReal } from './base.ts';
 import { modeloReal, temModeloReal } from './realistas.ts';
 import { modeloGlb } from './glb.ts';
 import { animarEsqueleto } from './esqueleto.ts';
+import { BONECOS, animarBoneco, montarBoneco } from './boneco2d.ts';
 import { ESPECIES, ESPECIES_ORDEM, especie } from '../../data/creatures.ts';
 import { ARTE_CRIATURAS, naPose, type Pose } from '../../art/creatures.ts';
 import { P } from '../../art/palette.ts';
@@ -67,6 +68,15 @@ export function encantado3D(id: string, raro: boolean, mat: THREE.Material = MAT
   g.name = 'corpo';
   raiz.add(g);
   if (!arte) return raiz;
+  // o Encantado desenhado: a ilustração de pé, presa a ossos
+  const boneco = BONECOS[id];
+  if (boneco) {
+    g.add(montarBoneco(boneco, raro));
+    g.userData['flutua'] = AJUSTES[id]?.flutua ?? false;
+    g.userData['altura'] = 0.95;
+    raiz.scale.setScalar(tamanhoDe(id) * 1.2);
+    return raiz;
+  }
   // o modelo de arquivo (.glb), se a espécie tem e ele já baixou
   const arquivo = modeloGlb(id);
   if (arquivo) {
@@ -172,4 +182,6 @@ export function animarEncantado(raiz: THREE.Group, acao: AcaoEncantado, t: numbe
   }
   // os ossos do modelo de arquivo, se ele tem
   animarEsqueleto(g, acao, t, relogio);
+  // o desenho: vira para a câmera e mexe os ossos dele
+  animarBoneco(g, acao, t, relogio);
 }

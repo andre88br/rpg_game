@@ -20,6 +20,7 @@ import { ESPECIES } from '../data/creatures.ts';
 import { CAMERAS, POSTO_3D, arenaDe, focoDaCena, type Arena } from './arena.ts';
 import { luzDe, type ClimaLuz, type PeriodoLuz } from './relevo.ts';
 import { animarEncantado, encantado3D, tamanhoDe } from './modelos/encantado3d.ts';
+import { OLHO } from './modelos/boneco2d.ts';
 import { arvoreDoTile, modeloArvore, modeloPedra } from './modelos/vegetacao.ts';
 import { materialReal } from './modelos/base.ts';
 import { predio3D } from './modelos/casas.ts';
@@ -258,6 +259,7 @@ export class CenaBatalha3D {
     const dt = this.ultimoTempo < 0 ? 0 : Math.max(0, Math.min(0.1, q.tempo - this.ultimoTempo));
     this.ultimoTempo = q.tempo;
 
+    OLHO.camera = this.camera;
     for (const lado of ['aliado', 'inimigo'] as const) {
       const l = q[lado];
       if (!this.bichos[lado]) continue;

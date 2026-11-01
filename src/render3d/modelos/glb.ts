@@ -15,10 +15,7 @@ import { ESQUELETOS, armar } from './esqueleto.ts';
 
 /* as espécies que têm arquivo, e o nome do arquivo (o Saci crescido usa o
    mesmo do Sacizinho: o tamanho da espécie já o deixa maior) */
-export const MODELOS_GLB: Readonly<Record<string, string>> = {
-  sacizinho: 'sacizinho',
-  saci: 'sacizinho',
-};
+export const MODELOS_GLB: Readonly<Record<string, string>> = {};
 
 /* a altura que o modelo ganha (a mesma dos esculpidos, antes do tamanho da espécie) */
 const ALTURA = 0.95;

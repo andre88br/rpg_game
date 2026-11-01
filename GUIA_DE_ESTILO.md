@@ -90,7 +90,10 @@ luz de verdade, textura e nenhum contorno.
   chão. O sol fica de meio da manhã, para a sombra comprida dar volume.
 - **Gente em 3D:** proporção de gente (umas seis cabeças), rosto pequeno
   de olho com íris, nariz, boca e orelha; as cores são as do estilo plano.
-- **Bicho em 3D:** todos são esculpidos (`modelos/esculpidos/`, com o kit
+- **Bicho desenhado:** o Saci e o Sacizinho são a ilustração (`public/modelos/saci.png`,
+  de frente, corpo inteiro, fundo transparente), de pé no 3D e virados para
+  a câmera; mexem por ossos na imagem (`modelos/boneco2d.ts`), sem recorte.
+- **Bicho em 3D:** os outros são esculpidos (`modelos/esculpidos/`, com o kit
   de `modelos/escultura.ts`) e têm olho de
   verdade (branco, íris, pupila e brilho; cobra sem branco e de pupila em
   fenda), pele lisa, escama, placa de barriga, e fogo que acende de dentro.
