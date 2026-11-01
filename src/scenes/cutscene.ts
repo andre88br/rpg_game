@@ -6,8 +6,11 @@
    A revela a página inteira; com ela inteira, A passa para a próxima página
    ou, na última, para a próxima tomada (com um fade preto entre elas).
    B pula a cutscene inteira — quem já viu não deveria ter que ver de novo.
+
+   Tudo passa pela película (cinema.ts): faixas de cinema, câmera que
+   aproxima devagar, cor de filme, grão, e fusão de uma tomada na outra.
    ========================================================================= */
-import { Buf, assar, assarSuave, type Assado } from '../core/buf.ts';
+import { Buf, assar, assarSuave, escalaDe, type Assado } from '../core/buf.ts';
 import { LARGURA, ALTURA, type Renderizador } from '../core/renderer.ts';
 import type { Cena } from '../core/scene.ts';
 import type { Entrada } from '../core/input.ts';
@@ -26,11 +29,12 @@ import {
   LARG_LEGENDA, textoDe, type Ator, type Efeito, type Figura, type Roteiro, type Tomada,
 } from '../data/cutscenes.ts';
 import * as Som from '../audio/som.ts';
+import { DISSOLVE, IMAGEM_Y1, Pelicula, tomDoFundo, type Tom } from './cinema.ts';
 
 const CHARS_POR_SEG = 38;
 const FADE = 0.45;                 // o preto entre uma tomada e outra
 const FADE_ATOR = 0.6;             // quanto um ator leva para surgir ou sumir
-const Y_LEGENDA = 122;             // de onde a faixa da legenda começa
+const FAIXAS_FECHAM = 1.4;         // as faixas de cinema entram nesse tempo
 const TEMPO_TITULO = 1.6;          // o letreiro acende nesse tempo
 
 /* os quadros de animação de uma figura, e quantos por segundo */
@@ -104,13 +108,36 @@ interface Preparada {
   depois: Assado | null;
   atores: { ator: Ator; q: Quadros }[];
   paginas: { quem: string | null; linhas: string[] }[];   // cada legenda já quebrada
+  tom: Tom;                     // a luz do fundo, para a cor do filme
+  foco: { x: number; y: number };   // para onde a câmera aproxima
+}
+
+/* para onde a câmera aproxima: perto de quem está em cena, puxado para o meio */
+function focoDe(atores: readonly Ator[], q: Quadros[], camX: number): { x: number; y: number } {
+  let x = 0, y = 0, n = 0;
+  atores.forEach((a, i) => {
+    const img = q[i]?.imgs[0];
+    if (!img || (a.aparece ?? 0) > 2) return;
+    const s = escalaDe(img);
+    x += a.x - camX + img.width / s / 2;
+    y += a.y + img.height / s / 2;
+    n++;
+  });
+  if (!n) return { x: LARGURA / 2, y: ALTURA / 2 };
+  return { x: LARGURA / 2 + (x / n - LARGURA / 2) * 0.6, y: ALTURA / 2 + (y / n - ALTURA / 2) * 0.6 };
 }
 
 export class CenaCutscene implements Cena {
   private prep: Preparada | null = null;
   private indice = 0;
   private t = 0;                // tempo da tomada (anima fundo e atores)
-  private fase: 'entra' | 'mostra' | 'sai' = 'entra';
+  private fase: 'entra' | 'mostra' = 'entra';
+  private relogio = 0;          // tempo desde o começo da cutscene (faixas, grão)
+  private pelicula: Pelicula | null = null;
+  /* a tomada acabou de trocar: o próximo desenho fotografa a de antes
+     (o canvas ainda guarda o último quadro dela) e dissolve por cima */
+  private fotoPendente = false;
+  private dissolvendo = false;
   private tf = 0;               // tempo dentro do fade
   private pagina = 0;
   private revelados = 0;
@@ -126,6 +153,9 @@ export class CenaCutscene implements Cena {
     this.faisca = assar(fagulha());
     this.indice = 0;
     this.terminou = false;
+    this.relogio = 0;
+    this.dissolvendo = false;
+    this.pelicula ??= new Pelicula();
     this.preparar();
   }
 
@@ -133,11 +163,15 @@ export class CenaCutscene implements Cena {
     const tomada = this.roteiro[this.indice];
     if (!tomada) { this.fim(); return; }
     if (tomada.musica) Som.musica(tomada.musica);
+    const cru = tomada.fundo();
+    const atores = (tomada.atores ?? []).map((ator) => ({ ator, q: quadrosDe(ator.figura, this.estado) }));
     this.prep = {
       tomada,
-      fundo: assarSuave(tomada.fundo()),
+      fundo: assarSuave(cru),
       depois: tomada.depois ? assarSuave(tomada.depois.fundo()) : null,
-      atores: (tomada.atores ?? []).map((ator) => ({ ator, q: quadrosDe(ator.figura, this.estado) })),
+      atores,
+      tom: tomDoFundo(cru),
+      foco: focoDe(atores.map((a) => a.ator), atores.map((a) => a.q), tomada.camera?.de ?? 0),
       paginas: tomada.legendas.map((l) => ({
         quem: typeof l === 'string' ? null : l.quem,
         linhas: quebrar(this.recheio(textoDe(l)), LARG_LEGENDA),
@@ -180,17 +214,13 @@ export class CenaCutscene implements Cena {
     if (this.terminou || !this.prep) return;
     const passo = dt * multiplicadorVelocidade();
     this.t += passo;
+    this.relogio += dt;
 
     if (entrada.apertou('b')) { this.fim(); return; }     // pula a cutscene inteira
 
     if (this.fase === 'entra') {
       this.tf += dt;
-      if (this.tf >= FADE) { this.fase = 'mostra'; this.tf = 0; }
-      return;
-    }
-    if (this.fase === 'sai') {
-      this.tf += dt;
-      if (this.tf >= FADE) { this.indice++; this.preparar(); }
+      if (this.tf >= (this.dissolvendo ? DISSOLVE : FADE)) { this.fase = 'mostra'; this.tf = 0; }
       return;
     }
 
@@ -208,36 +238,48 @@ export class CenaCutscene implements Cena {
       return;
     }
     if (this.indice >= this.roteiro.length - 1) { this.fim(); return; }
-    this.fase = 'sai';
-    this.tf = 0;
+    // a próxima tomada já começa, e a de agora dissolve por cima dela
+    this.indice++;
+    this.preparar();
+    this.fotoPendente = true;
+    this.dissolvendo = true;
   }
 
   desenhar(r: Renderizador): void {
+    const pel = this.pelicula;
+    if (pel && this.fotoPendente) { pel.fotografar(r); this.fotoPendente = false; }
     r.limpar('#0d0912');
     const p = this.prep;
-    if (!p) return;
+    if (!p || !pel) return;
     const tom = p.tomada;
     const ctx = r.ctx;
 
-    // câmera: só anda se o fundo for mais largo que a tela
+    // a câmera da tomada (só anda se o fundo for mais largo que a tela);
+    // fracionária, que o zoom já suaviza o desenho
     let camX = 0;
     if (tom.camera) {
       const k = suave(limitar((this.t - (tom.camera.inicio ?? 0)) / tom.camera.por));
-      camX = Math.round(tom.camera.de + (tom.camera.ate - tom.camera.de) * k);
+      camX = tom.camera.de + (tom.camera.ate - tom.camera.de) * k;
     }
-    r.recorte(p.fundo, camX, 0, LARGURA, ALTURA, 0, 0);
+    const pinta = (img: Assado, x: number, y: number) => {
+      const s = escalaDe(img);
+      ctx.drawImage(img, x, y, img.width / s, img.height / s);
+    };
+
+    pel.abrirCena(r, pel.camera(this.t, this.indice, p.foco.x, p.foco.y));
+    pinta(p.fundo, -camX, 0);
     if (p.depois && tom.depois) {
       const al = limitar((this.t - tom.depois.de) / tom.depois.por);
       if (al > 0) {
         ctx.globalAlpha = al;
-        r.recorte(p.depois, camX, 0, LARGURA, ALTURA, 0, 0);
+        pinta(p.depois, -camX, 0);
         ctx.globalAlpha = 1;
       }
     }
 
     // quem está por cima do fundo, de trás (y menor) para a frente
     const vivos = p.atores
-      .map(({ ator, q }) => ({ q, al: opacidade(ator, this.t), frente: ator.frente === true, ...posicao(ator, this.t) }))
+      .map(({ ator, q }) => ({ q, ator, al: opacidade(ator, this.t), frente: ator.frente === true, ...posicao(ator, this.t) }))
       .filter((v) => v.al > 0 && v.q.imgs.length > 0)
       // quem tem `frente` passa na frente de todo mundo (o farol tapa o bicho)
       .sort((a, b) => Number(a.frente) - Number(b.frente) || a.y - b.y);
@@ -245,7 +287,7 @@ export class CenaCutscene implements Cena {
       const anima = v.q.fps > 0 && (!v.q.soAndando || v.andando);
       const img = v.q.imgs[anima ? Math.floor(this.t * v.q.fps) % v.q.imgs.length : 0]!;
       ctx.globalAlpha = v.al;
-      r.sprite(img, v.x - camX, v.y);
+      pinta(img, Math.round(v.x) - camX, Math.round(v.y));
     }
     ctx.globalAlpha = 1;
 
@@ -254,17 +296,34 @@ export class CenaCutscene implements Cena {
       const resta = e.some === undefined ? 1 : limitar((e.some - this.t) / FADE_ATOR);
       if (resta > 0) this.desenharEfeito(r, e.tipo, e.x - camX, e.y, this.t - (e.aparece ?? 0), resta);
     }
+    // as luzes da tomada: o fogo (a peça e as fagulhas)
+    const todas = [
+      ...vivos.filter((v) => 'peca' in v.ator.figura && v.ator.figura.peca === 'fogueira')
+        .map((v) => ({ x: v.x - camX + 12, y: v.y + 6 })),
+      ...(tom.efeitos ?? []).filter((e) => e.tipo === 'fagulhas' && this.t >= (e.aparece ?? 0)
+        && (e.some === undefined || this.t < e.some)).map((e) => ({ x: e.x - camX, y: e.y - 4 })),
+    ];
+    // (a fogueira e as fagulhas dela são um fogo só)
+    const luzes = todas.filter((l, i) => !todas.slice(0, i).some((o) => Math.hypot(o.x - l.x, o.y - l.y) < 24));
+    pel.iluminar(r, p.tom, luzes, this.t);
+    // e o fogo acende a lente, por cima do escuro
+    for (const l of luzes) pel.clarao(r, l.x, l.y - 4, this.t);
+    pel.fecharCena(r);
+    pel.revelar(r, p.tom, this.relogio);
 
     if (tom.titulo) this.desenharTitulo(r, tom.titulo);
+    pel.faixas(r, this.relogio / FAIXAS_FECHAM);
     if (p.paginas.length) this.desenharLegenda(r);
 
     if (this.pronta && this.fase === 'mostra' && Math.floor(this.t * 2.5) % 2 === 0) {
-      r.texto('A', LARGURA - 14, ALTURA - 13, P.uiAcc!, { sombra: P.ink! });
+      r.texto('A >', 8, 6, P.uiAcc!, { sombra: P.ink! });
     }
-    r.texto('B PULAR', LARGURA - 50, 5, '#b0a8c8', { sombra: P.ink! });
+    r.texto('B PULAR', LARGURA - 50, 6, '#8a8298');
 
-    const escuro = this.fase === 'entra' ? 1 - this.tf / FADE : this.fase === 'sai' ? this.tf / FADE : 0;
-    r.cortina(escuro);
+    if (this.fase === 'entra') {
+      if (this.dissolvendo) pel.dissolver(r, 1 - this.tf / DISSOLVE);
+      else r.cortina(1 - this.tf / FADE);
+    }
   }
 
   /* partículas sem estado: cada uma é só uma fase que dá a volta no tempo */
@@ -314,26 +373,29 @@ export class CenaCutscene implements Cena {
     r.ctx.globalAlpha = 1;
   }
 
+  /* a legenda de filme: centrada, embaixo, encostada na faixa preta, com
+     uma sombra que sobe da faixa para a letra não brigar com a imagem */
   private desenharLegenda(r: Renderizador): void {
-    r.ctx.globalAlpha = 0.78;
-    r.retangulo(0, Y_LEGENDA, LARGURA, ALTURA - Y_LEGENDA, P.black!);
-    r.ctx.globalAlpha = 1;
-    r.retangulo(0, Y_LEGENDA, LARGURA, 1, P.uiAccD!);
     if (this.fase !== 'mostra') return;
+    const linhas = this.linhas;
+    if (!linhas.length) return;
+    const ctx = r.ctx;
+    const y0 = ALTURA - 8 - linhas.length * 11;
+    const g = ctx.createLinearGradient(0, y0 - 16, 0, IMAGEM_Y1);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, y0 - 16, LARGURA, IMAGEM_Y1 - y0 + 16);
 
-    // quem fala: uma etiqueta encostada em cima da faixa
+    // quem fala: o nome em dourado, logo acima da fala
     const quem = this.prep?.paginas[this.pagina]?.quem;
-    if (quem) {
-      const w = r.larguraTexto(quem) + 8;
-      r.retangulo(6, Y_LEGENDA - 11, w, 11, P.uiAccD!);
-      r.retangulo(7, Y_LEGENDA - 10, w - 2, 10, P.ink!);
-      r.texto(quem, 10, Y_LEGENDA - 8, P.gold!);
-    }
+    if (quem) r.texto(quem, (LARGURA - r.larguraTexto(quem)) / 2, y0 - 10, P.gold!, { sombra: P.ink! });
 
     let restantes = Math.floor(this.revelados);
-    this.linhas.forEach((linha, i) => {
+    linhas.forEach((linha, i) => {
       if (restantes <= 0) return;
-      r.texto(linha.slice(0, restantes), 10, Y_LEGENDA + 5 + i * 11, P.uiBg!, { sombra: P.ink! });
+      const x = (LARGURA - r.larguraTexto(linha)) / 2;
+      r.texto(linha.slice(0, restantes), x, y0 + i * 11, '#f4ecd8', { sombra: P.ink! });
       restantes -= linha.length + 1;
     });
   }

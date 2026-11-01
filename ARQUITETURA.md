@@ -109,6 +109,8 @@ src/
 │             rezador.ts (o Rezador do benzimento: lembrar golpe a dinheiro)
 │             creditos.ts (o fim do Círculo Dourado)
 │             cutscene.ts (toca um roteiro: tomadas, câmera, atores, legenda)
+│             cinema.ts (a película das cutscenes: faixas, câmera que aproxima,
+│               luz do fogo e do sol, cor de filme, grão e fusão entre tomadas)
 ├─ data/      creatures.ts · moves.ts · items.ts · mundo.ts (regiões e mapa do mundo)
 │             tracos.ts (os 26 traços e o de cada espécie) + teste
 │             documentacao.test.ts (MANUAL e README conferidos contra os dados)
